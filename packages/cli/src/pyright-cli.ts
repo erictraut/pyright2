@@ -10,7 +10,7 @@
 // Add the start timer at the very top of the file, before we import other modules.
 
 /* eslint-disable */
-import { timingStats } from './common/timing';
+import { timingStats } from 'typeserver/common/timing';
 /* eslint-enable */
 
 import chalk from 'chalk';
@@ -18,32 +18,32 @@ import commandLineArgs, { CommandLineOptions, OptionDefinition } from 'command-l
 import * as os from 'os';
 
 import { ChildProcess, fork } from 'child_process';
-import { AnalysisResults } from './analyzer/analysis';
-import { PackageTypeReport, TypeKnownStatus } from './analyzer/packageTypeReport';
-import { PackageTypeVerifier } from './analyzer/packageTypeVerifier';
-import { AnalyzerService } from './analyzer/service';
-import { maxSourceFileSize } from './analyzer/sourceFile';
-import { SourceFileInfo } from './analyzer/sourceFileInfo';
-import { initializeDependencies } from './common/asyncInitialization';
-import { ChokidarFileWatcherProvider } from './common/chokidarFileWatcherProvider';
-import { CommandLineOptions as PyrightCommandLineOptions } from './common/commandLineOptions';
-import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from './common/console';
-import { fail } from './common/debug';
-import { createDeferred } from './common/deferred';
-import { Diagnostic, DiagnosticCategory, compareDiagnostics } from './common/diagnostic';
-import { FileDiagnostics } from './common/diagnosticSink';
-import { FullAccessHost } from './common/fullAccessHost';
-import { combinePaths, normalizePath } from './common/pathUtils';
-import { PythonVersion } from './common/pythonVersion';
-import { RealTempFile, createFromRealFileSystem } from './common/realFileSystem';
-import { ServiceKeys } from './common/serviceKeys';
-import { ServiceProvider } from './common/serviceProvider';
-import { createServiceProvider } from './common/serviceProviderExtensions';
-import { getStdin } from './common/streamUtils';
-import { Range, isEmptyRange } from './common/textRange';
-import { Uri } from './common/uri/uri';
-import { getFileSpec, tryStat } from './common/uri/uriUtils';
-import { PyrightFileSystem } from './pyrightFileSystem';
+import { AnalysisResults } from 'typeserver/analyzer/analysis';
+import { PackageTypeReport, TypeKnownStatus } from 'typeserver/analyzer/packageTypeReport';
+import { PackageTypeVerifier } from 'typeserver/analyzer/packageTypeVerifier';
+import { AnalyzerService } from 'typeserver/analyzer/service';
+import { maxSourceFileSize } from 'typeserver/analyzer/sourceFile';
+import { SourceFileInfo } from 'typeserver/analyzer/sourceFileInfo';
+import { initializeDependencies } from 'typeserver/common/asyncInitialization';
+import { ChokidarFileWatcherProvider } from 'typeserver/common/chokidarFileWatcherProvider';
+import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/common/commandLineOptions';
+import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/common/console';
+import { fail } from 'typeserver/common/debug';
+import { createDeferred } from 'typeserver/common/deferred';
+import { Diagnostic, DiagnosticCategory, compareDiagnostics } from 'typeserver/common/diagnostic';
+import { FileDiagnostics } from 'typeserver/common/diagnosticSink';
+import { FullAccessHost } from 'typeserver/common/fullAccessHost';
+import { combinePaths, normalizePath } from 'typeserver/common/pathUtils';
+import { PythonVersion } from 'typeserver/common/pythonVersion';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/common/realFileSystem';
+import { getStdin } from 'typeserver/common/streamUtils';
+import { Range, isEmptyRange } from 'typeserver/common/textRange';
+import { Uri } from 'typeserver/common/uri/uri';
+import { getFileSpec, tryStat } from 'typeserver/common/uri/uriUtils';
+import { PyrightFileSystem } from 'typeserver/pyrightFileSystem';
+import { ServiceKeys } from 'typeserver/serviceKeys';
+import { ServiceProvider } from 'typeserver/serviceProvider';
+import { createServiceProvider } from 'typeserver/serviceProviderExtensions';
 
 const toolName = 'pyright';
 
@@ -568,10 +568,9 @@ async function runMultiThreaded(
 
     // This will trigger discovery of files in the project.
     service.setOptions(options);
-    const program = service.backgroundAnalysisProgram.program;
 
     // Get the list of "tracked" source files -- those that will be type checked.
-    const sourceFilesToAnalyze = program.getSourceFileInfoList().filter((info) => info.isTracked);
+    const sourceFilesToAnalyze = service.program.getSourceFileInfoList().filter((info) => info.isTracked);
 
     // Don't create more workers than there are files.
     const workerCount = Math.min(maxThreadCount, sourceFilesToAnalyze.length);

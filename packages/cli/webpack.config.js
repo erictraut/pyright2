@@ -8,15 +8,15 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { cacheConfig, monorepoResourceNameMapper, tsconfigResolveAliases } = require('../../build/lib/webpack');
 
 const outPath = path.resolve(__dirname, 'dist');
-const typeshedFallback = path.resolve(__dirname, '..', 'pyright-internal', 'typeshed-fallback');
+const typeshedFallback = path.resolve(__dirname, '..', 'typeserver', 'typeshed-fallback');
 
 /**@type {(env: any, argv: { mode: 'production' | 'development' | 'none' }) => import('webpack').Configuration}*/
 module.exports = (_, { mode }) => {
     return {
         context: __dirname,
         entry: {
-            pyright: './src/pyright.ts',
-            'pyright-langserver': './src/langserver.ts',
+            'pyright-cli': './src/pyright-cli.ts',
+            //'pyright-langserver': './src/langserver.ts',
         },
         target: 'node',
         output: {

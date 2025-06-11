@@ -22,10 +22,20 @@
         "prepack": "npm run clean && shx cp ../../README.md . && shx cp ../../LICENSE.txt . && npm run build",
         "webpack": "webpack --mode development --progress"
     },
+    "dependencies": {
+        "chalk": "^4.1.2",
+        "command-line-args": "^5.2.1",
+        "vscode-jsonrpc": "^9.0.0-next.5",
+        "vscode-languageserver": "^10.0.0-next.10",
+        "vscode-languageserver-protocol": "^3.17.6-next.10",
+        "vscode-languageserver-textdocument": "1.0.11",
+        "vscode-languageserver-types": "^3.17.6-next.5"
+    },
     "optionalDependencies": {
         "fsevents": "~2.3.3"
     },
     "devDependencies": {
+        "@types/command-line-args": "^5.2.3",
         "@types/node": "^22.10.5",
         "copy-webpack-plugin": "^11.0.0",
         "esbuild-loader": "^3.2.0",
