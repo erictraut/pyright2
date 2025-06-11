@@ -751,20 +751,6 @@ export class ImportResolver {
     }
 
     // Intended to be overridden by subclasses to provide additional stub
-    // resolving capabilities. Return undefined if no stubs were found for
-    // this import.
-    protected resolveImportEx(
-        sourceFileUri: Uri,
-        execEnv: ExecutionEnvironment,
-        moduleDescriptor: ImportedModuleDescriptor,
-        importName: string,
-        importFailureInfo: string[] = [],
-        allowPyi = true
-    ): ImportResult | undefined {
-        return undefined;
-    }
-
-    // Intended to be overridden by subclasses to provide additional stub
     // resolving capabilities for native (compiled) modules. Returns undefined
     // if no stubs were found for this import.
     protected resolveNativeImportEx(
@@ -1707,20 +1693,6 @@ export class ImportResolver {
             if (bestResultSoFar?.pyTypedInfo && !bestResultSoFar.isPartlyResolved) {
                 return bestResultSoFar;
             }
-        }
-
-        // Call the extensibility hook for subclasses.
-        const extraResults = this.resolveImportEx(
-            sourceFileUri,
-            execEnv,
-            moduleDescriptor,
-            importName,
-            importFailureInfo,
-            allowPyi
-        );
-
-        if (extraResults) {
-            return extraResults;
         }
 
         // Check for a third-party typeshed file.

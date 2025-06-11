@@ -8,7 +8,6 @@
 
 import { fail } from '../common/debug';
 import { ProgramView, SourceFileInfo } from '../common/extensibility';
-import { ServiceKeys } from '../serviceKeys';
 import { IPythonMode } from './sourceFile';
 
 export function isUserCode(fileInfo: SourceFileInfo | undefined) {
@@ -51,11 +50,7 @@ export function verifyNoCyclesInChainedFiles<T extends SourceFileInfo>(program: 
         const path = nextChainedFile.uri.key;
         if (set.has(path)) {
             // We found a cycle.
-            fail(
-                program.serviceProvider
-                    .tryGet(ServiceKeys.debugInfoInspector)
-                    ?.getCycleDetail(program, nextChainedFile) ?? `Found a cycle in implicit imports files for ${path}`
-            );
+            fail(`Found a cycle in implicit imports files for ${path}`);
         }
 
         set.add(path);
@@ -80,10 +75,7 @@ export function createChainedByList<T extends SourceFileInfo>(program: ProgramVi
     let current: SourceFileInfo | undefined = fileInfo;
     while (current) {
         if (visited.has(current)) {
-            fail(
-                program.serviceProvider.tryGet(ServiceKeys.debugInfoInspector)?.getCycleDetail(program, current) ??
-                    'detected a cycle in chained files'
-            );
+            fail('Detected a cycle in chained files');
         }
         visited.add(current);
 

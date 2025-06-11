@@ -1750,11 +1750,7 @@ export class Program {
 
             if (implicitSet.has(implicitPath.key)) {
                 // We've found a cycle. Break out of the loop.
-                debug.fail(
-                    this.serviceProvider
-                        .tryGet(ServiceKeys.debugInfoInspector)
-                        ?.getCycleDetail(this, nextImplicitImport) ?? `Found a cycle in implicit imports files`
-                );
+                debug.fail('Found a cycle in implicit imports files');
             }
 
             implicitSet.add(implicitPath.key);
