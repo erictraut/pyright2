@@ -7,7 +7,6 @@
  */
 
 import { CacheManager } from './analyzer/cacheManager';
-import { ISourceFileFactory } from './analyzer/programTypes';
 import { CancellationProvider } from './common/cancellationUtils';
 import { CaseSensitivityDetector } from './common/caseSensitivityDetector';
 import { ConsoleInterface } from './common/console';
@@ -26,7 +25,6 @@ import { GroupServiceKey, ServiceKey } from './serviceProvider';
 export namespace ServiceKeys {
     export const fs = new ServiceKey<FileSystem>();
     export const console = new ServiceKey<ConsoleInterface>();
-    export const sourceFileFactory = new ServiceKey<ISourceFileFactory>();
     export const partialStubs = new ServiceKey<SupportPartialStubs>();
     export const symbolDefinitionProvider = new GroupServiceKey<SymbolDefinitionProvider>();
     export const symbolUsageProviderFactory = new GroupServiceKey<SymbolUsageProviderFactory>();

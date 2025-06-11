@@ -6,8 +6,6 @@
  * Shortcuts to common services.
  */
 import { CacheManager } from './analyzer/cacheManager';
-import { ISourceFileFactory } from './analyzer/programTypes';
-import { IPythonMode, SourceFile, SourceFileEditMode } from './analyzer/sourceFile';
 import { CancellationProvider, DefaultCancellationProvider } from './common/cancellationUtils';
 import { CaseSensitivityDetector } from './common/caseSensitivityDetector';
 import { ConsoleInterface } from './common/console';
@@ -15,8 +13,6 @@ import { DocStringService, PyrightDocStringService } from './common/docStringSer
 import { FileSystem, TempFile } from './common/fileSystem';
 import { PartialStubService, SupportPartialStubs } from './partialStubService';
 // import { CommandService, WindowService } from './languageServerInterface';
-import { LogTracker } from './common/logTracker';
-import { Uri } from './common/uri/uri';
 import { ServiceKeys } from './serviceKeys';
 import { ServiceProvider } from './serviceProvider';
 
@@ -26,7 +22,6 @@ declare module './serviceProvider' {
         console(): ConsoleInterface;
         cancellationProvider(): CancellationProvider;
         tmp(): TempFile | undefined;
-        sourceFileFactory(): ISourceFileFactory;
         partialStubs(): SupportPartialStubs;
         cacheManager(): CacheManager | undefined;
         docStringService(): DocStringService;
@@ -43,9 +38,6 @@ export function createServiceProvider(...services: any): ServiceProvider {
         }
         if (ConsoleInterface.is(service)) {
             sp.add(ServiceKeys.console, service);
-        }
-        if (ISourceFileFactory.is(service)) {
-            sp.add(ServiceKeys.sourceFileFactory, service);
         }
         if (SupportPartialStubs.is(service)) {
             sp.add(ServiceKeys.partialStubs, service);
@@ -96,11 +88,6 @@ ServiceProvider.prototype.cancellationProvider = function () {
     return this.tryGet(ServiceKeys.cancellationProvider) ?? new DefaultCancellationProvider();
 };
 
-ServiceProvider.prototype.sourceFileFactory = function () {
-    const result = this.tryGet(ServiceKeys.sourceFileFactory);
-    return result || DefaultSourceFileFactory;
-};
-
 ServiceProvider.prototype.docStringService = function () {
     const result = this.tryGet(ServiceKeys.docStringService);
     return result || new PyrightDocStringService();
@@ -109,30 +96,4 @@ ServiceProvider.prototype.docStringService = function () {
 ServiceProvider.prototype.cacheManager = function () {
     const result = this.tryGet(ServiceKeys.cacheManager);
     return result;
-};
-
-const DefaultSourceFileFactory: ISourceFileFactory = {
-    createSourceFile(
-        serviceProvider: ServiceProvider,
-        fileUri: Uri,
-        moduleName: string,
-        isThirdPartyImport: boolean,
-        isThirdPartyPyTypedPresent: boolean,
-        editMode: SourceFileEditMode,
-        console?: ConsoleInterface,
-        logTracker?: LogTracker,
-        ipythonMode?: IPythonMode
-    ) {
-        return new SourceFile(
-            serviceProvider,
-            fileUri,
-            moduleName,
-            isThirdPartyImport,
-            isThirdPartyPyTypedPresent,
-            editMode,
-            console,
-            logTracker,
-            ipythonMode
-        );
-    },
 };

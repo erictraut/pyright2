@@ -39,7 +39,6 @@ import { CircularDependency } from './circularDependency';
 import { ImportResolver } from './importResolver';
 import { ImportResult, ImportType } from './importResult';
 import { getDocString } from './parseTreeUtils';
-import { ISourceFileFactory } from './programTypes';
 import { Scope } from './scope';
 import { IPythonMode, SourceFile } from './sourceFile';
 import { SourceFileInfo } from './sourceFileInfo';
@@ -137,7 +136,6 @@ export class Program {
     private _parsedFileCount = 0;
     private _preCheckCallback: PreCheckCallback | undefined;
     private _editModeTracker = new EditModeTracker();
-    private _sourceFileFactory: ISourceFileFactory;
 
     constructor(
         initialImportResolver: ImportResolver,
@@ -152,8 +150,6 @@ export class Program {
         this._logTracker = logTracker ?? new LogTracker(this._console, 'FG');
         this._importResolver = initialImportResolver;
         this._configOptions = initialConfigOptions;
-
-        this._sourceFileFactory = serviceProvider.sourceFileFactory();
 
         this._cacheManager = serviceProvider.tryGet(ServiceKeys.cacheManager) ?? new CacheManager();
         this._cacheManager.registerCacheOwner(this);
@@ -353,7 +349,7 @@ export class Program {
             return sourceFileInfo.sourceFile;
         }
 
-        const sourceFile = this._sourceFileFactory.createSourceFile(
+        const sourceFile = new SourceFile(
             this.serviceProvider,
             fileUri,
             importName,
@@ -363,6 +359,7 @@ export class Program {
             this._console,
             this._logTracker
         );
+
         sourceFileInfo = new SourceFileInfo(
             sourceFile,
             /* isTypeshedFile */ false,
@@ -373,15 +370,18 @@ export class Program {
                 isTracked: true,
             }
         );
+
         this._addToSourceFileListAndMap(sourceFileInfo);
         return sourceFile;
     }
 
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions) {
         let sourceFileInfo = this.getSourceFileInfo(fileUri);
+
         if (!sourceFileInfo) {
             const moduleImportInfo = this._getModuleImportInfoForFile(fileUri);
-            const sourceFile = this._sourceFileFactory.createSourceFile(
+
+            const sourceFile = new SourceFile(
                 this.serviceProvider,
                 fileUri,
                 moduleImportInfo.moduleName,
@@ -392,7 +392,9 @@ export class Program {
                 this._logTracker,
                 options?.ipythonMode ?? IPythonMode.None
             );
+
             const chainedFilePath = options?.chainedFileUri;
+
             sourceFileInfo = new SourceFileInfo(
                 sourceFile,
                 /* isTypeshedFile */ false,
@@ -405,6 +407,7 @@ export class Program {
                     isOpenByClient: true,
                 }
             );
+
             this._addToSourceFileListAndMap(sourceFileInfo);
         } else {
             sourceFileInfo.isOpenByClient = true;
@@ -1525,7 +1528,8 @@ export class Program {
                 let importedFileInfo = this.getSourceFileInfo(importInfo.path);
                 if (!importedFileInfo) {
                     const moduleImportInfo = this._getModuleImportInfoForFile(importInfo.path);
-                    const sourceFile = this._sourceFileFactory.createSourceFile(
+
+                    const sourceFile = new SourceFile(
                         this.serviceProvider,
                         importInfo.path,
                         moduleImportInfo.moduleName,
@@ -1535,6 +1539,7 @@ export class Program {
                         this._console,
                         this._logTracker
                     );
+
                     importedFileInfo = new SourceFileInfo(
                         sourceFile,
                         importInfo.isTypeshedFile,
@@ -1641,7 +1646,8 @@ export class Program {
 
     private _createInterimFileInfo(fileUri: Uri) {
         const moduleImportInfo = this._getModuleImportInfoForFile(fileUri);
-        const sourceFile = this._sourceFileFactory.createSourceFile(
+
+        const sourceFile = new SourceFile(
             this.serviceProvider,
             fileUri,
             moduleImportInfo.moduleName,
@@ -1651,6 +1657,7 @@ export class Program {
             this._console,
             this._logTracker
         );
+
         const sourceFileInfo = new SourceFileInfo(
             sourceFile,
             /* isTypeshedFile */ false,
