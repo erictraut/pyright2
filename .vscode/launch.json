@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Pyright CLI",
+            "name": "Typechecker CLI",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/packages/pyright/index.js",
@@ -17,34 +17,19 @@
             ]
         },
         {
-            "name": "Pyright CLI (pyright-internal)",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/packages/pyright-internal/debug.js",
-            "args": [
-                "--typeshedpath",
-                "${workspaceRoot}/packages/pyright-internal/typeshed-fallback",
-                "--version",
-            ],
-            "internalConsoleOptions": "openOnSessionStart",
-            "outFiles": [
-                "${workspaceRoot}/packages/pyright-internal/out/**/*.js"
-            ]
-        },
-        {
-            "name": "Pyright tests",
+            "name": "Typechecker Tests",
             "type": "node",
             "request": "launch",
             "args": [
                 "--runInBand"
             ],
-            "cwd": "${workspaceRoot}/packages/pyright-internal",
+            "cwd": "${workspaceRoot}/packages/typechecker",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "program": "${workspaceFolder}/packages/pyright-internal/node_modules/jest/bin/jest"
+            "program": "${workspaceFolder}/packages/typechecker/node_modules/jest/bin/jest"
         },
         {
-            "name": "Pyright extension",
+            "name": "VSCode Extension",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${workspaceRoot}/packages/vscode-pyright/dist/extension.js",
@@ -63,26 +48,7 @@
             ]
         },
         {
-            "name": "Pyright extension (watch)",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${workspaceRoot}/packages/vscode-pyright/dist/extension.js",
-            "preLaunchTask": "Watch extension",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-pyright",
-                // The published extension is named "ms-pyright.pyright", but in debug mode it's "ms-pyright.vscode-pyright"
-                // to allow the extension code to participate in the lerna monorepo. Make sure that the published extension
-                // isn't enabled, otherwise both are loaded and conflict.
-                "--disable-extension=ms-pyright.pyright"
-            ],
-            "smartStep": true,
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/packages/vscode-pyright/dist/**/*.js"
-            ]
-        },
-        {
-            "name": "Pyright attach server",
+            "name": "Attach language server",
             "type": "node",
             "request": "attach",
             "port": 6600,
@@ -93,7 +59,7 @@
             ]
         },
         {
-            "name": "Pyright jest current file",
+            "name": "Typechecker Jest current file",
             "type": "node",
             "request": "launch",
             "args": [
@@ -103,34 +69,10 @@
                 "--forceExit",
                 "--testTimeout=180000"
             ],
-            "cwd": "${workspaceRoot}/packages/pyright-internal",
+            "cwd": "${workspaceRoot}/packages/typechecker",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "program": "${workspaceFolder}/packages/pyright-internal/node_modules/jest/bin/jest"
+            "program": "${workspaceFolder}/packages/typechecker/node_modules/jest/bin/jest"
         },
-        {
-            "name": "Pyright jest selected test",
-            "type": "node",
-            "request": "launch",
-            "args": ["${fileBasenameNoExtension}", "--runInBand", "-t", "${selectedText}", "--forceExit", "--testTimeout=180000"],
-            "cwd": "${workspaceRoot}/packages/pyright-internal",
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",
-            "program": "${workspaceFolder}/packages/pyright-internal/node_modules/jest/bin/jest"
-        },
-        {
-            "name": "Pyright fourslash current file",
-            "type": "node",
-            "request": "launch",
-            "args": [
-                "fourSlashRunner.test.ts",
-                "-t ${fileBasenameNoExtension}",
-                "--runInBand",
-            ],
-            "cwd": "${workspaceRoot}/packages/pyright-internal",
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",
-            "program": "${workspaceFolder}/packages/pyright-internal/node_modules/jest/bin/jest"
-        }
     ]
 }

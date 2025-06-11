@@ -11,12 +11,8 @@
     "scripts": {
         "build": "tsc",
         "clean": "shx rm -rf ./dist ./out",
-        "webpack:testserver": "webpack --config ./src/tests/lsp/webpack.testserver.config.js --mode=development",
-        "webpack:testserver:watch": "npm run clean && webpack --config ./src/tests/lsp/webpack.testserver.config.js --mode development --watch --progress",
-        "test": "npm run webpack:testserver && jest --forceExit",
-        "test:norebuild": "jest --forceExit",
-        "test:coverage": "jest --forceExit --reporters=jest-junit --reporters=default --coverage --coverageReporters=cobertura --coverageReporters=html --coverageReporters=json",
-        "test:imports": "jest importResolver.test --forceExit --runInBand"
+        "webpack:testtypechecker": "webpack --config ./src/tests/webpack.testtypechecker.config.js --mode=development",
+        "test": "jest --forceExit"
     },
     "dependencies": {
         "@yarnpkg/fslib": "2.10.4",

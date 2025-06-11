@@ -23,7 +23,6 @@ import { FileEditAction } from '../common/editAction';
 import { EditableProgram, ProgramView } from '../common/extensibility';
 import { LogTracker } from '../common/logTracker';
 import { convertRangeToTextRange } from '../common/positionUtils';
-import '../common/serviceProviderExtensions';
 import { doRangesIntersect, Range } from '../common/textRange';
 import { Duration, timingStats } from '../common/timing';
 import { Uri } from '../common/uri/uri';
