@@ -10,7 +10,7 @@ import { CacheManager } from './analyzer/cacheManager';
 import { CancellationProvider } from './common/cancellationUtils';
 import { CaseSensitivityDetector } from './common/caseSensitivityDetector';
 import { ConsoleInterface } from './common/console';
-import { DocStringService } from './common/docStringService';
+// import { DocStringService } from './common/docStringService';
 import {
     DebugInfoInspector,
     // StatusMutationListener,
@@ -33,7 +33,7 @@ export namespace ServiceKeys {
     export const cacheManager = new ServiceKey<CacheManager>();
     export const debugInfoInspector = new ServiceKey<DebugInfoInspector>();
     export const caseSensitivityDetector = new ServiceKey<CaseSensitivityDetector>();
-    export const docStringService = new ServiceKey<DocStringService>();
+    // export const docStringService = new ServiceKey<DocStringService>();
     // export const windowService = new ServiceKey<WindowService>();
     // export const commandService = new ServiceKey<CommandService>();
     export const cancellationProvider = new ServiceKey<CancellationProvider>();

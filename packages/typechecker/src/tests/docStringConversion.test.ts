@@ -7,7 +7,7 @@
  */
 
 import assert = require('assert');
-import { PyrightDocStringService } from '../common/docStringService';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../analyzer/docStringConversion';
 
 // For substitution in the test data strings
 // Produces more readable test data than escaping the back ticks
@@ -16,7 +16,7 @@ const doubleTick = '``';
 const tripleTick = '```';
 const tripleTilda = '~~~';
 
-export function docStringTests(docStringService = new PyrightDocStringService()) {
+export function docStringTests() {
     test('PlaintextIndention', () => {
         const all: string[][] = [
             ['A\nB', 'A\nB'],
@@ -1065,13 +1065,13 @@ dtype : str, np.dtype, or ExtensionDtype, optional
     });
 
     function _testConvertToMarkdown(docstring: string, expectedMarkdown: string) {
-        const actualMarkdown = docStringService.convertDocStringToMarkdown(docstring);
+        const actualMarkdown = convertDocStringToMarkdown(docstring);
 
         assert.equal(_normalizeLineEndings(actualMarkdown).trim(), _normalizeLineEndings(expectedMarkdown).trim());
     }
 
     function _testConvertToPlainText(docstring: string, expectedPlainText: string) {
-        const actualMarkdown = docStringService.convertDocStringToPlainText(docstring);
+        const actualMarkdown = convertDocStringToPlainText(docstring);
 
         assert.equal(_normalizeLineEndings(actualMarkdown).trim(), _normalizeLineEndings(expectedPlainText).trim());
     }

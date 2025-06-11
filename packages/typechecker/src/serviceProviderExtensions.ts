@@ -9,7 +9,6 @@ import { CacheManager } from './analyzer/cacheManager';
 import { CancellationProvider, DefaultCancellationProvider } from './common/cancellationUtils';
 import { CaseSensitivityDetector } from './common/caseSensitivityDetector';
 import { ConsoleInterface } from './common/console';
-import { DocStringService, PyrightDocStringService } from './common/docStringService';
 import { FileSystem, TempFile } from './common/fileSystem';
 import { PartialStubService, SupportPartialStubs } from './partialStubService';
 // import { CommandService, WindowService } from './languageServerInterface';
@@ -24,7 +23,7 @@ declare module './serviceProvider' {
         tmp(): TempFile | undefined;
         partialStubs(): SupportPartialStubs;
         cacheManager(): CacheManager | undefined;
-        docStringService(): DocStringService;
+        // docStringService(): DocStringService;
     }
 }
 
@@ -51,9 +50,9 @@ export function createServiceProvider(...services: any): ServiceProvider {
         if (CacheManager.is(service)) {
             sp.add(ServiceKeys.cacheManager, service);
         }
-        if (DocStringService.is(service)) {
-            sp.add(ServiceKeys.docStringService, service);
-        }
+        // if (DocStringService.is(service)) {
+        //     sp.add(ServiceKeys.docStringService, service);
+        // }
         // if (WindowService.is(service)) {
         //     sp.add(ServiceKeys.windowService, service);
         // }
@@ -88,10 +87,10 @@ ServiceProvider.prototype.cancellationProvider = function () {
     return this.tryGet(ServiceKeys.cancellationProvider) ?? new DefaultCancellationProvider();
 };
 
-ServiceProvider.prototype.docStringService = function () {
-    const result = this.tryGet(ServiceKeys.docStringService);
-    return result || new PyrightDocStringService();
-};
+// ServiceProvider.prototype.docStringService = function () {
+//     const result = this.tryGet(ServiceKeys.docStringService);
+//     return result || new PyrightDocStringService();
+// };
 
 ServiceProvider.prototype.cacheManager = function () {
     const result = this.tryGet(ServiceKeys.cacheManager);
