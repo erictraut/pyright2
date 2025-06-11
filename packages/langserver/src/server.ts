@@ -15,6 +15,7 @@ import {
     WorkDoneProgressServerReporter,
 } from 'vscode-languageserver';
 
+import { isDefined } from '../../typeserver/src/utils/core';
 import { AnalysisResults } from './analyzer/analysis';
 import { CacheManager } from './analyzer/cacheManager';
 import { ImportResolver } from './analyzer/importResolver';
@@ -22,7 +23,6 @@ import { isPythonBinary } from './analyzer/pythonPathUtils';
 import { CommandController } from './commands/commandController';
 import { ConfigOptions, SignatureDisplayType } from './common/configOptions';
 import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from './common/console';
-import { isDefined, isString } from './common/core';
 import { resolvePathWithEnvVariables } from './common/envVarUtils';
 import { FileBasedCancellationProvider } from './common/fileBasedCancellationUtils';
 import { FileSystem } from './common/fileSystem';

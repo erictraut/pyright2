@@ -6,9 +6,9 @@
 
 import * as assert from 'assert';
 import * as path from 'path';
-import { RealTempFile, createFromRealFileSystem } from '../common/realFileSystem';
-import { compareStringsCaseSensitive } from '../common/stringUtils';
-import { Uri } from '../common/uri/uri';
+import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem';
+import { Uri } from '../files/uri/uri';
+import { compareStringsCaseSensitive } from '../utils/stringUtils';
 
 function runTests(p: string): void {
     const tempFile = new RealTempFile();

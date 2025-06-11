@@ -10,40 +10,40 @@
 // Add the start timer at the very top of the file, before we import other modules.
 
 /* eslint-disable */
-import { timingStats } from 'typeserver/common/timing';
+import { timingStats } from 'typeserver/service/timing';
 /* eslint-enable */
 
 import chalk from 'chalk';
+import { ChildProcess, fork } from 'child_process';
 import commandLineArgs, { CommandLineOptions, OptionDefinition } from 'command-line-args';
 import * as os from 'os';
 
-import { ChildProcess, fork } from 'child_process';
-import { AnalysisResults } from 'typeserver/analyzer/analysis';
-import { PackageTypeReport, TypeKnownStatus } from 'typeserver/analyzer/packageTypeReport';
-import { PackageTypeVerifier } from 'typeserver/analyzer/packageTypeVerifier';
-import { maxSourceFileSize } from 'typeserver/analyzer/program/sourceFile';
-import { SourceFileInfo } from 'typeserver/analyzer/program/sourceFileInfo';
-import { TypeService } from 'typeserver/analyzer/typeService';
-import { initializeDependencies } from 'typeserver/common/asyncInitialization';
-import { ChokidarFileWatcherProvider } from 'typeserver/common/chokidarFileWatcherProvider';
-import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/common/commandLineOptions';
-import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/common/console';
-import { fail } from 'typeserver/common/debug';
-import { createDeferred } from 'typeserver/common/deferred';
 import { Diagnostic, DiagnosticCategory, compareDiagnostics } from 'typeserver/common/diagnostic';
 import { FileDiagnostics } from 'typeserver/common/diagnosticSink';
-import { FullAccessHost } from 'typeserver/common/fullAccessHost';
-import { combinePaths, normalizePath } from 'typeserver/common/pathUtils';
 import { PythonVersion } from 'typeserver/common/pythonVersion';
-import { RealTempFile, createFromRealFileSystem } from 'typeserver/common/realFileSystem';
-import { getStdin } from 'typeserver/common/streamUtils';
 import { Range, isEmptyRange } from 'typeserver/common/textRange';
-import { Uri } from 'typeserver/common/uri/uri';
-import { getFileSpec, tryStat } from 'typeserver/common/uri/uriUtils';
-import { PyrightFileSystem } from 'typeserver/pyrightFileSystem';
-import { ServiceKeys } from 'typeserver/serviceKeys';
-import { ServiceProvider } from 'typeserver/serviceProvider';
-import { createServiceProvider } from 'typeserver/serviceProviderExtensions';
+import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/config/commandLineOptions';
+import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/extensibility/console';
+import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
+import { ChokidarFileWatcherProvider } from 'typeserver/files/chokidarFileWatcherProvider';
+import { combinePaths, normalizePath } from 'typeserver/files/pathUtils';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { getFileSpec, tryStat } from 'typeserver/files/uri/uriUtils';
+import { maxSourceFileSize } from 'typeserver/program/sourceFile';
+import { SourceFileInfo } from 'typeserver/program/sourceFileInfo';
+import { AnalysisResults } from 'typeserver/service/analysis';
+import { initializeDependencies } from 'typeserver/service/asyncInitialization';
+import { PackageTypeReport, TypeKnownStatus } from 'typeserver/service/packageTypeReport';
+import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier';
+import { TypeService } from 'typeserver/service/typeService';
+import { fail } from 'typeserver/utils/debug';
+import { createDeferred } from 'typeserver/utils/deferred';
+import { getStdin } from 'typeserver/utils/streamUtils';
 
 const toolName = 'pyright';
 

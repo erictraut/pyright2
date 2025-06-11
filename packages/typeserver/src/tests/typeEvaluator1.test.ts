@@ -10,9 +10,8 @@
 
 import * as assert from 'assert';
 
-import * as AnalyzerNodeInfo from '../analyzer/analyzerNodeInfo';
-import { ScopeType } from '../analyzer/scope';
-import { ConfigOptions } from '../common/configOptions';
+import { ScopeType } from '../binder/scope';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
 import {
     pythonVersion3_10,
     pythonVersion3_11,
@@ -22,7 +21,8 @@ import {
     pythonVersion3_8,
     pythonVersion3_9,
 } from '../common/pythonVersion';
-import { Uri } from '../common/uri/uri';
+import { ConfigOptions } from '../config/configOptions';
+import { Uri } from '../files/uri/uri';
 import * as TestUtils from './testUtils';
 
 test('Unreachable1', () => {

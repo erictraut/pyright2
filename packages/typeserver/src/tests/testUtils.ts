@@ -11,21 +11,21 @@ import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { ImportResolver } from '../analyzer/importResolver';
-import { Program } from '../analyzer/program';
-import { NameTypeWalker } from '../analyzer/testWalker';
-import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../common/configOptions';
-import { ConsoleWithLogLevel, NullConsole } from '../common/console';
-import { fail } from '../common/debug';
 import { Diagnostic, DiagnosticCategory } from '../common/diagnostic';
 import { DiagnosticSink } from '../common/diagnosticSink';
-import { FullAccessHost } from '../common/fullAccessHost';
-import { RealTempFile, createFromRealFileSystem } from '../common/realFileSystem';
-import { Uri } from '../common/uri/uri';
-import { UriEx } from '../common/uri/uriUtils';
+import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../config/configOptions';
+import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes';
+import { ConsoleWithLogLevel, NullConsole } from '../extensibility/console';
+import { FullAccessHost } from '../extensibility/fullAccessHost';
+import { createServiceProvider } from '../extensibility/serviceProviderExtensions';
+import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem';
+import { Uri } from '../files/uri/uri';
+import { UriEx } from '../files/uri/uriUtils';
+import { ImportResolver } from '../imports/importResolver';
 import { ParseFileResults, ParseOptions, Parser, ParserOutput } from '../parser/parser';
-import { createServiceProvider } from '../serviceProviderExtensions';
+import { NameTypeWalker } from '../parser/testWalker';
+import { Program } from '../program/program';
+import { fail } from '../utils/debug';
 
 // This is a bit gross, but it's necessary to allow the fallback typeshed
 // directory to be located when running within the jest environment. This

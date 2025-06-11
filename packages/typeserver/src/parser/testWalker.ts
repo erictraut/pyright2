@@ -7,11 +7,11 @@
  * Walks a parse tree to validate internal consistency and completeness.
  */
 
-import { TypeEvaluator } from '../analyzer/evaluator/typeEvaluatorTypes';
-import { fail } from '../common/debug';
+import { isCompliantWithNodeRangeRules } from '../common/parseTreeUtils';
 import { TextRange } from '../common/textRange';
+import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes';
 import { NameNode, ParseNode, ParseNodeArray, ParseNodeType } from '../parser/parseNodes';
-import { isCompliantWithNodeRangeRules } from '../parseTreeUtils';
+import { fail } from '../utils/debug';
 import { ParseTreeWalker } from './parseTreeWalker';
 
 export class TestWalker extends ParseTreeWalker {

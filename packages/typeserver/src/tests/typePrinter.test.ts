@@ -9,7 +9,7 @@
 
 import * as assert from 'assert';
 
-import { printType, PrintTypeFlags } from '../analyzer/typePrinter';
+import { printType, PrintTypeFlags } from '../evaluator/typePrinter';
 import {
     AnyType,
     ClassType,
@@ -27,8 +27,8 @@ import {
     TypeVarType,
     UnboundType,
     UnknownType,
-} from '../analyzer/types';
-import { Uri } from '../common/uri/uri';
+} from '../evaluator/types';
+import { Uri } from '../files/uri/uri';
 import { ParamCategory } from '../parser/parseNodes';
 
 function returnTypeCallback(type: FunctionType) {

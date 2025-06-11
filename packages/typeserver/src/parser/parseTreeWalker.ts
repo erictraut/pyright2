@@ -7,7 +7,6 @@
  * Class that traverses a parse tree.
  */
 
-import * as debug from '../common/debug';
 import {
     ArgumentNode,
     AssertNode,
@@ -91,6 +90,7 @@ import {
     YieldFromNode,
     YieldNode,
 } from '../parser/parseNodes';
+import * as debug from '../utils/debug';
 
 // Get child nodes of the given node.
 export function getChildNodes(node: ParseNode): (ParseNode | undefined)[] {

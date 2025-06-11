@@ -6,8 +6,8 @@
 
 import assert from 'assert';
 
-import * as utils from '../common/collectionUtils';
-import { compareValues, isArray } from '../common/core';
+import * as utils from '../utils/collectionUtils';
+import { compareValues, isArray } from '../utils/core';
 
 test('UtilsContainsDefault', () => {
     const data = [1, 2, 3, 4, 5];

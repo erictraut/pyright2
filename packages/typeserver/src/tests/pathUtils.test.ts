@@ -32,7 +32,7 @@ import {
     resolvePaths,
     stripFileExtension,
     stripTrailingDirectorySeparator,
-} from '../common/pathUtils';
+} from '../files/pathUtils';
 
 test('getPathComponents1', () => {
     const components = getPathComponents('');

@@ -30,11 +30,11 @@ import { TypeCategory } from '../analyzer/types';
 import { throwIfCancellationRequested } from '../common/cancellationUtils';
 import { appendArray } from '../common/collectionUtils';
 import { isDefined } from '../common/core';
-import { assert } from '../common/debug';
 import { ProgramView, ReferenceUseCase, SymbolUsageProvider } from '../common/extensibility';
 import { ServiceKeys } from '../common/serviceKeys';
 import { TextRange } from '../common/textRange';
 import { ImportAsNode, NameNode, ParseNode, ParseNodeType, StringListNode, StringNode } from '../parser/parseNodes';
+import { assert } from '../utils/debug';
 
 export type CollectionResult = {
     node: NameNode | StringNode;

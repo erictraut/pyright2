@@ -7,14 +7,14 @@
  * Class that collects and deduplicates diagnostics.
  */
 
-import { appendArray } from './collectionUtils';
-import { DiagnosticLevel } from './configOptions';
+import { DiagnosticLevel } from '../config/configOptions';
+import { Uri } from '../files/uri/uri';
+import { appendArray } from '../utils/collectionUtils';
+import { hashString } from '../utils/stringUtils';
 import { Diagnostic, DiagnosticAction, DiagnosticCategory } from './diagnostic';
 import { convertOffsetsToRange } from './positionUtils';
-import { hashString } from './stringUtils';
 import { Range, TextRange } from './textRange';
 import { TextRangeCollection } from './textRangeCollection';
-import { Uri } from './uri/uri';
 
 // Represents a collection of diagnostics within a file.
 export interface FileDiagnostics {

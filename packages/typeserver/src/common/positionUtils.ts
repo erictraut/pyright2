@@ -9,7 +9,7 @@
  */
 
 import { TokenizerOutput } from '../parser/tokenizer';
-import { assert } from './debug';
+import { assert } from '../utils/debug';
 import { Position, Range, TextRange } from './textRange';
 import { TextRangeCollection } from './textRangeCollection';
 

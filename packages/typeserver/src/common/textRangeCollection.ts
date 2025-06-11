@@ -11,7 +11,7 @@
  * for indexing and fast lookups within this list.
  */
 
-import { fail } from './debug';
+import { fail } from '../utils/debug';
 import { TextRange } from './textRange';
 
 export class TextRangeCollection<T extends TextRange> {

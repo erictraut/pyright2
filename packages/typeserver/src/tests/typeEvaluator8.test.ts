@@ -10,9 +10,9 @@
 
 import * as assert from 'assert';
 
-import { ConfigOptions } from '../common/configOptions';
 import { pythonVersion3_10, pythonVersion3_11, pythonVersion3_8 } from '../common/pythonVersion';
-import { Uri } from '../common/uri/uri';
+import { ConfigOptions } from '../config/configOptions';
+import { Uri } from '../files/uri/uri';
 import * as TestUtils from './testUtils';
 
 test('Import1', () => {

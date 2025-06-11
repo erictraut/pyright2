@@ -10,7 +10,7 @@
  * Utility routines used by tokenizer.
  */
 
-import { Char } from '../common/charCodes';
+import { Char } from './charCodes';
 import * as unicode from './unicode';
 
 enum CharCategory {

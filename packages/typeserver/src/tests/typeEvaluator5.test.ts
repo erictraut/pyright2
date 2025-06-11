@@ -8,9 +8,9 @@
  * arbitrarily among multiple files so they can run in parallel.
  */
 
-import { ConfigOptions } from '../common/configOptions';
 import { pythonVersion3_11, pythonVersion3_12, pythonVersion3_13 } from '../common/pythonVersion';
-import { Uri } from '../common/uri/uri';
+import { ConfigOptions } from '../config/configOptions';
+import { Uri } from '../files/uri/uri';
 import * as TestUtils from './testUtils';
 
 test('TypeParams1', () => {

@@ -10,10 +10,9 @@
  * Converts a Python program text stream into a stream of tokens.
  */
 
-import { Char } from '../common/charCodes';
-import { cloneStr } from '../common/core';
 import { TextRange } from '../common/textRange';
 import { TextRangeCollection } from '../common/textRangeCollection';
+import { cloneStr } from '../utils/core';
 import {
     isBinary,
     isDecimal,
@@ -24,6 +23,7 @@ import {
     isSurrogateChar,
 } from './characters';
 import { CharacterStream } from './characterStream';
+import { Char } from './charCodes';
 import {
     Comment,
     CommentType,

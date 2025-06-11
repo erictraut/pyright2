@@ -7,8 +7,8 @@
  * Represents a single edit within a file.
  */
 
+import { Uri } from '../files/uri/uri';
 import { Range, rangesAreEqual } from './textRange';
-import { Uri } from './uri/uri';
 
 export interface TextEditAction {
     range: Range;

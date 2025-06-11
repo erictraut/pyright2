@@ -10,11 +10,11 @@
 
 import * as assert from 'assert';
 
-import { findNodeByOffset, getFirstAncestorOrSelfOfKind } from '../analyzer/parseTreeUtils';
-import { ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../common/configOptions';
 import { DiagnosticSink } from '../common/diagnosticSink';
+import { findNodeByOffset, getFirstAncestorOrSelfOfKind } from '../common/parseTreeUtils';
 import { pythonVersion3_13, pythonVersion3_14 } from '../common/pythonVersion';
-import { UriEx } from '../common/uri/uriUtils';
+import { ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../config/configOptions';
+import { UriEx } from '../files/uri/uriUtils';
 import { ParseNodeType, StatementListNode } from '../parser/parseNodes';
 import * as TestUtils from './testUtils';
 

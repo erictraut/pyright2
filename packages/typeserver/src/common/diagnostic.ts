@@ -7,10 +7,10 @@
  * Class that represents errors and warnings.
  */
 
-import { appendArray } from './collectionUtils';
-import { DiagnosticLevel } from './configOptions';
+import { DiagnosticLevel } from '../config/configOptions';
+import { Uri } from '../files/uri/uri';
+import { appendArray } from '../utils/collectionUtils';
 import { Range, TextRange } from './textRange';
-import { Uri } from './uri/uri';
 
 export const defaultMaxDiagnosticDepth = 5;
 export const defaultMaxDiagnosticLineCount = 8;

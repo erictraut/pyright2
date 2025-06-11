@@ -9,7 +9,7 @@
 import assert from 'assert';
 
 import { Worker } from 'worker_threads';
-import { CacheManager, CacheOwner } from '../analyzer/cacheManager';
+import { CacheManager, CacheOwner } from '../service/cacheManager';
 
 test('basic', () => {
     const manager = new CacheManager();

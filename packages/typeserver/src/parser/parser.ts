@@ -11,8 +11,6 @@
  * into an abstract syntax tree (AST).
  */
 
-import { appendArray } from '../common/collectionUtils';
-import { assert } from '../common/debug';
 import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic';
 import { DiagnosticSink } from '../common/diagnosticSink';
 import { convertOffsetsToRange } from '../common/positionUtils';
@@ -30,11 +28,13 @@ import {
     pythonVersion3_8,
     pythonVersion3_9,
 } from '../common/pythonVersion';
-import { hashString } from '../common/stringUtils';
 import { TextRange } from '../common/textRange';
 import { TextRangeCollection } from '../common/textRangeCollection';
-import { timingStats } from '../common/timing';
 import { LocAddendum, LocMessage } from '../localization/localize';
+import { timingStats } from '../service/timing';
+import { appendArray } from '../utils/collectionUtils';
+import { assert } from '../utils/debug';
+import { hashString } from '../utils/stringUtils';
 import {
     ArgCategory,
     ArgumentNode,

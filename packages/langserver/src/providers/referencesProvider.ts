@@ -20,8 +20,6 @@ import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
 import { maxTypeRecursionCount } from '../analyzer/types';
 import { throwIfCancellationRequested } from '../common/cancellationUtils';
 import { appendArray } from '../common/collectionUtils';
-import { isDefined } from '../common/core';
-import { assertNever } from '../common/debug';
 import { DocumentRange } from '../common/docRange';
 import { ProgramView, ReferenceUseCase, SymbolUsageProvider } from '../common/extensibility';
 import { ReadOnlyFileSystem } from '../common/fileSystem';
@@ -31,6 +29,8 @@ import { isRangeInRange, Position, Range, TextRange } from '../common/textRange'
 import { Uri } from '../common/uri/uri';
 import { NameNode, ParseNode, ParseNodeType } from '../parser/parseNodes';
 import { ParseFileResults } from '../parser/parser';
+import { isDefined } from '../utils/core';
+import { assertNever } from '../utils/debug';
 import { CollectionResult, DocumentSymbolCollector } from './documentSymbolCollector';
 import { convertDocumentRangesToLocation } from './navigationUtils';
 

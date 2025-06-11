@@ -6,7 +6,7 @@
 
 import assert from 'assert';
 
-import * as debug from '../common/debug';
+import * as debug from '../utils/debug';
 
 test('DebugAssertTrue', () => {
     assert.doesNotThrow(() => {

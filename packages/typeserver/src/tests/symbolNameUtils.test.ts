@@ -6,7 +6,7 @@
 
 import * as assert from 'assert';
 
-import * as snu from '../analyzer/symbolNameUtils';
+import * as snu from '../binder/symbolNameUtils';
 
 test('symbolNameUtils isPrivateName', () => {
     assert.strictEqual(snu.isPrivateName('__var'), true);

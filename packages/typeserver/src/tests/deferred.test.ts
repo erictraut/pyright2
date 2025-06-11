@@ -5,7 +5,7 @@
 
 import * as assert from 'assert';
 
-import { createDeferred } from '../common/deferred';
+import { createDeferred } from '../utils/deferred';
 
 test('Deferred - resolve', (done) => {
     const valueToSent = new Date().getTime();

@@ -19,15 +19,6 @@ import {
     TextEdit,
 } from 'vscode-languageserver';
 
-import * as AnalyzerNodeInfo from '../analyzer/analyzerNodeInfo';
-import {
-    Declaration,
-    DeclarationType,
-    FunctionDeclaration,
-    isIntrinsicDeclaration,
-    isVariableDeclaration,
-    VariableDeclaration,
-} from '../analyzer/declaration';
 import { isDefinedInFile } from '../analyzer/declarationUtils';
 import { transformTypeForEnumMember } from '../analyzer/enums';
 import { ImportedModuleDescriptor, ImportResolver } from '../analyzer/importResolver';
@@ -72,11 +63,18 @@ import {
     lookUpClassMember,
     MemberAccessFlags,
 } from '../analyzer/typeUtils';
+import {
+    Declaration,
+    DeclarationType,
+    FunctionDeclaration,
+    isIntrinsicDeclaration,
+    isVariableDeclaration,
+    VariableDeclaration,
+} from '../binder/declaration';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
 import { throwIfCancellationRequested } from '../common/cancellationUtils';
 import { appendArray } from '../common/collectionUtils';
 import { ExecutionEnvironment } from '../common/configOptions';
-import * as debug from '../common/debug';
-import { fail } from '../common/debug';
 import { ProgramView } from '../common/extensibility';
 import { fromLSPAny, toLSPAny } from '../common/lspUtils';
 import { convertOffsetToPosition, convertPositionToOffset } from '../common/positionUtils';
@@ -120,6 +118,8 @@ import {
     Token,
     TokenType,
 } from '../parser/tokenizerTypes';
+import * as debug from '../utils/debug';
+import { fail } from '../utils/debug';
 import { AutoImporter, AutoImportResult, buildModuleSymbolsMap } from './autoImporter';
 import {
     CompletionDetail,

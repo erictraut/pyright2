@@ -6,8 +6,8 @@
 
 import * as assert from 'assert';
 
-import * as core from '../common/core';
-import * as utils from '../common/stringUtils';
+import * as core from '../utils/core';
+import * as utils from '../utils/stringUtils';
 
 test('stringUtils isPatternInSymbol', () => {
     assert.equal(utils.isPatternInSymbol('', 'abcd'), true);
