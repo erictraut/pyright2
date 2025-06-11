@@ -24,14 +24,14 @@ import { EditableProgram, ProgramView } from '../common/extensibility';
 import { LogTracker } from '../common/logTracker';
 import { convertRangeToTextRange } from '../common/positionUtils';
 import '../common/serviceProviderExtensions';
-import { Range, doRangesIntersect } from '../common/textRange';
+import { doRangesIntersect, Range } from '../common/textRange';
 import { Duration, timingStats } from '../common/timing';
 import { Uri } from '../common/uri/uri';
 import { makeDirectories } from '../common/uri/uriUtils';
 import { ParseFileResults, ParserOutput } from '../parser/parser';
 import { ServiceKeys } from '../serviceKeys';
 import { ServiceProvider } from '../serviceProvider';
-import { RequiringAnalysisCount } from './analysis';
+import { AnalysisCompleteCallback, analyzeProgram, RequiringAnalysisCount } from './analysis';
 import { AbsoluteModuleDescriptor, ImportLookupResult, LookupImportOptions } from './analyzerFileInfo';
 import * as AnalyzerNodeInfo from './analyzerNodeInfo';
 import { CacheManager } from './cacheManager';
@@ -128,6 +128,7 @@ export class Program {
     private readonly _cacheManager: CacheManager;
     private readonly _id: string;
 
+    private _onAnalysisCompletion: AnalysisCompleteCallback | undefined;
     private _allowedThirdPartyImports: string[] | undefined;
     private _configOptions: ConfigOptions;
     private _importResolver: ImportResolver;
@@ -144,6 +145,7 @@ export class Program {
         readonly serviceProvider: ServiceProvider,
         logTracker?: LogTracker,
         private _disableChecker?: boolean,
+        private readonly _maxAnalysisTime?: MaxAnalysisTime | undefined,
         id?: string
     ) {
         this._console = serviceProvider.tryGet(ServiceKeys.console) || new StandardConsole();
@@ -187,6 +189,10 @@ export class Program {
 
     get fileSystem() {
         return this._importResolver.fileSystem;
+    }
+
+    get host() {
+        return this._importResolver.host;
     }
 
     dispose() {
@@ -248,6 +254,17 @@ export class Program {
         }
 
         return edits;
+    }
+
+    startAnalysis(token: CancellationToken): boolean {
+        return analyzeProgram(
+            this,
+            this._maxAnalysisTime,
+            this._configOptions,
+            this._onAnalysisCompletion,
+            this.serviceProvider.console(),
+            token
+        );
     }
 
     setConfigOptions(configOptions: ConfigOptions) {
@@ -496,6 +513,24 @@ export class Program {
         }
     }
 
+    invalidateAndForceReanalysis() {
+        // Make sure the import resolver doesn't have invalid
+        // cached entries.
+        this._importResolver.invalidateCache();
+
+        // Mark all files with one or more errors dirty.
+        this.markAllFilesDirty(/* evenIfContentsAreSame */ true);
+    }
+
+    updateOpenFileContents(uri: Uri, version: number | null, contents: string, options: OpenFileOptions) {
+        this.setFileOpened(uri, version, contents, options);
+        this.markFilesDirty([uri], /* evenIfContentsAreSame */ true);
+    }
+
+    setCompletionCallback(callback?: AnalysisCompleteCallback) {
+        this._onAnalysisCompletion = callback;
+    }
+
     getFileCount(userFileOnly = true) {
         if (userFileOnly) {
             return this._sourceFileList.filter((f) => isUserCode(f)).length;
@@ -589,6 +624,10 @@ export class Program {
         }
 
         return sourceFileInfo.sourceFile;
+    }
+
+    hasSourceFile(fileUri: Uri): boolean {
+        return !!this.getSourceFile(fileUri);
     }
 
     getBoundSourceFile(uri: Uri): SourceFile | undefined {

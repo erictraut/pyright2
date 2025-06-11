@@ -173,8 +173,8 @@ export function generateWorkspaceEdit(
     const edits: WorkspaceEdit = { changes: {} };
 
     for (const uri of filesChanged.values()) {
-        const original = originalService.backgroundAnalysisProgram.program.getBoundSourceFile(uri);
-        const final = clonedService.backgroundAnalysisProgram.program.getBoundSourceFile(uri);
+        const original = originalService.program.getBoundSourceFile(uri);
+        const final = clonedService.program.getBoundSourceFile(uri);
         if (!original || !final) {
             // Both must exist.
             continue;

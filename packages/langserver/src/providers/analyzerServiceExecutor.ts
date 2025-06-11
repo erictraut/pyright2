@@ -14,13 +14,11 @@ import { CommandLineOptions } from '../common/commandLineOptions';
 import { LogLevel } from '../common/console';
 import { FileSystem } from '../common/fileSystem';
 import { LanguageServerBaseInterface, ServerSettings } from '../common/languageServerInterface';
-import { EmptyUri } from '../common/uri/emptyUri';
 import { Uri } from '../common/uri/uri';
 
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../workspaceFactory';
 
 export interface CloneOptions {
-    useBackgroundAnalysis?: boolean;
     typeStubTargetImportName?: string;
     fileSystem?: FileSystem;
 }
@@ -61,14 +59,7 @@ export class AnalyzerServiceExecutor {
             workspaceName: `temp workspace for cloned service`,
             rootUri: workspace.rootUri,
             kinds: [...workspace.kinds, WellKnownWorkspaceKinds.Cloned],
-            service: workspace.service.clone(
-                instanceName,
-                serviceId,
-                options.useBackgroundAnalysis
-                    ? ls.createBackgroundAnalysis(serviceId, workspace.rootUri || EmptyUri.instance)
-                    : undefined,
-                options.fileSystem
-            ),
+            service: workspace.service.clone(instanceName, serviceId, undefined, options.fileSystem),
             disableLanguageServices: true,
             disableTaggedHints: true,
             disableOrganizeImports: true,

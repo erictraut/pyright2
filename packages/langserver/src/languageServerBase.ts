@@ -251,8 +251,6 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         this._workspaceFoldersChangedDisposable?.dispose();
     }
 
-    abstract createBackgroundAnalysis(serviceId: string, workspaceRoot: Uri): IBackgroundAnalysis | undefined;
-
     abstract getSettings(workspace: Workspace): Promise<ServerSettings>;
 
     // Creates a service instance that's used for analyzing a
@@ -270,9 +268,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
             console: this.console,
             hostFactory: this.createHost.bind(this),
             importResolverFactory: this.createImportResolver.bind(this),
-            backgroundAnalysis: services
-                ? services.backgroundAnalysis
-                : this.createBackgroundAnalysis(serviceId, workspaceRoot),
+            backgroundAnalysis: services ? services.backgroundAnalysis : undefined,
             maxAnalysisTime: this.serverOptions.maxAnalysisTimeInForeground,
             backgroundAnalysisProgramFactory: this.createBackgroundAnalysisProgram.bind(this),
             libraryReanalysisTimeProvider,

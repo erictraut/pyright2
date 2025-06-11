@@ -99,7 +99,6 @@ export interface LanguageServerBaseInterface {
     readonly supportAdvancedEdits: boolean;
     readonly serviceProvider: ServiceProvider;
 
-    createBackgroundAnalysis(serviceId: string, workspaceRoot: Uri): IBackgroundAnalysis | undefined;
     reanalyze(): void;
     restart(): void;
 

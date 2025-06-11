@@ -27,8 +27,7 @@ import { parseTestData } from '../harness/fourslash/fourSlashParser';
 import * as PyrightTestHost from '../harness/testHost';
 import { clearCache } from '../harness/vfs/factory';
 
-import { BackgroundAnalysis, BackgroundAnalysisRunner } from '../../backgroundAnalysis';
-import { IBackgroundAnalysis } from '../../backgroundAnalysisBase';
+import { BackgroundAnalysisRunner } from '../../backgroundAnalysis';
 import { serialize } from '../../backgroundThreadBase';
 import { initializeDependencies } from '../../common/asyncInitialization';
 import { FileSystem } from '../../common/fileSystem';
@@ -161,13 +160,6 @@ class TestServer extends PyrightServer {
         });
 
         return result;
-    }
-
-    override createBackgroundAnalysis(serviceId: string, workspaceRoot: Uri): IBackgroundAnalysis | undefined {
-        if (this._supportsBackgroundAnalysis) {
-            return new BackgroundAnalysis(workspaceRoot, this.serverOptions.serviceProvider);
-        }
-        return undefined;
     }
 }
 

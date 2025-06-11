@@ -5,6 +5,7 @@
  *
  * Various interfaces/types used in
  */
+
 import { ConsoleInterface } from '../common/console';
 import { LogTracker } from '../common/logTracker';
 import { Uri } from '../common/uri/uri';

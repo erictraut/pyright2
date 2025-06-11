@@ -19,13 +19,10 @@ import { AnalysisResults } from './analyzer/analysis';
 import { CacheManager } from './analyzer/cacheManager';
 import { ImportResolver } from './analyzer/importResolver';
 import { isPythonBinary } from './analyzer/pythonPathUtils';
-import { BackgroundAnalysis } from './backgroundAnalysis';
-import { IBackgroundAnalysis } from './backgroundAnalysisBase';
 import { CommandController } from './commands/commandController';
-import { getCancellationFolderName } from './common/cancellationUtils';
 import { ConfigOptions, SignatureDisplayType } from './common/configOptions';
 import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from './common/console';
-import { isDebugMode, isDefined, isString } from './common/core';
+import { isDefined, isString } from './common/core';
 import { resolvePathWithEnvVariables } from './common/envVarUtils';
 import { FileBasedCancellationProvider } from './common/fileBasedCancellationUtils';
 import { FileSystem } from './common/fileSystem';
@@ -40,9 +37,9 @@ import { Uri } from './common/uri/uri';
 import { getRootUri } from './common/uri/uriUtils';
 import { LanguageServerBase } from './languageServerBase';
 import { CodeActionProvider } from './languageService/codeActionProvider';
+import { PartialStubService } from './partialStubService';
 import { PyrightFileSystem } from './pyrightFileSystem';
 import { WellKnownWorkspaceKinds, Workspace } from './workspaceFactory';
-import { PartialStubService } from './partialStubService';
 
 const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };
 
@@ -221,16 +218,6 @@ export class PyrightServer extends LanguageServerBase {
             this.console.error(`Error reading settings: ${error}`);
         }
         return serverSettings;
-    }
-
-    createBackgroundAnalysis(serviceId: string, workspaceRoot: Uri): IBackgroundAnalysis | undefined {
-        if (isDebugMode() || !getCancellationFolderName()) {
-            // Don't do background analysis if we're in debug mode or an old client
-            // is used where cancellation is not supported.
-            return undefined;
-        }
-
-        return new BackgroundAnalysis(workspaceRoot, this.serverOptions.serviceProvider);
     }
 
     protected override createHost(): Host {

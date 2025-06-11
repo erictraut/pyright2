@@ -12,8 +12,6 @@ import * as JSONC from 'jsonc-parser';
 import { AbstractCancellationTokenSource, CancellationToken } from 'vscode-languageserver';
 import { parse } from '../common/tomlUtils';
 
-// import { IBackgroundAnalysis, RefreshOptions } from '../backgroundAnalysisBase';
-import { IBackgroundAnalysis } from '../backgroundAnalysisBase';
 import {
     CommandLineConfigOptions,
     CommandLineLanguageServerOptions,
@@ -49,11 +47,6 @@ import {
 import { ServiceKeys } from '../serviceKeys';
 import { ServiceProvider } from '../serviceProvider';
 import { AnalysisCompleteCallback } from './analysis';
-import {
-    BackgroundAnalysisProgram,
-    BackgroundAnalysisProgramFactory,
-    InvalidatedReason,
-} from './backgroundAnalysisProgram';
 import { ImportResolver, ImportResolverFactory, createImportedModuleDescriptor } from './importResolver';
 import { MaxAnalysisTime, Program } from './program';
 import { findPythonSearchPaths } from './pythonPathUtils';
@@ -82,15 +75,14 @@ export interface AnalyzerServiceOptions {
     hostFactory?: HostFactory;
     importResolverFactory?: ImportResolverFactory;
     configOptions?: ConfigOptions;
-    backgroundAnalysis?: IBackgroundAnalysis;
+    // backgroundAnalysis?: IBackgroundAnalysis;
     maxAnalysisTime?: MaxAnalysisTime;
-    backgroundAnalysisProgramFactory?: BackgroundAnalysisProgramFactory;
     libraryReanalysisTimeProvider?: LibraryReanalysisTimeProvider;
     serviceId?: string;
     skipScanningUserFiles?: boolean;
     fileSystem?: FileSystem;
     usingPullDiagnostics?: boolean;
-    onInvalidated?: (reason: InvalidatedReason) => void;
+    // onInvalidated?: (reason: InvalidatedReason) => void;
 }
 
 interface ConfigFileContents {
@@ -107,7 +99,7 @@ export function getNextServiceId(name: string) {
 
 export class AnalyzerService {
     protected readonly options: AnalyzerServiceOptions;
-    private readonly _backgroundAnalysisProgram: BackgroundAnalysisProgram;
+    private readonly _program: Program;
     private readonly _serviceProvider: ServiceProvider;
 
     private _instanceName: string;
@@ -163,29 +155,19 @@ export class AnalyzerService {
             this.options.hostFactory()
         );
 
-        this._backgroundAnalysisProgram =
-            this.options.backgroundAnalysisProgramFactory !== undefined
-                ? this.options.backgroundAnalysisProgramFactory(
-                      this.options.serviceId,
-                      this._serviceProvider,
-                      this.options.configOptions,
-                      importResolver,
-                      this.options.backgroundAnalysis,
-                      this.options.maxAnalysisTime
-                  )
-                : new BackgroundAnalysisProgram(
-                      this.options.serviceId,
-                      this._serviceProvider,
-                      this.options.configOptions,
-                      importResolver,
-                      this.options.backgroundAnalysis,
-                      this.options.maxAnalysisTime,
-                      /* disableChecker */ undefined
-                  );
+        this._program = new Program(
+            importResolver,
+            this.options.configOptions,
+            this._serviceProvider,
+            /* logProvider */ undefined,
+            /* _disableChecker */ undefined,
+            this.options.maxAnalysisTime,
+            this.options.serviceId
+        );
     }
 
     get fs() {
-        return this._backgroundAnalysisProgram.importResolver.fileSystem;
+        return this._program.importResolver.fileSystem;
     }
 
     get serviceProvider() {
@@ -200,11 +182,7 @@ export class AnalyzerService {
         return this._librarySearchUrisToWatch;
     }
 
-    get backgroundAnalysisProgram(): BackgroundAnalysisProgram {
-        return this._backgroundAnalysisProgram;
-    }
-
-    get test_program() {
+    get program(): Program {
         return this._program;
     }
 
@@ -219,13 +197,13 @@ export class AnalyzerService {
     clone(
         instanceName: string,
         serviceId: string,
-        backgroundAnalysis?: IBackgroundAnalysis,
+        // backgroundAnalysis?: IBackgroundAnalysis,
         fileSystem?: FileSystem
     ): AnalyzerService {
         const service = new AnalyzerService(instanceName, this._serviceProvider, {
             ...this.options,
             serviceId,
-            backgroundAnalysis,
+            // backgroundAnalysis,
             skipScanningUserFiles: true,
             fileSystem,
             usingPullDiagnostics: this.options.usingPullDiagnostics,
@@ -233,11 +211,11 @@ export class AnalyzerService {
 
         // Cloned service will use whatever user files the service currently has.
         const userFiles = this.getUserFiles();
-        service.backgroundAnalysisProgram.setTrackedFiles(userFiles);
-        service.backgroundAnalysisProgram.markAllFilesDirty(true);
+        service._program.setTrackedFiles(userFiles);
+        service._program.markAllFilesDirty(true);
 
         // Make sure we keep editor content (open file) which could be different than one in the file system.
-        for (const fileInfo of this.backgroundAnalysisProgram.program.getOpened()) {
+        for (const fileInfo of this._program.getOpened()) {
             const version = fileInfo.sourceFile.getClientVersion();
             if (version !== undefined) {
                 service.setFileOpened(
@@ -255,11 +233,11 @@ export class AnalyzerService {
 
     runEditMode(callback: (e: EditableProgram) => void, token: CancellationToken) {
         let edits: FileEditAction[] = [];
-        this._backgroundAnalysisProgram.enterEditMode();
+        this._program.enterEditMode();
         try {
             this._program.runEditMode(callback, token);
         } finally {
-            edits = this._backgroundAnalysisProgram.exitEditMode();
+            edits = this._program.exitEditMode();
         }
 
         return token.isCancellationRequested ? [] : edits;
@@ -269,7 +247,7 @@ export class AnalyzerService {
         if (!this._disposed) {
             // Make sure we dispose program, otherwise, entire program
             // will leak.
-            this._backgroundAnalysisProgram.dispose();
+            this._program.dispose();
         }
 
         this._disposed = true;
@@ -287,7 +265,7 @@ export class AnalyzerService {
 
     setCompletionCallback(callback: AnalysisCompleteCallback | undefined): void {
         this._onCompletionCallback = callback;
-        this._backgroundAnalysisProgram.setCompletionCallback(callback);
+        this._program.setCompletionCallback(callback);
     }
 
     setOptions(commandLineOptions: CommandLineOptions): void {
@@ -296,14 +274,14 @@ export class AnalyzerService {
         const host = this._hostFactory();
         const configOptions = this._getConfigOptions(host, commandLineOptions);
 
-        this._backgroundAnalysisProgram.setConfigOptions(configOptions);
+        this._program.setConfigOptions(configOptions);
 
         this._executionRootUri = configOptions.projectRoot;
         this.applyConfigOptions(host);
     }
 
     hasSourceFile(uri: Uri): boolean {
-        return this.backgroundAnalysisProgram.hasSourceFile(uri);
+        return this._program.hasSourceFile(uri);
     }
 
     isTracked(uri: Uri): boolean {
@@ -332,7 +310,7 @@ export class AnalyzerService {
         // Open the file. Notebook cells are always tracked as they aren't 3rd party library files.
         // This is how it's worked in the past since each notebook used to have its own
         // workspace and the workspace include setting marked all cells as tracked.
-        this._backgroundAnalysisProgram.setFileOpened(uri, version, contents, {
+        this._program.setFileOpened(uri, version, contents, {
             isTracked: this.isTracked(uri) || ipythonMode !== IPythonMode.None,
             ipythonMode,
             chainedFileUri: chainedFileUri,
@@ -341,16 +319,16 @@ export class AnalyzerService {
     }
 
     getChainedUri(uri: Uri): Uri | undefined {
-        return this._backgroundAnalysisProgram.getChainedUri(uri);
+        return this._program.getChainedUri(uri);
     }
 
     updateChainedUri(uri: Uri, chainedFileUri: Uri | undefined) {
-        this._backgroundAnalysisProgram.updateChainedUri(uri, chainedFileUri);
+        this._program.updateChainedUri(uri, chainedFileUri);
         this.scheduleReanalysis(/* requireTrackedFileUpdate */ false);
     }
 
     updateOpenFileContents(uri: Uri, version: number | null, contents: string, ipythonMode = IPythonMode.None) {
-        this._backgroundAnalysisProgram.updateOpenFileContents(uri, version, contents, {
+        this._program.updateOpenFileContents(uri, version, contents, {
             isTracked: this.isTracked(uri),
             ipythonMode,
             chainedFileUri: undefined,
@@ -359,12 +337,12 @@ export class AnalyzerService {
     }
 
     setFileClosed(uri: Uri, isTracked?: boolean) {
-        this._backgroundAnalysisProgram.setFileClosed(uri, isTracked);
+        this._program.setFileClosed(uri, isTracked);
         this.scheduleReanalysis(/* requireTrackedFileUpdate */ false);
     }
 
     addInterimFile(uri: Uri) {
-        this._backgroundAnalysisProgram.addInterimFile(uri);
+        this._program.addInterimFile(uri);
     }
 
     getParserOutput(uri: Uri) {
@@ -406,16 +384,16 @@ export class AnalyzerService {
         this._program.printDependencies(this._executionRootUri, verbose);
     }
 
-    analyzeFile(fileUri: Uri, token: CancellationToken): Promise<boolean> {
-        return this._backgroundAnalysisProgram.analyzeFile(fileUri, token);
+    analyzeFile(fileUri: Uri, token: CancellationToken): boolean {
+        return this._program.analyzeFile(fileUri, token);
     }
 
-    analyzeFileAndGetDiagnostics(fileUri: Uri, token: CancellationToken): Promise<Diagnostic[]> {
-        return this._backgroundAnalysisProgram.analyzeFileAndGetDiagnostics(fileUri, token);
+    analyzeFileAndGetDiagnostics(fileUri: Uri, token: CancellationToken): Diagnostic[] {
+        return this._program.analyzeFileAndGetDiagnostics(fileUri, token);
     }
 
-    getDiagnosticsForRange(fileUri: Uri, range: Range, token: CancellationToken): Promise<Diagnostic[]> {
-        return this._backgroundAnalysisProgram.getDiagnosticsForRange(fileUri, range, token);
+    getDiagnosticsForRange(fileUri: Uri, range: Range): Diagnostic[] {
+        return this._program.getDiagnosticsForRange(fileUri, range);
     }
 
     getConfigOptions() {
@@ -423,7 +401,7 @@ export class AnalyzerService {
     }
 
     getImportResolver(): ImportResolver {
-        return this._backgroundAnalysisProgram.importResolver;
+        return this._program.importResolver;
     }
 
     recordUserInteractionTime() {
@@ -437,7 +415,7 @@ export class AnalyzerService {
     }
 
     test_getConfigOptions(commandLineOptions: CommandLineOptions): ConfigOptions {
-        return this._getConfigOptions(this._backgroundAnalysisProgram.host, commandLineOptions);
+        return this._getConfigOptions(this._program.host, commandLineOptions);
     }
 
     test_getFileNamesFromFileSpecs(): Uri[] {
@@ -463,10 +441,10 @@ export class AnalyzerService {
         );
     }
 
-    writeTypeStubInBackground(token: CancellationToken): Promise<any> {
+    writeTypeStubInBackground(token: CancellationToken): any {
         const typingsSubdirUri = this._getTypeStubFolder();
 
-        return this._backgroundAnalysisProgram.writeTypeStub(
+        return this._program.writeTypeStub(
             this._typeStubTargetUri ?? Uri.empty(),
             this._typeStubTargetIsSingleFile,
             typingsSubdirUri,
@@ -474,27 +452,25 @@ export class AnalyzerService {
         );
     }
 
-    invalidateAndForceReanalysis(reason: InvalidatedReason) {
-        if (this.options.onInvalidated) {
-            this.options.onInvalidated(reason);
-        }
+    invalidateAndForceReanalysis() {
+        // if (this.options.onInvalidated) {
+        //     this.options.onInvalidated(reason);
+        // }
 
-        this._backgroundAnalysisProgram.invalidateAndForceReanalysis(reason);
+        this._program.invalidateAndForceReanalysis();
     }
 
     // Forces the service to stop all analysis, discard all its caches,
     // and research for files.
     restart() {
         this.applyConfigOptions(this._hostFactory());
-
-        this._backgroundAnalysisProgram.restart();
     }
 
     protected runAnalysis(token: CancellationToken) {
         // In pull diagnostics mode, the service doesn't perform analysis on its own.
         // Instead the client deliberately asks for diagnostics on a file-by-file basis.
         if (!this.options.usingPullDiagnostics) {
-            const moreToAnalyze = this._backgroundAnalysisProgram.startAnalysis(token);
+            const moreToAnalyze = this._program.startAnalysis(token);
             if (moreToAnalyze) {
                 this.scheduleReanalysis(/* requireTrackedFileUpdate */ false);
             }
@@ -551,18 +527,15 @@ export class AnalyzerService {
 
     protected applyConfigOptions(host: Host) {
         // Indicate that we are about to reanalyze because of this config change.
-        if (this.options.onInvalidated) {
-            this.options.onInvalidated(InvalidatedReason.Reanalyzed);
-        }
+        // if (this.options.onInvalidated) {
+        //     this.options.onInvalidated(InvalidatedReason.Reanalyzed);
+        // }
+
         // Allocate a new import resolver because the old one has information
         // cached based on the previous config options.
-        const importResolver = this._importResolverFactory(
-            this._serviceProvider,
-            this._backgroundAnalysisProgram.configOptions,
-            host
-        );
+        const importResolver = this._importResolverFactory(this._serviceProvider, this._program.configOptions, host);
 
-        this._backgroundAnalysisProgram.setImportResolver(importResolver);
+        this._program.setImportResolver(importResolver);
 
         if (this._commandLineOptions?.fromLanguageServer || this._configOptions.verboseOutput) {
             const logLevel = this._configOptions.verboseOutput ? LogLevel.Info : LogLevel.Log;
@@ -609,12 +582,8 @@ export class AnalyzerService {
         return this.options.importResolverFactory!;
     }
 
-    private get _program() {
-        return this._backgroundAnalysisProgram.program;
-    }
-
     private get _configOptions() {
-        return this._backgroundAnalysisProgram.configOptions;
+        return this._program.configOptions;
     }
 
     private get _watchForSourceChanges() {
@@ -1275,7 +1244,7 @@ export class AnalyzerService {
 
         // And scan all matching open files. We need to do this since some of files are not backed by
         // files in file system but only exist in memory (ex, virtual workspace)
-        this._backgroundAnalysisProgram.program
+        this._program
             .getOpened()
             .map((o) => o.uri)
             .filter((f) => matchFileSpecs(this._program.configOptions, f))
@@ -1295,11 +1264,7 @@ export class AnalyzerService {
         if (this._typeStubTargetImportName) {
             const execEnv = this._configOptions.findExecEnvironment(this._executionRootUri);
             const moduleDescriptor = createImportedModuleDescriptor(this._typeStubTargetImportName);
-            const importResult = this._backgroundAnalysisProgram.importResolver.resolveImport(
-                Uri.empty(),
-                execEnv,
-                moduleDescriptor
-            );
+            const importResult = this._program.importResolver.resolveImport(Uri.empty(), execEnv, moduleDescriptor);
 
             if (importResult.isImportFound) {
                 const filesToImport: Uri[] = [];
@@ -1350,8 +1315,8 @@ export class AnalyzerService {
                     }
                 });
 
-                this._backgroundAnalysisProgram.setAllowedThirdPartyImports([this._typeStubTargetImportName]);
-                this._backgroundAnalysisProgram.setTrackedFiles(filesToImport);
+                this._program.setAllowedThirdPartyImports([this._typeStubTargetImportName]);
+                this._program.setTrackedFiles(filesToImport);
             } else {
                 this._console.error(`Import '${this._typeStubTargetImportName}' not found`);
             }
@@ -1361,9 +1326,9 @@ export class AnalyzerService {
             fileList = this._getFileNamesFromFileSpecs();
 
             // getFileNamesFromFileSpecs might have updated configOptions, resync options.
-            this._backgroundAnalysisProgram.setConfigOptions(this._configOptions);
-            this._backgroundAnalysisProgram.setTrackedFiles(fileList);
-            this._backgroundAnalysisProgram.markAllFilesDirty(markFilesDirtyUnconditionally);
+            this._program.setConfigOptions(this._configOptions);
+            this._program.setTrackedFiles(fileList);
+            this._program.markAllFilesDirty(markFilesDirtyUnconditionally);
 
             if (fileList.length === 0) {
                 this._console.info(`No source files found.`);
@@ -1564,7 +1529,7 @@ export class AnalyzerService {
                     // then it can't affect the 'import resolution' result. All we need to do is reanalyze the related files
                     // (those that have a transitive dependency on this file).
                     if (eventInfo.isFile && eventInfo.event === 'change') {
-                        this._backgroundAnalysisProgram.markFilesDirty([uri], /* evenIfContentsAreSame */ false);
+                        this._program.markFilesDirty([uri], /* evenIfContentsAreSame */ false);
                         this.scheduleReanalysis(/* requireTrackedFileUpdate */ false);
                         return;
                     }
@@ -1573,7 +1538,7 @@ export class AnalyzerService {
                     // this can affect how we resolve imports. This requires us to reset caches and reanalyze everything.
                     //
                     // However, we don't need to rebuild any indexes in this situation. Changes to workspace files don't affect library indices.
-                    this.invalidateAndForceReanalysis(InvalidatedReason.SourceWatcherChanged);
+                    this.invalidateAndForceReanalysis();
                     this.scheduleReanalysis(/* requireTrackedFileUpdate */ true);
                 });
             } catch {
@@ -1701,8 +1666,8 @@ export class AnalyzerService {
         const importFailureInfo: string[] = [];
         this._librarySearchUrisToWatch = findPythonSearchPaths(
             this.fs,
-            this._backgroundAnalysisProgram.configOptions,
-            this._backgroundAnalysisProgram.host,
+            this._program.configOptions,
+            this._program.host,
             importFailureInfo,
             /* includeWatchPathsOnly */ true,
             this._executionRootUri
@@ -1792,8 +1757,7 @@ export class AnalyzerService {
             clearTimeout(this._libraryReanalysisTimer);
             this._libraryReanalysisTimer = undefined;
 
-            const handled = this._backgroundAnalysisProgram?.libraryUpdated();
-            this.options.libraryReanalysisTimeProvider?.libraryUpdated?.(handled);
+            this.options.libraryReanalysisTimeProvider?.libraryUpdated?.(/* handled */ false);
         }
     }
 
@@ -1898,12 +1862,12 @@ export class AnalyzerService {
         if (this._primaryConfigFileUri) {
             this._console.info(`Reloading configuration file at ${this._primaryConfigFileUri.toUserVisibleString()}`);
 
-            const host = this._backgroundAnalysisProgram.host;
+            const host = this._program.host;
 
             // We can't just reload config file when it is changed; we need to consider
             // command line options as well to construct new config Options.
             const configOptions = this._getConfigOptions(host, this._commandLineOptions!);
-            this._backgroundAnalysisProgram.setConfigOptions(configOptions);
+            this._program.setConfigOptions(configOptions);
 
             this.applyConfigOptions(host);
         }
