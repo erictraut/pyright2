@@ -45,9 +45,8 @@ import { SourceFileInfo } from './sourceFileInfo';
 import { createChainedByList, isUserCode, verifyNoCyclesInChainedFiles } from './sourceFileInfoUtils';
 import { SourceMapper } from './sourceMapper';
 import { Symbol, SymbolTable } from './symbol';
-import { createTracePrinter } from './tracePrinter';
+import { createTypeEvaluator } from './typeEvaluator';
 import { PrintTypeOptions, TypeEvaluator } from './typeEvaluatorTypes';
-import { createTypeEvaluatorWithTracker } from './typeEvaluatorWithTracker';
 import { getPrintTypeFlags } from './typePrinter';
 import { TypeStubWriter } from './typeStubWriter';
 import { Type } from './types';
@@ -1677,24 +1676,13 @@ export class Program {
             this._evaluator.disposeEvaluator();
         }
 
-        this._evaluator = createTypeEvaluatorWithTracker(
-            this._lookUpImport,
-            {
-                printTypeFlags: getPrintTypeFlags(this._configOptions),
-                logCalls: this._configOptions.logTypeEvaluationTime,
-                minimumLoggingThreshold: this._configOptions.typeEvaluationTimeThreshold,
-                evaluateUnknownImportsAsAny: !!this._configOptions.evaluateUnknownImportsAsAny,
-                verifyTypeCacheEvaluatorFlags: !!this._configOptions.internalTestMode,
-            },
-            this._logTracker,
-            this._configOptions.logTypeEvaluationTime
-                ? createTracePrinter(
-                      this._importResolver.getImportRoots(
-                          this._configOptions.findExecEnvironment(this._configOptions.projectRoot)
-                      )
-                  )
-                : undefined
-        );
+        this._evaluator = createTypeEvaluator(this._lookUpImport, {
+            printTypeFlags: getPrintTypeFlags(this._configOptions),
+            logCalls: this._configOptions.logTypeEvaluationTime,
+            minimumLoggingThreshold: this._configOptions.typeEvaluationTimeThreshold,
+            evaluateUnknownImportsAsAny: !!this._configOptions.evaluateUnknownImportsAsAny,
+            verifyTypeCacheEvaluatorFlags: !!this._configOptions.internalTestMode,
+        });
 
         return this._evaluator;
     }

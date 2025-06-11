@@ -630,18 +630,12 @@ interface FunctionRecursionInfo {
     callerNode: ExpressionNode | undefined;
 }
 
-type LogWrapper = <T extends (...args: any[]) => any>(func: T) => (...args: Parameters<T>) => ReturnType<T>;
-
 interface SuppressedNodeStackEntry {
     node: ParseNode;
     suppressedDiags: string[] | undefined;
 }
 
-export function createTypeEvaluator(
-    importLookup: ImportLookup,
-    evaluatorOptions: EvaluatorOptions,
-    wrapWithLogger: LogWrapper
-): TypeEvaluator {
+export function createTypeEvaluator(importLookup: ImportLookup, evaluatorOptions: EvaluatorOptions): TypeEvaluator {
     const symbolResolutionStack: SymbolResolutionStackEntry[] = [];
     const asymmetricAccessorAssignmentCache = new Set<number>();
     const speculativeTypeTracker = new SpeculativeTypeTracker();
@@ -23476,7 +23470,7 @@ export function createTypeEvaluator(
         return getInferredReturnTypeResult(type, options?.callSiteInfo);
     }
 
-    function _getInferredReturnTypeResult(type: FunctionType, callSiteInfo?: CallSiteEvaluationInfo): TypeResult {
+    function getInferredReturnTypeResult(type: FunctionType, callSiteInfo?: CallSiteEvaluationInfo): TypeResult {
         let returnType: Type | undefined;
         let isIncomplete = false;
         const analyzeUnannotatedFunctions = true;
@@ -28604,9 +28598,6 @@ export function createTypeEvaluator(
     ) {
         return codeFlowEngine.printControlFlowGraph(flowNode, reference, callName, logger);
     }
-
-    // Track these apis internal usages when logging is on. otherwise, it should be noop.
-    const getInferredReturnTypeResult = wrapWithLogger(_getInferredReturnTypeResult);
 
     const evaluatorInterface: TypeEvaluator = {
         runWithCancellationToken,

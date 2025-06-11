@@ -78,7 +78,6 @@ export class TimingStats {
     cycleDetectionTime = new TimingStat();
     bindTime = new TimingStat();
     typeCheckerTime = new TimingStat();
-    typeEvaluationTime = new TimingStat();
 
     printSummary(console: ConsoleInterface) {
         console.info(`Completed in ${this.totalDuration.getDurationInSeconds()}sec`);
