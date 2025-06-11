@@ -22,10 +22,10 @@ import {
     StringNode,
 } from '../parser/parseNodes';
 import { AnalyzerFileInfo } from './analyzerFileInfo';
+import { Declaration } from './binder/declaration';
+import { Scope } from './binder/scope';
 import { FlowFlags, FlowNode } from './codeFlowTypes';
-import { Declaration } from './declaration';
-import { ImportResult } from './importResult';
-import { Scope } from './scope';
+import { ImportResult } from './imports/importResult';
 
 export interface DunderAllInfo {
     names: string[];

@@ -9,6 +9,21 @@
  */
 
 import {
+    ClassType,
+    FunctionType,
+    isFunction,
+    isInstantiableClass,
+    isOverloaded,
+    ModuleType,
+    OverloadedType,
+    Type,
+    TypeCategory,
+} from '../analyzer/evaluator/types';
+import { addIfNotNull, appendArray } from '../common/collectionUtils';
+import { Uri } from '../common/uri/uri';
+import { ModuleNode, ParseNodeType } from '../parser/parseNodes';
+import * as ParseTreeUtils from '../parseTreeUtils';
+import {
     ClassDeclaration,
     Declaration,
     DeclarationBase,
@@ -19,31 +34,16 @@ import {
     isVariableDeclaration,
     SpecialBuiltInClassDeclaration,
     VariableDeclaration,
-} from '../analyzer/declaration';
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { isStubFile, SourceMapper } from '../analyzer/sourceMapper';
-import {
-    ClassType,
-    FunctionType,
-    isFunction,
-    isInstantiableClass,
-    isOverloaded,
-    ModuleType,
-    OverloadedType,
-    Type,
-    TypeCategory,
-} from '../analyzer/types';
-import { addIfNotNull, appendArray } from '../common/collectionUtils';
-import { Uri } from '../common/uri/uri';
-import { ModuleNode, ParseNodeType } from '../parser/parseNodes';
-import { TypeEvaluator } from './typeEvaluatorTypes';
+} from './binder/declaration';
+import { TypeEvaluator } from './evaluator/typeEvaluatorTypes';
 import {
     ClassIteratorFlags,
     getClassIterator,
     getClassMemberIterator,
     isMaybeDescriptorInstance,
     MemberAccessFlags,
-} from './typeUtils';
+} from './evaluator/typeUtils';
+import { isStubFile, SourceMapper } from './program/sourceMapper';
 
 const DefaultClassIteratorFlagsForFunctions =
     MemberAccessFlags.SkipObjectBaseClass |

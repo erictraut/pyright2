@@ -1075,14 +1075,4 @@ export class TestHost extends LimitedAccessHost {
             prefix: Uri.empty(),
         };
     }
-
-    override runScript(
-        pythonPath: Uri | undefined,
-        scriptPath: Uri,
-        args: string[],
-        cwd: Uri,
-        token: CancellationToken
-    ): Promise<ScriptOutput> {
-        return this._options.runScript(pythonPath, scriptPath, args, cwd, token);
-    }
 }

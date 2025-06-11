@@ -14,7 +14,7 @@ import { ConsoleInterface } from '../common/console';
 import * as debug from '../common/debug';
 import { FileDiagnostics } from '../common/diagnosticSink';
 import { Duration } from '../common/timing';
-import { MaxAnalysisTime, Program } from './program';
+import { MaxAnalysisTime, Program } from './program/program';
 
 export const nullCallback: AnalysisCompleteCallback = () => {
     /* empty */

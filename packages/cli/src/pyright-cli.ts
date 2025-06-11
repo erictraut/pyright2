@@ -21,9 +21,9 @@ import { ChildProcess, fork } from 'child_process';
 import { AnalysisResults } from 'typeserver/analyzer/analysis';
 import { PackageTypeReport, TypeKnownStatus } from 'typeserver/analyzer/packageTypeReport';
 import { PackageTypeVerifier } from 'typeserver/analyzer/packageTypeVerifier';
-import { AnalyzerService } from 'typeserver/analyzer/service';
-import { maxSourceFileSize } from 'typeserver/analyzer/sourceFile';
-import { SourceFileInfo } from 'typeserver/analyzer/sourceFileInfo';
+import { maxSourceFileSize } from 'typeserver/analyzer/program/sourceFile';
+import { SourceFileInfo } from 'typeserver/analyzer/program/sourceFileInfo';
+import { TypeService } from 'typeserver/analyzer/typeService';
 import { initializeDependencies } from 'typeserver/common/asyncInitialization';
 import { ChokidarFileWatcherProvider } from 'typeserver/common/chokidarFileWatcherProvider';
 import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/common/commandLineOptions';
@@ -415,11 +415,9 @@ async function processArgs(): Promise<ExitStatus> {
     options.languageServerSettings.watchForSourceChanges = watch;
     options.languageServerSettings.watchForConfigChanges = watch;
 
-    const service = new AnalyzerService('<default>', serviceProvider, {
+    const service = new TypeService('<default>', serviceProvider, {
         console: output,
         hostFactory: () => new FullAccessHost(serviceProvider),
-        // Refresh service 2 seconds after the last library file change is detected.
-        libraryReanalysisTimeProvider: () => 2 * 1000,
     });
 
     if ('threads' in args) {
@@ -446,7 +444,7 @@ async function processArgs(): Promise<ExitStatus> {
 async function runSingleThreaded(
     args: CommandLineOptions,
     options: PyrightCommandLineOptions,
-    service: AnalyzerService,
+    service: TypeService,
     minSeverityLevel: SeverityLevel,
     output: ConsoleInterface
 ) {
@@ -553,7 +551,7 @@ async function runMultiThreaded(
     args: CommandLineOptions,
     options: PyrightCommandLineOptions,
     maxThreadCount: number,
-    service: AnalyzerService,
+    service: TypeService,
     minSeverityLevel: SeverityLevel,
     output: ConsoleInterface
 ) {
@@ -746,7 +744,7 @@ async function runMultiThreaded(
 // multi-threaded analysis.
 function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
     let serviceProvider: ServiceProvider | undefined;
-    let service: AnalyzerService | undefined;
+    let service: TypeService | undefined;
     let fileSystem: PyrightFileSystem | undefined;
     let lastOpenFileUri: Uri | undefined;
 
@@ -784,11 +782,9 @@ function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
                 );
 
                 serviceProvider = createServiceProvider(fileSystem, output, tempFile);
-                service = new AnalyzerService('<default>', serviceProvider, {
+                service = new TypeService('<default>', serviceProvider, {
                     console: output,
                     hostFactory: () => new FullAccessHost(serviceProvider!),
-                    // Refresh service 2 seconds after the last library file change is detected.
-                    libraryReanalysisTimeProvider: () => 2 * 1000,
                 });
 
                 service.setCompletionCallback((results) => {
@@ -1362,3 +1358,5 @@ export async function main() {
     // https://github.com/nodejs/node/issues/6456
     // https://github.com/nodejs/node/issues/19218
 }
+
+main();

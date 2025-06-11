@@ -8,12 +8,12 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { ImportResolver } from '../analyzer/importResolver';
-import * as prog from '../analyzer/program';
-import { IPythonMode } from '../analyzer/sourceFile';
-import { SourceMapper } from '../analyzer/sourceMapper';
-import { SymbolTable } from '../analyzer/symbol';
-import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
+import { SymbolTable } from '../analyzer/binder/symbol';
+import { TypeEvaluator } from '../analyzer/evaluator/typeEvaluatorTypes';
+import { ImportResolver } from '../analyzer/imports/importResolver';
+import { OpenFileOptions, Program } from '../analyzer/program/program';
+import { IPythonMode } from '../analyzer/program/sourceFile';
+import { SourceMapper } from '../analyzer/program/sourceMapper';
 import { Diagnostic } from '../common/diagnostic';
 import { ParseFileResults, ParserOutput } from '../parser/parser';
 import { ServiceProvider } from '../serviceProvider';
@@ -95,7 +95,7 @@ export interface ProgramView {
 
     // See whether we can get rid of these methods
     handleMemoryHighUsage(): void;
-    clone(): prog.Program;
+    clone(): Program;
 }
 
 // This exposes some APIs to mutate program. Unlike ProgramMutator, this will only mutate this program
@@ -103,6 +103,6 @@ export interface ProgramView {
 // One can use this when edits are temporary such as `runEditMode` or `test`
 export interface EditableProgram extends ProgramView {
     addInterimFile(uri: Uri): void;
-    setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: prog.OpenFileOptions): void;
+    setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
     updateChainedUri(fileUri: Uri, chainedUri: Uri | undefined): void;
 }

@@ -39,15 +39,14 @@ import {
     WhileNode,
     WithNode,
 } from '../parser/parseNodes';
+import { ParseTreeWalker } from '../parser/parseTreeWalker';
 import { OperatorType } from '../parser/tokenizerTypes';
+import * as ParseTreeUtils from '../parseTreeUtils';
 import * as AnalyzerNodeInfo from './analyzerNodeInfo';
-import * as ParseTreeUtils from './parseTreeUtils';
-import { ParseTreeWalker } from './parseTreeWalker';
-import { getScopeForNode } from './scopeUtils';
-import { SourceFile } from './sourceFile';
-import { Symbol } from './symbol';
-import * as SymbolNameUtils from './symbolNameUtils';
-import { TypeEvaluator } from './typeEvaluatorTypes';
+import { getScopeForNode } from './binder/scopeUtils';
+import { Symbol } from './binder/symbol';
+import * as SymbolNameUtils from './binder/symbolNameUtils';
+import { TypeEvaluator } from './evaluator/typeEvaluatorTypes';
 import {
     ClassType,
     isClassInstance,
@@ -56,7 +55,8 @@ import {
     isNever,
     isUnknown,
     removeUnknownFromUnion,
-} from './types';
+} from './evaluator/types';
+import { SourceFile } from './program/sourceFile';
 
 class TrackedImport {
     isAccessed = false;

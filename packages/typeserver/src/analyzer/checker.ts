@@ -86,36 +86,31 @@ import {
     isExpressionNode,
 } from '../parser/parseNodes';
 import { ParserOutput } from '../parser/parser';
+import { ParseTreeWalker } from '../parser/parseTreeWalker';
 import { UnescapeError, UnescapeErrorType, getUnescapedString } from '../parser/stringTokenUtils';
 import { OperatorType, StringTokenFlags, TokenType } from '../parser/tokenizerTypes';
+import * as ParseTreeUtils from '../parseTreeUtils';
 import { AnalyzerFileInfo } from './analyzerFileInfo';
 import * as AnalyzerNodeInfo from './analyzerNodeInfo';
+import { Declaration, DeclarationType, isAliasDeclaration, isVariableDeclaration } from './binder/declaration';
+import { getNameNodeForDeclaration } from './binder/declarationUtils';
+import { Scope, ScopeType } from './binder/scope';
+import { getScopeForNode } from './binder/scopeUtils';
+import { evaluateStaticBoolExpression } from './binder/staticExpressions';
+import { Symbol } from './binder/symbol';
+import * as SymbolNameUtils from './binder/symbolNameUtils';
+import { getLastTypedDeclarationForSymbol } from './binder/symbolUtils';
 import { Commands } from './commands';
-import { ConstraintTracker } from './constraintTracker';
-import { getBoundCallMethod, getBoundInitMethod, getBoundNewMethod } from './constructors';
-import { addInheritedDataClassEntries } from './dataClasses';
-import { Declaration, DeclarationType, isAliasDeclaration, isVariableDeclaration } from './declaration';
-import { getNameNodeForDeclaration } from './declarationUtils';
 import { deprecatedAliases, deprecatedSpecialForms } from './deprecatedSymbols';
-import { getEnumDeclaredValueType, isEnumClassWithMembers, transformTypeForEnumMember } from './enums';
-import { ImportResolver, createImportedModuleDescriptor } from './importResolver';
-import { ImportResult, ImportType } from './importResult';
-import { getRelativeModuleName, getTopLevelImports } from './importStatementUtils';
-import { getParamListDetails } from './parameterUtils';
-import * as ParseTreeUtils from './parseTreeUtils';
-import { ParseTreeWalker } from './parseTreeWalker';
-import { validateClassPattern } from './patternMatching';
-import { isMethodOnlyProtocol, isProtocolUnsafeOverlap } from './protocols';
-import { Scope, ScopeType } from './scope';
-import { getScopeForNode } from './scopeUtils';
-import { IPythonMode } from './sourceFile';
-import { SourceMapper, isStubFile } from './sourceMapper';
-import { evaluateStaticBoolExpression } from './staticExpressions';
-import { Symbol } from './symbol';
-import * as SymbolNameUtils from './symbolNameUtils';
-import { getLastTypedDeclarationForSymbol } from './symbolUtils';
-import { getEffectiveExtraItemsEntryType, getTypedDictMembersForClass } from './typedDicts';
-import { maxCodeComplexity } from './typeEvaluator';
+import { ConstraintTracker } from './evaluator/constraintTracker';
+import { getBoundCallMethod, getBoundInitMethod, getBoundNewMethod } from './evaluator/constructors';
+import { addInheritedDataClassEntries } from './evaluator/dataClasses';
+import { getEnumDeclaredValueType, isEnumClassWithMembers, transformTypeForEnumMember } from './evaluator/enums';
+import { getParamListDetails } from './evaluator/parameterUtils';
+import { validateClassPattern } from './evaluator/patternMatching';
+import { isMethodOnlyProtocol, isProtocolUnsafeOverlap } from './evaluator/protocols';
+import { getEffectiveExtraItemsEntryType, getTypedDictMembersForClass } from './evaluator/typedDicts';
+import { maxCodeComplexity } from './evaluator/typeEvaluator';
 import {
     Arg,
     AssignTypeFlags,
@@ -124,14 +119,14 @@ import {
     Reachability,
     TypeEvaluator,
     TypeResult,
-} from './typeEvaluatorTypes';
+} from './evaluator/typeEvaluatorTypes';
 import {
     enumerateLiteralsForType,
     getElementTypeForContainerNarrowing,
     getIsInstanceClassTypes,
     narrowTypeForContainerElementType,
     narrowTypeForInstanceOrSubclass,
-} from './typeGuards';
+} from './evaluator/typeGuards';
 import {
     AnyType,
     ClassType,
@@ -168,7 +163,7 @@ import {
     isUnbound,
     isUnion,
     isUnknown,
-} from './types';
+} from './evaluator/types';
 import {
     ClassMember,
     MemberAccessFlags,
@@ -198,7 +193,12 @@ import {
     partiallySpecializeType,
     selfSpecializeClass,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils';
+} from './evaluator/typeUtils';
+import { ImportResolver, createImportedModuleDescriptor } from './imports/importResolver';
+import { ImportResult, ImportType } from './imports/importResult';
+import { getRelativeModuleName, getTopLevelImports } from './imports/importStatementUtils';
+import { IPythonMode } from './program/sourceFile';
+import { SourceMapper, isStubFile } from './program/sourceMapper';
 
 interface TypeVarUsageInfo {
     typeVar: TypeVarType;

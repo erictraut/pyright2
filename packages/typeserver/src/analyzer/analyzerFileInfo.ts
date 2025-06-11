@@ -14,9 +14,9 @@ import { PythonVersion, pythonVersion3_14 } from '../common/pythonVersion';
 import { TextRange } from '../common/textRange';
 import { TextRangeCollection } from '../common/textRangeCollection';
 import { Uri } from '../common/uri/uri';
-import { Scope } from './scope';
-import { IPythonMode } from './sourceFile';
-import { SymbolTable } from './symbol';
+import { Scope } from './binder/scope';
+import { SymbolTable } from './binder/symbol';
+import { IPythonMode } from './program/sourceFile';
 
 // Maps import paths to the symbol table for the imported module.
 export interface AbsoluteModuleDescriptor {

@@ -7,17 +7,14 @@
  */
 
 import * as child_process from 'child_process';
-import { CancellationToken } from 'vscode-languageserver';
 
 import { PythonPathResult } from '../analyzer/pythonPathUtils';
 import { ServiceKeys } from '../serviceKeys';
 import { ServiceProvider } from '../serviceProvider';
-import { OperationCanceledException, onCancellationRequested, throwIfCancellationRequested } from './cancellationUtils';
 import { PythonPlatform } from './configOptions';
 import { assertNever } from './debug';
-import { HostKind, NoAccessHost, ScriptOutput } from './host';
+import { HostKind, NoAccessHost } from './host';
 import { getAnyExtensionFromPath, normalizePath } from './pathUtils';
-import { terminateChild } from './processUtils';
 import { PythonVersion } from './pythonVersion';
 import { Uri } from './uri/uri';
 import { isDirectory } from './uri/uriUtils';
@@ -139,52 +136,6 @@ export class FullAccessHost extends LimitedAccessHost {
             importFailureInfo.push('Unable to get Python version from interpreter');
             return undefined;
         }
-    }
-
-    override runScript(
-        pythonPath: Uri | undefined,
-        script: Uri,
-        args: string[],
-        cwd: Uri,
-        token: CancellationToken
-    ): Promise<ScriptOutput> {
-        // If it is already cancelled, don't bother to run script.
-        throwIfCancellationRequested(token);
-
-        // What to do about conda here?
-        return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
-            let stdout = '';
-            let stderr = '';
-            const commandLineArgs = ['-I', script.getFilePath(), ...args];
-
-            const child = this._executePythonInterpreter(pythonPath?.getFilePath(), (p) =>
-                child_process.spawn(p, commandLineArgs, {
-                    cwd: cwd.getFilePath(),
-                    shell: this.shouldUseShellToRunInterpreter(p),
-                })
-            );
-            const tokenWatch = onCancellationRequested(token, () => {
-                if (child) {
-                    terminateChild(child);
-                }
-                reject(new OperationCanceledException());
-            });
-            if (child) {
-                child.stdout.on('data', (d) => (stdout = stdout.concat(d)));
-                child.stderr.on('data', (d) => (stderr = stderr.concat(d)));
-                child.on('error', (e) => {
-                    tokenWatch.dispose();
-                    reject(e);
-                });
-                child.on('exit', () => {
-                    tokenWatch.dispose();
-                    resolve({ stdout, stderr });
-                });
-            } else {
-                tokenWatch.dispose();
-                reject(new Error(`Cannot start python interpreter with script ${script}`));
-            }
-        });
     }
 
     protected shouldUseShellToRunInterpreter(interpreterPath: string): boolean {

@@ -28,9 +28,7 @@ export class LogTracker {
 
     private _indentation = '';
 
-    constructor(private readonly _console: ConsoleInterface | undefined, readonly prefix: string) {
-        // Empty
-    }
+    constructor(private readonly _console: ConsoleInterface | undefined) {}
 
     get logLevel() {
         const level = (this._console as any).level;
@@ -70,7 +68,7 @@ export class LogTracker {
             } else {
                 this._printPreviousTitles();
 
-                let output = `[${this.prefix}] ${this._indentation}${title}${state.get()} (${msDuration}ms)`;
+                let output = `[${this._indentation}${title}${state.get()} (${msDuration}ms)`;
 
                 // Report parsing related perf info only if they occurred.
                 if (
@@ -89,7 +87,7 @@ export class LogTracker {
 
                 // If the operation took really long, log it as "info" so it is more visible.
                 if (msDuration >= durationThresholdForInfoInMs) {
-                    this._console.info(`[${this.prefix}] Long operation: ${title} (${msDuration}ms)`);
+                    this._console.info(`Long operation: ${title} (${msDuration}ms)`);
                 }
             }
         }
@@ -104,7 +102,7 @@ export class LogTracker {
         }
 
         for (const previousTitle of this._previousTitles) {
-            this._console!.log(`[${this.prefix}] ${previousTitle}`);
+            this._console!.log(previousTitle);
         }
 
         this._previousTitles.length = 0;

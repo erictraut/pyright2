@@ -6,8 +6,6 @@
  * Provides access to the host environment the language service is running on.
  */
 
-import { CancellationToken } from 'vscode-languageserver';
-
 import { PythonPathResult } from '../analyzer/pythonPathUtils';
 import { PythonPlatform } from './configOptions';
 import { PythonVersion } from './pythonVersion';
@@ -29,13 +27,6 @@ export interface Host {
     getPythonSearchPaths(pythonPath?: Uri, logInfo?: string[]): PythonPathResult;
     getPythonVersion(pythonPath?: Uri, logInfo?: string[]): PythonVersion | undefined;
     getPythonPlatform(logInfo?: string[]): PythonPlatform | undefined;
-    runScript(
-        pythonPath: Uri | undefined,
-        script: Uri,
-        args: string[],
-        cwd: Uri,
-        token: CancellationToken
-    ): Promise<ScriptOutput>;
 }
 
 export class NoAccessHost implements Host {
@@ -58,16 +49,6 @@ export class NoAccessHost implements Host {
 
     getPythonPlatform(logInfo?: string[]): PythonPlatform | undefined {
         return undefined;
-    }
-
-    async runScript(
-        pythonPath: Uri | undefined,
-        scriptPath: Uri,
-        args: string[],
-        cwd: Uri,
-        token: CancellationToken
-    ): Promise<ScriptOutput> {
-        return { stdout: '', stderr: '' };
     }
 }
 

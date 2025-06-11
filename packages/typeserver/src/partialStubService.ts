@@ -9,7 +9,7 @@
 import type * as fs from 'fs';
 
 import { Disposable } from 'vscode-jsonrpc';
-import { getPyTypedInfo, PyTypedInfo } from './analyzer/pyTypedUtils';
+import { getPyTypedInfo, PyTypedInfo } from './analyzer/imports/pyTypedUtils';
 import { ExecutionEnvironment } from './common/configOptions';
 import { FileSystem } from './common/fileSystem';
 import { stubsSuffix } from './common/pathConsts';

@@ -20,23 +20,11 @@ import { getEmptyRange, Range } from '../common/textRange';
 import { Uri } from '../common/uri/uri';
 import { tryStat } from '../common/uri/uriUtils';
 import { ServiceProvider } from '../serviceProvider';
-import { DeclarationType, FunctionDeclaration, VariableDeclaration } from './declaration';
-import { createImportedModuleDescriptor, ImportResolver } from './importResolver';
-import {
-    AlternateSymbolNameMap,
-    getEmptyReport,
-    ModuleInfo,
-    PackageTypeReport,
-    SymbolCategory,
-    SymbolInfo,
-    TypeKnownStatus,
-} from './packageTypeReport';
-import { Program } from './program';
-import { getPyTypedInfo, PyTypedInfo } from './pyTypedUtils';
-import { ScopeType } from './scope';
-import { getScopeForNode } from './scopeUtils';
-import { Symbol, SymbolTable } from './symbol';
-import { isDunderName, isPrivateOrProtectedName } from './symbolNameUtils';
+import { DeclarationType, FunctionDeclaration, VariableDeclaration } from './binder/declaration';
+import { ScopeType } from './binder/scope';
+import { getScopeForNode } from './binder/scopeUtils';
+import { Symbol, SymbolTable } from './binder/symbol';
+import { isDunderName, isPrivateOrProtectedName } from './binder/symbolNameUtils';
 import {
     ClassType,
     FunctionParam,
@@ -53,7 +41,7 @@ import {
     Type,
     TypeBase,
     TypeCategory,
-} from './types';
+} from './evaluator/types';
 import {
     doForEachSubtype,
     getFullNameOfType,
@@ -62,7 +50,19 @@ import {
     isPartlyUnknown,
     partiallySpecializeType,
     specializeForBaseClass,
-} from './typeUtils';
+} from './evaluator/typeUtils';
+import { createImportedModuleDescriptor, ImportResolver } from './imports/importResolver';
+import { getPyTypedInfo, PyTypedInfo } from './imports/pyTypedUtils';
+import {
+    AlternateSymbolNameMap,
+    getEmptyReport,
+    ModuleInfo,
+    PackageTypeReport,
+    SymbolCategory,
+    SymbolInfo,
+    TypeKnownStatus,
+} from './packageTypeReport';
+import { Program } from './program/program';
 
 type PublicSymbolSet = Set<string>;
 

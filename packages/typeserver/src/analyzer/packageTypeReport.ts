@@ -11,7 +11,7 @@
 
 import { Diagnostic, DiagnosticWithinFile } from '../common/diagnostic';
 import { Uri } from '../common/uri/uri';
-import { ScopeType } from './scope';
+import { ScopeType } from './binder/scope';
 
 export enum SymbolCategory {
     Indeterminate,
