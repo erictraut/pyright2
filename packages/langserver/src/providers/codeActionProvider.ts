@@ -6,11 +6,10 @@
  * Handles 'code actions' requests from the client.
  */
 
-import { CancellationToken, CodeAction, CodeActionKind } from 'vscode-languageserver';
+import { CancellationToken, CodeAction, CodeActionKind, Command } from 'vscode-languageserver';
 
 import { Commands } from '../commands/commands';
 import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { createCommand } from '../common/commandUtils';
 import { ActionKind, CreateTypeStubFileAction, RenameShadowedFileAction } from '../common/diagnostic';
 import { FileEditActions } from '../common/editAction';
 import { Range } from '../common/textRange';
@@ -61,7 +60,7 @@ export class CodeActionProvider {
             if (action) {
                 const createTypeStubAction = CodeAction.create(
                     Localizer.CodeAction.createTypeStubFor().format({ moduleName: action.moduleName }),
-                    createCommand(
+                    Command.create(
                         Localizer.CodeAction.createTypeStub(),
                         Commands.createTypeStub,
                         workspace.rootUri.toString(),

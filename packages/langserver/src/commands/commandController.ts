@@ -8,7 +8,7 @@
 
 import { CancellationToken, ExecuteCommandParams, ResponseError } from 'vscode-languageserver';
 
-import { LanguageServerInterface } from '../common/languageServerInterface';
+import { LanguageServerInterface } from '../server/languageServerInterface';
 import { Commands } from './commands';
 import { CreateTypeStubCommand } from './createTypeStub';
 import { DumpFileDebugInfoCommand } from './dumpFileDebugInfoCommand';

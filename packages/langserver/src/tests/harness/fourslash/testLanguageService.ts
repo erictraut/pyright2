@@ -19,14 +19,8 @@ import { IBackgroundAnalysis } from '../../../backgroundAnalysisBase';
 import { CommandController } from '../../../commands/commandController';
 import { ConfigOptions } from '../../../common/configOptions';
 import { ConsoleInterface } from '../../../common/console';
-import * as debug from '../../../common/debug';
 import { FileSystem } from '../../../common/fileSystem';
-import {
-    LanguageServerInterface,
-    MessageAction,
-    ServerSettings,
-    WindowInterface,
-} from '../../../common/languageServerInterface';
+import { LanguageServerInterface, ServerSettings } from '../../../common/languageServerInterface';
 import { ServiceProvider } from '../../../common/serviceProvider';
 import { Range } from '../../../common/textRange';
 import { Uri } from '../../../common/uri/uri';
@@ -143,26 +137,6 @@ export class TestLanguageService implements LanguageServerInterface {
     }
 
     restart(): void {
-        // Don't do anything
-    }
-}
-
-class TestWindow implements WindowInterface {
-    showErrorMessage(message: string): void;
-    showErrorMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined>;
-    showErrorMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined> | void {
-        debug.fail("shouldn't be called");
-    }
-
-    showWarningMessage(message: string): void;
-    showWarningMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined>;
-    showWarningMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined> | void {
-        debug.fail("shouldn't be called");
-    }
-
-    showInformationMessage(message: string): void;
-    showInformationMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined>;
-    showInformationMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined> | void {
         // Don't do anything
     }
 }

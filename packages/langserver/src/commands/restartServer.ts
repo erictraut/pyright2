@@ -8,7 +8,7 @@
 
 import { ExecuteCommandParams } from 'vscode-languageserver';
 
-import { LanguageServerInterface } from '../common/languageServerInterface';
+import { LanguageServerInterface } from '../server/languageServerInterface';
 import { ServerCommand } from './commandController';
 
 export class RestartServerCommand implements ServerCommand {

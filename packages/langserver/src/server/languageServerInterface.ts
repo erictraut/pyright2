@@ -53,28 +53,6 @@ export interface MessageAction {
     [key: string]: string | boolean | number | object;
 }
 
-export interface WindowInterface {
-    showErrorMessage(message: string): void;
-    showErrorMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined>;
-
-    showWarningMessage(message: string): void;
-    showWarningMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined>;
-
-    showInformationMessage(message: string): void;
-    showInformationMessage(message: string, ...actions: MessageAction[]): Promise<MessageAction | undefined>;
-}
-
-export namespace WindowInterface {
-    export function is(obj: any): obj is WindowInterface {
-        return (
-            !!obj &&
-            obj.showErrorMessage !== undefined &&
-            obj.showWarningMessage !== undefined &&
-            obj.showInformationMessage !== undefined
-        );
-    }
-}
-
 export interface WorkspaceServices {
     fs: FileSystem | undefined;
     backgroundAnalysis: IBackgroundAnalysis | undefined;
@@ -95,7 +73,6 @@ export interface ServerOptions {
 
 export interface LanguageServerBaseInterface {
     readonly console: ConsoleInterface;
-    readonly window: WindowInterface;
     readonly supportAdvancedEdits: boolean;
     readonly serviceProvider: ServiceProvider;
 
@@ -108,17 +85,6 @@ export interface LanguageServerBaseInterface {
 
 export interface LanguageServerInterface extends LanguageServerBaseInterface {
     getWorkspaceForFile(fileUri: Uri, pythonPath?: Uri): Promise<Workspace>;
-}
-
-export interface WindowService extends WindowInterface {
-    createGoToOutputAction(): MessageAction;
-    createOpenUriAction(title: string, uri: string): MessageAction;
-}
-
-export namespace WindowService {
-    export function is(obj: any): obj is WindowService {
-        return obj.createGoToOutputAction !== undefined && WindowInterface.is(obj);
-    }
 }
 
 export interface CommandService {
