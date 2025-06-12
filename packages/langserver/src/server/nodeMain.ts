@@ -6,37 +6,22 @@
  * Provides the main entrypoint to the server when running in Node.
  */
 
-import { Connection, ConnectionOptions } from 'vscode-languageserver';
+import { ConnectionOptions } from 'vscode-languageserver';
 import { createConnection } from 'vscode-languageserver/node';
-import { isMainThread } from 'worker_threads';
 
-import { initializeDependencies } from './common/asyncInitialization';
-import { getCancellationStrategyFromArgv } from './common/fileBasedCancellationUtils';
+import { getCancellationStrategyFromArgv } from 'typeserver/extensibility/fileBasedCancellationUtils';
+import { initializeDependencies } from 'typeserver/service/asyncInitialization';
 
-import { BackgroundAnalysisRunner } from './backgroundAnalysis';
-import { ServiceProvider } from './common/serviceProvider';
 import { PyrightServer } from './server';
 
 export async function main(maxWorkers: number) {
-    await run(
-        (conn) => new PyrightServer(conn, maxWorkers),
-        () => {
-            const runner = new BackgroundAnalysisRunner(new ServiceProvider());
-            runner.start();
-        }
-    );
-}
-
-export async function run(runServer: (connection: Connection) => void, runBackgroundThread: () => void) {
     await initializeDependencies();
 
-    if (isMainThread) {
-        runServer(createConnection(getConnectionOptions()));
-    } else {
-        runBackgroundThread();
-    }
-}
+    const connectionOptions: ConnectionOptions = {
+        cancellationStrategy: getCancellationStrategyFromArgv(process.argv),
+    };
 
-export function getConnectionOptions(): ConnectionOptions {
-    return { cancellationStrategy: getCancellationStrategyFromArgv(process.argv) };
+    const conn = createConnection(connectionOptions);
+
+    new PyrightServer(conn, maxWorkers);
 }

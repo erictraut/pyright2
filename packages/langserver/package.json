@@ -11,7 +11,7 @@
     "scripts": {
         "build": "tsc",
         "clean": "shx rm -rf ./dist ./out",
-        "webpack:testtypeserver": "webpack --config ./src/tests/webpack.testtypeserver.config.js --mode=development",
+        "webpack:testtypeserver": "webpack --config ./src/tests/webpack.testlangserver.config.js --mode=development",
         "test": "jest --forceExit"
     },
     "dependencies": {

@@ -8,8 +8,8 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-languageserver';
 import { CompletionItemKind, MarkupKind } from 'vscode-languageserver-types';
 
-import { Uri } from '../common/uri/uri';
-import { CompletionOptions, CompletionProvider } from '../languageService/completionProvider';
+import { Uri } from 'typeserver/files/uri/uri';
+import { CompletionOptions, CompletionProvider } from '../providers/completionProvider';
 import { parseAndGetTestState } from './harness/fourslash/testState';
 
 test('completion import statement tooltip', async () => {
@@ -880,7 +880,7 @@ test('auto import sort text', async () => {
     const marker = state.getMarkerByName('marker');
     state.openFiles(state.testData.files.map((f) => f.fileName));
 
-    while (state.workspace.service.test_program.analyze());
+    while (state.workspace.service.program.analyze());
 
     const filePath = marker.fileName;
     const uri = Uri.file(filePath, state.serviceProvider);

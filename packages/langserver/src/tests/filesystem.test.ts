@@ -8,11 +8,11 @@
 
 import assert from 'assert';
 
-import { combinePaths, normalizeSlashes } from '../common/pathUtils';
+import { combinePaths, normalizeSlashes } from 'typeserver/files/pathUtils';
+import { UriEx } from 'typeserver/files/uri/uriUtils';
 import * as host from './harness/testHost';
 import * as factory from './harness/vfs/factory';
 import * as vfs from './harness/vfs/filesystem';
-import { UriEx } from '../common/uri/uriUtils';
 
 test('CreateVFS', () => {
     const cwd = normalizeSlashes('/');
@@ -116,7 +116,7 @@ test('Shadow', () => {
     assert(!shadow1.isReadonly);
     assert(shadow1.shadowRoot === fs.shadowRoot);
 
-    // make itself readonly and then shawdow
+    // make itself readonly and then shadow
     shadow1.makeReadonly();
     assert(shadow1.isReadonly);
 
@@ -186,10 +186,10 @@ test('createFromFileSystem2', () => {
 });
 
 test('createFromFileSystemWithCustomTypeshedPath', () => {
-    const invalidpath = normalizeSlashes(combinePaths(host.HOST.getWorkspaceRoot(), '../docs'));
+    const invalidPath = normalizeSlashes(combinePaths(host.HOST.getWorkspaceRoot(), '../docs'));
     const fs = factory.createFromFileSystem(host.HOST, /* ignoreCase */ false, {
         cwd: factory.srcFolder,
-        meta: { [factory.typeshedFolder.getFilePath()]: invalidpath },
+        meta: { [factory.typeshedFolder.getFilePath()]: invalidPath },
     });
 
     const entries = fs.readdirSync(factory.typeshedFolder);

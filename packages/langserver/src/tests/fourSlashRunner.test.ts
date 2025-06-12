@@ -9,7 +9,7 @@
 
 import * as path from 'path';
 
-import { normalizeSlashes } from '../common/pathUtils';
+import { normalizeSlashes } from 'typeserver/files/pathUtils';
 import { runFourSlashTest } from './harness/fourslash/runner';
 import * as host from './harness/testHost';
 import { MODULE_PATH } from './harness/vfs/filesystem';

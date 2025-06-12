@@ -19,22 +19,32 @@ import {
     TextEdit,
 } from 'vscode-languageserver';
 
-import { isDefinedInFile } from '../analyzer/declarationUtils';
-import { transformTypeForEnumMember } from '../analyzer/enums';
-import { ImportedModuleDescriptor, ImportResolver } from '../analyzer/importResolver';
-import { ImportResult } from '../analyzer/importResult';
-import { getParamListDetails, ParamKind } from '../analyzer/parameterUtils';
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { getCallNodeAndActiveParamIndex } from '../analyzer/parseTreeUtils';
-import { getScopeForNode } from '../analyzer/scopeUtils';
-import { isStubFile, SourceMapper } from '../analyzer/sourceMapper';
-import { Symbol, SymbolTable } from '../analyzer/symbol';
-import * as SymbolNameUtils from '../analyzer/symbolNameUtils';
-import { getLastTypedDeclarationForSymbol, isVisibleExternally } from '../analyzer/symbolUtils';
-import { getTypedDictMembersForClass } from '../analyzer/typedDicts';
-import { getModuleDocStringFromUris, isBuiltInModule } from '../analyzer/typeDocStringUtils';
-import { CallSignatureInfo, TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { printLiteralValue } from '../analyzer/typePrinter';
+import {
+    Declaration,
+    DeclarationType,
+    FunctionDeclaration,
+    isIntrinsicDeclaration,
+    isVariableDeclaration,
+    VariableDeclaration,
+} from 'typeserver/binder/declaration';
+import { isDefinedInFile } from 'typeserver/binder/declarationUtils';
+import { getScopeForNode } from 'typeserver/binder/scopeUtils';
+import { Symbol, SymbolTable } from 'typeserver/binder/symbol';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils';
+import { getLastTypedDeclarationForSymbol, isVisibleExternally } from 'typeserver/binder/symbolUtils';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
+import { getCallNodeAndActiveParamIndex } from 'typeserver/common/parseTreeUtils';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils';
+import { PythonVersion, pythonVersion3_10, pythonVersion3_5 } from 'typeserver/common/pythonVersion';
+import { comparePositions, Position, TextRange } from 'typeserver/common/textRange';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection';
+import { ExecutionEnvironment } from 'typeserver/config/configOptions';
+import { transformTypeForEnumMember } from 'typeserver/evaluator/enums';
+import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils';
+import { getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts';
+import { CallSignatureInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+import { printLiteralValue } from 'typeserver/evaluator/typePrinter';
 import {
     ClassType,
     combineTypes,
@@ -50,7 +60,7 @@ import {
     Type,
     TypeBase,
     TypeCategory,
-} from '../analyzer/types';
+} from 'typeserver/evaluator/types';
 import {
     containsLiteralType,
     doForEachSignature,
@@ -62,29 +72,13 @@ import {
     isNoneInstance,
     lookUpClassMember,
     MemberAccessFlags,
-} from '../analyzer/typeUtils';
-import {
-    Declaration,
-    DeclarationType,
-    FunctionDeclaration,
-    isIntrinsicDeclaration,
-    isVariableDeclaration,
-    VariableDeclaration,
-} from '../binder/declaration';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { appendArray } from '../common/collectionUtils';
-import { ExecutionEnvironment } from '../common/configOptions';
-import { ProgramView } from '../common/extensibility';
-import { fromLSPAny, toLSPAny } from '../common/lspUtils';
-import { convertOffsetToPosition, convertPositionToOffset } from '../common/positionUtils';
-import { PythonVersion, pythonVersion3_10, pythonVersion3_5 } from '../common/pythonVersion';
-import * as StringUtils from '../common/stringUtils';
-import { comparePositions, Position, TextRange } from '../common/textRange';
-import { TextRangeCollection } from '../common/textRangeCollection';
-import { Uri } from '../common/uri/uri';
-import { convertToTextEdits } from '../common/workspaceEditUtils';
-import { Localizer } from '../localization/localize';
+} from 'typeserver/evaluator/typeUtils';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView } from 'typeserver/extensibility/extensibility';
+import { Uri } from 'typeserver/files/uri/uri';
+import { ImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver';
+import { ImportResult } from 'typeserver/imports/importResult';
+import { Localizer } from 'typeserver/localization/localize';
 import {
     ArgCategory,
     DecoratorNode,
@@ -106,9 +100,9 @@ import {
     SetNode,
     StringNode,
     TypeAnnotationNode,
-} from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
-import { Tokenizer } from '../parser/tokenizer';
+} from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { Tokenizer } from 'typeserver/parser/tokenizer';
 import {
     FStringStartToken,
     OperatorToken,
@@ -117,9 +111,16 @@ import {
     StringTokenFlags,
     Token,
     TokenType,
-} from '../parser/tokenizerTypes';
-import * as debug from '../utils/debug';
-import { fail } from '../utils/debug';
+} from 'typeserver/parser/tokenizerTypes';
+import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper';
+import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtils';
+import { appendArray } from 'typeserver/utils/collectionUtils';
+import * as debug from 'typeserver/utils/debug';
+import { fail } from 'typeserver/utils/debug';
+import * as StringUtils from 'typeserver/utils/stringUtils';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion';
+import { fromLSPAny, toLSPAny } from '../server/lspUtils';
+import { convertToTextEdits } from '../server/workspaceEditUtils';
 import { AutoImporter, AutoImportResult, buildModuleSymbolsMap } from './autoImporter';
 import {
     CompletionDetail,
@@ -288,7 +289,7 @@ export class CompletionProvider {
     protected itemToResolve: CompletionItem | undefined;
 
     constructor(
-        protected readonly program: ProgramView,
+        protected readonly program: IProgramView,
         protected readonly fileUri: Uri,
         protected readonly position: Position,
         protected readonly options: CompletionOptions,
@@ -360,17 +361,13 @@ export class CompletionProvider {
             }
 
             if (this.options.format === MarkupKind.Markdown) {
-                const markdownString = this.program.serviceProvider
-                    .docStringService()
-                    .convertDocStringToMarkdown(documentation, isBuiltInModule(moduleUri));
+                const markdownString = convertDocStringToMarkdown(documentation);
                 completionItem.documentation = {
                     kind: MarkupKind.Markdown,
                     value: markdownString,
                 };
             } else if (this.options.format === MarkupKind.PlainText) {
-                const plainTextString = this.program.serviceProvider
-                    .docStringService()
-                    .convertDocStringToPlainText(documentation);
+                const plainTextString = convertDocStringToPlainText(documentation);
                 completionItem.documentation = {
                     kind: MarkupKind.PlainText,
                     value: plainTextString,
@@ -985,9 +982,7 @@ export class CompletionProvider {
 
             if (detail?.documentation) {
                 markdownString += '---\n';
-                markdownString += this.program.serviceProvider
-                    .docStringService()
-                    .convertDocStringToMarkdown(detail.documentation, isBuiltInModule(detail.moduleUri));
+                markdownString += convertDocStringToMarkdown(detail.documentation);
             }
 
             markdownString = markdownString.trimEnd();
@@ -1014,9 +1009,7 @@ export class CompletionProvider {
             }
 
             if (detail?.documentation) {
-                plainTextString +=
-                    '\n' +
-                    this.program.serviceProvider.docStringService().convertDocStringToPlainText(detail.documentation);
+                plainTextString += '\n' + convertDocStringToPlainText(detail.documentation);
             }
 
             plainTextString = plainTextString.trimEnd();

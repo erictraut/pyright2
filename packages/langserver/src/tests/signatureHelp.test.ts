@@ -9,10 +9,9 @@
 import assert from 'assert';
 import { CancellationToken, MarkupKind } from 'vscode-languageserver';
 
-import { convertOffsetToPosition } from '../common/positionUtils';
-import { SignatureHelpProvider } from '../languageService/signatureHelpProvider';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils';
+import { SignatureHelpProvider } from '../providers/signatureHelpProvider';
 import { parseAndGetTestState } from './harness/fourslash/testState';
-import { PyrightDocStringService } from '../common/docStringService';
 
 test('invalid position in format string segment', () => {
     const code = `
@@ -82,14 +81,13 @@ function checkSignatureHelp(code: string, expects: boolean) {
     const position = convertOffsetToPosition(marker.position, parseResults.tokenizerOutput.lines);
 
     const actual = new SignatureHelpProvider(
-        state.workspace.service.test_program,
+        state.workspace.service.program,
         marker.fileUri,
         position,
         MarkupKind.Markdown,
         /*hasSignatureLabelOffsetCapability*/ true,
         /*hasActiveParameterCapability*/ true,
         /*context*/ undefined,
-        new PyrightDocStringService(),
         CancellationToken.None
     ).getSignatureHelp();
 

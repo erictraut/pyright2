@@ -8,22 +8,12 @@
  * completion suggestions, etc.
  */
 
-import { getBoundCallMethod } from '../analyzer/constructors';
-import { Declaration, DeclarationType, VariableDeclaration } from '../analyzer/declaration';
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { SourceMapper } from '../analyzer/sourceMapper';
-import { Symbol } from '../analyzer/symbol';
-import {
-    getClassDocString,
-    getFunctionDocStringInherited,
-    getModuleDocString,
-    getModuleDocStringFromUris,
-    getOverloadedDocStringsInherited,
-    getPropertyDocStringInherited,
-    getVariableDocString,
-} from '../analyzer/typeDocStringUtils';
-import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { MemberAccessFlags, lookUpClassMember } from '../analyzer/typeUtils';
+import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration';
+import { Symbol } from 'typeserver/binder/symbol';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
+import { SignatureDisplayType } from 'typeserver/config/configOptions';
+import { getBoundCallMethod } from 'typeserver/evaluator/constructors';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
 import {
     ClassType,
     FunctionType,
@@ -39,10 +29,20 @@ import {
     isInstantiableClass,
     isModule,
     isOverloaded,
-} from '../analyzer/types';
-import { SignatureDisplayType } from '../common/configOptions';
-import { isDefined } from '../common/core';
-import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from '../parser/parseNodes';
+} from 'typeserver/evaluator/types';
+import { MemberAccessFlags, lookUpClassMember } from 'typeserver/evaluator/typeUtils';
+import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes';
+import { SourceMapper } from 'typeserver/program/sourceMapper';
+import {
+    getClassDocString,
+    getFunctionDocStringInherited,
+    getModuleDocString,
+    getModuleDocStringFromUris,
+    getOverloadedDocStringsInherited,
+    getPropertyDocStringInherited,
+    getVariableDocString,
+} from 'typeserver/service/typeDocStringUtils';
+import { isDefined } from 'typeserver/utils/core';
 
 // The number of spaces to indent each parameter, after moving to a newline in tooltips.
 const functionParamIndentOffset = 4;

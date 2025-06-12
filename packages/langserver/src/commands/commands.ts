@@ -12,7 +12,6 @@ export const enum Commands {
     restartServer = 'pyright.restartserver',
     orderImports = 'pyright.organizeimports',
     unusedImport = 'pyright.unusedImport',
-    dumpFileDebugInfo = 'pyright.dumpFileDebugInfo',
     dumpTokens = 'pyright.dumpTokens',
     dumpNodes = 'pyright.dumpNodes',
     dumpTypes = 'pyright.dumpTypes',

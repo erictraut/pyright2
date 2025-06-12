@@ -4,8 +4,8 @@
  * Licensed under the MIT license.
  */
 
-import { binarySearch, insertAt } from '../../common/collectionUtils';
-import { identity } from '../../common/core';
+import { binarySearch, insertAt } from 'typeserver/utils/collectionUtils';
+import { identity } from 'typeserver/utils/core';
 
 export interface SortOptions<T> {
     comparer: (a: T, b: T) => number;

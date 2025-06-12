@@ -18,18 +18,18 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { TypeService } from '../analyzer/typeService';
-import { FileEditAction, FileEditActions, TextEditAction } from '../common/editAction';
-import { createMapFromItems } from './collectionUtils';
-import { isArray } from './core';
-import { assertNever } from './debug';
-import { EditableProgram, SourceFileInfo } from './extensibility';
-import { ReadOnlyFileSystem } from './fileSystem';
-import { convertRangeToTextRange, convertTextRangeToRange } from './positionUtils';
-import { TextRange } from './textRange';
-import { TextRangeCollection } from './textRangeCollection';
-import { Uri } from './uri/uri';
-import { convertUriToLspUriString } from './uri/uriUtils';
+import { FileEditAction, FileEditActions, TextEditAction } from 'typeserver/common/editAction';
+import { convertRangeToTextRange, convertTextRangeToRange } from 'typeserver/common/positionUtils';
+import { TextRange } from 'typeserver/common/textRange';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection';
+import { IEditableProgram, ISourceFileInfo } from 'typeserver/extensibility/extensibility';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils';
+import { TypeService } from 'typeserver/service/typeService';
+import { createMapFromItems } from 'typeserver/utils/collectionUtils';
+import { isArray } from 'typeserver/utils/core';
+import { assertNever } from 'typeserver/utils/debug';
 
 export function convertToTextEdits(editActions: TextEditAction[]): TextEdit[] {
     return editActions.map((editAction) => ({
@@ -103,7 +103,7 @@ export function applyTextEditsToString(
     return current;
 }
 
-export function applyWorkspaceEdit(program: EditableProgram, edits: WorkspaceEdit, filesChanged: Map<string, Uri>) {
+export function applyWorkspaceEdit(program: IEditableProgram, edits: WorkspaceEdit, filesChanged: Map<string, Uri>) {
     if (edits.changes) {
         for (const kv of Object.entries(edits.changes)) {
             const fileUri = Uri.parse(kv[0], program.serviceProvider);
@@ -139,7 +139,7 @@ export function applyWorkspaceEdit(program: EditableProgram, edits: WorkspaceEdi
     }
 }
 
-export function applyDocumentChanges(program: EditableProgram, fileInfo: SourceFileInfo, edits: TextEdit[]) {
+export function applyDocumentChanges(program: IEditableProgram, fileInfo: ISourceFileInfo, edits: TextEdit[]) {
     if (!fileInfo.isOpenByClient) {
         const fileContent = fileInfo.contents;
         program.setFileOpened(fileInfo.uri, 0, fileContent ?? '', {

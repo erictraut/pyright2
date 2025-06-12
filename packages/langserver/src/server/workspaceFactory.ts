@@ -10,11 +10,11 @@ import {
     WorkspaceFolder as lspWorkspaceFolder,
 } from 'vscode-languageserver';
 
-import { AnalyzerService } from './analyzer/service';
-import { ConsoleInterface } from './common/console';
-import { createDeferred } from './common/deferred';
-import { ServiceProvider } from './common/serviceProvider';
-import { Uri } from './common/uri/uri';
+import { ConsoleInterface } from 'typeserver/extensibility/console';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { Uri } from 'typeserver/files/uri/uri';
+import { TypeService } from 'typeserver/service/typeService';
+import { createDeferred } from 'typeserver/utils/deferred';
 
 let WorkspaceFactoryIdCounter = 0;
 
@@ -80,7 +80,7 @@ export interface WorkspaceFolder {
 // rootPath will always point to the folder that contains the workspace.
 export interface Workspace extends WorkspaceFolder {
     kinds: string[];
-    service: AnalyzerService;
+    service: TypeService;
     disableLanguageServices: boolean;
     disableTaggedHints: boolean;
     disableOrganizeImports: boolean;
@@ -98,7 +98,7 @@ export function renameWorkspace(workspace: Workspace, name: string) {
     workspace.service.setServiceName(name);
 }
 
-export type CreateServiceFunction = (name: string, workspaceRoot: Uri | undefined, kinds: string[]) => AnalyzerService;
+export type CreateServiceFunction = (name: string, workspaceRoot: Uri | undefined, kinds: string[]) => TypeService;
 
 export class WorkspaceFactory {
     private _defaultWorkspacePath = '<default>';

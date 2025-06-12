@@ -6,14 +6,14 @@
 
 import assert from 'assert';
 
+import { CommandLineOptions } from 'typeserver/config/commandLineOptions';
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils';
+import { Uri } from 'typeserver/files/uri/uri';
+import { UriEx } from 'typeserver/files/uri/uriUtils';
+import { IPythonMode } from 'typeserver/program/sourceFile';
 import { CancellationToken } from 'vscode-jsonrpc';
-import { IPythonMode } from '../analyzer/sourceFile';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from '../common/pathUtils';
-import { parseAndGetTestState, TestState } from './harness/fourslash/testState';
-import { Uri } from '../common/uri/uri';
-import { CommandLineOptions } from '../common/commandLineOptions';
 import { parseTestData } from './harness/fourslash/fourSlashParser';
-import { UriEx } from '../common/uri/uriUtils';
+import { parseAndGetTestState, TestState } from './harness/fourslash/testState';
 
 test('random library file changed', () => {
     const state = parseAndGetTestState('', '/projectRoot').state;
@@ -188,7 +188,7 @@ test('excluded but still part of program', () => {
     const state = parseAndGetTestState(code, '/projectRoot').state;
     const marker = state.getMarkerByName('marker');
 
-    while (state.workspace.service.test_program.analyze());
+    while (state.workspace.service.program.analyze());
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleSourceFileWatchChanges(marker.fileUri, /* isFile */ true),
@@ -331,7 +331,7 @@ test('program containsSourceFileIn', () => {
     `;
 
     const state = parseAndGetTestState(code, '/projectRoot').state;
-    assert(state.workspace.service.test_program.containsSourceFileIn(state.activeFile.fileUri));
+    assert(state.workspace.service.program.containsSourceFileIn(state.activeFile.fileUri));
 });
 
 test('service runEditMode', () => {
@@ -384,16 +384,16 @@ test('service runEditMode', () => {
             assert.strictEqual(value, closedFile.contents);
         }, CancellationToken.None);
 
-        const interim = state.workspace.service.test_program.getSourceFileInfo(newFileUri);
+        const interim = state.workspace.service.program.getSourceFileInfo(newFileUri);
         assert(!interim);
 
-        const openFile = state.workspace.service.test_program.getSourceFileInfo(openUri);
+        const openFile = state.workspace.service.program.getSourceFileInfo(openUri);
         assert(openFile);
         assert(openFile.isOpenByClient);
 
         assert.strictEqual('', openFile.contents?.trim());
 
-        const closedFile = state.workspace.service.test_program.getSourceFileInfo(closedUri);
+        const closedFile = state.workspace.service.program.getSourceFileInfo(closedUri);
         assert(closedFile);
         assert(!closedFile.isOpenByClient);
 

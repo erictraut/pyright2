@@ -10,27 +10,25 @@
 
 import { CancellationToken, Location, ResultProgressReporter } from 'vscode-languageserver';
 
-import { Declaration, DeclarationType, isAliasDeclaration } from '../analyzer/declaration';
-import { getNameFromDeclaration } from '../analyzer/declarationUtils';
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { isUserCode } from '../analyzer/sourceFileInfoUtils';
-import { Symbol } from '../analyzer/symbol';
-import { isVisibleExternally } from '../analyzer/symbolUtils';
-import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { maxTypeRecursionCount } from '../analyzer/types';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { appendArray } from '../common/collectionUtils';
-import { DocumentRange } from '../common/docRange';
-import { ProgramView, ReferenceUseCase, SymbolUsageProvider } from '../common/extensibility';
-import { ReadOnlyFileSystem } from '../common/fileSystem';
-import { convertOffsetToPosition, convertPositionToOffset } from '../common/positionUtils';
-import { ServiceKeys } from '../common/serviceKeys';
-import { isRangeInRange, Position, Range, TextRange } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { NameNode, ParseNode, ParseNodeType } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
-import { isDefined } from '../utils/core';
-import { assertNever } from '../utils/debug';
+import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration';
+import { getNameFromDeclaration } from 'typeserver/binder/declarationUtils';
+import { Symbol } from 'typeserver/binder/symbol';
+import { isVisibleExternally } from 'typeserver/binder/symbolUtils';
+import { DocumentRange } from 'typeserver/common/docRange';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils';
+import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/textRange';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+import { maxTypeRecursionCount } from 'typeserver/evaluator/types';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
+import { appendArray } from 'typeserver/utils/collectionUtils';
+import { assertNever } from 'typeserver/utils/debug';
 import { CollectionResult, DocumentSymbolCollector } from './documentSymbolCollector';
 import { convertDocumentRangesToLocation } from './navigationUtils';
 
@@ -53,7 +51,6 @@ export class ReferencesResult {
         readonly symbolNames: string[],
         readonly declarations: Declaration[],
         readonly useCase: ReferenceUseCase,
-        readonly providers: readonly SymbolUsageProvider[],
         private readonly _reporter?: ReferenceCallback
     ) {
         // Filter out any import decls. but leave one with alias.
@@ -114,7 +111,7 @@ export class FindReferencesTreeWalker {
     private _parseResults: ParseFileResults | undefined;
 
     constructor(
-        private _program: ProgramView,
+        private _program: IProgramView,
         private _fileUri: Uri,
         private _referencesResult: ReferencesResult,
         private _includeDeclaration: boolean,
@@ -144,7 +141,6 @@ export class FindReferencesTreeWalker {
                 treatModuleInImportAndFromImportSame: true,
                 skipUnreachableCode: false,
                 useCase: this._referencesResult.useCase,
-                providers: this._referencesResult.providers,
             }
         );
 
@@ -186,7 +182,7 @@ export class FindReferencesTreeWalker {
 
 export class ReferencesProvider {
     constructor(
-        private _program: ProgramView,
+        private _program: IProgramView,
         private _token: CancellationToken,
         private readonly _createDocumentRange?: (
             fileUri: Uri,
@@ -285,8 +281,7 @@ export class ReferencesProvider {
                     referencesResult.nodeAtOffset,
                     referencesResult.symbolNames,
                     referencesResult.declarations,
-                    referencesResult.useCase,
-                    referencesResult.providers
+                    referencesResult.useCase
                 );
 
                 this.addReferencesToResult(declFileInfo.uri, includeDeclaration, tempResult);
@@ -332,7 +327,7 @@ export class ReferencesProvider {
     }
 
     static getDeclarationForNode(
-        program: ProgramView,
+        program: IProgramView,
         fileUri: Uri,
         node: NameNode,
         reporter: ReferenceCallback | undefined,
@@ -356,29 +351,18 @@ export class ReferencesProvider {
         const symbolNames = new Set<string>(declarations.map((d) => getNameFromDeclaration(d)!).filter((n) => !!n));
         symbolNames.add(node.d.value);
 
-        const providers = (program.serviceProvider.tryGet(ServiceKeys.symbolUsageProviderFactory) ?? [])
-            .map((f) => f.tryCreateProvider(useCase, declarations, token))
-            .filter(isDefined);
-
-        // Check whether we need to add new symbol names and declarations.
-        providers.forEach((p) => {
-            p.appendSymbolNamesTo(symbolNames);
-            p.appendDeclarationsTo(declarations);
-        });
-
         return new ReferencesResult(
             requiresGlobalSearch,
             node,
             Array.from(symbolNames.values()),
             declarations,
             useCase,
-            providers,
             reporter
         );
     }
 
     static getDeclarationForPosition(
-        program: ProgramView,
+        program: IProgramView,
         fileUri: Uri,
         position: Position,
         reporter: ReferenceCallback | undefined,

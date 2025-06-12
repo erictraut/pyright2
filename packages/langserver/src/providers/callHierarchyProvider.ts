@@ -16,36 +16,39 @@ import {
     Range,
 } from 'vscode-languageserver-types';
 
-import { Declaration, DeclarationType } from '../analyzer/declaration';
-import * as DeclarationUtils from '../analyzer/declarationUtils';
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { ParseTreeWalker } from '../analyzer/parseTreeWalker';
-import { isUserCode } from '../analyzer/sourceFileInfoUtils';
-import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { MemberAccessFlags, doForEachSubtype, lookUpClassMember, lookUpObjectMember } from '../analyzer/typeUtils';
-import { ClassType, isClassInstance, isFunction, isInstantiableClass } from '../analyzer/types';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { appendArray } from '../common/collectionUtils';
-import { isDefined } from '../common/core';
-import { ProgramView, ReferenceUseCase, SymbolUsageProvider } from '../common/extensibility';
-import { ReadOnlyFileSystem } from '../common/fileSystem';
-import { getSymbolKind } from '../common/lspUtils';
-import { convertOffsetsToRange } from '../common/positionUtils';
-import { ServiceKeys } from '../common/serviceKeys';
-import { Position, rangesAreEqual } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { convertUriToLspUriString } from '../common/uri/uriUtils';
-import { ReferencesProvider, ReferencesResult } from '../languageService/referencesProvider';
-import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration';
+import * as DeclarationUtils from 'typeserver/binder/declarationUtils';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
+import { convertOffsetsToRange } from 'typeserver/common/positionUtils';
+import { Position, rangesAreEqual } from 'typeserver/common/textRange';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+import { ClassType, isClassInstance, isFunction, isInstantiableClass } from 'typeserver/evaluator/types';
+import {
+    MemberAccessFlags,
+    doForEachSubtype,
+    lookUpClassMember,
+    lookUpObjectMember,
+} from 'typeserver/evaluator/typeUtils';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils';
+import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
+import { appendArray } from 'typeserver/utils/collectionUtils';
+import { getSymbolKind } from '../server/lspUtils';
 import { DocumentSymbolCollector } from './documentSymbolCollector';
 import { canNavigateToFile } from './navigationUtils';
+import { ReferencesProvider, ReferencesResult } from './referencesProvider';
 
 export class CallHierarchyProvider {
     private readonly _parseResults: ParseFileResults | undefined;
 
     constructor(
-        private _program: ProgramView,
+        private _program: IProgramView,
         private _fileUri: Uri,
         private _position: Position,
         private _token: CancellationToken
@@ -422,11 +425,10 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
     private readonly _incomingCalls: CallHierarchyIncomingCall[] = [];
     private readonly _declarations: Declaration[] = [];
 
-    private readonly _usageProviders: SymbolUsageProvider[];
     private readonly _parseResults: ParseFileResults;
 
     constructor(
-        private readonly _program: ProgramView,
+        private readonly _program: IProgramView,
         private readonly _fileUri: Uri,
         private readonly _symbolName: string,
         private readonly _targetDeclaration: Declaration,
@@ -435,14 +437,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
         super();
 
         this._parseResults = this._program.getParseResults(this._fileUri)!;
-        this._usageProviders = (this._program.serviceProvider.tryGet(ServiceKeys.symbolUsageProviderFactory) ?? [])
-            .map((f) =>
-                f.tryCreateProvider(ReferenceUseCase.References, [this._targetDeclaration], this._cancellationToken)
-            )
-            .filter(isDefined);
-
         this._declarations.push(this._targetDeclaration);
-        this._usageProviders.forEach((p) => p.appendDeclarationsTo(this._declarations));
     }
 
     findCalls(): CallHierarchyIncomingCall[] {
@@ -546,8 +541,6 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
         );
 
         const results = [...declarations];
-        this._usageProviders.forEach((p) => p.appendDeclarationsAt(node, declarations, results));
-
         return results;
     }
 

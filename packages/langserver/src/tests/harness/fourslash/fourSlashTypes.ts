@@ -5,8 +5,8 @@
  *
  * Various common types for fourslash test framework
  */
-import * as debug from '../../../common/debug';
-import { Uri } from '../../../common/uri/uri';
+import { Uri } from 'typeserver/files/uri/uri';
+import { assert } from 'typeserver/utils/debug';
 
 /** well known global option names */
 export const enum GlobalMetadataOptionNames {
@@ -130,7 +130,7 @@ export class TestCancellationToken implements HostCancellationToken {
     }
 
     setCancelled(numberOfCalls = 0): void {
-        debug.assert(numberOfCalls >= 0);
+        assert(numberOfCalls >= 0);
         this._numberOfCallsBeforeCancellation = numberOfCalls;
     }
 

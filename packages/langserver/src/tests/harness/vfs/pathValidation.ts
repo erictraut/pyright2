@@ -6,9 +6,9 @@
 
 import { sep } from 'path';
 
-import * as pu from '../../../common/pathUtils';
+import * as pu from 'typeserver/files/pathUtils';
+import { Uri } from 'typeserver/files/uri/uri';
 import { createIOError } from '../utils';
-import { Uri } from '../../../common/uri/uri';
 
 const invalidRootComponentRegExp = getInvalidRootComponentRegExp();
 const invalidNavigableComponentRegExp = /[:*?"<>|]/;

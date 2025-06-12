@@ -8,7 +8,7 @@
 
 import * as ts from 'typescript';
 
-import { combinePaths } from '../../../common/pathUtils';
+import { combinePaths } from 'typeserver/files/pathUtils';
 import * as host from '../testHost';
 import { parseTestData } from './fourSlashParser';
 import { FourSlashData } from './fourSlashTypes';

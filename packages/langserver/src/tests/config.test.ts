@@ -9,20 +9,18 @@
 
 import assert from 'assert';
 
-import { AnalyzerService } from '../analyzer/service';
-import { deserialize, serialize } from '../backgroundThreadBase';
-import { CommandLineOptions, DiagnosticSeverityOverrides } from '../common/commandLineOptions';
-import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../common/configOptions';
-import { ConsoleInterface, NullConsole } from '../common/console';
-import { TaskListPriority } from '../common/diagnostic';
-import { combinePaths, normalizePath, normalizeSlashes } from '../common/pathUtils';
-import { pythonVersion3_13, pythonVersion3_9 } from '../common/pythonVersion';
-import { RealTempFile, createFromRealFileSystem } from '../common/realFileSystem';
-import { createServiceProvider } from '../common/serviceProviderExtensions';
-import { Uri } from '../common/uri/uri';
-import { UriEx } from '../common/uri/uriUtils';
+import { TaskListPriority } from 'typeserver/common/diagnostic';
+import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVersion';
+import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions';
+import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions';
+import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
+import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { UriEx } from 'typeserver/files/uri/uriUtils';
+import { TypeService } from 'typeserver/service/typeService';
 import { TestAccessHost } from './harness/testAccessHost';
-import { TestFileSystem } from './harness/vfs/filesystem';
 
 describe(`config test'}`, () => {
     const tempFile = new RealTempFile();
@@ -325,29 +323,6 @@ describe(`config test'}`, () => {
         assert(fileList.filter((f) => f.equals(untitled)));
     });
 
-    test('verify config fileSpecs after cloning', () => {
-        const fs = new TestFileSystem(/* ignoreCase */ true);
-        const configFile = {
-            ignore: ['**/node_modules/**'],
-        };
-
-        const rootUri = Uri.file(process.cwd(), fs);
-        const config = new ConfigOptions(rootUri);
-        const sp = createServiceProvider(fs, new NullConsole());
-        config.initializeFromJson(configFile, rootUri, sp, new TestAccessHost());
-        const cloned = deserialize(serialize(config));
-
-        assert.deepEqual(config.ignore, cloned.ignore);
-    });
-
-    test('verify can serialize config options', () => {
-        const config = new ConfigOptions(UriEx.file(process.cwd()));
-        const serialized = serialize(config);
-        const deserialized = deserialize<ConfigOptions>(serialized);
-        assert.deepEqual(config, deserialized);
-        assert.ok(deserialized.findExecEnvironment(UriEx.file('foo/bar.py')));
-    });
-
     test('extra paths on undefined execution root/default workspace', () => {
         const nullConsole = new NullConsole();
         const service = createAnalyzer(nullConsole);
@@ -607,6 +582,6 @@ describe(`config test'}`, () => {
         const serviceProvider = createServiceProvider(fs, cons, tempFile);
         const host = new TestAccessHost();
         host.getPythonVersion = () => pythonVersion3_13;
-        return new AnalyzerService('<default>', serviceProvider, { console: cons, hostFactory: () => host });
+        return new TypeService('<default>', serviceProvider, { console: cons, hostFactory: () => host });
     }
 });

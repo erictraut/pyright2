@@ -8,12 +8,12 @@
 
 import assert from 'assert';
 
-import { isClassDeclaration, isSpecialBuiltInClassDeclaration } from '../analyzer/declaration';
-import { getEnclosingFunction } from '../analyzer/parseTreeUtils';
-import { isProperty } from '../analyzer/typeUtils';
-import { TypeCategory, isClassInstance } from '../analyzer/types';
-import { TextRange } from '../common/textRange';
-import { ParseNodeType } from '../parser/parseNodes';
+import { isClassDeclaration, isSpecialBuiltInClassDeclaration } from 'typeserver/binder/declaration';
+import { getEnclosingFunction } from 'typeserver/common/parseTreeUtils';
+import { TextRange } from 'typeserver/common/textRange';
+import { isProperty } from 'typeserver/evaluator/typeUtils';
+import { TypeCategory, isClassInstance } from 'typeserver/evaluator/types';
+import { ParseNodeType } from 'typeserver/parser/parseNodes';
 import { Range } from './harness/fourslash/fourSlashTypes';
 import { TestState, getNodeAtMarker, parseAndGetTestState } from './harness/fourslash/testState';
 

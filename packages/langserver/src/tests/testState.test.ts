@@ -8,9 +8,9 @@
 
 import assert from 'assert';
 
-import { combinePaths, getFileName, normalizeSlashes } from '../common/pathUtils';
-import { compareStringsCaseSensitive } from '../common/stringUtils';
-import { Uri } from '../common/uri/uri';
+import { combinePaths, getFileName, normalizeSlashes } from 'typeserver/files/pathUtils';
+import { Uri } from 'typeserver/files/uri/uri';
+import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils';
 import { Range } from './harness/fourslash/fourSlashTypes';
 import { runFourSlashTestContent } from './harness/fourslash/runner';
 import { parseAndGetTestState } from './harness/fourslash/testState';
@@ -174,10 +174,10 @@ test('ProjectRoot', () => {
 });
 
 test('CustomTypeshedFolder', () => {
-    // use differnt physical folder as typeshed folder. this is different than
-    // typeshed folder settings in config json file since that points to a path
-    // in virtual file system. not physical one. this decides which physical folder
-    // those virtual folder will mount to.
+    // Use a different physical folder as the typeshed folder. This is different than
+    // typeshed folder settings in the config file since that points to a path
+    // in the virtual file system. This decides which physical folder
+    // those virtual folders will mount to.
     const code = `
 // global options
 // @typeshed: ${__dirname}
@@ -503,11 +503,11 @@ test('VerifyDiagnosticsTest1', () => {
 ////         pass
 ////     id: int
 ////     aid: Other
-////     valll: str = ''
+////     val11: str = ''
 ////     name: Optional[str] = None
 ////
 //// d1 = DataTuple(id=1, aid=Other())
-//// d2 = DataTuple(id=1, aid=Other(), valll='v')
+//// d2 = DataTuple(id=1, aid=Other(), val11='v')
 //// d3 = DataTuple(id=1, aid=Other(), name='hello')
 //// d4 = DataTuple(id=1, aid=Other(), name=None)
 //// id = d1.id

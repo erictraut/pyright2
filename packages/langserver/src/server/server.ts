@@ -15,30 +15,30 @@ import {
     WorkDoneProgressServerReporter,
 } from 'vscode-languageserver';
 
-import { isDefined } from '../../typeserver/src/utils/core';
-import { AnalysisResults } from './analyzer/analysis';
-import { CacheManager } from './analyzer/cacheManager';
-import { ImportResolver } from './analyzer/importResolver';
-import { isPythonBinary } from './analyzer/pythonPathUtils';
-import { CommandController } from './commands/commandController';
-import { ConfigOptions, SignatureDisplayType } from './common/configOptions';
-import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from './common/console';
-import { resolvePathWithEnvVariables } from './common/envVarUtils';
-import { FileBasedCancellationProvider } from './common/fileBasedCancellationUtils';
-import { FileSystem } from './common/fileSystem';
-import { FullAccessHost } from './common/fullAccessHost';
-import { Host } from './common/host';
-import { ServerSettings } from './common/languageServerInterface';
-import { ProgressReporter } from './common/progressReporter';
-import { RealTempFile, WorkspaceFileWatcherProvider, createFromRealFileSystem } from './common/realFileSystem';
-import { ServiceProvider } from './common/serviceProvider';
-import { createServiceProvider } from './common/serviceProviderExtensions';
-import { Uri } from './common/uri/uri';
-import { getRootUri } from './common/uri/uriUtils';
+import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions';
+import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console';
+import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils';
+import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost';
+import { Host } from 'typeserver/extensibility/host';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
+import { FileSystem } from 'typeserver/files/fileSystem';
+import { PartialStubService } from 'typeserver/files/partialStubService';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem';
+import { RealTempFile, WorkspaceFileWatcherProvider, createFromRealFileSystem } from 'typeserver/files/realFileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { getRootUri } from 'typeserver/files/uri/uriUtils';
+import { ImportResolver } from 'typeserver/imports/importResolver';
+import { AnalysisResults } from 'typeserver/service/analysis';
+import { CacheManager } from 'typeserver/service/cacheManager';
+import { isPythonBinary } from 'typeserver/service/pythonPathUtils';
+import { isDefined, isString } from 'typeserver/utils/core';
+import { CommandController } from '../commands/commandController';
+import { CodeActionProvider } from '../providers/codeActionProvider';
+import { resolvePathWithEnvVariables } from '../providers/envVarUtils';
+import { ServerSettings } from '../server/languageServerInterface';
+import { ProgressReporter } from '../server/progressReporter';
 import { LanguageServerBase } from './languageServerBase';
-import { CodeActionProvider } from './languageService/codeActionProvider';
-import { PartialStubService } from './partialStubService';
-import { PyrightFileSystem } from './pyrightFileSystem';
 import { WellKnownWorkspaceKinds, Workspace } from './workspaceFactory';
 
 const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };
@@ -267,7 +267,7 @@ export class PyrightServer extends LanguageServerBase {
         let displayingProgress = false;
         let workDoneProgress: Promise<WorkDoneProgressServerReporter> | undefined;
         return {
-            isDisplayingProgess: () => displayingProgress,
+            isDisplayingProgress: () => displayingProgress,
             isEnabled: (data: AnalysisResults) => true,
             begin: () => {
                 displayingProgress = true;
@@ -277,7 +277,9 @@ export class PyrightServer extends LanguageServerBase {
                         .then((progress) => {
                             progress.begin('');
                         })
-                        .ignoreErrors();
+                        .catch(() => {
+                            /* ignore errors */
+                        });
                 } else {
                     this.connection.sendNotification('pyright/beginProgress');
                 }
@@ -288,7 +290,9 @@ export class PyrightServer extends LanguageServerBase {
                         .then((progress) => {
                             progress.report(message);
                         })
-                        .ignoreErrors();
+                        .catch(() => {
+                            /* ignore errors */
+                        });
                 } else {
                     this.connection.sendNotification('pyright/reportProgress', message);
                 }
@@ -300,7 +304,9 @@ export class PyrightServer extends LanguageServerBase {
                         .then((progress) => {
                             progress.done();
                         })
-                        .ignoreErrors();
+                        .catch(() => {
+                            /* ignore errors */
+                        });
                     workDoneProgress = undefined;
                 } else {
                     this.connection.sendNotification('pyright/endProgress');

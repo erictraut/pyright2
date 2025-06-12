@@ -16,11 +16,11 @@ import {
     MarkupContent,
 } from 'vscode-languageserver';
 
-import { convertOffsetToPosition } from '../common/positionUtils';
-import { PythonVersion, pythonVersion3_10 } from '../common/pythonVersion';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils';
+import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion';
 
-import { isArray } from '../common/core';
-import { normalizeSlashes } from '../common/pathUtils';
+import { normalizeSlashes } from 'typeserver/files/pathUtils';
+import { isArray } from 'typeserver/utils/core';
 import {
     cleanupAfterAll,
     DEFAULT_WORKSPACE_ROOT,

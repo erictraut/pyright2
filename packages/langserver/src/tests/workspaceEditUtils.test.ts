@@ -7,17 +7,19 @@
  */
 
 import * as assert from 'assert';
+import { CancellationToken } from 'vscode-languageserver';
 import { TextDocumentEdit, WorkspaceEdit } from 'vscode-languageserver-types';
 
-import { CancellationToken } from 'vscode-languageserver';
-import { AnalyzerService } from '../analyzer/service';
-import { IPythonMode } from '../analyzer/sourceFile';
-import { combinePaths, getDirectoryPath } from '../common/pathUtils';
-import { Uri } from '../common/uri/uri';
-import { applyWorkspaceEdit, generateWorkspaceEdit } from '../common/workspaceEditUtils';
-import { AnalyzerServiceExecutor } from '../languageService/analyzerServiceExecutor';
+import { combinePaths, getDirectoryPath } from 'typeserver/files/pathUtils';
+import { Uri } from 'typeserver/files/uri/uri';
+import { IPythonMode } from 'typeserver/program/sourceFile';
+import { TypeService } from 'typeserver/service/typeService';
+import { CloneOptions, getEffectiveCommandLineOptions } from '../server/analyzerServiceExecutor';
+import { LanguageServerBaseInterface } from '../server/languageServerInterface';
+import { applyWorkspaceEdit, generateWorkspaceEdit } from '../server/workspaceEditUtils';
+import { createInitStatus, WellKnownWorkspaceKinds, Workspace } from '../server/workspaceFactory';
 import { TestLanguageService } from './harness/fourslash/testLanguageService';
-import { TestState, parseAndGetTestState } from './harness/fourslash/testState';
+import { parseAndGetTestState, TestState } from './harness/fourslash/testState';
 import { verifyWorkspaceEdit } from './harness/fourslash/workspaceEditTestUtils';
 
 test('test applyWorkspaceEdits changes', async () => {
@@ -47,7 +49,7 @@ test('test applyWorkspaceEdits changes', async () => {
     );
 
     assert.strictEqual(fileChanged.size, 1);
-    assert.strictEqual(cloned.test_program.getSourceFile(range.fileUri)?.getFileContent(), 'Text Changed');
+    assert.strictEqual(cloned.program.getSourceFile(range.fileUri)?.getFileContent(), 'Text Changed');
 });
 
 test('test edit mode for workspace', async () => {
@@ -152,8 +154,8 @@ test('test edit mode for workspace', async () => {
     }, CancellationToken.None);
 
     // After leaving edit mode, we should be back to where we were.
-    const oldSourceFile = state.workspace.service.test_program.getSourceFile(range.fileUri);
-    state.workspace.service.backgroundAnalysisProgram.analyzeFile(oldSourceFile!.getUri(), CancellationToken.None);
+    const oldSourceFile = state.workspace.service.program.getSourceFile(range.fileUri);
+    state.workspace.service.program.analyzeFile(oldSourceFile!.getUri(), CancellationToken.None);
 
     assert.strictEqual(oldSourceFile?.getFileContent(), '');
     assert.strictEqual(oldSourceFile.getImports().length, 2);
@@ -162,7 +164,7 @@ test('test edit mode for workspace', async () => {
     assert.deepStrictEqual(edits[0].replacementText, 'import sys');
     assert.deepStrictEqual(edits[1].replacementText, 'import os');
 
-    const addedSourceFile = state.workspace.service.test_program.getSourceFile(addedFileUri);
+    const addedSourceFile = state.workspace.service.program.getSourceFile(addedFileUri);
 
     // The added file should not be there.
     assert.ok(!addedSourceFile);
@@ -201,7 +203,7 @@ test('test applyWorkspaceEdits documentChanges', async () => {
     );
 
     assert.strictEqual(fileChanged.size, 1);
-    assert.strictEqual(cloned.test_program.getSourceFile(range.fileUri)?.getFileContent(), 'Text Changed');
+    assert.strictEqual(cloned.program.getSourceFile(range.fileUri)?.getFileContent(), 'Text Changed');
 });
 
 test('test generateWorkspaceEdits', async () => {
@@ -315,15 +317,51 @@ test('test generateWorkspaceEdits', async () => {
     );
 });
 
-function applyWorkspaceEditToService(service: AnalyzerService, edits: WorkspaceEdit, filesChanged: Map<string, Uri>) {
-    const program = service.backgroundAnalysisProgram.program;
-    applyWorkspaceEdit(program, edits, filesChanged);
+function applyWorkspaceEditToService(service: TypeService, edits: WorkspaceEdit, filesChanged: Map<string, Uri>) {
+    applyWorkspaceEdit(service.program, edits, filesChanged);
 }
 
 async function getClonedService(state: TestState) {
-    return await AnalyzerServiceExecutor.cloneService(
+    return await cloneService(
         new TestLanguageService(state.workspace, state.console, state.workspace.service.fs),
-        state.workspace,
-        { useBackgroundAnalysis: false }
+        state.workspace
     );
+}
+
+async function cloneService(
+    ls: LanguageServerBaseInterface,
+    workspace: Workspace,
+    options?: CloneOptions
+): Promise<TypeService> {
+    // Allocate a temporary pseudo-workspace to perform this job.
+    const instanceName = 'cloned service';
+
+    options = options ?? {};
+
+    const tempWorkspace: Workspace = {
+        ...workspace,
+        workspaceName: `temp workspace for cloned service`,
+        rootUri: workspace.rootUri,
+        kinds: [...workspace.kinds, WellKnownWorkspaceKinds.Cloned],
+        service: workspace.service.clone(instanceName, options.fileSystem),
+        disableLanguageServices: true,
+        disableTaggedHints: true,
+        disableOrganizeImports: true,
+        disableWorkspaceSymbol: true,
+        isInitialized: createInitStatus(),
+        searchPathsToWatch: [],
+    };
+
+    const serverSettings = await ls.getSettings(workspace);
+    const commandLineOptions = getEffectiveCommandLineOptions(
+        workspace.rootUri,
+        serverSettings,
+        /* trackFiles */ false,
+        options.typeStubTargetImportName,
+        /* pythonEnvironmentName */ undefined
+    );
+
+    workspace.service.setOptions(commandLineOptions);
+
+    return tempWorkspace.service;
 }

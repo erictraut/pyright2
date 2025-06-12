@@ -9,11 +9,11 @@
 import assert from 'assert';
 import { CompletionItemKind, MarkupKind } from 'vscode-languageserver-types';
 
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { TextRange } from '../common/textRange';
-import { TextRangeCollection } from '../common/textRangeCollection';
-import { LocMessage } from '../localization/localize';
-import { Comment, CommentType, Token } from '../parser/tokenizerTypes';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules';
+import { TextRange } from 'typeserver/common/textRange';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection';
+import { LocMessage } from 'typeserver/localization/localize';
+import { Comment, CommentType, Token } from 'typeserver/parser/tokenizerTypes';
 import { parseAndGetTestState } from './harness/fourslash/testState';
 
 test('regular mode', () => {
@@ -456,9 +456,9 @@ test('magics at the end', async () => {
 ////     total = n
 ////     
 ////     while n != 0:
-////         prec_x = random()
-////         prec_y = random()
-////         if pow(prec_x, 2) + pow(prec_y, 2) <= 1:
+////         pre_x = random()
+////         pre_y = random()
+////         if pow(pre_x, 2) + pow(pre_y, 2) <= 1:
 ////             in_circle += 1 # inside the circle
 ////         n -= 1
 ////         

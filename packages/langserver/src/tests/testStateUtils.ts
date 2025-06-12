@@ -8,20 +8,20 @@
 
 import assert from 'assert';
 
+import { FileEditAction, FileEditActions } from 'typeserver/common/editAction';
+import { findNodeByOffset } from 'typeserver/common/parseTreeUtils';
+import { TextRange, rangesAreEqual } from 'typeserver/common/textRange';
+import { ConfigOptions } from 'typeserver/config/configOptions';
+import { Uri } from 'typeserver/files/uri/uri';
+import { isFile } from 'typeserver/files/uri/uriUtils';
+import { NameNode } from 'typeserver/parser/parseNodes';
+import { Program } from 'typeserver/program/program';
+import { createMapFromItems } from 'typeserver/utils/collectionUtils';
+import { isArray } from 'typeserver/utils/core';
+import { assertNever } from 'typeserver/utils/debug';
 import { CancellationToken } from 'vscode-languageserver';
-import { findNodeByOffset } from '../analyzer/parseTreeUtils';
-import { Program } from '../analyzer/program';
-import { createMapFromItems } from '../common/collectionUtils';
-import { ConfigOptions } from '../common/configOptions';
-import { isArray } from '../common/core';
-import { assertNever } from '../common/debug';
-import { FileEditAction, FileEditActions } from '../common/editAction';
-import { TextRange, rangesAreEqual } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { isFile } from '../common/uri/uriUtils';
-import { applyTextEditsToString } from '../common/workspaceEditUtils';
-import { DocumentSymbolCollector } from '../languageService/documentSymbolCollector';
-import { NameNode } from '../parser/parseNodes';
+import { DocumentSymbolCollector } from '../providers/documentSymbolCollector';
+import { applyTextEditsToString } from '../server/workspaceEditUtils';
 import { Range } from './harness/fourslash/fourSlashTypes';
 import { TestState } from './harness/fourslash/testState';
 

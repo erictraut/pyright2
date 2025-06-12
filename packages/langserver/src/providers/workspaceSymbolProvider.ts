@@ -7,15 +7,16 @@
  */
 
 import { CancellationToken, Location, ResultProgressReporter, SymbolInformation } from 'vscode-languageserver';
-import { getFileInfo } from '../analyzer/analyzerNodeInfo';
-import { isUserCode } from '../analyzer/sourceFileInfoUtils';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { appendArray } from '../common/collectionUtils';
-import { ProgramView } from '../common/extensibility';
-import * as StringUtils from '../common/stringUtils';
-import { Uri } from '../common/uri/uri';
-import { convertUriToLspUriString } from '../common/uri/uriUtils';
-import { Workspace } from '../workspaceFactory';
+
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView } from 'typeserver/extensibility/extensibility';
+import { Uri } from 'typeserver/files/uri/uri';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
+import { appendArray } from 'typeserver/utils/collectionUtils';
+import * as StringUtils from 'typeserver/utils/stringUtils';
+import { Workspace } from '../server/workspaceFactory';
 import { IndexSymbolData, SymbolIndexer } from './symbolIndexer';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
@@ -56,7 +57,7 @@ export class WorkspaceSymbolProvider {
         return this._allSymbols;
     }
 
-    protected getSymbolsForDocument(program: ProgramView, fileUri: Uri): SymbolInformation[] {
+    protected getSymbolsForDocument(program: IProgramView, fileUri: Uri): SymbolInformation[] {
         const symbolList: SymbolInformation[] = [];
 
         const parseResults = program.getParseResults(fileUri);
@@ -82,7 +83,7 @@ export class WorkspaceSymbolProvider {
 
     protected appendWorkspaceSymbolsRecursive(
         indexSymbolData: IndexSymbolData[] | undefined,
-        program: ProgramView,
+        program: IProgramView,
         fileUri: Uri,
         container: string,
         symbolList: SymbolInformation[]
@@ -127,7 +128,7 @@ export class WorkspaceSymbolProvider {
         }
     }
 
-    private _reportSymbolsForProgram(program: ProgramView) {
+    private _reportSymbolsForProgram(program: IProgramView) {
         // Don't do a search if the query is empty. We'll return
         // too many results in this case.
         if (!this._query) {

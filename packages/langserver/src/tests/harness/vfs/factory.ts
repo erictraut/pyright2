@@ -6,9 +6,9 @@
  * Provides a factory to create virtual file system backed by a real file system with some path remapped
  */
 
-import * as pathConsts from '../../../common/pathConsts';
-import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from '../../../common/pathUtils';
-import { UriEx } from '../../../common/uri/uriUtils';
+import * as pathConsts from 'typeserver/common/pathConsts';
+import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from 'typeserver/files/pathUtils';
+import { UriEx } from 'typeserver/files/uri/uriUtils';
 import { GlobalMetadataOptionNames } from '../fourslash/fourSlashTypes';
 import { TestHost } from '../testHost';
 import { bufferFrom } from '../utils';

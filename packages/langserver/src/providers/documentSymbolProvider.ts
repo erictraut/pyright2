@@ -10,17 +10,17 @@
 
 import { CancellationToken, DocumentSymbol, Location, SymbolInformation } from 'vscode-languageserver';
 
-import { getFileInfo } from '../analyzer/analyzerNodeInfo';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { ProgramView } from '../common/extensibility';
-import { ReadOnlyFileSystem } from '../common/fileSystem';
-import { Uri } from '../common/uri/uri';
-import { convertUriToLspUriString } from '../common/uri/uriUtils';
-import { ParseFileResults } from '../parser/parser';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView } from 'typeserver/extensibility/extensibility';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils';
+import { ParseFileResults } from 'typeserver/parser/parser';
 import { IndexOptions, IndexSymbolData, SymbolIndexer } from './symbolIndexer';
 
 export function convertToFlatSymbols(
-    program: ProgramView,
+    program: IProgramView,
     uri: Uri,
     symbolList: DocumentSymbol[]
 ): SymbolInformation[] {
@@ -37,7 +37,7 @@ export class DocumentSymbolProvider {
     private _parseResults: ParseFileResults | undefined;
 
     constructor(
-        protected readonly program: ProgramView,
+        protected readonly program: IProgramView,
         protected readonly uri: Uri,
         private readonly _supportHierarchicalDocumentSymbol: boolean,
         private readonly _indexOptions: IndexOptions,

@@ -5,6 +5,10 @@
  *
  * implementation of file watcher feature dynamic registration
  */
+import { configFileName } from 'typeserver/common/pathConsts';
+import { FileSystem } from 'typeserver/files/fileSystem';
+import { deduplicateFolders, isFile } from 'typeserver/files/uri/uriUtils';
+import { isDefined } from 'typeserver/utils/core';
 import {
     Connection,
     DidChangeWatchedFilesNotification,
@@ -12,12 +16,8 @@ import {
     FileSystemWatcher,
     WatchKind,
 } from 'vscode-languageserver';
-import { FileSystem } from '../common/fileSystem';
-import { deduplicateFolders, isFile } from '../common/uri/uriUtils';
+import { Workspace } from '../server/workspaceFactory';
 import { DynamicFeature } from './dynamicFeature';
-import { Workspace } from '../workspaceFactory';
-import { isDefined } from '../common/core';
-import { configFileName } from '../common/pathConsts';
 
 export class FileWatcherDynamicFeature extends DynamicFeature {
     constructor(

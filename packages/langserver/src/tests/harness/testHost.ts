@@ -7,14 +7,14 @@
 import * as os from 'os';
 import * as pathModule from 'path';
 
-import { NullConsole } from '../../common/console';
-import { combinePaths, FileSystemEntries, resolvePaths } from '../../common/pathUtils';
-import { createFromRealFileSystem } from '../../common/realFileSystem';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from '../../common/stringUtils';
-import { directoryExists, fileExists, getFileSize, UriEx } from '../../common/uri/uriUtils';
-import { FileUriSchema } from '../../common/uri/fileUri';
-import { Uri } from '../../common/uri/uri';
-import { CaseSensitivityDetector } from '../../common/caseSensitivityDetector';
+import { NullConsole } from 'typeserver/extensibility/console';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector';
+import { combinePaths, FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils';
+import { createFromRealFileSystem } from 'typeserver/files/realFileSystem';
+import { FileUriSchema } from 'typeserver/files/uri/fileUri';
+import { Uri } from 'typeserver/files/uri/uri';
+import { directoryExists, fileExists, getFileSize, UriEx } from 'typeserver/files/uri/uriUtils';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils';
 
 export class TestCaseSensitivityDetector implements CaseSensitivityDetector {
     constructor(private _isCaseSensitive = true) {
@@ -74,7 +74,7 @@ function createHost(): TestHost {
         if (platform === 'win32') {
             return false;
         }
-        // If this file exists under a different case, we must be case-insensitve.
+        // If this file exists under a different case, we must be case-insensitive.
         return !vfs.existsSync(UriEx.file(swapCase(__filename)));
 
         /** Convert all lowercase chars to uppercase, and vice-versa */

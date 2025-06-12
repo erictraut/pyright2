@@ -10,21 +10,21 @@
 
 import { CancellationToken, DocumentHighlight, DocumentHighlightKind } from 'vscode-languageserver';
 
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { ProgramView, ReferenceUseCase } from '../common/extensibility';
-import { convertOffsetsToRange, convertPositionToOffset } from '../common/positionUtils';
-import { Position, TextRange } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { ParseNodeType } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
+import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils';
+import { Position, TextRange } from 'typeserver/common/textRange';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
+import { Uri } from 'typeserver/files/uri/uri';
+import { ParseNodeType } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
 import { DocumentSymbolCollector } from './documentSymbolCollector';
 
 export class DocumentHighlightProvider {
     private readonly _parseResults: ParseFileResults | undefined;
 
     constructor(
-        private _program: ProgramView,
+        private _program: IProgramView,
         private _fileUri: Uri,
         private _position: Position,
         private _token: CancellationToken

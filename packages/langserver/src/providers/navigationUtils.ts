@@ -5,11 +5,13 @@
  *
  * Helper functions for navigating files.
  */
+
 import { Location } from 'vscode-languageserver-types';
-import { DocumentRange } from '../common/docRange';
-import { ReadOnlyFileSystem } from '../common/fileSystem';
-import { Uri } from '../common/uri/uri';
-import { convertUriToLspUriString } from '../common/uri/uriUtils';
+
+import { DocumentRange } from 'typeserver/common/docRange';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils';
 
 export function canNavigateToFile(fs: ReadOnlyFileSystem, path: Uri): boolean {
     return !fs.isInZip(path);

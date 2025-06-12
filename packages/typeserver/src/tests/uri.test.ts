@@ -8,16 +8,32 @@
 
 import assert from 'assert';
 import * as nodefs from 'fs-extra';
-import * as os from 'os';
 import * as path from 'path';
 
-import { expandPathVariables } from '../common/envVarUtils';
-import { isRootedDiskPath, normalizeSlashes } from '../common/pathUtils';
-import { RealTempFile, createFromRealFileSystem } from '../common/realFileSystem';
-import { Uri } from '../common/uri/uri';
-import { UriEx, deduplicateFolders, getWildcardRegexPattern, getWildcardRoot } from '../common/uri/uriUtils';
-import * as vfs from './harness/vfs/filesystem';
-import { TestCaseSensitivityDetector } from './harness/testHost';
+import { CaseSensitivityDetector } from '../files/caseSensitivityDetector';
+import { isRootedDiskPath, normalizeSlashes } from '../files/pathUtils';
+import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem';
+import { FileUriSchema } from '../files/uri/fileUri';
+import { Uri } from '../files/uri/uri';
+import { UriEx, deduplicateFolders, getWildcardRegexPattern, getWildcardRoot } from '../files/uri/uriUtils';
+
+export class TestCaseSensitivityDetector implements CaseSensitivityDetector {
+    constructor(private _isCaseSensitive = true) {
+        // Empty
+    }
+
+    setCaseSensitivity(value: boolean) {
+        this._isCaseSensitive = value;
+    }
+
+    isCaseSensitive(uri: string): boolean {
+        if (uri.startsWith(FileUriSchema)) {
+            return this._isCaseSensitive;
+        }
+
+        return false;
+    }
+}
 
 const caseDetector = new TestCaseSensitivityDetector(true);
 
@@ -715,38 +731,6 @@ test('resolvePath2', () => {
     assert.equal(resolvePaths('/path', 'to', '..', 'from', 'file.ext/'), 'file:///path/from/file.ext');
 });
 
-function getHomeDirUri() {
-    return UriEx.file(os.homedir());
-}
-
-test('resolvePath3 ~ escape', () => {
-    assert.equal(
-        resolvePaths(expandPathVariables('~/path', Uri.empty(), []), 'to', '..', 'from', 'file.ext/'),
-        `${getHomeDirUri().toString()}/path/from/file.ext`
-    );
-});
-
-test('resolvePath4 ~ escape in middle', () => {
-    assert.equal(
-        resolvePaths('/path', expandPathVariables('~/file.ext/', Uri.empty(), [])),
-        `${getHomeDirUri().toString()}/file.ext`
-    );
-});
-
-function combinePaths(uri: string, ...paths: string[]) {
-    return resolvePaths(uri, ...paths);
-}
-
-test('invalid ~ without root', () => {
-    const path = combinePaths('Library', 'Mobile Documents', 'com~apple~CloudDocs', 'Development', 'mysuperproject');
-    assert.equal(resolvePaths(expandPathVariables(path, Uri.parse('foo:///src', caseDetector), [])), path);
-});
-
-test('invalid ~ with root', () => {
-    const path = combinePaths('/', 'Library', 'com~apple~CloudDocs', 'Development', 'mysuperproject');
-    assert.equal(resolvePaths(expandPathVariables(path, Uri.parse('foo:///src', caseDetector), [])), path);
-});
-
 function containsPath(uri: string, child: string) {
     return Uri.parse(child, caseDetector).isChild(Uri.parse(uri, caseDetector));
 }
@@ -866,16 +850,6 @@ test('getRelativePath', () => {
     assert.equal(getRelativePath('/a/b/c', '/a/b/c/d/e/f'), './d/e/f');
     assert.equal(getRelativePath('/a/b/c/d/e/f', '/a/b/c/'), undefined);
     assert.equal(getRelativePath('/a/b/c', '/d/e/f'), undefined);
-});
-
-test('CaseSensitivity', () => {
-    const cwd = '/';
-
-    const fsCaseInsensitive = new vfs.TestFileSystem(/*ignoreCase*/ true, { cwd });
-    assert.equal(fsCaseInsensitive.isLocalFileSystemCaseSensitive(), false);
-
-    const fsCaseSensitive = new vfs.TestFileSystem(/*ignoreCase*/ false, { cwd });
-    assert.equal(fsCaseSensitive.isLocalFileSystemCaseSensitive(), true);
 });
 
 test('deduplicateFolders', () => {

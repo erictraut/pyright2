@@ -106,3 +106,8 @@ export interface IEditableProgram extends IProgramView {
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
     updateChainedUri(fileUri: Uri, chainedUri: Uri | undefined): void;
 }
+
+export enum ReferenceUseCase {
+    Rename,
+    References,
+}

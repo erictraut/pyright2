@@ -16,13 +16,13 @@ import {
     DeclarationType,
     VariableDeclaration,
     isUnresolvedAliasDeclaration,
-} from '../analyzer/declaration';
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { SourceMapper } from '../analyzer/sourceMapper';
-import { SynthesizedTypeInfo } from '../analyzer/symbol';
-import { isBuiltInModule } from '../analyzer/typeDocStringUtils';
-import { PrintTypeOptions, TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from '../analyzer/typeUtils';
+} from 'typeserver/binder/declaration';
+import { SynthesizedTypeInfo } from 'typeserver/binder/symbol';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils';
+import { Position, Range, TextRange } from 'typeserver/common/textRange';
+import { SignatureDisplayType } from 'typeserver/config/configOptions';
+import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
 import {
     ClassType,
     Type,
@@ -34,17 +34,18 @@ import {
     isModule,
     isParamSpec,
     isTypeVar,
-} from '../analyzer/types';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { SignatureDisplayType } from '../common/configOptions';
-import { assertNever, fail } from '../common/debug';
-import { ProgramView } from '../common/extensibility';
-import { convertOffsetToPosition, convertPositionToOffset } from '../common/positionUtils';
-import { ServiceProvider } from '../common/serviceProvider';
-import { Position, Range, TextRange } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
+} from 'typeserver/evaluator/types';
+import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView } from 'typeserver/extensibility/extensibility';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { Uri } from 'typeserver/files/uri/uri';
+import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { SourceMapper } from 'typeserver/program/sourceMapper';
+import { assertNever, fail } from 'typeserver/utils/debug';
+import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion';
 import {
     getClassAndConstructorTypes,
     getConstructorTooltip,
@@ -107,9 +108,7 @@ export function addParameterResultsPart(
         docString = ParseTreeUtils.getDocString(funcNode?.d.suite?.d.statements ?? []);
         if (docString) {
             // Compute the docstring now.
-            docString = serviceProvider
-                .docStringService()
-                .extractParameterDocumentation(docString, paramNameNode.d.value, format);
+            docString = extractParameterDocumentation(docString, paramNameNode.d.value);
         }
     }
     if (!docString) {
@@ -134,9 +133,7 @@ export function addDocumentationResultsPart(
     }
 
     if (format === MarkupKind.Markdown) {
-        const markDown = serviceProvider
-            .docStringService()
-            .convertDocStringToMarkdown(docString, isBuiltInModule(resolvedDecl?.uri));
+        const markDown = convertDocStringToMarkdown(docString);
 
         if (parts.length > 0 && markDown.length > 0) {
             parts.push({ text: '---\n' });
@@ -147,7 +144,7 @@ export function addDocumentationResultsPart(
     }
 
     if (format === MarkupKind.PlainText) {
-        parts.push({ text: serviceProvider.docStringService().convertDocStringToPlainText(docString), python: false });
+        parts.push({ text: convertDocStringToPlainText(docString), python: false });
         return;
     }
 
@@ -212,7 +209,7 @@ export class HoverProvider {
     private readonly _sourceMapper: SourceMapper;
 
     constructor(
-        private readonly _program: ProgramView,
+        private readonly _program: IProgramView,
         private readonly _fileUri: Uri,
         private readonly _position: Position,
         private readonly _format: MarkupKind,

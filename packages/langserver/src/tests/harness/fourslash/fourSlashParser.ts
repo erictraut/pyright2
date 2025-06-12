@@ -6,16 +6,16 @@
  * Parse fourslash markup code and return parsed content with marker/range data
  */
 
-import { contains } from '../../../common/collectionUtils';
-import { toBoolean } from '../../../common/core';
 import {
     combinePaths,
     getRelativePath,
     isRootedDiskPath,
     normalizePath,
     normalizeSlashes,
-} from '../../../common/pathUtils';
-import { UriEx } from '../../../common/uri/uriUtils';
+} from 'typeserver/files/pathUtils';
+import { UriEx } from 'typeserver/files/uri/uriUtils';
+import { contains } from 'typeserver/utils/collectionUtils';
+import { toBoolean } from 'typeserver/utils/core';
 import { distlibFolder, libFolder } from '../vfs/factory';
 import {
     FourSlashData,
@@ -274,7 +274,7 @@ function parseFileContent(
     /// A list of ranges we've collected so far */
     let localRanges: Range[] = [];
 
-    /// The latest position of the start of an unflushed plain text area
+    /// The latest position of the start of an un-flushed plain text area
     let lastNormalCharPosition = 0;
 
     /// The total number of metacharacters removed from the file (so far)

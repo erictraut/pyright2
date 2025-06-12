@@ -8,11 +8,11 @@
 
 import * as os from 'os';
 
-import { Workspace, WorkspaceFolder } from '../workspaceFactory';
-import { Uri } from './uri/uri';
-import { isRootedDiskPath, normalizeSlashes } from './pathUtils';
-import { ServiceKeys } from './serviceKeys';
-import { escapeRegExp } from './stringUtils';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys';
+import { isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils';
+import { Uri } from 'typeserver/files/uri/uri';
+import { escapeRegExp } from 'typeserver/utils/stringUtils';
+import { Workspace, WorkspaceFolder } from '../server/workspaceFactory';
 
 export function resolvePathWithEnvVariables(
     workspace: Workspace,

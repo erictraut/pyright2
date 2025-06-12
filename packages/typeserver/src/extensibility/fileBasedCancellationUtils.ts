@@ -18,6 +18,8 @@ import {
     CancellationToken,
 } from 'vscode-languageserver';
 
+import { Uri } from '../files/uri/uri';
+import { UriEx } from '../files/uri/uriUtils';
 import {
     CancellationProvider,
     CancelledTokenId,
@@ -25,8 +27,6 @@ import {
     getCancellationFolderName,
     setCancellationFolderName,
 } from './cancellationUtils';
-import { Uri } from './uri/uri';
-import { UriEx } from './uri/uriUtils';
 
 class StatSyncFromFs {
     statSync(uri: Uri) {

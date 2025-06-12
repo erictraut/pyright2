@@ -9,24 +9,24 @@
 
 import { CancellationToken, WorkspaceEdit } from 'vscode-languageserver';
 
-import { isUserCode } from '../analyzer/sourceFileInfoUtils';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { assertNever } from '../common/debug';
-import { FileEditAction } from '../common/editAction';
-import { ProgramView, ReferenceUseCase } from '../common/extensibility';
-import { convertTextRangeToRange } from '../common/positionUtils';
-import { Position, Range } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { convertToWorkspaceEdit } from '../common/workspaceEditUtils';
-import { ReferencesProvider, ReferencesResult } from '../languageService/referencesProvider';
-import { ParseNodeType } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
+import { FileEditAction } from 'typeserver/common/editAction';
+import { convertTextRangeToRange } from 'typeserver/common/positionUtils';
+import { Position, Range } from 'typeserver/common/textRange';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
+import { Uri } from 'typeserver/files/uri/uri';
+import { ParseNodeType } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
+import { assertNever } from 'typeserver/utils/debug';
+import { convertToWorkspaceEdit } from '../server/workspaceEditUtils';
+import { ReferencesProvider, ReferencesResult } from './referencesProvider';
 
 export class RenameProvider {
     private readonly _parseResults: ParseFileResults | undefined;
 
     constructor(
-        private _program: ProgramView,
+        private _program: IProgramView,
         private _fileUri: Uri,
         private _position: Position,
         private _token: CancellationToken
@@ -151,7 +151,7 @@ export class RenameProvider {
     }
 
     static getRenameSymbolMode(
-        program: ProgramView,
+        program: IProgramView,
         fileUri: Uri,
         referencesResult: ReferencesResult,
         isDefaultWorkspace: boolean,
@@ -215,8 +215,7 @@ export class RenameProvider {
             referencesResult.nodeAtOffset,
             referencesResult.symbolNames,
             referencesResult.nonImportDeclarations,
-            referencesResult.useCase,
-            referencesResult.providers
+            referencesResult.useCase
         );
     }
 }

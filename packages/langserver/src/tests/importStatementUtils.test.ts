@@ -8,8 +8,12 @@
 
 import assert from 'assert';
 
-import { isFunctionDeclaration } from '../analyzer/declaration';
-import { ImportType } from '../analyzer/importResult';
+import { isFunctionDeclaration } from 'typeserver/binder/declaration';
+import { TextEditAction } from 'typeserver/common/editAction';
+import { findNodeByOffset } from 'typeserver/common/parseTreeUtils';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils';
+import { rangesAreEqual } from 'typeserver/common/textRange';
+import { ImportType } from 'typeserver/imports/importResult';
 import {
     getRelativeModuleName,
     getTextEditsForAutoImportInsertions,
@@ -17,13 +21,9 @@ import {
     getTopLevelImports,
     ImportNameInfo,
     ImportNameWithModuleInfo,
-} from '../analyzer/importStatementUtils';
-import { findNodeByOffset } from '../analyzer/parseTreeUtils';
-import { isArray } from '../common/core';
-import { TextEditAction } from '../common/editAction';
-import { convertOffsetToPosition } from '../common/positionUtils';
-import { rangesAreEqual } from '../common/textRange';
-import { NameNode } from '../parser/parseNodes';
+} from 'typeserver/imports/importStatementUtils';
+import { NameNode } from 'typeserver/parser/parseNodes';
+import { isArray } from 'typeserver/utils/core';
 import { Range } from './harness/fourslash/fourSlashTypes';
 import { parseAndGetTestState, TestState } from './harness/fourslash/testState';
 
@@ -489,7 +489,7 @@ test('resolve alias of not needed file', () => {
     const state = parseAndGetTestState(code).state;
     const marker = state.getMarkerByName('marker')!;
 
-    const evaluator = state.workspace.service.test_program.evaluator!;
+    const evaluator = state.workspace.service.program.evaluator!;
     state.openFile(marker.fileName);
 
     const markerUri = marker.fileUri;
@@ -498,7 +498,7 @@ test('resolve alias of not needed file', () => {
     const aliasDecls = evaluator.getDeclInfoForNameNode(nameNode)!.decls;
 
     // Unroot the file. we can't explicitly close the file since it will unload the file from test program.
-    state.workspace.service.test_program.getSourceFileInfo(markerUri)!.isOpenByClient = false;
+    state.workspace.service.program.getSourceFileInfo(markerUri)!.isOpenByClient = false;
 
     const unresolved = evaluator.resolveAliasDeclaration(aliasDecls[0], /*resolveLocalNames*/ false);
     assert(!unresolved);

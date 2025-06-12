@@ -6,17 +6,16 @@
  * Interface for language server
  */
 
-import { MaxAnalysisTime } from '../analyzer/program';
-import { IBackgroundAnalysis } from '../backgroundAnalysisBase';
-import { Workspace } from '../workspaceFactory';
-import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from './commandLineOptions';
-import { SignatureDisplayType } from './configOptions';
-import { ConsoleInterface, LogLevel } from './console';
-import { TaskListToken } from './diagnostic';
-import { FileSystem } from './fileSystem';
-import { FileWatcherHandler } from './fileWatcher';
-import { ServiceProvider } from './serviceProvider';
-import { Uri } from './uri/uri';
+import { TaskListToken } from 'typeserver/common/diagnostic';
+import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions';
+import { SignatureDisplayType } from 'typeserver/config/configOptions';
+import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { FileSystem } from 'typeserver/files/fileSystem';
+import { FileWatcherHandler } from 'typeserver/files/fileWatcher';
+import { Uri } from 'typeserver/files/uri/uri';
+import { MaxAnalysisTime } from 'typeserver/program/program';
+import { Workspace } from '../server/workspaceFactory';
 
 export interface ServerSettings {
     venvPath?: Uri | undefined;
@@ -55,7 +54,7 @@ export interface MessageAction {
 
 export interface WorkspaceServices {
     fs: FileSystem | undefined;
-    backgroundAnalysis: IBackgroundAnalysis | undefined;
+    //backgroundAnalysis: IBackgroundAnalysis | undefined;
 }
 
 export interface ServerOptions {

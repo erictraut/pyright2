@@ -8,46 +8,23 @@
 
 import { CancellationToken, CodeAction, ExecuteCommandParams } from 'vscode-languageserver';
 
-import {
-    BackgroundAnalysisProgram,
-    BackgroundAnalysisProgramFactory,
-} from '../../../analyzer/backgroundAnalysisProgram';
-import { ImportResolver, ImportResolverFactory } from '../../../analyzer/importResolver';
-import { MaxAnalysisTime } from '../../../analyzer/program';
-import { AnalyzerService, AnalyzerServiceOptions } from '../../../analyzer/service';
-import { IBackgroundAnalysis } from '../../../backgroundAnalysisBase';
+import { Range } from 'typeserver/common/textRange';
+import { ConfigOptions } from 'typeserver/config/configOptions';
+import { ConsoleInterface } from 'typeserver/extensibility/console';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { FileSystem } from 'typeserver/files/fileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { ImportResolverFactory } from 'typeserver/imports/importResolver';
+import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService';
 import { CommandController } from '../../../commands/commandController';
-import { ConfigOptions } from '../../../common/configOptions';
-import { ConsoleInterface } from '../../../common/console';
-import { FileSystem } from '../../../common/fileSystem';
-import { LanguageServerInterface, ServerSettings } from '../../../common/languageServerInterface';
-import { ServiceProvider } from '../../../common/serviceProvider';
-import { Range } from '../../../common/textRange';
-import { Uri } from '../../../common/uri/uri';
-import { CodeActionProvider } from '../../../languageService/codeActionProvider';
-import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../../../workspaceFactory';
+import { CodeActionProvider } from '../../../providers/codeActionProvider';
+import { LanguageServerInterface, ServerSettings } from '../../../server/languageServerInterface';
+import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../../../server/workspaceFactory';
 import { TestAccessHost } from '../testAccessHost';
 import { HostSpecificFeatures } from './testState';
 
 export class TestFeatures implements HostSpecificFeatures {
-    importResolverFactory: ImportResolverFactory = AnalyzerService.createImportResolver;
-    backgroundAnalysisProgramFactory: BackgroundAnalysisProgramFactory = (
-        serviceId: string,
-        serviceProvider: ServiceProvider,
-        configOptions: ConfigOptions,
-        importResolver: ImportResolver,
-        backgroundAnalysis?: IBackgroundAnalysis,
-        maxAnalysisTime?: MaxAnalysisTime
-    ) =>
-        new BackgroundAnalysisProgram(
-            serviceId,
-            serviceProvider,
-            configOptions,
-            importResolver,
-            backgroundAnalysis,
-            maxAnalysisTime,
-            /* disableChecker */ undefined
-        );
+    importResolverFactory: ImportResolverFactory = TypeService.createImportResolver;
 
     getCodeActionsForPosition(
         workspace: Workspace,
@@ -64,7 +41,6 @@ export class TestFeatures implements HostSpecificFeatures {
 }
 
 export class TestLanguageService implements LanguageServerInterface {
-    readonly window = new TestWindow();
     readonly supportAdvancedEdits = true;
     readonly serviceProvider: ServiceProvider;
 
@@ -75,7 +51,7 @@ export class TestLanguageService implements LanguageServerInterface {
         workspace: Workspace,
         readonly console: ConsoleInterface,
         readonly fs: FileSystem,
-        options?: AnalyzerServiceOptions
+        options?: TypeServiceOptions
     ) {
         this._workspace = workspace;
         this.serviceProvider = this._workspace.service.serviceProvider;
@@ -84,13 +60,13 @@ export class TestLanguageService implements LanguageServerInterface {
             workspaceName: '',
             rootUri: undefined,
             kinds: [WellKnownWorkspaceKinds.Test],
-            service: new AnalyzerService(
+            service: new TypeService(
                 'test service',
                 new ServiceProvider(),
                 options ?? {
                     console: this.console,
                     hostFactory: () => new TestAccessHost(),
-                    importResolverFactory: AnalyzerService.createImportResolver,
+                    importResolverFactory: TypeService.createImportResolver,
                     configOptions: new ConfigOptions(Uri.empty()),
                     fileSystem: this.fs,
                 }

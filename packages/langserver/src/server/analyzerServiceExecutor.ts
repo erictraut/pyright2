@@ -8,15 +8,14 @@
  * with a specified set of options.
  */
 
-import { isPythonBinary } from '../analyzer/pythonPathUtils';
-import { AnalyzerService, getNextServiceId } from '../analyzer/service';
-import { CommandLineOptions } from '../common/commandLineOptions';
-import { LogLevel } from '../common/console';
-import { FileSystem } from '../common/fileSystem';
-import { LanguageServerBaseInterface, ServerSettings } from '../common/languageServerInterface';
-import { Uri } from '../common/uri/uri';
-
-import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../workspaceFactory';
+import { CommandLineOptions } from 'typeserver/config/commandLineOptions';
+import { LogLevel } from 'typeserver/extensibility/console';
+import { FileSystem } from 'typeserver/files//fileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { isPythonBinary } from 'typeserver/service/pythonPathUtils';
+import { TypeService } from 'typeserver/service/typeService';
+import { LanguageServerBaseInterface, ServerSettings } from '../server/languageServerInterface';
+import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../server/workspaceFactory';
 
 export interface CloneOptions {
     typeStubTargetImportName?: string;
@@ -29,7 +28,7 @@ export interface RunOptions {
     pythonEnvironmentName?: string;
 }
 
-export class AnalyzerServiceExecutor {
+export class TypeServerExecutor {
     static runWithOptions(workspace: Workspace, serverSettings: ServerSettings, options?: RunOptions): void {
         const commandLineOptions = getEffectiveCommandLineOptions(
             workspace.rootUri,
@@ -47,19 +46,19 @@ export class AnalyzerServiceExecutor {
         ls: LanguageServerBaseInterface,
         workspace: Workspace,
         options?: CloneOptions
-    ): Promise<AnalyzerService> {
+    ): Promise<TypeService> {
         // Allocate a temporary pseudo-workspace to perform this job.
         const instanceName = 'cloned service';
-        const serviceId = getNextServiceId(instanceName);
 
         options = options ?? {};
+        const clonedService = workspace.service.clone(instanceName, options.fileSystem);
 
         const tempWorkspace: Workspace = {
             ...workspace,
             workspaceName: `temp workspace for cloned service`,
             rootUri: workspace.rootUri,
             kinds: [...workspace.kinds, WellKnownWorkspaceKinds.Cloned],
-            service: workspace.service.clone(instanceName, serviceId, undefined, options.fileSystem),
+            service: clonedService,
             disableLanguageServices: true,
             disableTaggedHints: true,
             disableOrganizeImports: true,
@@ -69,7 +68,7 @@ export class AnalyzerServiceExecutor {
         };
 
         const serverSettings = await ls.getSettings(workspace);
-        AnalyzerServiceExecutor.runWithOptions(tempWorkspace, serverSettings, {
+        TypeServerExecutor.runWithOptions(tempWorkspace, serverSettings, {
             typeStubTargetImportName: options.typeStubTargetImportName,
             trackFiles: false,
         });

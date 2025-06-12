@@ -10,6 +10,21 @@ import assert from 'assert';
 import * as fs from 'fs-extra';
 import { isMainThread, threadId, Worker } from 'node:worker_threads';
 import path from 'path';
+import { DiagnosticSink } from 'typeserver/common/diagnosticSink';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils';
+import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion';
+import { PythonPlatform } from 'typeserver/config/configOptions';
+import { LimitedAccessHost } from 'typeserver/extensibility/fullAccessHost';
+import { HostKind, ScriptOutput } from 'typeserver/extensibility/host';
+import { FileSystem } from 'typeserver/files/fileSystem';
+import { combinePaths, resolvePaths } from 'typeserver/files/pathUtils';
+import { FileUri } from 'typeserver/files/uri/fileUri';
+import { Uri } from 'typeserver/files/uri/uri';
+import { UriEx } from 'typeserver/files/uri/uriUtils';
+import { ParseOptions, Parser } from 'typeserver/parser/parser';
+import { PythonPathResult } from 'typeserver/service/pythonPathUtils';
+import { toBoolean } from 'typeserver/utils/core';
+import { createDeferred, Deferred } from 'typeserver/utils/deferred';
 import {
     ApplyWorkspaceEditParams,
     ApplyWorkspaceEditRequest,
@@ -57,22 +72,6 @@ import {
     WorkDoneProgressCancelNotification,
     WorkDoneProgressCreateRequest,
 } from 'vscode-languageserver/node';
-import { PythonPathResult } from '../../analyzer/pythonPathUtils';
-import { deserialize } from '../../backgroundThreadBase';
-import { PythonPlatform } from '../../common/configOptions';
-import { toBoolean } from '../../common/core';
-import { createDeferred, Deferred } from '../../common/deferred';
-import { DiagnosticSink } from '../../common/diagnosticSink';
-import { FileSystem } from '../../common/fileSystem';
-import { LimitedAccessHost } from '../../common/fullAccessHost';
-import { HostKind, ScriptOutput } from '../../common/host';
-import { combinePaths, resolvePaths } from '../../common/pathUtils';
-import { convertOffsetToPosition } from '../../common/positionUtils';
-import { PythonVersion, pythonVersion3_10 } from '../../common/pythonVersion';
-import { FileUri } from '../../common/uri/fileUri';
-import { Uri } from '../../common/uri/uri';
-import { UriEx } from '../../common/uri/uriUtils';
-import { ParseOptions, Parser } from '../../parser/parser';
 import { parseTestData } from '../harness/fourslash/fourSlashParser';
 import { FourSlashData, GlobalMetadataOptionNames } from '../harness/fourslash/fourSlashTypes';
 import { createVfsInfoFromFourSlashData, getMarkerByName } from '../harness/fourslash/testStateUtils';
@@ -1075,4 +1074,52 @@ export class TestHost extends LimitedAccessHost {
             prefix: Uri.empty(),
         };
     }
+}
+
+export function serializeReplacer(value: any) {
+    if (Uri.is(value) && value.toJsonObj !== undefined) {
+        return { __serialized_uri_val: value.toJsonObj() };
+    }
+    if (value instanceof Map) {
+        return { __serialized_map_val: [...value] };
+    }
+    if (value instanceof Set) {
+        return { __serialized_set_val: [...value] };
+    }
+    if (value instanceof RegExp) {
+        return { __serialized_regexp_val: { source: value.source, flags: value.flags } };
+    }
+
+    return value;
+}
+
+export function serialize(obj: any): string {
+    // Convert the object to a string so it can be sent across a message port.
+    return JSON.stringify(obj, (k, v) => serializeReplacer(v));
+}
+
+export function deserializeReviver(value: any) {
+    if (value && typeof value === 'object') {
+        if (value.__serialized_uri_val !== undefined) {
+            return Uri.fromJsonObj(value.__serialized_uri_val);
+        }
+        if (value.__serialized_map_val) {
+            return new Map(value.__serialized_map_val);
+        }
+        if (value.__serialized_set_val) {
+            return new Set(value.__serialized_set_val);
+        }
+        if (value.__serialized_regexp_val) {
+            return new RegExp(value.__serialized_regexp_val.source, value.__serialized_regexp_val.flags);
+        }
+    }
+    return value;
+}
+
+export function deserialize<T = any>(json: string | null): T {
+    if (!json) {
+        return undefined as any;
+    }
+    // Convert the string back to an object.
+    return JSON.parse(json, (k, v) => deserializeReviver(v));
 }

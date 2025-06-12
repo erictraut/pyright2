@@ -60,7 +60,7 @@ const _userActivityBackoffTimeInMs = 250;
 
 const _gitDirectory = normalizeSlashes('/.git/');
 
-export interface AnalyzerServiceOptions {
+export interface TypeServiceOptions {
     console?: ConsoleInterface;
     hostFactory?: HostFactory;
     importResolverFactory?: ImportResolverFactory;
@@ -77,7 +77,7 @@ interface ConfigFileContents {
 }
 
 export class TypeService {
-    protected readonly options: AnalyzerServiceOptions;
+    protected readonly options: TypeServiceOptions;
     private readonly _program: Program;
     private readonly _serviceProvider: ServiceProvider;
 
@@ -101,7 +101,7 @@ export class TypeService {
     private _backgroundAnalysisCancellationSource: AbstractCancellationTokenSource | undefined;
     private _disposed = false;
 
-    constructor(instanceName: string, serviceProvider: ServiceProvider, options: AnalyzerServiceOptions) {
+    constructor(instanceName: string, serviceProvider: ServiceProvider, options: TypeServiceOptions) {
         this._instanceName = instanceName;
 
         this._executionRootUri = Uri.empty();

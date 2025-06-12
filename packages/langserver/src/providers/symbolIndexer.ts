@@ -8,17 +8,17 @@
 
 import { CancellationToken, CompletionItemKind, SymbolKind } from 'vscode-languageserver';
 
-import { AnalyzerFileInfo } from '../analyzer/analyzerFileInfo';
-import * as AnalyzerNodeInfo from '../analyzer/analyzerNodeInfo';
-import { AliasDeclaration, Declaration, DeclarationType } from '../analyzer/declaration';
-import { getLastTypedDeclarationForSymbol, isVisibleExternally } from '../analyzer/symbolUtils';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { getSymbolKind } from '../common/lspUtils';
-import { convertOffsetsToRange, convertTextRangeToRange } from '../common/positionUtils';
-import { Range } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { ParseNodeType } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
+import { AliasDeclaration, Declaration, DeclarationType } from 'typeserver/binder/declaration';
+import { getLastTypedDeclarationForSymbol, isVisibleExternally } from 'typeserver/binder/symbolUtils';
+import { getScope, ScopedNode } from 'typeserver/common/analyzerNodeInfo';
+import { convertOffsetsToRange, convertTextRangeToRange } from 'typeserver/common/positionUtils';
+import { Range } from 'typeserver/common/textRange';
+import { AnalyzerFileInfo } from 'typeserver/evaluator/analyzerFileInfo';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { Uri } from 'typeserver/files/uri/uri';
+import { ParseNodeType } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { getSymbolKind } from '../server/lspUtils';
 import { convertSymbolKindToCompletionItemKind } from './autoImporter';
 
 export interface IndexOptions {
@@ -92,14 +92,14 @@ export class SymbolIndexer {
 function collectSymbolIndexData(
     fileInfo: AnalyzerFileInfo,
     parseResults: ParseFileResults,
-    node: AnalyzerNodeInfo.ScopedNode,
+    node: ScopedNode,
     indexOptions: IndexOptions,
     indexSymbolData: IndexSymbolData[],
     token: CancellationToken
 ) {
     throwIfCancellationRequested(token);
 
-    const scope = AnalyzerNodeInfo.getScope(node);
+    const scope = getScope(node);
     if (!scope) {
         return;
     }

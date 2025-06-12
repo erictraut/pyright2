@@ -8,13 +8,8 @@
 import assert from 'assert';
 import { CancellationToken, CancellationTokenSource } from 'vscode-jsonrpc';
 
-import { VariableDeclaration, isVariableDeclaration } from '../analyzer/declaration';
-import { buildImportTree as buildImportTreeImpl } from '../analyzer/sourceMapperUtils';
-import { TypeCategory } from '../analyzer/types';
-import { TextRange } from '../common/textRange';
-import { UriEx } from '../common/uri/uriUtils';
-import { ParseNodeType } from '../parser/parseNodes';
-import { getNodeAtMarker, parseAndGetTestState } from './harness/fourslash/testState';
+import { UriEx } from '../files/uri/uriUtils';
+import { buildImportTree as buildImportTreeImpl } from '../program/sourceMapperUtils';
 
 function buildImportTree(
     sourceFile: string,
@@ -175,67 +170,3 @@ describe('BuildImportTree', () => {
         assert.deepEqual(results, ['E']);
     });
 });
-
-test('find type alias decl', () => {
-    const code = `
-// @filename: test.py
-//// from typing import Mapping
-//// [|/*decl*/M|] = Mapping
-////
-//// def foo(/*marker*/m: M): pass
-    `;
-
-    assertTypeAlias(code);
-});
-
-test('find type alias decl from inferred type', () => {
-    const code = `
-// @filename: test.py
-//// from typing import Mapping
-//// [|/*decl*/M|] = Mapping
-////
-//// def foo(m: M):
-////     return m
-
-// @filename: test1.py
-//// from test import foo
-//// a = { "hello": 10 }
-////
-//// /*marker*/b = foo(a)
-    `;
-
-    assertTypeAlias(code);
-});
-
-function assertTypeAlias(code: string) {
-    const state = parseAndGetTestState(code).state;
-
-    const node = getNodeAtMarker(state, 'marker');
-    assert(node.nodeType === ParseNodeType.Name);
-
-    const type = state.program.evaluator!.getType(node);
-    assert(type?.category === TypeCategory.Class);
-
-    assert.strictEqual(type.shared.name, 'Mapping');
-    assert.strictEqual(type.props?.typeAliasInfo?.shared.name, 'M');
-    assert.strictEqual(type.props?.typeAliasInfo.shared.moduleName, 'test');
-
-    const marker = state.getMarkerByName('marker');
-    const markerUri = marker.fileUri;
-    const mapper = state.program.getSourceMapper(
-        markerUri,
-        CancellationToken.None,
-        /* mapCompiled */ false,
-        /* preferStubs */ true
-    );
-
-    const range = state.getRangeByMarkerName('decl')!;
-    const decls = mapper.findDeclarationsByType(markerUri, type, /* userTypeAlias */ true);
-
-    const decl = decls.find((d) => isVariableDeclaration(d) && d.typeAliasName && d.typeAliasName.d.value === 'M') as
-        | VariableDeclaration
-        | undefined;
-    assert(decl);
-
-    assert.deepEqual(TextRange.create(decl.node.start, decl.node.length), TextRange.fromBounds(range.pos, range.end));
-}

@@ -10,31 +10,36 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import * as AnalyzerNodeInfo from '../analyzer/analyzerNodeInfo';
-import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from '../analyzer/declaration';
+import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration';
 import {
     areDeclarationsSame,
     getDeclarationsWithUsesLocalNameRemoved,
     synthesizeAliasDeclaration,
-} from '../analyzer/declarationUtils';
-import { getModuleNode, getStringNodeValueRange } from '../analyzer/parseTreeUtils';
-import { ParseTreeWalker } from '../analyzer/parseTreeWalker';
-import { ScopeType } from '../analyzer/scope';
-import * as ScopeUtils from '../analyzer/scopeUtils';
-import { IPythonMode } from '../analyzer/sourceFile';
-import { collectImportedByCells } from '../analyzer/sourceFileInfoUtils';
-import { isStubFile } from '../analyzer/sourceMapper';
-import { Symbol } from '../analyzer/symbol';
-import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { TypeCategory } from '../analyzer/types';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { appendArray } from '../common/collectionUtils';
-import { isDefined } from '../common/core';
-import { ProgramView, ReferenceUseCase, SymbolUsageProvider } from '../common/extensibility';
-import { ServiceKeys } from '../common/serviceKeys';
-import { TextRange } from '../common/textRange';
-import { ImportAsNode, NameNode, ParseNode, ParseNodeType, StringListNode, StringNode } from '../parser/parseNodes';
-import { assert } from '../utils/debug';
+} from 'typeserver/binder/declarationUtils';
+import { ScopeType } from 'typeserver/binder/scope';
+import * as ScopeUtils from 'typeserver/binder/scopeUtils';
+import { Symbol } from 'typeserver/binder/symbol';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo';
+import { getModuleNode, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils';
+import { TextRange } from 'typeserver/common/textRange';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+import { TypeCategory } from 'typeserver/evaluator/types';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
+import {
+    ImportAsNode,
+    NameNode,
+    ParseNode,
+    ParseNodeType,
+    StringListNode,
+    StringNode,
+} from 'typeserver/parser/parseNodes';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker';
+import { IPythonMode } from 'typeserver/program/sourceFile';
+import { collectImportedByCells } from 'typeserver/program/sourceFileInfoUtils';
+import { isStubFile } from 'typeserver/program/sourceMapper';
+import { appendArray } from 'typeserver/utils/collectionUtils';
+import { assert } from 'typeserver/utils/debug';
 
 export type CollectionResult = {
     node: NameNode | StringNode;
@@ -45,17 +50,6 @@ export interface DocumentSymbolCollectorOptions {
     readonly treatModuleInImportAndFromImportSame?: boolean;
     readonly skipUnreachableCode?: boolean;
     readonly useCase?: ReferenceUseCase;
-
-    /**
-     * If `providers` are set, `collector` will assume
-     * `appendSymbolNamesTo` and `appendDeclarationsTo` have already
-     * been handled and will not call them again.
-     *
-     * If `collector` will result in the same `providers`, `symbolNames`, and `decls` for
-     * all files, set `providers` so that `collector` doesn't need to perform the same work
-     * repeatedly for all files.
-     */
-    readonly providers?: readonly SymbolUsageProvider[];
 }
 
 // 99% of time, `find all references` is looking for a symbol imported from the other file to this file.
@@ -97,7 +91,6 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     private readonly _symbolNames: Set<string> = new Set<string>();
     private readonly _declarations: Declaration[] = [];
 
-    private readonly _usageProviders: readonly SymbolUsageProvider[];
     private readonly _treatModuleInImportAndFromImportSame: boolean;
     private readonly _skipUnreachableCode: boolean;
     private readonly _useCase: ReferenceUseCase;
@@ -105,7 +98,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     private _aliasResolver: AliasResolver;
 
     constructor(
-        private readonly _program: ProgramView,
+        private readonly _program: IProgramView,
         symbolNames: string[],
         declarations: Declaration[],
         private readonly _startingNode: ParseNode,
@@ -124,27 +117,13 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         this._skipUnreachableCode = options?.skipUnreachableCode ?? true;
         this._useCase = options?.useCase ?? ReferenceUseCase.References;
 
-        this._usageProviders =
-            options?.providers ??
-            (this._program.serviceProvider.tryGet(ServiceKeys.symbolUsageProviderFactory) ?? [])
-                .map((f) => f.tryCreateProvider(this._useCase, declarations, this._cancellationToken))
-                .filter(isDefined);
-
-        if (options?.providers === undefined) {
-            // Check whether we need to add new symbol names and declarations.
-            this._usageProviders.forEach((p) => {
-                p.appendSymbolNamesTo(this._symbolNames);
-                p.appendDeclarationsTo(this._declarations);
-            });
-        }
-
         // Don't report strings in __all__ right away, that will
         // break the assumption on the result ordering.
         this._setDunderAllNodes(this._startingNode);
     }
 
     static collectFromNode(
-        program: ProgramView,
+        program: IProgramView,
         node: NameNode,
         cancellationToken: CancellationToken,
         startingNode?: ParseNode,
@@ -170,7 +149,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     }
 
     static getDeclarationsForNode(
-        program: ProgramView,
+        program: IProgramView,
         node: NameNode,
         resolveLocalName: boolean,
         token: CancellationToken
@@ -320,7 +299,6 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
 
     private _resultsContainsDeclaration(usage: ParseNode, declarations: readonly Declaration[]) {
         const results = [...declarations];
-        this._usageProviders.forEach((p) => p.appendDeclarationsAt(usage, declarations, results));
 
         return results.some((declaration) => {
             // Resolve the declaration.

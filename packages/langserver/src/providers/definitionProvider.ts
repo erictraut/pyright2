@@ -12,31 +12,30 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { getFileInfo } from '../analyzer/analyzerNodeInfo';
 import {
     Declaration,
     DeclarationType,
     isFunctionDeclaration,
     isUnresolvedAliasDeclaration,
-} from '../analyzer/declaration';
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { SourceMapper, isStubFile } from '../analyzer/sourceMapper';
-import { SynthesizedTypeInfo } from '../analyzer/symbol';
-import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { doForEachSubtype } from '../analyzer/typeUtils';
-import { OverloadedType, TypeCategory, isOverloaded } from '../analyzer/types';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { appendArray } from '../common/collectionUtils';
-import { isDefined } from '../common/core';
-import { DocumentRange } from '../common/docRange';
-import { ProgramView } from '../common/extensibility';
-import { convertOffsetsToRange, convertPositionToOffset } from '../common/positionUtils';
-import { ServiceKeys } from '../common/serviceKeys';
-import { ServiceProvider } from '../common/serviceProvider';
-import { Position, rangesAreEqual } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { ParseNode, ParseNodeType } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
+} from 'typeserver/binder/declaration';
+import { SynthesizedTypeInfo } from 'typeserver/binder/symbol';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo';
+import { DocumentRange } from 'typeserver/common/docRange';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
+import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils';
+import { Position, rangesAreEqual } from 'typeserver/common/textRange';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator/types';
+import { doForEachSubtype } from 'typeserver/evaluator/typeUtils';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView } from 'typeserver/extensibility/extensibility';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { Uri } from 'typeserver/files/uri/uri';
+import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper';
+import { appendArray } from 'typeserver/utils/collectionUtils';
+import { isDefined } from 'typeserver/utils/core';
 
 export enum DefinitionFilter {
     All = 'all',
@@ -160,14 +159,6 @@ class DefinitionProviderBase {
 
         const definitions: DocumentRange[] = [];
 
-        const factories = this._serviceProvider?.tryGet(ServiceKeys.symbolDefinitionProvider);
-        if (factories) {
-            factories.forEach((f) => {
-                const declarations = f.tryGetDeclarations(node, offset, this.token);
-                this.resolveDeclarations(declarations, definitions);
-            });
-        }
-
         // There should be only one 'definition', so only if extensions failed should we try again.
         if (definitions.length === 0) {
             if (node.nodeType === ParseNodeType.Name) {
@@ -216,7 +207,7 @@ class DefinitionProviderBase {
 
 export class DefinitionProvider extends DefinitionProviderBase {
     constructor(
-        program: ProgramView,
+        program: IProgramView,
         fileUri: Uri,
         position: Position,
         filter: DefinitionFilter,
@@ -260,7 +251,7 @@ export class DefinitionProvider extends DefinitionProviderBase {
 export class TypeDefinitionProvider extends DefinitionProviderBase {
     private readonly _fileUri: Uri;
 
-    constructor(program: ProgramView, fileUri: Uri, position: Position, token: CancellationToken) {
+    constructor(program: IProgramView, fileUri: Uri, position: Position, token: CancellationToken) {
         const sourceMapper = program.getSourceMapper(fileUri, token, /*mapCompiled*/ false, /*preferStubs*/ true);
         const parseResults = program.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);

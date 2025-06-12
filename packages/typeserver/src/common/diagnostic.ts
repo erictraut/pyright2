@@ -9,6 +9,7 @@
 
 import { DiagnosticLevel } from '../config/configOptions';
 import { Uri } from '../files/uri/uri';
+import { Commands } from '../service/commands';
 import { appendArray } from '../utils/collectionUtils';
 import { Range, TextRange } from './textRange';
 
@@ -67,10 +68,10 @@ export interface DiagnosticWithinFile {
     diagnostic: Diagnostic;
 }
 
-// export interface CreateTypeStubFileAction extends DiagnosticAction {
-//     action: Commands.createTypeStub;
-//     moduleName: string;
-// }
+export interface CreateTypeStubFileAction extends DiagnosticAction {
+    action: Commands.createTypeStub;
+    moduleName: string;
+}
 
 export interface DiagnosticRelatedInfo {
     message: string;

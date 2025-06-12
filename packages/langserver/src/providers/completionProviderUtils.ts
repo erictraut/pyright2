@@ -8,10 +8,10 @@
 
 import { InsertTextFormat, MarkupContent, MarkupKind, TextEdit } from 'vscode-languageserver-types';
 
-import { Declaration, DeclarationType } from '../analyzer/declaration';
-import { isBuiltInModule } from '../analyzer/typeDocStringUtils';
-import { TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { isProperty } from '../analyzer/typeUtils';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration';
+import { TextEditAction } from 'typeserver/common/editAction';
+import { SignatureDisplayType } from 'typeserver/config/configOptions';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
 import {
     ClassType,
     Type,
@@ -22,11 +22,11 @@ import {
     isClassInstance,
     isFunctionOrOverloaded,
     isModule,
-} from '../analyzer/types';
-import { SignatureDisplayType } from '../common/configOptions';
-import { TextEditAction } from '../common/editAction';
-import { ServiceProvider } from '../common/serviceProvider';
-import { Uri } from '../common/uri/uri';
+} from 'typeserver/evaluator/types';
+import { isProperty } from 'typeserver/evaluator/typeUtils';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { Uri } from 'typeserver/files/uri/uri';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion';
 import { getToolTipForType } from './tooltipUtils';
 
 export interface Edits {
@@ -162,9 +162,7 @@ export function getCompletionItemDocumentation(
 
         if (documentation) {
             markdownString += '---\n';
-            markdownString += serviceProvider
-                .docStringService()
-                .convertDocStringToMarkdown(documentation, isBuiltInModule(declaration?.uri));
+            markdownString += convertDocStringToMarkdown(documentation);
         }
 
         markdownString = markdownString.trimEnd();
@@ -178,7 +176,7 @@ export function getCompletionItemDocumentation(
 
         if (documentation) {
             plainTextString += '\n';
-            plainTextString += serviceProvider.docStringService().convertDocStringToPlainText(documentation);
+            plainTextString += convertDocStringToPlainText(documentation);
         }
 
         plainTextString = plainTextString.trimEnd();

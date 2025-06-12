@@ -5,28 +5,28 @@
  */
 
 import assert from 'assert';
+import { Disposable } from 'vscode-jsonrpc';
 
 import { Dirent, ReadStream, WriteStream } from 'fs';
-import { ImportResolver } from '../analyzer/importResolver';
-import { ImportType } from '../analyzer/importResult';
-import { ConfigOptions } from '../common/configOptions';
-import { FileSystem, MkDirOptions, Stats } from '../common/fileSystem';
-import { FileWatcher, FileWatcherEventHandler } from '../common/fileWatcher';
-import { FullAccessHost } from '../common/fullAccessHost';
-import { Host } from '../common/host';
-import { lib, sitePackages, typeshedFallback } from '../common/pathConsts';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from '../common/pathUtils';
-import { createFromRealFileSystem, RealTempFile } from '../common/realFileSystem';
-import { ServiceKeys } from '../common/serviceKeys';
-import { ServiceProvider } from '../common/serviceProvider';
-import { createServiceProvider } from '../common/serviceProviderExtensions';
-import { Uri } from '../common/uri/uri';
-import { UriEx } from '../common/uri/uriUtils';
-import { PyrightFileSystem } from '../pyrightFileSystem';
+import { lib, sitePackages, typeshedFallback } from 'typeserver/common/pathConsts';
+import { ConfigOptions } from 'typeserver/config/configOptions';
+import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost';
+import { Host } from 'typeserver/extensibility/host';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
+import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem';
+import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher';
+import { PartialStubService } from 'typeserver/files/partialStubService';
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem';
+import { createFromRealFileSystem, RealTempFile } from 'typeserver/files/realFileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { UriEx } from 'typeserver/files/uri/uriUtils';
+import { ImportResolver } from 'typeserver/imports/importResolver';
+import { ImportType } from 'typeserver/imports/importResult';
 import { TestAccessHost } from './harness/testAccessHost';
 import { TestFileSystem } from './harness/vfs/filesystem';
-import { Disposable } from 'vscode-jsonrpc';
-import { PartialStubService } from '../partialStubService';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 

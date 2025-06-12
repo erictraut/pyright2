@@ -33,7 +33,6 @@ import {
     Definition,
     DefinitionLink,
     Diagnostic,
-    DiagnosticRefreshRequest,
     DiagnosticRelatedInformation,
     DiagnosticSeverity,
     DiagnosticTag,
@@ -75,63 +74,55 @@ import {
     WorkspaceSymbol,
     WorkspaceSymbolParams,
 } from 'vscode-languageserver';
-
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { AnalysisResults } from './analyzer/analysis';
-import { BackgroundAnalysisProgram, InvalidatedReason } from './analyzer/backgroundAnalysisProgram';
-import { ImportResolver } from './analyzer/importResolver';
-import { MaxAnalysisTime } from './analyzer/program';
-import { AnalyzerService, LibraryReanalysisTimeProvider, getNextServiceId } from './analyzer/service';
-import { IPythonMode, SourceFile } from './analyzer/sourceFile';
-import type { IBackgroundAnalysis } from './backgroundAnalysisBase';
-import { CommandResult } from './commands/commandResult';
-import { CancelAfter } from './common/cancellationUtils';
-import { CaseSensitivityDetector } from './common/caseSensitivityDetector';
-import { getNestedProperty } from './common/collectionUtils';
-import { DiagnosticSeverityOverrides, getDiagnosticSeverityOverrides } from './common/commandLineOptions';
-import { ConfigOptions, getDiagLevelDiagnosticRules, parseDiagLevel } from './common/configOptions';
-import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from './common/console';
-import { Diagnostic as AnalyzerDiagnostic, DiagnosticCategory } from './common/diagnostic';
-import { DiagnosticRule } from './common/diagnosticRules';
-import { FileDiagnostics } from './common/diagnosticSink';
-import { DocumentRange } from './common/docRange';
-import { FileSystem, ReadOnlyFileSystem } from './common/fileSystem';
-import { FileWatcherEventType } from './common/fileWatcher';
-import { Host } from './common/host';
-import {
-    LanguageServerInterface,
-    ServerOptions,
-    ServerSettings,
-    WorkspaceServices,
-} from './common/languageServerInterface';
-import { fromLSPAny, isNullProgressReporter } from './common/lspUtils';
-import { ProgressReportTracker, ProgressReporter } from './common/progressReporter';
-import { ServiceKeys } from './common/serviceKeys';
-import { ServiceProvider } from './common/serviceProvider';
-import { Position, Range } from './common/textRange';
-import { Uri } from './common/uri/uri';
-import { convertUriToLspUriString } from './common/uri/uriUtils';
-import { AnalyzerServiceExecutor } from './languageService/analyzerServiceExecutor';
-import { CallHierarchyProvider } from './languageService/callHierarchyProvider';
-import { CompletionItemData, CompletionProvider } from './languageService/completionProvider';
-import { DefinitionFilter, DefinitionProvider, TypeDefinitionProvider } from './languageService/definitionProvider';
-import { DocumentHighlightProvider } from './languageService/documentHighlightProvider';
-import { CollectionResult } from './languageService/documentSymbolCollector';
-import { DocumentSymbolProvider } from './languageService/documentSymbolProvider';
-import { DynamicFeature, DynamicFeatures } from './languageService/dynamicFeature';
-import { FileWatcherDynamicFeature } from './languageService/fileWatcherDynamicFeature';
-import { HoverProvider } from './languageService/hoverProvider';
-import { canNavigateToFile } from './languageService/navigationUtils';
-import { ReferencesProvider } from './languageService/referencesProvider';
-import { RenameProvider } from './languageService/renameProvider';
-import { SignatureHelpProvider } from './languageService/signatureHelpProvider';
-import { WorkspaceSymbolProvider } from './languageService/workspaceSymbolProvider';
-import { Localizer, setLocaleOverride } from './localization/localize';
-import { ParseFileResults } from './parser/parser';
+
+import { Diagnostic as AnalyzerDiagnostic, DiagnosticCategory } from 'typeserver/common/diagnostic';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules';
+import { FileDiagnostics } from 'typeserver/common/diagnosticSink';
+import { DocumentRange } from 'typeserver/common/docRange';
+import { Position, Range } from 'typeserver/common/textRange';
+import { DiagnosticSeverityOverrides, getDiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions';
+import { ConfigOptions, getDiagLevelDiagnosticRules, parseDiagLevel } from 'typeserver/config/configOptions';
+import { CancelAfter } from 'typeserver/extensibility/cancellationUtils';
+import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/extensibility/console';
+import { Host } from 'typeserver/extensibility/host';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector';
+import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
+import { FileWatcherEventType } from 'typeserver/files/fileWatcher';
+import { Uri } from 'typeserver/files/uri/uri';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils';
+import { ImportResolver } from 'typeserver/imports/importResolver';
+import { Localizer, setLocaleOverride } from 'typeserver/localization/localize';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile';
+import { AnalysisResults } from 'typeserver/service/analysis';
+import { TypeService } from 'typeserver/service/typeService';
+import { getNestedProperty } from 'typeserver/utils/collectionUtils';
+import { CommandResult } from '../commands/commandResult';
+import { CallHierarchyProvider } from '../providers/callHierarchyProvider';
+import { CompletionItemData, CompletionProvider } from '../providers/completionProvider';
+import { DefinitionFilter, DefinitionProvider, TypeDefinitionProvider } from '../providers/definitionProvider';
+import { DocumentHighlightProvider } from '../providers/documentHighlightProvider';
+import { CollectionResult } from '../providers/documentSymbolCollector';
+import { DocumentSymbolProvider } from '../providers/documentSymbolProvider';
+import { DynamicFeature, DynamicFeatures } from '../providers/dynamicFeature';
+import { FileWatcherDynamicFeature } from '../providers/fileWatcherDynamicFeature';
+import { HoverProvider } from '../providers/hoverProvider';
+import { canNavigateToFile } from '../providers/navigationUtils';
+import { ReferencesProvider } from '../providers/referencesProvider';
+import { RenameProvider } from '../providers/renameProvider';
+import { SignatureHelpProvider } from '../providers/signatureHelpProvider';
+import { WorkspaceSymbolProvider } from '../providers/workspaceSymbolProvider';
+import { ProgressReportTracker, ProgressReporter } from '../server/progressReporter';
+import { getEffectiveCommandLineOptions } from './analyzerServiceExecutor';
+import { LanguageServerInterface, ServerOptions, ServerSettings, WorkspaceServices } from './languageServerInterface';
+import { fromLSPAny, isNullProgressReporter } from './lspUtils';
 import { ClientCapabilities, InitializationOptions } from './types';
 import { InitStatus, WellKnownWorkspaceKinds, Workspace, WorkspaceFactory } from './workspaceFactory';
 
-const UncomputedDiagnosticsVersion = -1;
+const DiagnosticsVersionNone = -1;
 
 export abstract class LanguageServerBase implements LanguageServerInterface, Disposable {
     // We support running only one "find all reference" at a time.
@@ -204,7 +195,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
         this.workspaceFactory = new WorkspaceFactory(
             this.console,
-            this.createAnalyzerServiceForWorkspace.bind(this),
+            this.createTypeServiceForWorkspace.bind(this),
             this.onWorkspaceCreated.bind(this),
             this.onWorkspaceRemoved.bind(this),
             this.serviceProvider
@@ -255,31 +246,16 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
     // Creates a service instance that's used for analyzing a
     // program within a workspace.
-    createAnalyzerService(
-        name: string,
-        workspaceRoot: Uri,
-        services?: WorkspaceServices,
-        libraryReanalysisTimeProvider?: LibraryReanalysisTimeProvider
-    ): AnalyzerService {
+    createTypeService(name: string, workspaceRoot: Uri, services?: WorkspaceServices): TypeService {
         this.console.info(`Starting service instance "${name}"`);
 
-        const serviceId = getNextServiceId(name);
-        const service = new AnalyzerService(name, this.serverOptions.serviceProvider, {
+        const service = new TypeService(name, this.serverOptions.serviceProvider, {
             console: this.console,
             hostFactory: this.createHost.bind(this),
             importResolverFactory: this.createImportResolver.bind(this),
-            backgroundAnalysis: services ? services.backgroundAnalysis : undefined,
             maxAnalysisTime: this.serverOptions.maxAnalysisTimeInForeground,
-            backgroundAnalysisProgramFactory: this.createBackgroundAnalysisProgram.bind(this),
-            libraryReanalysisTimeProvider,
-            serviceId,
             fileSystem: services?.fs ?? this.serverOptions.serviceProvider.fs(),
             usingPullDiagnostics: this.client.usingPullDiagnostics,
-            onInvalidated: (reason) => {
-                if (this.client.usingPullDiagnostics) {
-                    this.connection.sendRequest(DiagnosticRefreshRequest.type);
-                }
-            },
         });
 
         service.setCompletionCallback((results) => this.onAnalysisCompletedHandler(service.fs, results));
@@ -305,7 +281,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
     reanalyze() {
         this.workspaceFactory.items().forEach((workspace) => {
-            workspace.service.invalidateAndForceReanalysis(InvalidatedReason.Reanalyzed);
+            workspace.service.invalidateAndForceReanalysis();
         });
     }
 
@@ -365,7 +341,16 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         serverSettings: ServerSettings,
         typeStubTargetImportName?: string
     ) {
-        AnalyzerServiceExecutor.runWithOptions(workspace, serverSettings, { typeStubTargetImportName });
+        const commandLineOptions = getEffectiveCommandLineOptions(
+            workspace.rootUri,
+            serverSettings,
+            /* trackFiles */ true,
+            typeStubTargetImportName,
+            /* pythonEnvironmentName */ undefined
+        );
+
+        // Setting options causes the analyzer service to re-analyze everything.
+        workspace.service.setOptions(commandLineOptions);
         workspace.searchPathsToWatch = workspace.service.librarySearchUrisToWatch ?? [];
     }
 
@@ -429,25 +414,6 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         options: ConfigOptions,
         host: Host
     ): ImportResolver;
-
-    protected createBackgroundAnalysisProgram(
-        serviceId: string,
-        serviceProvider: ServiceProvider,
-        configOptions: ConfigOptions,
-        importResolver: ImportResolver,
-        backgroundAnalysis?: IBackgroundAnalysis,
-        maxAnalysisTime?: MaxAnalysisTime
-    ): BackgroundAnalysisProgram {
-        return new BackgroundAnalysisProgram(
-            serviceId,
-            serviceProvider,
-            configOptions,
-            importResolver,
-            backgroundAnalysis,
-            maxAnalysisTime,
-            /* disableChecker */ undefined
-        );
-    }
 
     protected setupConnection(supportedCommands: string[], supportedCodeActions: string[]): void {
         // After the server has started the client sends an initialize request. The server receives
@@ -870,7 +836,6 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
                 this.client.hasSignatureLabelOffsetCapability,
                 this.client.hasActiveParameterCapability,
                 params.context,
-                program.serviceProvider.docStringService(),
                 token
             ).getSignatureHelp();
         }, token);
@@ -1099,8 +1064,8 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         const workspace = await this.getWorkspaceForFile(uri);
         let sourceFile = workspace.service.getSourceFile(uri);
         let diagnosticsVersion = sourceFile?.isCheckingRequired()
-            ? UncomputedDiagnosticsVersion
-            : sourceFile?.getDiagnosticVersion() ?? UncomputedDiagnosticsVersion;
+            ? DiagnosticsVersionNone
+            : sourceFile?.getDiagnosticVersion() ?? DiagnosticsVersionNone;
         const result: DocumentDiagnosticReport = {
             kind: 'full',
             resultId: sourceFile?.getDiagnosticVersion()?.toString(),
@@ -1120,14 +1085,14 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         try {
             // Reanalyze the file if it's not up to date.
             if (params.previousResultId !== diagnosticsVersion.toString() && sourceFile) {
-                let diagnosticsVersionAfter = UncomputedDiagnosticsVersion - 1; // Just has to be different
+                let diagnosticsVersionAfter = DiagnosticsVersionNone - 1; // Just has to be different
                 let serverDiagnostics: AnalyzerDiagnostic[] = [];
 
                 // Loop until we analyze the same version that we started with.
                 while (diagnosticsVersion !== diagnosticsVersionAfter && !token.isCancellationRequested && sourceFile) {
                     // Reset the version we're analyzing
                     sourceFile = workspace.service.getSourceFile(uri);
-                    diagnosticsVersion = sourceFile?.getDiagnosticVersion() ?? UncomputedDiagnosticsVersion;
+                    diagnosticsVersion = sourceFile?.getDiagnosticVersion() ?? DiagnosticsVersionNone;
 
                     // Then reanalyze the file (this should go to the background thread so this thread can handle other requests).
                     if (sourceFile) {
@@ -1137,7 +1102,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
                     // If any text edits came in, make sure we reanalyze the file. Diagnostics version should be reset to zero
                     // if a text edit comes in.
                     const sourceFileAfter = workspace.service.getSourceFile(uri);
-                    diagnosticsVersionAfter = sourceFileAfter?.getDiagnosticVersion() ?? UncomputedDiagnosticsVersion;
+                    diagnosticsVersionAfter = sourceFileAfter?.getDiagnosticVersion() ?? DiagnosticsVersionNone;
                 }
 
                 // Then convert the diagnostics to the LSP format.
@@ -1146,14 +1111,12 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
                 ) as Diagnostic[];
 
                 result.resultId =
-                    diagnosticsVersionAfter === UncomputedDiagnosticsVersion
-                        ? undefined
-                        : diagnosticsVersionAfter.toString();
+                    diagnosticsVersionAfter === DiagnosticsVersionNone ? undefined : diagnosticsVersionAfter.toString();
                 result.items = lspDiagnostics;
             } else {
                 (result as any).kind = 'unchanged';
                 result.resultId =
-                    diagnosticsVersion === UncomputedDiagnosticsVersion ? undefined : diagnosticsVersion.toString();
+                    diagnosticsVersion === DiagnosticsVersionNone ? undefined : diagnosticsVersion.toString();
                 delete (result as any).items;
             }
         } finally {
@@ -1325,7 +1288,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
                   });
 
         // Update progress.
-        if (!this._progressReporter.isDisplayingProgess()) {
+        if (!this._progressReporter.isDisplayingProgress()) {
             this._progressReporter.begin();
         }
         this._progressReporter.report(progressMessage);
@@ -1334,7 +1297,9 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     protected onWorkspaceCreated(workspace: Workspace) {
         // Update settings on this workspace (but only if initialize has happened)
         if (this._initialized) {
-            this.updateSettingsForWorkspace(workspace, workspace.isInitialized).ignoreErrors();
+            this.updateSettingsForWorkspace(workspace, workspace.isInitialized).catch(() => {
+                /* ignore errors */
+            });
         }
 
         // Otherwise the initialize completion should cause settings to be updated on all workspaces.
@@ -1362,16 +1327,13 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         }
     }
 
-    protected createAnalyzerServiceForWorkspace(
+    protected createTypeServiceForWorkspace(
         name: string,
         workspaceRoot: Uri | undefined,
         kinds: string[],
         services?: WorkspaceServices
-    ): AnalyzerService {
-        // 5 seconds default
-        const defaultBackOffTime = 5 * 1000;
-
-        return this.createAnalyzerService(name, workspaceRoot || Uri.empty(), services, () => defaultBackOffTime);
+    ): TypeService {
+        return this.createTypeService(name, workspaceRoot || Uri.empty(), services);
     }
 
     protected recordUserInteractionTime() {

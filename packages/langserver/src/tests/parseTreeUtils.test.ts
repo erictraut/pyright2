@@ -24,9 +24,9 @@ import {
     isImportModuleName,
     isLastNameOfDottedName,
     printExpression,
-} from '../analyzer/parseTreeUtils';
-import { TextRange, rangesAreEqual } from '../common/textRange';
-import { MemberAccessNode, NameNode, ParseNodeType, StringNode, isExpressionNode } from '../parser/parseNodes';
+} from 'typeserver/common/parseTreeUtils';
+import { TextRange, rangesAreEqual } from 'typeserver/common/textRange';
+import { MemberAccessNode, NameNode, ParseNodeType, StringNode, isExpressionNode } from 'typeserver/parser/parseNodes';
 import { TestState, getNodeAtMarker, getNodeForRange, parseAndGetTestState } from './harness/fourslash/testState';
 
 test('isImportModuleName', () => {

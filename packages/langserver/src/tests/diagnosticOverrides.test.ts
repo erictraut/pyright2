@@ -10,7 +10,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { DiagnosticRule } from '../common/diagnosticRules';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules';
 
 describe('Diagnostic overrides', () => {
     test('Compare DiagnosticRule to pyrightconfig.schema.json', () => {

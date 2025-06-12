@@ -8,9 +8,19 @@
 
 import { CancellationToken, CompletionItem, CompletionItemKind, SymbolKind } from 'vscode-languageserver';
 
-import { DeclarationType } from '../analyzer/declaration';
-import { ImportResolver, ModuleNameAndType } from '../analyzer/importResolver';
-import { ImportType } from '../analyzer/importResult';
+import { DeclarationType } from 'typeserver/binder/declaration';
+import { Symbol } from 'typeserver/binder/symbol';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils';
+import { isVisibleExternally } from 'typeserver/binder/symbolUtils';
+import { TextEditAction } from 'typeserver/common/editAction';
+import { Position } from 'typeserver/common/textRange';
+import { ExecutionEnvironment } from 'typeserver/config/configOptions';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility';
+import { stripFileExtension } from 'typeserver/files/pathUtils';
+import { Uri } from 'typeserver/files/uri/uri';
+import { ImportResolver, ModuleNameAndType } from 'typeserver/imports/importResolver';
+import { ImportType } from 'typeserver/imports/importResult';
 import {
     ImportGroup,
     ImportNameInfo,
@@ -21,25 +31,15 @@ import {
     getTextEditsForAutoImportInsertion,
     getTextEditsForAutoImportSymbolAddition,
     getTopLevelImports,
-} from '../analyzer/importStatementUtils';
-import { isUserCode } from '../analyzer/sourceFileInfoUtils';
-import { Symbol } from '../analyzer/symbol';
-import * as SymbolNameUtils from '../analyzer/symbolNameUtils';
-import { isVisibleExternally } from '../analyzer/symbolUtils';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { appendArray } from '../common/collectionUtils';
-import { ExecutionEnvironment } from '../common/configOptions';
-import { TextEditAction } from '../common/editAction';
-import { ProgramView, SourceFileInfo } from '../common/extensibility';
-import { stripFileExtension } from '../common/pathUtils';
-import * as StringUtils from '../common/stringUtils';
-import { Position } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { ParseNodeType } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
+} from 'typeserver/imports/importStatementUtils';
+import { ParseNodeType } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
+import { appendArray } from 'typeserver/utils/collectionUtils';
+import * as StringUtils from 'typeserver/utils/stringUtils';
+import { fromLSPAny } from '../server/lspUtils';
 import { CompletionItemData, CompletionMap } from './completionProvider';
 import { IndexAliasData } from './symbolIndexer';
-import { fromLSPAny } from '../common/lspUtils';
 
 export interface AutoImportSymbol {
     readonly name: string;
@@ -116,7 +116,7 @@ export type AutoImportResultMap = Map<string, AutoImportResult[]>;
 
 // Build a map of all modules within this program and the module-
 // level scope that contains the symbol table for the module.
-export function buildModuleSymbolsMap(program: ProgramView, files: readonly SourceFileInfo[]): ModuleSymbolMap {
+export function buildModuleSymbolsMap(program: IProgramView, files: readonly ISourceFileInfo[]): ModuleSymbolMap {
     const moduleSymbolMap = new Map<string, ModuleSymbolTable>();
 
     files.forEach((file) => {
@@ -135,7 +135,8 @@ export function buildModuleSymbolsMap(program: ProgramView, files: readonly Sour
         const fileName = stripFileExtension(uri.fileName);
 
         // Don't offer imports from files that are named with private
-        // naming semantics like "_ast.py" unless they're in the current userfile list.
+        // naming semantics like "_ast.py" unless they're in the current
+        // user file list.
         if (SymbolNameUtils.isPrivateOrProtectedName(fileName) && !isUserCode(file)) {
             return;
         }
@@ -189,7 +190,7 @@ export class AutoImporter {
     private readonly _importStatements: ImportStatements;
 
     constructor(
-        protected readonly program: ProgramView,
+        protected readonly program: IProgramView,
         protected readonly execEnvironment: ExecutionEnvironment,
         protected readonly parseResults: ParseFileResults,
         private readonly _invocationPosition: Position,

@@ -26,57 +26,56 @@ import {
     WorkspaceEdit,
 } from 'vscode-languageserver';
 
-import { BackgroundAnalysisProgramFactory, InvalidatedReason } from '../../../analyzer/backgroundAnalysisProgram';
-import { ImportResolver, ImportResolverFactory } from '../../../analyzer/importResolver';
-import { PackageTypeReport } from '../../../analyzer/packageTypeReport';
-import { PackageTypeVerifier } from '../../../analyzer/packageTypeVerifier';
-import { findNodeByOffset } from '../../../analyzer/parseTreeUtils';
-import { Program } from '../../../analyzer/program';
-import { AnalyzerService } from '../../../analyzer/service';
+import { DiagnosticCategory } from 'typeserver/common/diagnostic';
+import { DocumentRange } from 'typeserver/common/docRange';
+import { FileEditAction } from 'typeserver/common/editAction';
+import { findNodeByOffset } from 'typeserver/common/parseTreeUtils';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils';
+import { Position, Range as PositionRange, TextRange, rangesAreEqual } from 'typeserver/common/textRange';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection';
+import { CommandLineOptions } from 'typeserver/config/commandLineOptions';
+import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions';
+import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console';
+import { Host } from 'typeserver/extensibility/host';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
+import { PartialStubService } from 'typeserver/files/partialStubService';
+import { getFileExtension, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem';
+import { Uri } from 'typeserver/files/uri/uri';
+import { UriEx, getFileSpec } from 'typeserver/files/uri/uriUtils';
+import { ImportResolver, ImportResolverFactory } from 'typeserver/imports//importResolver';
+import { Char } from 'typeserver/parser/charCodes';
+import { ParseNode } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { Tokenizer } from 'typeserver/parser/tokenizer';
+import { Program } from 'typeserver/program/program';
+import { PackageTypeReport } from 'typeserver/service/packageTypeReport';
+import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier';
+import { TypeService } from 'typeserver/service/typeService';
+import { Comparison, isNumber, isString } from 'typeserver/utils/core';
+import { assertNever } from 'typeserver/utils/debug';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils';
 import { CommandResult } from '../../../commands/commandResult';
-import { Char } from '../../../common/charCodes';
-import { CommandLineOptions } from '../../../common/commandLineOptions';
-import { ConfigOptions, SignatureDisplayType } from '../../../common/configOptions';
-import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from '../../../common/console';
-import { Comparison, isNumber, isString } from '../../../common/core';
-import * as debug from '../../../common/debug';
-import { DiagnosticCategory } from '../../../common/diagnostic';
-import { DocumentRange } from '../../../common/docRange';
-import { PyrightDocStringService } from '../../../common/docStringService';
-import { FileEditAction } from '../../../common/editAction';
-import { ReadOnlyFileSystem } from '../../../common/fileSystem';
-import { Host } from '../../../common/host';
-import { LanguageServerInterface } from '../../../common/languageServerInterface';
-import { getFileExtension, normalizePath, normalizeSlashes } from '../../../common/pathUtils';
-import { convertOffsetToPosition, convertPositionToOffset } from '../../../common/positionUtils';
-import { ServiceProvider } from '../../../common/serviceProvider';
-import { createServiceProvider } from '../../../common/serviceProviderExtensions';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from '../../../common/stringUtils';
-import { Position, Range as PositionRange, TextRange, rangesAreEqual } from '../../../common/textRange';
-import { TextRangeCollection } from '../../../common/textRangeCollection';
-import { Uri } from '../../../common/uri/uri';
-import { UriEx, getFileSpec } from '../../../common/uri/uriUtils';
-import { convertToWorkspaceEdit } from '../../../common/workspaceEditUtils';
-import { CallHierarchyProvider } from '../../../languageService/callHierarchyProvider';
-import { CompletionOptions, CompletionProvider } from '../../../languageService/completionProvider';
+import { CallHierarchyProvider } from '../../../providers/callHierarchyProvider';
+import { CompletionOptions, CompletionProvider } from '../../../providers/completionProvider';
+import { DefinitionFilter, DefinitionProvider, TypeDefinitionProvider } from '../../../providers/definitionProvider';
+import { DocumentHighlightProvider } from '../../../providers/documentHighlightProvider';
+import { CollectionResult } from '../../../providers/documentSymbolCollector';
+import { HoverProvider } from '../../../providers/hoverProvider';
+import { convertDocumentRangesToLocation } from '../../../providers/navigationUtils';
+import { ReferencesProvider } from '../../../providers/referencesProvider';
+import { RenameProvider } from '../../../providers/renameProvider';
+import { SignatureHelpProvider } from '../../../providers/signatureHelpProvider';
+import { LanguageServerInterface } from '../../../server/languageServerInterface';
+import { convertToWorkspaceEdit } from '../../../server/workspaceEditUtils';
 import {
-    DefinitionFilter,
-    DefinitionProvider,
-    TypeDefinitionProvider,
-} from '../../../languageService/definitionProvider';
-import { DocumentHighlightProvider } from '../../../languageService/documentHighlightProvider';
-import { CollectionResult } from '../../../languageService/documentSymbolCollector';
-import { HoverProvider } from '../../../languageService/hoverProvider';
-import { convertDocumentRangesToLocation } from '../../../languageService/navigationUtils';
-import { ReferencesProvider } from '../../../languageService/referencesProvider';
-import { RenameProvider } from '../../../languageService/renameProvider';
-import { SignatureHelpProvider } from '../../../languageService/signatureHelpProvider';
-import { ParseNode } from '../../../parser/parseNodes';
-import { ParseFileResults } from '../../../parser/parser';
-import { Tokenizer } from '../../../parser/tokenizer';
-import { PartialStubService } from '../../../partialStubService';
-import { PyrightFileSystem } from '../../../pyrightFileSystem';
-import { NormalWorkspace, WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../../../workspaceFactory';
+    NormalWorkspace,
+    WellKnownWorkspaceKinds,
+    Workspace,
+    createInitStatus,
+} from '../../../server/workspaceFactory';
 import { TestAccessHost } from '../testAccessHost';
 import * as host from '../testHost';
 import { stringify } from '../utils';
@@ -109,7 +108,6 @@ export interface TextChange {
 
 export interface HostSpecificFeatures {
     importResolverFactory: ImportResolverFactory;
-    backgroundAnalysisProgramFactory: BackgroundAnalysisProgramFactory;
 
     getCodeActionsForPosition(
         workspace: Workspace,
@@ -191,10 +189,9 @@ export class TestState {
             this._applyTestConfigOptions(configOptions);
         }
 
-        const service = this.createAnalysisService(
+        const service = this.createTypeService(
             this.console,
             this._hostSpecificFeatures.importResolverFactory,
-            this._hostSpecificFeatures.backgroundAnalysisProgramFactory,
             configOptions,
             testAccessHost
         );
@@ -226,7 +223,7 @@ export class TestState {
     }
 
     get program(): Program {
-        return this.workspace.service.test_program;
+        return this.workspace.service.program;
     }
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -697,7 +694,7 @@ export class TestState {
         }
     ): Promise<any> {
         // make sure we don't use cache built from other tests
-        this.workspace.service.invalidateAndForceReanalysis(InvalidatedReason.Reanalyzed);
+        this.workspace.service.invalidateAndForceReanalysis();
         this.analyze();
 
         // calling `analyze` should have parse and bind all or open user files. make sure that's true at least for open files.
@@ -1152,7 +1149,6 @@ export class TestState {
                 /* hasSignatureLabelOffsetCapability */ true,
                 /* hasActiveParameterCapability */ true,
                 /* context */ undefined,
-                new PyrightDocStringService(),
                 CancellationToken.None
             ).getSignatureHelp();
 
@@ -1596,7 +1592,7 @@ export class TestState {
             }
             return file;
         } else {
-            return debug.assertNever(indexOrName);
+            return assertNever(indexOrName);
         }
     }
 
@@ -1716,27 +1712,24 @@ export class TestState {
         }
     }
 
-    protected createAnalysisService(
+    protected createTypeService(
         nullConsole: ConsoleInterface,
         importResolverFactory: ImportResolverFactory,
-        backgroundAnalysisProgramFactory: BackgroundAnalysisProgramFactory,
         configOptions: ConfigOptions,
         host: Host
     ) {
         // we do not initiate automatic analysis or file watcher in test.
-        const service = new AnalyzerService('test service', this.serviceProvider, {
+        const service = new TypeService('test service', this.serviceProvider, {
             console: nullConsole,
             hostFactory: () => host,
             importResolverFactory,
-            backgroundAnalysisProgramFactory,
             configOptions,
             fileSystem: this.fs,
-            libraryReanalysisTimeProvider: () => 0,
         });
 
         // directly set files to track rather than using fileSpec from config
         // to discover those files from file system
-        service.test_program.setTrackedFiles(
+        service.program.setTrackedFiles(
             this.files
                 .filter((path) => {
                     const fileExtension = getFileExtension(path).toLowerCase();

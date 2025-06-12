@@ -9,17 +9,18 @@
 /* eslint-disable no-dupe-class-members */
 import { Dirent, ReadStream, WriteStream } from 'fs';
 
-import { CaseSensitivityDetector } from '../../../common/caseSensitivityDetector';
-import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from '../../../common/fileSystem';
-import { FileWatcher, FileWatcherEventHandler, FileWatcherEventType } from '../../../common/fileWatcher';
-import * as pathUtil from '../../../common/pathUtils';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from '../../../common/stringUtils';
-import { FileUriSchema } from '../../../common/uri/fileUri';
-import { Uri } from '../../../common/uri/uri';
+import { Disposable } from 'vscode-jsonrpc';
+
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector';
+import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem';
+import { FileWatcher, FileWatcherEventHandler, FileWatcherEventType } from 'typeserver/files/fileWatcher';
+import * as pathUtil from 'typeserver/files/pathUtils';
+import { FileUriSchema } from 'typeserver/files/uri/fileUri';
+import { Uri } from 'typeserver/files/uri/uri';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils';
 import { bufferFrom, createIOError } from '../utils';
 import { Metadata, SortedMap, closeIterator, getIterator, nextResult } from './../utils';
 import { ValidationFlags, validate } from './pathValidation';
-import { Disposable } from 'vscode-jsonrpc';
 
 export const MODULE_PATH = pathUtil.normalizeSlashes('/');
 
@@ -771,7 +772,7 @@ export class TestFileSystem implements FileSystem, TempFile, CaseSensitivityDete
      *
      * NOTE: do not rename this method as it is intended to align with the same named export of the "fs" module.
      */
-    symlinkSync(target: string, linkpath: string) {
+    symlinkSync(target: string, linkPath: string) {
         if (this.isReadonly) {
             throw createIOError('EROFS');
         }
@@ -781,7 +782,7 @@ export class TestFileSystem implements FileSystem, TempFile, CaseSensitivityDete
             links,
             node: existingNode,
             basename,
-        } = this._walk(this._resolve(linkpath), /* noFollow */ true);
+        } = this._walk(this._resolve(linkPath), /* noFollow */ true);
         if (!parent) {
             throw createIOError('EPERM');
         }

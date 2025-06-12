@@ -10,16 +10,16 @@ import * as os from 'os';
 
 import assert from 'assert';
 
-import { expandPathVariables, resolvePathWithEnvVariables } from '../common/envVarUtils';
-import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../workspaceFactory';
-import { UriEx } from '../common/uri/uriUtils';
-import { Uri } from '../common/uri/uri';
-import { AnalyzerService } from '../analyzer/service';
-import { NullConsole } from '../common/console';
+import { ConfigOptions } from 'typeserver/config/configOptions';
+import { NullConsole } from 'typeserver/extensibility//console';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
+import { Uri } from 'typeserver/files/uri/uri';
+import { UriEx } from 'typeserver/files/uri/uriUtils';
+import { TypeService } from 'typeserver/service/typeService';
+import { expandPathVariables, resolvePathWithEnvVariables } from '../providers/envVarUtils';
+import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../server/workspaceFactory';
 import { TestAccessHost } from './harness/testAccessHost';
-import { ConfigOptions } from '../common/configOptions';
 import { TestFileSystem } from './harness/vfs/filesystem';
-import { createServiceProvider } from '../common/serviceProviderExtensions';
 
 jest.mock('os', () => ({ __esModule: true, ...jest.requireActual('os') }));
 
@@ -211,10 +211,10 @@ function createWorkspace(rootUri: Uri | undefined) {
         workspaceName: '',
         rootUri,
         kinds: [WellKnownWorkspaceKinds.Test],
-        service: new AnalyzerService('test service', createServiceProvider(fs), {
+        service: new TypeService('test service', createServiceProvider(fs), {
             console: new NullConsole(),
             hostFactory: () => new TestAccessHost(),
-            importResolverFactory: AnalyzerService.createImportResolver,
+            importResolverFactory: TypeService.createImportResolver,
             configOptions: new ConfigOptions(Uri.empty()),
         }),
         disableLanguageServices: false,

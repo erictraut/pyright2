@@ -5,6 +5,7 @@
  *
  * Test language server wrapper that lets us run the language server during a test.
  */
+
 import {
     CancellationToken,
     Connection,
@@ -17,26 +18,21 @@ import {
     ShutdownRequest,
     createConnection,
 } from 'vscode-languageserver/node';
-import { MessagePort, getEnvironmentData, parentPort, setEnvironmentData } from 'worker_threads';
+import { MessagePort, parentPort, setEnvironmentData } from 'worker_threads';
 
-import { Deferred, createDeferred } from '../../common/deferred';
-import { FileSystemEntries, resolvePaths } from '../../common/pathUtils';
-import { ServiceProvider } from '../../common/serviceProvider';
-import { Uri } from '../../common/uri/uri';
+import { FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils';
+import { Uri } from 'typeserver/files/uri/uri';
+import { Deferred, createDeferred } from 'typeserver/utils/deferred';
 import { parseTestData } from '../harness/fourslash/fourSlashParser';
 import * as PyrightTestHost from '../harness/testHost';
 import { clearCache } from '../harness/vfs/factory';
 
-import { BackgroundAnalysisRunner } from '../../backgroundAnalysis';
-import { serialize } from '../../backgroundThreadBase';
-import { initializeDependencies } from '../../common/asyncInitialization';
-import { FileSystem } from '../../common/fileSystem';
-import { ServerSettings } from '../../common/languageServerInterface';
-import { PythonVersion } from '../../common/pythonVersion';
-import { ServiceKeys } from '../../common/serviceKeys';
-import { PyrightFileSystem } from '../../pyrightFileSystem';
-import { PyrightServer } from '../../server';
-import { InitStatus, Workspace } from '../../workspaceFactory';
+import { PythonVersion } from 'typeserver/common/pythonVersion';
+import { FileSystem } from 'typeserver/files/fileSystem';
+import { initializeDependencies } from 'typeserver/service/asyncInitialization';
+import { ServerSettings } from '../../server/languageServerInterface';
+import { PyrightServer } from '../../server/server';
+import { InitStatus, Workspace } from '../../server/workspaceFactory';
 import { CustomLSP } from './customLsp';
 import {
     DEFAULT_WORKSPACE_ROOT,
@@ -45,6 +41,7 @@ import {
     createFileSystem,
     getFileLikePath,
     logToDisk,
+    serialize,
     sleep,
 } from './languageServerTestUtils';
 
@@ -191,14 +188,14 @@ async function runServer(
             CustomLSP.onRequest(connection, CustomLSP.Requests.GetDiagnostics, async (params, token) => {
                 const filePath = Uri.parse(params.uri, server.serviceProvider);
                 const workspace = await server.getWorkspaceForFile(filePath);
-                workspace.service.test_program.analyze(undefined, token);
-                const file = workspace.service.test_program.getBoundSourceFile(filePath);
-                const diagnostics = file?.getDiagnostics(workspace.service.test_program.configOptions) || [];
+                workspace.service.program.analyze(undefined, token);
+                const file = workspace.service.program.getBoundSourceFile(filePath);
+                const diagnostics = file?.getDiagnostics(workspace.service.program.configOptions) || [];
                 return { diagnostics: serialize(diagnostics) };
             }),
             CustomLSP.onRequest(connection, CustomLSP.Requests.GetOpenFiles, async (params) => {
                 const workspace = await server.getWorkspaceForFile(Uri.parse(params.uri, server.serviceProvider));
-                const files = serialize(workspace.service.test_program.getOpened().map((f) => f.uri));
+                const files = serialize(workspace.service.program.getOpened().map((f) => f.uri));
                 return { files: files };
             })
         );
@@ -360,45 +357,14 @@ class ServerStateManager {
     }
 }
 
-async function runTestBackgroundThread() {
-    let options = getEnvironmentData(WORKER_BACKGROUND_DATA) as CustomLSP.TestServerStartOptions;
-
-    // Normalize the options.
-    options = {
-        ...options,
-        projectRoots: options.projectRoots.map((p) => Uri.fromJsonObj(p)),
-        logFile: Uri.fromJsonObj(options.logFile),
-    };
-    try {
-        // Create a host on the background thread too so that it uses
-        // the host's file system. Has to be sync so that we don't
-        // drop any messages sent to the background thread.
-        const host = createTestHost(options);
-        const fs = new PyrightFileSystem(host.fs);
-        const serviceProvider = new ServiceProvider();
-        serviceProvider.add(ServiceKeys.fs, fs);
-
-        // run default background runner
-        const runner = new BackgroundAnalysisRunner(serviceProvider);
-        runner.start();
-    } catch (e) {
-        console.error(`BackgroundThread crashed with ${e}`);
-    }
-}
-
 export async function run() {
     await initializeDependencies();
 
-    // Start the background thread if this is not the first worker.
-    if (getEnvironmentData(WORKER_STARTED) === 'true') {
-        runTestBackgroundThread();
-    } else {
-        setEnvironmentData(WORKER_STARTED, 'true');
+    setEnvironmentData(WORKER_STARTED, 'true');
 
-        // Start the server state manager.
-        const stateManager = new ServerStateManager((reader, writer) => createConnection(reader, writer, {}));
-        stateManager.run();
-    }
+    // Start the server state manager.
+    const stateManager = new ServerStateManager((reader, writer) => createConnection(reader, writer, {}));
+    stateManager.run();
 }
 
 process.on('uncaughtException', (err) => {

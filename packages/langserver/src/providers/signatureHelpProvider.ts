@@ -20,23 +20,21 @@ import {
     SignatureInformation,
 } from 'vscode-languageserver';
 
-import { getFileInfo } from '../analyzer/analyzerNodeInfo';
-import { getParamListDetails, ParamKind } from '../analyzer/parameterUtils';
-import * as ParseTreeUtils from '../analyzer/parseTreeUtils';
-import { getCallNodeAndActiveParamIndex } from '../analyzer/parseTreeUtils';
-import { SourceMapper } from '../analyzer/sourceMapper';
-import { isBuiltInModule } from '../analyzer/typeDocStringUtils';
-import { CallSignature, TypeEvaluator } from '../analyzer/typeEvaluatorTypes';
-import { PrintTypeFlags } from '../analyzer/typePrinter';
-import { throwIfCancellationRequested } from '../common/cancellationUtils';
-import { DocStringService } from '../common/docStringService';
-import { ProgramView } from '../common/extensibility';
-import { convertPositionToOffset } from '../common/positionUtils';
-import { Position } from '../common/textRange';
-import { Uri } from '../common/uri/uri';
-import { CallNode, NameNode, ParseNodeType } from '../parser/parseNodes';
-import { ParseFileResults } from '../parser/parser';
-import { Tokenizer } from '../parser/tokenizer';
+import { findNodeByOffset, getCallNodeAndActiveParamIndex, getNodeDepth } from 'typeserver/common/parseTreeUtils';
+import { convertPositionToOffset } from 'typeserver/common/positionUtils';
+import { Position } from 'typeserver/common/textRange';
+import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils';
+import { CallSignature, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+import { PrintTypeFlags } from 'typeserver/evaluator/typePrinter';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
+import { IProgramView } from 'typeserver/extensibility/extensibility';
+import { Uri } from 'typeserver/files/uri/uri';
+import { CallNode, NameNode, ParseNodeType } from 'typeserver/parser/parseNodes';
+import { ParseFileResults } from 'typeserver/parser/parser';
+import { Tokenizer } from 'typeserver/parser/tokenizer';
+import { SourceMapper } from 'typeserver/program/sourceMapper';
+import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion';
 import { getDocumentationPartsForTypeAndDecl, getFunctionDocStringFromType } from './tooltipUtils';
 
 export class SignatureHelpProvider {
@@ -44,14 +42,13 @@ export class SignatureHelpProvider {
     private readonly _sourceMapper: SourceMapper;
 
     constructor(
-        private _program: ProgramView,
+        private _program: IProgramView,
         private _fileUri: Uri,
         private _position: Position,
         private _format: MarkupKind,
         private _hasSignatureLabelOffsetCapability: boolean,
         private _hasActiveParameterCapability: boolean,
         private _context: SignatureHelpContext | undefined,
-        private _docStringService: DocStringService,
         private _token: CancellationToken
     ) {
         this._parseResults = this._program.getParseResults(this._fileUri);
@@ -77,13 +74,13 @@ export class SignatureHelpProvider {
             return undefined;
         }
 
-        let node = ParseTreeUtils.findNodeByOffset(this._parseResults.parserOutput.parseTree, offset);
+        let node = findNodeByOffset(this._parseResults.parserOutput.parseTree, offset);
 
         // See if we can get to a "better" node by backing up a few columns.
         // A "better" node is defined as one that's deeper than the current
         // node.
         const initialNode = node;
-        const initialDepth = node ? ParseTreeUtils.getNodeDepth(node) : 0;
+        const initialDepth = node ? getNodeDepth(node) : 0;
         let curOffset = offset - 1;
         while (curOffset >= 0) {
             // Don't scan back across a comma because commas separate
@@ -94,9 +91,9 @@ export class SignatureHelpProvider {
             if (ch === ',' || ch === '(') {
                 break;
             }
-            const curNode = ParseTreeUtils.findNodeByOffset(this._parseResults.parserOutput.parseTree, curOffset);
+            const curNode = findNodeByOffset(this._parseResults.parserOutput.parseTree, curOffset);
             if (curNode && curNode !== initialNode) {
-                if (ParseTreeUtils.getNodeDepth(curNode) > initialDepth) {
+                if (getNodeDepth(curNode) > initialDepth) {
                     node = curNode;
                 }
                 break;
@@ -233,7 +230,6 @@ export class SignatureHelpProvider {
         const functionDocString =
             getFunctionDocStringFromType(functionType, this._sourceMapper, this._evaluator) ??
             this._getDocStringFromCallNode(callNode);
-        const fileInfo = getFileInfo(callNode);
         const paramListDetails = getParamListDetails(functionType);
 
         let label = '(';
@@ -288,10 +284,9 @@ export class SignatureHelpProvider {
         if (activeParameter !== undefined) {
             const activeParam = parameters[activeParameter];
             if (activeParam) {
-                activeParam.documentation = this._docStringService.extractParameterDocumentation(
+                activeParam.documentation = extractParameterDocumentation(
                     functionDocString || '',
-                    params[activeParameter].name || '',
-                    this._format
+                    params[activeParameter].name || ''
                 );
             }
         }
@@ -306,15 +301,12 @@ export class SignatureHelpProvider {
             if (this._format === MarkupKind.Markdown) {
                 sigInfo.documentation = {
                     kind: MarkupKind.Markdown,
-                    value: this._docStringService.convertDocStringToMarkdown(
-                        functionDocString,
-                        isBuiltInModule(fileInfo?.fileUri)
-                    ),
+                    value: convertDocStringToMarkdown(functionDocString),
                 };
             } else {
                 sigInfo.documentation = {
                     kind: MarkupKind.PlainText,
-                    value: this._docStringService.convertDocStringToPlainText(functionDocString),
+                    value: convertDocStringToPlainText(functionDocString),
                 };
             }
         }

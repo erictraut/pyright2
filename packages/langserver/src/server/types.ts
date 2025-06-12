@@ -5,6 +5,7 @@
  *
  * Types used for language server capabilities.
  */
+
 import { MarkupKind } from 'vscode-languageserver-types';
 
 export interface ClientCapabilities {
