@@ -7,9 +7,9 @@
  * Unit tests for typePrinter module.
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 
-import { printType, PrintTypeFlags } from '../evaluator/typePrinter';
+import { printType, PrintTypeFlags } from '../evaluator/typePrinter.ts';
 import {
     AnyType,
     ClassType,
@@ -27,9 +27,9 @@ import {
     TypeVarType,
     UnboundType,
     UnknownType,
-} from '../evaluator/types';
-import { Uri } from '../files/uri/uri';
-import { ParamCategory } from '../parser/parseNodes';
+} from '../evaluator/types.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { ParamCategory } from '../parser/parseNodes.ts';
 
 function returnTypeCallback(type: FunctionType) {
     return type.shared.declaredReturnType ?? UnknownType.create(/* isEllipsis */ true);

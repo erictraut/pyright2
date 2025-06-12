@@ -7,24 +7,25 @@
  */
 
 import assert from 'assert';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import { isMainThread, threadId, Worker } from 'node:worker_threads';
 import path from 'path';
-import { DiagnosticSink } from 'typeserver/common/diagnosticSink';
-import { convertOffsetToPosition } from 'typeserver/common/positionUtils';
-import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion';
-import { PythonPlatform } from 'typeserver/config/configOptions';
-import { LimitedAccessHost } from 'typeserver/extensibility/fullAccessHost';
-import { HostKind, ScriptOutput } from 'typeserver/extensibility/host';
-import { FileSystem } from 'typeserver/files/fileSystem';
-import { combinePaths, resolvePaths } from 'typeserver/files/pathUtils';
-import { FileUri } from 'typeserver/files/uri/fileUri';
-import { Uri } from 'typeserver/files/uri/uri';
-import { UriEx } from 'typeserver/files/uri/uriUtils';
-import { ParseOptions, Parser } from 'typeserver/parser/parser';
-import { PythonPathResult } from 'typeserver/service/pythonPathUtils';
-import { toBoolean } from 'typeserver/utils/core';
-import { createDeferred, Deferred } from 'typeserver/utils/deferred';
+
+import { DiagnosticSink } from 'typeserver/common/diagnosticSink.ts';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.ts';
+import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.ts';
+import { PythonPlatform } from 'typeserver/config/configOptions.ts';
+import { LimitedAccessHost } from 'typeserver/extensibility/fullAccessHost.ts';
+import { HostKind, ScriptOutput } from 'typeserver/extensibility/host.ts';
+import { FileSystem } from 'typeserver/files/fileSystem.ts';
+import { combinePaths, resolvePaths } from 'typeserver/files/pathUtils.ts';
+import { FileUri } from 'typeserver/files/uri/fileUri.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
+import { ParseOptions, Parser } from 'typeserver/parser/parser.ts';
+import { PythonPathResult } from 'typeserver/service/pythonPathUtils.ts';
+import { toBoolean } from 'typeserver/utils/core.ts';
+import { createDeferred, Deferred } from 'typeserver/utils/deferred.ts';
 import {
     ApplyWorkspaceEditParams,
     ApplyWorkspaceEditRequest,
@@ -72,13 +73,13 @@ import {
     WorkDoneProgressCancelNotification,
     WorkDoneProgressCreateRequest,
 } from 'vscode-languageserver/node';
-import { parseTestData } from '../harness/fourslash/fourSlashParser';
-import { FourSlashData, GlobalMetadataOptionNames } from '../harness/fourslash/fourSlashTypes';
-import { createVfsInfoFromFourSlashData, getMarkerByName } from '../harness/fourslash/testStateUtils';
-import * as host from '../harness/testHost';
-import { createFromFileSystem, distlibFolder, libFolder } from '../harness/vfs/factory';
-import * as vfs from '../harness/vfs/filesystem';
-import { CustomLSP } from './customLsp';
+import { parseTestData } from '../harness/fourslash/fourSlashParser.ts';
+import { FourSlashData, GlobalMetadataOptionNames } from '../harness/fourslash/fourSlashTypes.ts';
+import { createVfsInfoFromFourSlashData, getMarkerByName } from '../harness/fourslash/testStateUtils.ts';
+import * as host from '../harness/testHost.ts';
+import { createFromFileSystem, distlibFolder, libFolder } from '../harness/vfs/factory.ts';
+import * as vfs from '../harness/vfs/filesystem.ts';
+import { CustomLSP } from './customLsp.ts';
 
 // bundled root on test virtual file system.
 const bundledStubsFolder = combinePaths(vfs.MODULE_PATH, 'bundled', 'stubs');
@@ -258,7 +259,7 @@ export function getParseResults(fileContents: string, isStubFile = false, useNot
 
 function createServerConnection(testServerData: CustomLSP.TestServerStartOptions, disposables: Disposable[]) {
     // Start a worker with the server running in it.
-    const serverPath = path.join(__dirname, '..', '..', '..', 'out', 'testServer.bundle.js');
+    const serverPath = path.join(__dirname, '..', '..', '..', 'out', 'testServer.bundle.ts');
     assert(
         fs.existsSync(serverPath),
         `Server bundle does not exist: ${serverPath}. Make sure you ran the build script for test bundle (npm run webpack:testserver).`

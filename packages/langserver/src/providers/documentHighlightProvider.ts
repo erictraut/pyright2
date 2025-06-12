@@ -10,15 +10,15 @@
 
 import { CancellationToken, DocumentHighlight, DocumentHighlightKind } from 'vscode-languageserver';
 
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
-import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils';
-import { Position, TextRange } from 'typeserver/common/textRange';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
-import { Uri } from 'typeserver/files/uri/uri';
-import { ParseNodeType } from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { DocumentSymbolCollector } from './documentSymbolCollector';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
+import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
+import { Position, TextRange } from 'typeserver/common/textRange.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { ParseNodeType } from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { DocumentSymbolCollector } from './documentSymbolCollector.ts';
 
 export class DocumentHighlightProvider {
     private readonly _parseResults: ParseFileResults | undefined;

@@ -89,8 +89,8 @@ import {
     WithNode,
     YieldFromNode,
     YieldNode,
-} from '../parser/parseNodes';
-import * as debug from '../utils/debug';
+} from '../parser/parseNodes.ts';
+import * as debug from '../utils/debug.ts';
 
 // Get child nodes of the given node.
 export function getChildNodes(node: ParseNode): (ParseNode | undefined)[] {

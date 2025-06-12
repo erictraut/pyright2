@@ -6,6 +6,6 @@
  * Provides the main entrypoint to the test server when running in Node.
  */
 
-import { run } from './languageServer';
+import { run } from './languageServer.ts';
 
 run();

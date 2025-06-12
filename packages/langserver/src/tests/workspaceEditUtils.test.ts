@@ -6,21 +6,21 @@
  * test workspaceEditUtils
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 import { CancellationToken } from 'vscode-languageserver';
 import { TextDocumentEdit, WorkspaceEdit } from 'vscode-languageserver-types';
 
-import { combinePaths, getDirectoryPath } from 'typeserver/files/pathUtils';
-import { Uri } from 'typeserver/files/uri/uri';
-import { IPythonMode } from 'typeserver/program/sourceFile';
-import { TypeService } from 'typeserver/service/typeService';
-import { CloneOptions, getEffectiveCommandLineOptions } from '../server/analyzerServiceExecutor';
-import { LanguageServerBaseInterface } from '../server/languageServerInterface';
-import { applyWorkspaceEdit, generateWorkspaceEdit } from '../server/workspaceEditUtils';
-import { createInitStatus, WellKnownWorkspaceKinds, Workspace } from '../server/workspaceFactory';
-import { TestLanguageService } from './harness/fourslash/testLanguageService';
-import { parseAndGetTestState, TestState } from './harness/fourslash/testState';
-import { verifyWorkspaceEdit } from './harness/fourslash/workspaceEditTestUtils';
+import { combinePaths, getDirectoryPath } from 'typeserver/files/pathUtils.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { IPythonMode } from 'typeserver/program/sourceFile.ts';
+import { TypeService } from 'typeserver/service/typeService.ts';
+import { CloneOptions, getEffectiveCommandLineOptions } from '../server/analyzerServiceExecutor.ts';
+import { LanguageServerBaseInterface } from '../server/languageServerInterface.ts';
+import { applyWorkspaceEdit, generateWorkspaceEdit } from '../server/workspaceEditUtils.ts';
+import { createInitStatus, WellKnownWorkspaceKinds, Workspace } from '../server/workspaceFactory.ts';
+import { TestLanguageService } from './harness/fourslash/testLanguageService.ts';
+import { parseAndGetTestState, TestState } from './harness/fourslash/testState.ts';
+import { verifyWorkspaceEdit } from './harness/fourslash/workspaceEditTestUtils.ts';
 
 test('test applyWorkspaceEdits changes', async () => {
     const code = `

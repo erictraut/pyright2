@@ -20,7 +20,7 @@ module.exports = (_, { mode }) => {
         },
         target: 'node',
         output: {
-            filename: '[name].js',
+            filename: '[name].ts',
             path: outPath,
             libraryTarget: 'commonjs2',
             devtoolModuleFilenameTemplate:
@@ -37,7 +37,7 @@ module.exports = (_, { mode }) => {
             timings: true,
         },
         resolve: {
-            extensions: ['.ts', '.js'],
+            extensions: ['.ts', '.ts'],
             alias: tsconfigResolveAliases('tsconfig.json'),
         },
         externals: {

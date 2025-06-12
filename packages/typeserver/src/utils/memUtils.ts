@@ -5,7 +5,7 @@
  *
  * Platform-independent helper functions for memory.
  */
-import * as os from 'os';
+import os from 'os';
 type HeapInfo = ReturnType<typeof import('v8').getHeapStatistics>;
 
 function getHeapStatisticsFunc(): () => HeapInfo {

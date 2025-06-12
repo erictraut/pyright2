@@ -4,8 +4,8 @@
  * Licensed under the MIT license.
  */
 
-import { binarySearch, insertAt } from 'typeserver/utils/collectionUtils';
-import { identity } from 'typeserver/utils/core';
+import { binarySearch, insertAt } from 'typeserver/utils/collectionUtils.ts';
+import { identity } from 'typeserver/utils/core.ts';
 
 export interface SortOptions<T> {
     comparer: (a: T, b: T) => number;
@@ -123,7 +123,7 @@ export class SortedMap<K, V> {
         }
     }
 
-    *keys() {
+    *keys(): Generator<K> {
         const keys = this._keys;
         const indices = this._getIterationOrder();
         const version = this._version;
@@ -143,7 +143,7 @@ export class SortedMap<K, V> {
         }
     }
 
-    *values() {
+    *values(): Generator<V> {
         const values = this._values;
         const indices = this._getIterationOrder();
         const version = this._version;
@@ -163,7 +163,7 @@ export class SortedMap<K, V> {
         }
     }
 
-    *entries() {
+    *entries(): Generator<[K, V]> {
         const keys = this._keys;
         const values = this._values;
         const indices = this._getIterationOrder();

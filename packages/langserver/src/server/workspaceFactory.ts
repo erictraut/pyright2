@@ -10,11 +10,11 @@ import {
     WorkspaceFolder as lspWorkspaceFolder,
 } from 'vscode-languageserver';
 
-import { ConsoleInterface } from 'typeserver/extensibility/console';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { Uri } from 'typeserver/files/uri/uri';
-import { TypeService } from 'typeserver/service/typeService';
-import { createDeferred } from 'typeserver/utils/deferred';
+import { ConsoleInterface } from 'typeserver/extensibility/console.ts';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { TypeService } from 'typeserver/service/typeService.ts';
+import { createDeferred } from 'typeserver/utils/deferred.ts';
 
 let WorkspaceFactoryIdCounter = 0;
 

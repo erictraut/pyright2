@@ -6,13 +6,13 @@
  * Define service keys.
  */
 
-import { CaseSensitivityDetector } from '../files/caseSensitivityDetector';
-import { FileSystem, TempFile } from '../files/fileSystem';
-import { SupportPartialStubs } from '../files/partialStubService';
-import { CacheManager } from '../service/cacheManager';
-import { CancellationProvider } from './cancellationUtils';
-import { ConsoleInterface } from './console';
-import { ServiceKey } from './serviceProvider';
+import { CaseSensitivityDetector } from '../files/caseSensitivityDetector.ts';
+import { FileSystem, TempFile } from '../files/fileSystem.ts';
+import { SupportPartialStubs } from '../files/partialStubService.ts';
+import { CacheManager } from '../service/cacheManager.ts';
+import { CancellationProvider } from './cancellationUtils.ts';
+import { ConsoleInterface } from './console.ts';
+import { ServiceKey } from './serviceProvider.ts';
 
 export namespace ServiceKeys {
     export const fs = new ServiceKey<FileSystem>();

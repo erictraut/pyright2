@@ -9,11 +9,11 @@
  * PEP 634.
  */
 
-import { CodeFlowReferenceExpressionNode } from '../binder/codeFlowTypes';
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { getTypeVarScopesForNode, isMatchingExpression } from '../common/parseTreeUtils';
-import { LocAddendum, LocMessage } from '../localization/localize';
+import { CodeFlowReferenceExpressionNode } from '../binder/codeFlowTypes.ts';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { getTypeVarScopesForNode, isMatchingExpression } from '../common/parseTreeUtils.ts';
+import { LocAddendum, LocMessage } from '../localization/localize.ts';
 import {
     ArgCategory,
     ExpressionNode,
@@ -27,19 +27,19 @@ import {
     PatternMappingNode,
     PatternSequenceNode,
     PatternValueNode,
-} from '../parser/parseNodes';
-import { appendArray } from '../utils/collectionUtils';
-import { assert } from '../utils/debug';
-import { addConstraintsForExpectedType } from './constraintSolver';
-import { ConstraintTracker } from './constraintTracker';
-import { getTypedDictMembersForClass } from './typedDicts';
-import { EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes';
+} from '../parser/parseNodes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { assert } from '../utils/debug.ts';
+import { addConstraintsForExpectedType } from './constraintSolver.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import { getTypedDictMembersForClass } from './typedDicts.ts';
+import { EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
 import {
     enumerateLiteralsForType,
     narrowTypeForDiscriminatedDictEntryComparison,
     narrowTypeForDiscriminatedLiteralFieldComparison,
     narrowTypeForDiscriminatedTupleComparison,
-} from './typeGuards';
+} from './typeGuards.ts';
 import {
     AnyType,
     ClassType,
@@ -62,7 +62,7 @@ import {
     isUnknown,
     isUnpackedTypeVar,
     isUnpackedTypeVarTuple,
-} from './types';
+} from './types.ts';
 import {
     addConditionToType,
     containsAnyOrUnknown,
@@ -85,7 +85,7 @@ import {
     specializeTupleClass,
     specializeWithUnknownTypeArgs,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 // PEP 634 indicates that several built-in classes are handled differently
 // when used with class pattern matching.

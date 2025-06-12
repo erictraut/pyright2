@@ -7,16 +7,16 @@
  * Provides type evaluation logic that is specific to properties.
  */
 
-import { Symbol, SymbolFlags } from '../binder/symbol';
-import { getFileInfo } from '../common/analyzerNodeInfo';
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { getClassFullName, getTypeAnnotationForParam, getTypeSourceId } from '../common/parseTreeUtils';
-import { LocAddendum, LocMessage } from '../localization/localize';
-import { DecoratorNode, FunctionNode, ParamCategory, ParseNode } from '../parser/parseNodes';
-import { ConstraintSolution } from './constraintSolution';
-import { ConstraintTracker } from './constraintTracker';
-import { AssignTypeFlags, TypeEvaluator } from './typeEvaluatorTypes';
+import { Symbol, SymbolFlags } from '../binder/symbol.ts';
+import { getFileInfo } from '../common/analyzerNodeInfo.ts';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { getClassFullName, getTypeAnnotationForParam, getTypeSourceId } from '../common/parseTreeUtils.ts';
+import { LocAddendum, LocMessage } from '../localization/localize.ts';
+import { DecoratorNode, FunctionNode, ParamCategory, ParseNode } from '../parser/parseNodes.ts';
+import { ConstraintSolution } from './constraintSolution.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import { AssignTypeFlags, TypeEvaluator } from './typeEvaluatorTypes.ts';
 import {
     AnyType,
     ClassType,
@@ -37,8 +37,8 @@ import {
     Type,
     TypeVarType,
     UnknownType,
-} from './types';
-import { applySolvedTypeVars, computeMroLinearization, getTypeVarScopeId, isProperty } from './typeUtils';
+} from './types.ts';
+import { applySolvedTypeVars, computeMroLinearization, getTypeVarScopeId, isProperty } from './typeUtils.ts';
 
 export function validatePropertyMethod(evaluator: TypeEvaluator, method: FunctionType, errorNode: ParseNode) {
     if (FunctionType.isStaticMethod(method)) {

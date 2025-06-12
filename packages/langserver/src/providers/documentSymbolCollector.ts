@@ -10,22 +10,22 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration';
+import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.ts';
 import {
     areDeclarationsSame,
     getDeclarationsWithUsesLocalNameRemoved,
     synthesizeAliasDeclaration,
-} from 'typeserver/binder/declarationUtils';
-import { ScopeType } from 'typeserver/binder/scope';
-import * as ScopeUtils from 'typeserver/binder/scopeUtils';
-import { Symbol } from 'typeserver/binder/symbol';
-import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo';
-import { getModuleNode, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils';
-import { TextRange } from 'typeserver/common/textRange';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
-import { TypeCategory } from 'typeserver/evaluator/types';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
+} from 'typeserver/binder/declarationUtils.ts';
+import { ScopeType } from 'typeserver/binder/scope.ts';
+import * as ScopeUtils from 'typeserver/binder/scopeUtils.ts';
+import { Symbol } from 'typeserver/binder/symbol.ts';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.ts';
+import { getModuleNode, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.ts';
+import { TextRange } from 'typeserver/common/textRange.ts';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+import { TypeCategory } from 'typeserver/evaluator/types.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.ts';
 import {
     ImportAsNode,
     NameNode,
@@ -33,13 +33,13 @@ import {
     ParseNodeType,
     StringListNode,
     StringNode,
-} from 'typeserver/parser/parseNodes';
-import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker';
-import { IPythonMode } from 'typeserver/program/sourceFile';
-import { collectImportedByCells } from 'typeserver/program/sourceFileInfoUtils';
-import { isStubFile } from 'typeserver/program/sourceMapper';
-import { appendArray } from 'typeserver/utils/collectionUtils';
-import { assert } from 'typeserver/utils/debug';
+} from 'typeserver/parser/parseNodes.ts';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.ts';
+import { IPythonMode } from 'typeserver/program/sourceFile.ts';
+import { collectImportedByCells } from 'typeserver/program/sourceFileInfoUtils.ts';
+import { isStubFile } from 'typeserver/program/sourceMapper.ts';
+import { appendArray } from 'typeserver/utils/collectionUtils.ts';
+import { assert } from 'typeserver/utils/debug.ts';
 
 export type CollectionResult = {
     node: NameNode | StringNode;

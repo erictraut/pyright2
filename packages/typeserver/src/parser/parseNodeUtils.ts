@@ -8,8 +8,9 @@
  * ParseNodeType is a const enum which strips out the string keys
  * This file is used to map the string keys to the const enum values.
  */
-import { ParseNodeType } from './parseNodes';
-import { OperatorType } from './tokenizerTypes';
+
+import { ParseNodeType } from './parseNodes.ts';
+import { OperatorType } from './tokenizerTypes.ts';
 
 type ParseNodeEnumStringKeys = Exclude<keyof typeof ParseNodeType, `${number}`>;
 type ParseNodeTypeMapType = Record<ParseNodeEnumStringKeys, ParseNodeType>;

@@ -8,18 +8,18 @@
 
 import { CancellationToken, CompletionItemKind, SymbolKind } from 'vscode-languageserver';
 
-import { AliasDeclaration, Declaration, DeclarationType } from 'typeserver/binder/declaration';
-import { getLastTypedDeclarationForSymbol, isVisibleExternally } from 'typeserver/binder/symbolUtils';
-import { getScope, ScopedNode } from 'typeserver/common/analyzerNodeInfo';
-import { convertOffsetsToRange, convertTextRangeToRange } from 'typeserver/common/positionUtils';
-import { Range } from 'typeserver/common/textRange';
-import { AnalyzerFileInfo } from 'typeserver/evaluator/analyzerFileInfo';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { Uri } from 'typeserver/files/uri/uri';
-import { ParseNodeType } from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { getSymbolKind } from '../server/lspUtils';
-import { convertSymbolKindToCompletionItemKind } from './autoImporter';
+import { AliasDeclaration, Declaration, DeclarationType } from 'typeserver/binder/declaration.ts';
+import { getLastTypedDeclarationForSymbol, isVisibleExternally } from 'typeserver/binder/symbolUtils.ts';
+import { getScope, ScopedNode } from 'typeserver/common/analyzerNodeInfo.ts';
+import { convertOffsetsToRange, convertTextRangeToRange } from 'typeserver/common/positionUtils.ts';
+import { Range } from 'typeserver/common/textRange.ts';
+import { AnalyzerFileInfo } from 'typeserver/evaluator/analyzerFileInfo.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { ParseNodeType } from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { getSymbolKind } from '../server/lspUtils.ts';
+import { convertSymbolKindToCompletionItemKind } from './autoImporter.ts';
 
 export interface IndexOptions {
     includeAliases?: boolean;

@@ -7,13 +7,13 @@
  * Pathname utility functions.
  */
 
-import * as path from 'path';
+import path from 'path';
 
-import { Char } from '../parser/charCodes';
-import { some } from '../utils/collectionUtils';
-import { identity } from '../utils/core';
-import * as debug from '../utils/debug';
-import { equateStringsCaseInsensitive, equateStringsCaseSensitive } from '../utils/stringUtils';
+import { Char } from '../parser/charCodes.ts';
+import { some } from '../utils/collectionUtils.ts';
+import { identity } from '../utils/core.ts';
+import * as debug from '../utils/debug.ts';
+import { equateStringsCaseInsensitive, equateStringsCaseSensitive } from '../utils/stringUtils.ts';
 
 export type GetCanonicalFileName = (fileName: string) => string;
 

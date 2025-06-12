@@ -15,31 +15,35 @@ import {
     WorkDoneProgressServerReporter,
 } from 'vscode-languageserver';
 
-import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions';
-import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console';
-import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils';
-import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost';
-import { Host } from 'typeserver/extensibility/host';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
-import { FileSystem } from 'typeserver/files/fileSystem';
-import { PartialStubService } from 'typeserver/files/partialStubService';
-import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem';
-import { RealTempFile, WorkspaceFileWatcherProvider, createFromRealFileSystem } from 'typeserver/files/realFileSystem';
-import { Uri } from 'typeserver/files/uri/uri';
-import { getRootUri } from 'typeserver/files/uri/uriUtils';
-import { ImportResolver } from 'typeserver/imports/importResolver';
-import { AnalysisResults } from 'typeserver/service/analysis';
-import { CacheManager } from 'typeserver/service/cacheManager';
-import { isPythonBinary } from 'typeserver/service/pythonPathUtils';
-import { isDefined, isString } from 'typeserver/utils/core';
-import { CommandController } from '../commands/commandController';
-import { CodeActionProvider } from '../providers/codeActionProvider';
-import { resolvePathWithEnvVariables } from '../providers/envVarUtils';
-import { ServerSettings } from '../server/languageServerInterface';
-import { ProgressReporter } from '../server/progressReporter';
-import { LanguageServerBase } from './languageServerBase';
-import { WellKnownWorkspaceKinds, Workspace } from './workspaceFactory';
+import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.ts';
+import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.ts';
+import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils.ts';
+import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.ts';
+import { Host } from 'typeserver/extensibility/host.ts';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.ts';
+import { FileSystem } from 'typeserver/files/fileSystem.ts';
+import { PartialStubService } from 'typeserver/files/partialStubService.ts';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.ts';
+import {
+    RealTempFile,
+    WorkspaceFileWatcherProvider,
+    createFromRealFileSystem,
+} from 'typeserver/files/realFileSystem.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { getRootUri } from 'typeserver/files/uri/uriUtils.ts';
+import { ImportResolver } from 'typeserver/imports/importResolver.ts';
+import { AnalysisResults } from 'typeserver/service/analysis.ts';
+import { CacheManager } from 'typeserver/service/cacheManager.ts';
+import { isPythonBinary } from 'typeserver/service/pythonPathUtils.ts';
+import { isDefined, isString } from 'typeserver/utils/core.ts';
+import { CommandController } from '../commands/commandController.ts';
+import { CodeActionProvider } from '../providers/codeActionProvider.ts';
+import { resolvePathWithEnvVariables } from '../providers/envVarUtils.ts';
+import { ServerSettings } from '../server/languageServerInterface.ts';
+import { LanguageServerBase } from './languageServerBase.ts';
+import { ProgressReporter } from './progressReporter.ts';
+import { WellKnownWorkspaceKinds, Workspace } from './workspaceFactory.ts';
 
 const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };
 

@@ -4,23 +4,19 @@
  * Configuration for jest tests.
  */
 
-module.exports = {
+export default {
     testEnvironment: 'node',
     roots: ['<rootDir>/src/tests'],
     transform: {
         '^.+\\.tsx?$': [
             'ts-jest',
             {
-                tsconfig: {
-                    target: 'es2019',
-
-                    // Needed because jest calls tsc in a way that doesn't
-                    // inline const enums.
-                    preserveConstEnums: false,
-                },
+                useESM: true,
+                tsconfig: 'tsconfig.json',
             },
         ],
     },
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
+    extensionsToTreatAsEsm: ['.ts'],
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
 };

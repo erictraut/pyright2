@@ -10,10 +10,10 @@
 import type * as fs from 'fs';
 
 import { Disposable } from 'vscode-jsonrpc';
-import { FileSystem, MkDirOptions, Stats, VirtualDirent } from './fileSystem';
-import { FileWatcher, FileWatcherEventHandler } from './fileWatcher';
-import { Uri } from './uri/uri';
-import { UriMap } from './uri/uriMap';
+import { FileSystem, MkDirOptions, Stats, VirtualDirent } from './fileSystem.ts';
+import { FileWatcher, FileWatcherEventHandler } from './fileWatcher.ts';
+import { Uri } from './uri/uri.ts';
+import { UriMap } from './uri/uriMap.ts';
 
 interface MappedEntry {
     mappedUri: Uri;

@@ -6,8 +6,8 @@
  * Tests documentSymbolCollector
  */
 
-import { parseAndGetTestState } from './harness/fourslash/testState';
-import { verifyReferencesAtPosition } from './testStateUtils';
+import { parseAndGetTestState } from './harness/fourslash/testState.ts';
+import { verifyReferencesAtPosition } from './testStateUtils.ts';
 
 test('folder reference', () => {
     const code = `

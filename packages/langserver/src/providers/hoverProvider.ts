@@ -16,13 +16,13 @@ import {
     DeclarationType,
     VariableDeclaration,
     isUnresolvedAliasDeclaration,
-} from 'typeserver/binder/declaration';
-import { SynthesizedTypeInfo } from 'typeserver/binder/symbol';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
-import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils';
-import { Position, Range, TextRange } from 'typeserver/common/textRange';
-import { SignatureDisplayType } from 'typeserver/config/configOptions';
-import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+} from 'typeserver/binder/declaration.ts';
+import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.ts';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
+import { Position, Range, TextRange } from 'typeserver/common/textRange.ts';
+import { SignatureDisplayType } from 'typeserver/config/configOptions.ts';
+import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
 import {
     ClassType,
     Type,
@@ -34,25 +34,25 @@ import {
     isModule,
     isParamSpec,
     isTypeVar,
-} from 'typeserver/evaluator/types';
-import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView } from 'typeserver/extensibility/extensibility';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { Uri } from 'typeserver/files/uri/uri';
-import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { SourceMapper } from 'typeserver/program/sourceMapper';
-import { assertNever, fail } from 'typeserver/utils/debug';
-import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils';
-import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion';
+} from 'typeserver/evaluator/types.ts';
+import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { SourceMapper } from 'typeserver/program/sourceMapper.ts';
+import { assertNever, fail } from 'typeserver/utils/debug.ts';
+import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils.ts';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion.ts';
 import {
     getClassAndConstructorTypes,
     getConstructorTooltip,
     getDocumentationPartsForTypeAndDecl,
     getToolTipForType,
     getTypeForToolTip,
-} from './tooltipUtils';
+} from './tooltipUtils.ts';
 
 export interface HoverTextPart {
     python?: boolean;

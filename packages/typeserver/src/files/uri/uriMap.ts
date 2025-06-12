@@ -6,9 +6,9 @@
  * Map specifically made to support a URI as a key.
  */
 
-import { Uri } from './uri';
+import { Uri } from './uri.ts';
 
-export class UriMap<T> implements Map<Uri, T> {
+export class UriMap<T> {
     private _keys = new Map<string, Uri>();
     private _values = new Map<string, T>();
 
@@ -24,7 +24,7 @@ export class UriMap<T> implements Map<Uri, T> {
     }
     forEach(callbackfn: (value: T, key: Uri, map: Map<Uri, T>) => void, thisArg?: any): void {
         this._keys.forEach((v, k) => {
-            callbackfn(this._values.get(k)!, v, this);
+            callbackfn(this._values.get(k)!, v, this as any);
         });
     }
     values(): IterableIterator<T> {

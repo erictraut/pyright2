@@ -8,15 +8,15 @@
  * that the types are complete.
  */
 
-import { DeclarationType, FunctionDeclaration, VariableDeclaration } from '../binder/declaration';
-import { ScopeType } from '../binder/scope';
-import { getScopeForNode } from '../binder/scopeUtils';
-import { Symbol, SymbolTable } from '../binder/symbol';
-import { isDunderName, isPrivateOrProtectedName } from '../binder/symbolNameUtils';
-import { Diagnostic, DiagnosticAddendum, DiagnosticCategory } from '../common/diagnostic';
-import { getEmptyRange, Range } from '../common/textRange';
-import { CommandLineOptions } from '../config/commandLineOptions';
-import { ConfigOptions, ExecutionEnvironment } from '../config/configOptions';
+import { DeclarationType, FunctionDeclaration, VariableDeclaration } from '../binder/declaration.ts';
+import { ScopeType } from '../binder/scope.ts';
+import { getScopeForNode } from '../binder/scopeUtils.ts';
+import { Symbol, SymbolTable } from '../binder/symbol.ts';
+import { isDunderName, isPrivateOrProtectedName } from '../binder/symbolNameUtils.ts';
+import { Diagnostic, DiagnosticAddendum, DiagnosticCategory } from '../common/diagnostic.ts';
+import { getEmptyRange, Range } from '../common/textRange.ts';
+import { CommandLineOptions } from '../config/commandLineOptions.ts';
+import { ConfigOptions, ExecutionEnvironment } from '../config/configOptions.ts';
 import {
     ClassType,
     FunctionParam,
@@ -33,7 +33,7 @@ import {
     Type,
     TypeBase,
     TypeCategory,
-} from '../evaluator/types';
+} from '../evaluator/types.ts';
 import {
     doForEachSubtype,
     getFullNameOfType,
@@ -42,18 +42,18 @@ import {
     isPartlyUnknown,
     partiallySpecializeType,
     specializeForBaseClass,
-} from '../evaluator/typeUtils';
-import { NullConsole } from '../extensibility/console';
-import { FullAccessHost } from '../extensibility/fullAccessHost';
-import { Host } from '../extensibility/host';
-import { ServiceProvider } from '../extensibility/serviceProvider';
-import { getFileExtension, stripFileExtension } from '../files/pathUtils';
-import { Uri } from '../files/uri/uri';
-import { tryStat } from '../files/uri/uriUtils';
-import { createImportedModuleDescriptor, ImportResolver } from '../imports/importResolver';
-import { getPyTypedInfo, PyTypedInfo } from '../imports/pyTypedUtils';
-import { Program } from '../program/program';
-import { assert } from '../utils/debug';
+} from '../evaluator/typeUtils.ts';
+import { NullConsole } from '../extensibility/console.ts';
+import { FullAccessHost } from '../extensibility/fullAccessHost.ts';
+import { Host } from '../extensibility/host.ts';
+import { ServiceProvider } from '../extensibility/serviceProvider.ts';
+import { getFileExtension, stripFileExtension } from '../files/pathUtils.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { tryStat } from '../files/uri/uriUtils.ts';
+import { createImportedModuleDescriptor, ImportResolver } from '../imports/importResolver.ts';
+import { getPyTypedInfo, PyTypedInfo } from '../imports/pyTypedUtils.ts';
+import { Program } from '../program/program.ts';
+import { assert } from '../utils/debug.ts';
 import {
     AlternateSymbolNameMap,
     getEmptyReport,
@@ -62,7 +62,7 @@ import {
     SymbolCategory,
     SymbolInfo,
     TypeKnownStatus,
-} from './packageTypeReport';
+} from './packageTypeReport.ts';
 
 type PublicSymbolSet = Set<string>;
 

@@ -9,12 +9,12 @@
 import type * as fs from 'fs';
 
 import { Disposable } from 'vscode-jsonrpc';
-import { stubsSuffix } from '../common/pathConsts';
-import { ExecutionEnvironment } from '../config/configOptions';
-import { FileSystem } from '../files/fileSystem';
-import { Uri } from '../files/uri/uri';
-import { isDirectory, tryStat } from '../files/uri/uriUtils';
-import { getPyTypedInfo, PyTypedInfo } from '../imports/pyTypedUtils';
+import { stubsSuffix } from '../common/pathConsts.ts';
+import { ExecutionEnvironment } from '../config/configOptions.ts';
+import { FileSystem } from '../files/fileSystem.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { isDirectory, tryStat } from '../files/uri/uriUtils.ts';
+import { getPyTypedInfo, PyTypedInfo } from '../imports/pyTypedUtils.ts';
 
 export interface SupportPartialStubs {
     isPartialStubPackagesScanned(execEnv: ExecutionEnvironment): boolean;

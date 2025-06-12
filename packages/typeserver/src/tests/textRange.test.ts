@@ -4,9 +4,9 @@
  * Licensed under the MIT license.
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 
-import { TextRange } from '../common/textRange';
+import { TextRange } from '../common/textRange.ts';
 
 test('textRange combine', () => {
     const range1 = TextRange.create(10, 2);

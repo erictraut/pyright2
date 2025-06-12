@@ -24,10 +24,16 @@ import {
     isImportModuleName,
     isLastNameOfDottedName,
     printExpression,
-} from 'typeserver/common/parseTreeUtils';
-import { TextRange, rangesAreEqual } from 'typeserver/common/textRange';
-import { MemberAccessNode, NameNode, ParseNodeType, StringNode, isExpressionNode } from 'typeserver/parser/parseNodes';
-import { TestState, getNodeAtMarker, getNodeForRange, parseAndGetTestState } from './harness/fourslash/testState';
+} from 'typeserver/common/parseTreeUtils.ts';
+import { TextRange, rangesAreEqual } from 'typeserver/common/textRange.ts';
+import {
+    MemberAccessNode,
+    NameNode,
+    ParseNodeType,
+    StringNode,
+    isExpressionNode,
+} from 'typeserver/parser/parseNodes.ts';
+import { TestState, getNodeAtMarker, getNodeForRange, parseAndGetTestState } from './harness/fourslash/testState.ts';
 
 test('isImportModuleName', () => {
     const code = `

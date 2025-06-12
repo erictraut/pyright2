@@ -6,10 +6,10 @@
  * Implements a FileWatcherProvider using chokidar.
  */
 
-import * as chokidar from 'chokidar';
+import chokidar from 'chokidar';
 
-import { ConsoleInterface } from '../extensibility/console';
-import { FileWatcher, FileWatcherEventHandler, FileWatcherProvider } from './fileWatcher';
+import { ConsoleInterface } from '../extensibility/console.ts';
+import { FileWatcher, FileWatcherEventHandler, FileWatcherProvider } from './fileWatcher.ts';
 
 const _isMacintosh = process.platform === 'darwin';
 const _isLinux = process.platform === 'linux';

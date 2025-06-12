@@ -26,25 +26,25 @@ import {
     isIntrinsicDeclaration,
     isVariableDeclaration,
     VariableDeclaration,
-} from 'typeserver/binder/declaration';
-import { isDefinedInFile } from 'typeserver/binder/declarationUtils';
-import { getScopeForNode } from 'typeserver/binder/scopeUtils';
-import { Symbol, SymbolTable } from 'typeserver/binder/symbol';
-import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils';
-import { getLastTypedDeclarationForSymbol, isVisibleExternally } from 'typeserver/binder/symbolUtils';
-import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
-import { getCallNodeAndActiveParamIndex } from 'typeserver/common/parseTreeUtils';
-import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils';
-import { PythonVersion, pythonVersion3_10, pythonVersion3_5 } from 'typeserver/common/pythonVersion';
-import { comparePositions, Position, TextRange } from 'typeserver/common/textRange';
-import { TextRangeCollection } from 'typeserver/common/textRangeCollection';
-import { ExecutionEnvironment } from 'typeserver/config/configOptions';
-import { transformTypeForEnumMember } from 'typeserver/evaluator/enums';
-import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils';
-import { getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts';
-import { CallSignatureInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
-import { printLiteralValue } from 'typeserver/evaluator/typePrinter';
+} from 'typeserver/binder/declaration.ts';
+import { isDefinedInFile } from 'typeserver/binder/declarationUtils.ts';
+import { getScopeForNode } from 'typeserver/binder/scopeUtils.ts';
+import { Symbol, SymbolTable } from 'typeserver/binder/symbol.ts';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.ts';
+import { getLastTypedDeclarationForSymbol, isVisibleExternally } from 'typeserver/binder/symbolUtils.ts';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.ts';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
+import { getCallNodeAndActiveParamIndex } from 'typeserver/common/parseTreeUtils.ts';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
+import { PythonVersion, pythonVersion3_10, pythonVersion3_5 } from 'typeserver/common/pythonVersion.ts';
+import { comparePositions, Position, TextRange } from 'typeserver/common/textRange.ts';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.ts';
+import { ExecutionEnvironment } from 'typeserver/config/configOptions.ts';
+import { transformTypeForEnumMember } from 'typeserver/evaluator/enums.ts';
+import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils.ts';
+import { getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts.ts';
+import { CallSignatureInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+import { printLiteralValue } from 'typeserver/evaluator/typePrinter.ts';
 import {
     ClassType,
     combineTypes,
@@ -60,7 +60,7 @@ import {
     Type,
     TypeBase,
     TypeCategory,
-} from 'typeserver/evaluator/types';
+} from 'typeserver/evaluator/types.ts';
 import {
     containsLiteralType,
     doForEachSignature,
@@ -72,13 +72,13 @@ import {
     isNoneInstance,
     lookUpClassMember,
     MemberAccessFlags,
-} from 'typeserver/evaluator/typeUtils';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView } from 'typeserver/extensibility/extensibility';
-import { Uri } from 'typeserver/files/uri/uri';
-import { ImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver';
-import { ImportResult } from 'typeserver/imports/importResult';
-import { Localizer } from 'typeserver/localization/localize';
+} from 'typeserver/evaluator/typeUtils.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { ImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.ts';
+import { ImportResult } from 'typeserver/imports/importResult.ts';
+import { Localizer } from 'typeserver/localization/localize.ts';
 import {
     ArgCategory,
     DecoratorNode,
@@ -100,9 +100,9 @@ import {
     SetNode,
     StringNode,
     TypeAnnotationNode,
-} from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { Tokenizer } from 'typeserver/parser/tokenizer';
+} from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { Tokenizer } from 'typeserver/parser/tokenizer.ts';
 import {
     FStringStartToken,
     OperatorToken,
@@ -111,25 +111,25 @@ import {
     StringTokenFlags,
     Token,
     TokenType,
-} from 'typeserver/parser/tokenizerTypes';
-import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper';
-import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtils';
-import { appendArray } from 'typeserver/utils/collectionUtils';
-import * as debug from 'typeserver/utils/debug';
-import { fail } from 'typeserver/utils/debug';
-import * as StringUtils from 'typeserver/utils/stringUtils';
-import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion';
-import { fromLSPAny, toLSPAny } from '../server/lspUtils';
-import { convertToTextEdits } from '../server/workspaceEditUtils';
-import { AutoImporter, AutoImportResult, buildModuleSymbolsMap } from './autoImporter';
+} from 'typeserver/parser/tokenizerTypes.ts';
+import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.ts';
+import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtils.ts';
+import { appendArray } from 'typeserver/utils/collectionUtils.ts';
+import * as debug from 'typeserver/utils/debug.ts';
+import { fail } from 'typeserver/utils/debug.ts';
+import * as StringUtils from 'typeserver/utils/stringUtils.ts';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion.ts';
+import { fromLSPAny, toLSPAny } from '../server/lspUtils.ts';
+import { convertToTextEdits } from '../server/workspaceEditUtils.ts';
+import { AutoImporter, AutoImportResult, buildModuleSymbolsMap } from './autoImporter.ts';
 import {
     CompletionDetail,
     getCompletionItemDocumentation,
     getTypeDetail,
     SymbolDetail,
-} from './completionProviderUtils';
-import { DocumentSymbolCollector } from './documentSymbolCollector';
-import { getAutoImportText, getDocumentationPartsForTypeAndDecl } from './tooltipUtils';
+} from './completionProviderUtils.ts';
+import { DocumentSymbolCollector } from './documentSymbolCollector.ts';
+import { getAutoImportText, getDocumentationPartsForTypeAndDecl } from './tooltipUtils.ts';
 
 namespace Keywords {
     const base: string[] = [

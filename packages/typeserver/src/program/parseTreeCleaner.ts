@@ -11,9 +11,9 @@
  * parse tree from scratch.
  */
 
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import { ModuleNode, ParseNode } from '../parser/parseNodes';
-import { ParseTreeWalker } from '../parser/parseTreeWalker';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import { ModuleNode, ParseNode } from '../parser/parseNodes.ts';
+import { ParseTreeWalker } from '../parser/parseTreeWalker.ts';
 
 export class ParseTreeCleanerWalker extends ParseTreeWalker {
     private _parseTree: ModuleNode;

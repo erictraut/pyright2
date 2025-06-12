@@ -7,14 +7,20 @@
  * Provides special-case logic for type analysis of tuples.
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { getTypeVarScopesForNode } from '../common/parseTreeUtils';
-import { LocAddendum, LocMessage } from '../localization/localize';
-import { ExpressionNode, ParseNodeType, SliceNode, TupleNode } from '../parser/parseNodes';
-import { addConstraintsForExpectedType } from './constraintSolver';
-import { ConstraintTracker } from './constraintTracker';
-import { AssignTypeFlags, EvalFlags, maxInferredContainerDepth, TypeEvaluator, TypeResult } from './typeEvaluatorTypes';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { getTypeVarScopesForNode } from '../common/parseTreeUtils.ts';
+import { LocAddendum, LocMessage } from '../localization/localize.ts';
+import { ExpressionNode, ParseNodeType, SliceNode, TupleNode } from '../parser/parseNodes.ts';
+import { addConstraintsForExpectedType } from './constraintSolver.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import {
+    AssignTypeFlags,
+    EvalFlags,
+    maxInferredContainerDepth,
+    TypeEvaluator,
+    TypeResult,
+} from './typeEvaluatorTypes.ts';
 import {
     AnyType,
     ClassType,
@@ -32,7 +38,7 @@ import {
     Type,
     TypeVarType,
     UnknownType,
-} from './types';
+} from './types.ts';
 import {
     convertToInstance,
     doForEachSubtype,
@@ -44,7 +50,7 @@ import {
     makeInferenceContext,
     specializeTupleClass,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 // If a tuple expression with no declared type contains a large number
 // of elements, it can cause performance issues. This value limits the

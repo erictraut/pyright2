@@ -8,11 +8,11 @@
  * or other directives from them.
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { convertOffsetToPosition } from '../common/positionUtils';
-import { TextRange } from '../common/textRange';
-import { TextRangeCollection } from '../common/textRangeCollection';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { convertOffsetToPosition } from '../common/positionUtils.ts';
+import { TextRange } from '../common/textRange.ts';
+import { TextRangeCollection } from '../common/textRangeCollection.ts';
 import {
     cloneDiagnosticRuleSet,
     DiagnosticLevel,
@@ -23,10 +23,10 @@ import {
     getStandardDiagnosticRuleSet,
     getStrictDiagnosticRuleSet,
     getStrictModeNotOverriddenRules,
-} from '../config/configOptions';
-import { LocAddendum, LocMessage } from '../localization/localize';
-import { Token } from '../parser/tokenizerTypes';
-import { assert } from '../utils/debug';
+} from '../config/configOptions.ts';
+import { LocAddendum, LocMessage } from '../localization/localize.ts';
+import { Token } from '../parser/tokenizerTypes.ts';
+import { assert } from '../utils/debug.ts';
 
 const strictSetting = 'strict';
 const standardSetting = 'standard';

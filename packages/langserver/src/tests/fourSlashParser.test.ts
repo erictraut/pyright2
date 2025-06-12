@@ -9,13 +9,13 @@
 
 import assert from 'assert';
 
-import { getBaseFileName, normalizeSlashes } from 'typeserver/files/pathUtils';
-import { UriEx } from 'typeserver/files/uri/uriUtils';
-import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils';
-import { parseTestData } from './harness/fourslash/fourSlashParser';
-import { CompilerSettings } from './harness/fourslash/fourSlashTypes';
-import * as host from './harness/testHost';
-import * as factory from './harness/vfs/factory';
+import { getBaseFileName, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
+import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
+import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.ts';
+import { parseTestData } from './harness/fourslash/fourSlashParser.ts';
+import { CompilerSettings } from './harness/fourslash/fourSlashTypes.ts';
+import * as host from './harness/testHost.ts';
+import * as factory from './harness/vfs/factory.ts';
 
 test('GlobalOptions', () => {
     const code = `

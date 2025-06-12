@@ -8,12 +8,12 @@
  * and analyzed python source file.
  */
 
-import { getScopeForNode } from '../binder/scopeUtils';
-import { Symbol } from '../binder/symbol';
-import * as SymbolNameUtils from '../binder/symbolNameUtils';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import * as ParseTreeUtils from '../common/parseTreeUtils';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes';
+import { getScopeForNode } from '../binder/scopeUtils.ts';
+import { Symbol } from '../binder/symbol.ts';
+import * as SymbolNameUtils from '../binder/symbolNameUtils.ts';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
+import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
 import {
     ClassType,
     isClassInstance,
@@ -22,8 +22,8 @@ import {
     isNever,
     isUnknown,
     removeUnknownFromUnion,
-} from '../evaluator/types';
-import { Uri } from '../files/uri/uri';
+} from '../evaluator/types.ts';
+import { Uri } from '../files/uri/uri.ts';
 import {
     ArgCategory,
     AssignmentNode,
@@ -53,10 +53,10 @@ import {
     TypeParameterNode,
     WhileNode,
     WithNode,
-} from '../parser/parseNodes';
-import { ParseTreeWalker } from '../parser/parseTreeWalker';
-import { OperatorType } from '../parser/tokenizerTypes';
-import { SourceFile } from '../program/sourceFile';
+} from '../parser/parseNodes.ts';
+import { ParseTreeWalker } from '../parser/parseTreeWalker.ts';
+import { OperatorType } from '../parser/tokenizerTypes.ts';
+import { SourceFile } from '../program/sourceFile.ts';
 
 class TrackedImport {
     isAccessed = false;

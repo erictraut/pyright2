@@ -6,18 +6,18 @@
  * Implementation of host where it is allowed to run external executables.
  */
 
-import * as child_process from 'child_process';
+import child_process from 'child_process';
 
-import { PythonVersion } from '../common/pythonVersion';
-import { PythonPlatform } from '../config/configOptions';
-import { ServiceKeys } from '../extensibility/serviceKeys';
-import { ServiceProvider } from '../extensibility/serviceProvider';
-import { getAnyExtensionFromPath, normalizePath } from '../files/pathUtils';
-import { Uri } from '../files/uri/uri';
-import { isDirectory } from '../files/uri/uriUtils';
-import { PythonPathResult } from '../service/pythonPathUtils';
-import { assertNever } from '../utils/debug';
-import { HostKind, NoAccessHost } from './host';
+import { PythonVersion } from '../common/pythonVersion.ts';
+import { PythonPlatform } from '../config/configOptions.ts';
+import { ServiceKeys } from '../extensibility/serviceKeys.ts';
+import { ServiceProvider } from '../extensibility/serviceProvider.ts';
+import { getAnyExtensionFromPath, normalizePath } from '../files/pathUtils.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { isDirectory } from '../files/uri/uriUtils.ts';
+import { PythonPathResult } from '../service/pythonPathUtils.ts';
+import { assertNever } from '../utils/debug.ts';
+import { HostKind, NoAccessHost } from './host.ts';
 
 // preventLocalImports removes the working directory from sys.path.
 // The -c flag adds it automatically, which can allow some stdlib

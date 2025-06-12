@@ -10,27 +10,27 @@
 
 import { CancellationToken, Location, ResultProgressReporter } from 'vscode-languageserver';
 
-import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration';
-import { getNameFromDeclaration } from 'typeserver/binder/declarationUtils';
-import { Symbol } from 'typeserver/binder/symbol';
-import { isVisibleExternally } from 'typeserver/binder/symbolUtils';
-import { DocumentRange } from 'typeserver/common/docRange';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
-import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils';
-import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/textRange';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
-import { maxTypeRecursionCount } from 'typeserver/evaluator/types';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
-import { Uri } from 'typeserver/files/uri/uri';
-import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
-import { appendArray } from 'typeserver/utils/collectionUtils';
-import { assertNever } from 'typeserver/utils/debug';
-import { CollectionResult, DocumentSymbolCollector } from './documentSymbolCollector';
-import { convertDocumentRangesToLocation } from './navigationUtils';
+import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.ts';
+import { getNameFromDeclaration } from 'typeserver/binder/declarationUtils.ts';
+import { Symbol } from 'typeserver/binder/symbol.ts';
+import { isVisibleExternally } from 'typeserver/binder/symbolUtils.ts';
+import { DocumentRange } from 'typeserver/common/docRange.ts';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
+import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/textRange.ts';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+import { maxTypeRecursionCount } from 'typeserver/evaluator/types.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.ts';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.ts';
+import { appendArray } from 'typeserver/utils/collectionUtils.ts';
+import { assertNever } from 'typeserver/utils/debug.ts';
+import { CollectionResult, DocumentSymbolCollector } from './documentSymbolCollector.ts';
+import { convertDocumentRangesToLocation } from './navigationUtils.ts';
 
 export type ReferenceCallback = (locations: DocumentRange[]) => void;
 

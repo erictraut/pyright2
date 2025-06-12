@@ -8,13 +8,13 @@
 
 import assert from 'assert';
 
-import { combinePaths, getFileName, normalizeSlashes } from 'typeserver/files/pathUtils';
-import { Uri } from 'typeserver/files/uri/uri';
-import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils';
-import { Range } from './harness/fourslash/fourSlashTypes';
-import { runFourSlashTestContent } from './harness/fourslash/runner';
-import { parseAndGetTestState } from './harness/fourslash/testState';
-import * as factory from './harness/vfs/factory';
+import { combinePaths, getFileName, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.ts';
+import { Range } from './harness/fourslash/fourSlashTypes.ts';
+import { runFourSlashTestContent } from './harness/fourslash/runner.ts';
+import { parseAndGetTestState } from './harness/fourslash/testState.ts';
+import * as factory from './harness/vfs/factory.ts';
 
 test('Create', () => {
     const code = `

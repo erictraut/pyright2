@@ -6,15 +6,15 @@
 
 import { FakeFS, NativePath, PortablePath, PosixFS, ppath, VirtualFS, ZipFS, ZipOpenFS } from '@yarnpkg/fslib';
 import { getLibzipSync } from '@yarnpkg/libzip';
-import * as fs from 'fs';
-import * as tmp from 'tmp';
+import fs from 'fs';
+import tmp from 'tmp';
 import { isMainThread } from 'worker_threads';
 
 import { Disposable } from 'vscode-jsonrpc';
-import { ConsoleInterface, NullConsole } from '../extensibility/console';
-import { randomBytesHex } from '../utils/crypto';
-import { CaseSensitivityDetector } from './caseSensitivityDetector';
-import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from './fileSystem';
+import { ConsoleInterface, NullConsole } from '../extensibility/console.ts';
+import { randomBytesHex } from '../utils/crypto.ts';
+import { CaseSensitivityDetector } from './caseSensitivityDetector.ts';
+import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from './fileSystem.ts';
 import {
     FileWatcher,
     FileWatcherEventHandler,
@@ -22,11 +22,11 @@ import {
     FileWatcherHandler,
     FileWatcherProvider,
     nullFileWatcherProvider,
-} from './fileWatcher';
-import { combinePaths, getRootLength } from './pathUtils';
-import { FileUri, FileUriSchema } from './uri/fileUri';
-import { Uri } from './uri/uri';
-import { getRootUri } from './uri/uriUtils';
+} from './fileWatcher.ts';
+import { combinePaths, getRootLength } from './pathUtils.ts';
+import { FileUri, FileUriSchema } from './uri/fileUri.ts';
+import { Uri } from './uri/uri.ts';
+import { getRootUri } from './uri/uriUtils.ts';
 
 // Automatically remove files created by tmp at process exit.
 tmp.setGracefulCleanup();
@@ -271,7 +271,6 @@ export class RealFileSystem implements FileSystem {
                     return {
                         name: entry.name,
                         parentPath: path,
-                        path: path,
                         isFile: () => false,
                         isDirectory: () => true,
                         isBlockDevice: () => false,

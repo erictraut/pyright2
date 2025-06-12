@@ -6,8 +6,8 @@
  * Class that represents information around single source file.
  */
 
-import { ISourceFileInfo } from '../extensibility/extensibility';
-import { SourceFile } from './sourceFile';
+import { ISourceFileInfo } from '../extensibility/extensibility.ts';
+import { SourceFile } from './sourceFile.ts';
 
 // Tracks information about each source file in a program,
 // including the reason it was added to the program and any

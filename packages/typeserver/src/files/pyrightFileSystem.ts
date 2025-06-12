@@ -8,9 +8,9 @@
 
 import type * as fs from 'fs';
 
-import { FileSystem, MkDirOptions } from './fileSystem';
-import { ReadOnlyAugmentedFileSystem } from './readonlyAugmentedFileSystem';
-import { Uri } from './uri/uri';
+import { FileSystem, MkDirOptions } from './fileSystem.ts';
+import { ReadOnlyAugmentedFileSystem } from './readonlyAugmentedFileSystem.ts';
+import { Uri } from './uri/uri.ts';
 
 export interface IPyrightFileSystem extends FileSystem {}
 

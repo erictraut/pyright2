@@ -6,7 +6,7 @@
  * Unit tests for diagnostics
  */
 
-import { parseAndGetTestState } from './harness/fourslash/testState';
+import { parseAndGetTestState } from './harness/fourslash/testState.ts';
 
 test('unused import', async () => {
     const code = `

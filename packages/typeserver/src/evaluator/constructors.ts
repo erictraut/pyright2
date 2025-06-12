@@ -12,15 +12,15 @@
  * the `__init__` method on the resulting object with the same arguments.
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { ExpressionNode, ParamCategory } from '../parser/parseNodes';
-import { appendArray } from '../utils/collectionUtils';
-import { ConstraintSolution } from './constraintSolution';
-import { addConstraintsForExpectedType } from './constraintSolver';
-import { ConstraintTracker } from './constraintTracker';
-import { applyConstructorTransform, hasConstructorTransform } from './constructorTransform';
-import { Arg, CallResult, TypeEvaluator, TypeResult } from './typeEvaluatorTypes';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { ExpressionNode, ParamCategory } from '../parser/parseNodes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { ConstraintSolution } from './constraintSolution.ts';
+import { addConstraintsForExpectedType } from './constraintSolver.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import { applyConstructorTransform, hasConstructorTransform } from './constructorTransform.ts';
+import { Arg, CallResult, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
 import {
     ClassType,
     FunctionType,
@@ -42,7 +42,7 @@ import {
     isOverloaded,
     isTypeVar,
     isUnknown,
-} from './types';
+} from './types.ts';
 import {
     InferenceContext,
     MemberAccessFlags,
@@ -59,7 +59,7 @@ import {
     mapSubtypes,
     selfSpecializeClass,
     specializeTupleClass,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 // Fetches and binds the __new__ method from a class.
 export function getBoundNewMethod(

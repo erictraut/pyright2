@@ -7,14 +7,14 @@
  * Class that collects and deduplicates diagnostics.
  */
 
-import { DiagnosticLevel } from '../config/configOptions';
-import { Uri } from '../files/uri/uri';
-import { appendArray } from '../utils/collectionUtils';
-import { hashString } from '../utils/stringUtils';
-import { Diagnostic, DiagnosticAction, DiagnosticCategory } from './diagnostic';
-import { convertOffsetsToRange } from './positionUtils';
-import { Range, TextRange } from './textRange';
-import { TextRangeCollection } from './textRangeCollection';
+import { DiagnosticLevel } from '../config/configOptions.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { hashString } from '../utils/stringUtils.ts';
+import { Diagnostic, DiagnosticAction, DiagnosticCategory } from './diagnostic.ts';
+import { convertOffsetsToRange } from './positionUtils.ts';
+import { Range, TextRange } from './textRange.ts';
+import { TextRangeCollection } from './textRangeCollection.ts';
 
 // Represents a collection of diagnostics within a file.
 export interface FileDiagnostics {

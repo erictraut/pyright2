@@ -8,9 +8,9 @@
 
 import { CancellationToken, ExecuteCommandParams } from 'vscode-languageserver';
 
-import { LanguageServerBaseInterface, LanguageServerInterface } from '../server/languageServerInterface';
-import { Workspace } from '../server/workspaceFactory';
-import { ServerCommand } from './commandController';
+import { LanguageServerBaseInterface, LanguageServerInterface } from '../server/languageServerInterface.ts';
+import { Workspace } from '../server/workspaceFactory.ts';
+import { ServerCommand } from './commandController.ts';
 
 export class CreateTypeStubCommand implements ServerCommand {
     constructor(private _ls: LanguageServerInterface) {

@@ -15,7 +15,7 @@ import {
     RequestHandler,
 } from 'vscode-languageserver-protocol';
 
-import { Uri } from 'typeserver/files/uri/uri';
+import { Uri } from 'typeserver/files/uri/uri.ts';
 
 export interface RequestSender {
     sendRequest<R>(method: string, params: any, token?: CancellationToken): Promise<R>;

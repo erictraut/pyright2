@@ -10,16 +10,16 @@
  *
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { LocMessage } from '../localization/localize';
-import { ArgCategory, ExpressionNode, ParamCategory } from '../parser/parseNodes';
-import { appendArray } from '../utils/collectionUtils';
-import { ConstraintTracker } from './constraintTracker';
-import { createFunctionFromConstructor } from './constructors';
-import { getParamListDetails, ParamKind } from './parameterUtils';
-import { getTypedDictMembersForClass } from './typedDicts';
-import { Arg, FunctionResult, TypeEvaluator } from './typeEvaluatorTypes';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { LocMessage } from '../localization/localize.ts';
+import { ArgCategory, ExpressionNode, ParamCategory } from '../parser/parseNodes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import { createFunctionFromConstructor } from './constructors.ts';
+import { getParamListDetails, ParamKind } from './parameterUtils.ts';
+import { getTypedDictMembersForClass } from './typedDicts.ts';
+import { Arg, FunctionResult, TypeEvaluator } from './typeEvaluatorTypes.ts';
 import {
     AnyType,
     ClassType,
@@ -36,8 +36,8 @@ import {
     OverloadedType,
     Type,
     TypedDictEntry,
-} from './types';
-import { convertToInstance, lookUpObjectMember, makeInferenceContext, MemberAccessFlags } from './typeUtils';
+} from './types.ts';
+import { convertToInstance, lookUpObjectMember, makeInferenceContext, MemberAccessFlags } from './typeUtils.ts';
 
 export function hasConstructorTransform(classType: ClassType): boolean {
     if (classType.shared.fullName === 'functools.partial') {

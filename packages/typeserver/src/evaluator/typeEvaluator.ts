@@ -24,7 +24,7 @@ import {
     FlowWildcardImport,
     isCodeFlowSupportedForReference,
     wildcardImportReferenceKey,
-} from '../binder/codeFlowTypes';
+} from '../binder/codeFlowTypes.ts';
 import {
     ClassDeclaration,
     Declaration,
@@ -34,39 +34,39 @@ import {
     ModuleLoaderActions,
     SpecialBuiltInClassDeclaration,
     VariableDeclaration,
-} from '../binder/declaration';
+} from '../binder/declaration.ts';
 import {
     getDeclarationsWithUsesLocalNameRemoved,
     getNameNodeForDeclaration,
     resolveAliasDeclaration as resolveAliasDeclarationUtil,
     ResolvedAliasInfo,
     synthesizeAliasDeclaration,
-} from '../binder/declarationUtils';
-import { Scope, ScopeType, SymbolWithScope } from '../binder/scope';
-import * as ScopeUtils from '../binder/scopeUtils';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions';
-import { indeterminateSymbolId, Symbol, SymbolFlags, SynthesizedTypeInfo } from '../binder/symbol';
-import { isConstantName, isPrivateName, isPrivateOrProtectedName } from '../binder/symbolNameUtils';
-import { getLastTypedDeclarationForSymbol, isEffectivelyClassVar } from '../binder/symbolUtils';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import * as ParseTreeUtils from '../common/parseTreeUtils';
-import { convertOffsetsToRange, convertOffsetToPosition } from '../common/positionUtils';
+} from '../binder/declarationUtils.ts';
+import { Scope, ScopeType, SymbolWithScope } from '../binder/scope.ts';
+import * as ScopeUtils from '../binder/scopeUtils.ts';
+import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
+import { indeterminateSymbolId, Symbol, SymbolFlags, SynthesizedTypeInfo } from '../binder/symbol.ts';
+import { isConstantName, isPrivateName, isPrivateOrProtectedName } from '../binder/symbolNameUtils.ts';
+import { getLastTypedDeclarationForSymbol, isEffectivelyClassVar } from '../binder/symbolUtils.ts';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
+import { convertOffsetsToRange, convertOffsetToPosition } from '../common/positionUtils.ts';
 import {
     PythonVersion,
     pythonVersion3_13,
     pythonVersion3_6,
     pythonVersion3_7,
     pythonVersion3_9,
-} from '../common/pythonVersion';
-import { TextRange } from '../common/textRange';
-import { DiagnosticLevel } from '../config/configOptions';
-import { AnalyzerFileInfo, ImportLookup, isAnnotationEvaluationPostponed } from '../evaluator/analyzerFileInfo';
-import { invalidateTypeCacheIfCanceled, throwIfCancellationRequested } from '../extensibility/cancellationUtils';
-import { ConsoleInterface } from '../extensibility/console';
-import { Uri } from '../files/uri/uri';
-import { LocAddendum, LocMessage, ParameterizedString } from '../localization/localize';
+} from '../common/pythonVersion.ts';
+import { TextRange } from '../common/textRange.ts';
+import { DiagnosticLevel } from '../config/configOptions.ts';
+import { AnalyzerFileInfo, ImportLookup, isAnnotationEvaluationPostponed } from '../evaluator/analyzerFileInfo.ts';
+import { invalidateTypeCacheIfCanceled, throwIfCancellationRequested } from '../extensibility/cancellationUtils.ts';
+import { ConsoleInterface } from '../extensibility/console.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { LocAddendum, LocMessage, ParameterizedString } from '../localization/localize.ts';
 import {
     ArgCategory,
     ArgumentNode,
@@ -118,24 +118,24 @@ import {
     WithItemNode,
     YieldFromNode,
     YieldNode,
-} from '../parser/parseNodes';
-import { ParseOptions, Parser, ParseTextMode } from '../parser/parser';
-import { KeywordType, OperatorType, StringTokenFlags } from '../parser/tokenizerTypes';
-import { appendArray } from '../utils/collectionUtils';
-import { isThenable } from '../utils/core';
-import { assert, assertNever, fail } from '../utils/debug';
-import { CodeFlowAnalyzer, FlowNodeTypeOptions, FlowNodeTypeResult, getCodeFlowEngine } from './codeFlowEngine';
-import { ConstraintSolution } from './constraintSolution';
+} from '../parser/parseNodes.ts';
+import { ParseOptions, Parser, ParseTextMode } from '../parser/parser.ts';
+import { KeywordType, OperatorType, StringTokenFlags } from '../parser/tokenizerTypes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { isThenable } from '../utils/core.ts';
+import { assert, assertNever, fail } from '../utils/debug.ts';
+import { CodeFlowAnalyzer, FlowNodeTypeOptions, FlowNodeTypeResult, getCodeFlowEngine } from './codeFlowEngine.ts';
+import { ConstraintSolution } from './constraintSolution.ts';
 import {
     addConstraintsForExpectedType,
     applySourceSolutionToConstraints,
     assignTypeVar,
     solveConstraints,
     solveConstraintSet,
-} from './constraintSolver';
-import { ConstraintSet, ConstraintTracker } from './constraintTracker';
-import { createFunctionFromConstructor, getBoundInitMethod, validateConstructorArgs } from './constructors';
-import { applyDataClassClassBehaviorOverrides, synthesizeDataClassMethods } from './dataClasses';
+} from './constraintSolver.ts';
+import { ConstraintSet, ConstraintTracker } from './constraintTracker.ts';
+import { createFunctionFromConstructor, getBoundInitMethod, validateConstructorArgs } from './constructors.ts';
+import { applyDataClassClassBehaviorOverrides, synthesizeDataClassMethods } from './dataClasses.ts';
 import {
     addOverloadsToFunctionType,
     applyClassDecorator,
@@ -143,7 +143,7 @@ import {
     FunctionDecoratorInfo,
     getDeprecatedMessageFromCall,
     getFunctionInfoFromDecorators,
-} from './decorators';
+} from './decorators.ts';
 import {
     createEnumType,
     getEnumAutoValueType,
@@ -151,15 +151,15 @@ import {
     isDeclInEnumClass,
     isEnumClassWithMembers,
     isEnumMetaclass,
-} from './enums';
-import { applyFunctionTransform } from './functionTransform';
-import { createNamedTupleType } from './namedTuples';
+} from './enums.ts';
+import { applyFunctionTransform } from './functionTransform.ts';
+import { createNamedTupleType } from './namedTuples.ts';
 import {
     getTypeOfAugmentedAssignment,
     getTypeOfBinaryOperation,
     getTypeOfTernaryOperation,
     getTypeOfUnaryOperation,
-} from './operations';
+} from './operations.ts';
 import {
     getParamListDetails,
     isParamSpecArgs,
@@ -168,13 +168,13 @@ import {
     ParamKind,
     ParamListDetails,
     VirtualParamDetails,
-} from './parameterUtils';
-import { assignTypeToPatternTargets, checkForUnusedPattern, narrowTypeBasedOnPattern } from './patternMatching';
-import { assignProperty } from './properties';
-import { assignClassToProtocol, assignModuleToProtocol } from './protocols';
-import { createSentinelType } from './sentinel';
-import { assignTupleTypeArgs, expandTuple, getSlicedTupleType, getTypeOfTuple, makeTupleObject } from './tuples';
-import { SpeculativeModeOptions, SpeculativeTypeTracker } from './typeCacheUtils';
+} from './parameterUtils.ts';
+import { assignTypeToPatternTargets, checkForUnusedPattern, narrowTypeBasedOnPattern } from './patternMatching.ts';
+import { assignProperty } from './properties.ts';
+import { assignClassToProtocol, assignModuleToProtocol } from './protocols.ts';
+import { createSentinelType } from './sentinel.ts';
+import { assignTupleTypeArgs, expandTuple, getSlicedTupleType, getTypeOfTuple, makeTupleObject } from './tuples.ts';
+import { SpeculativeModeOptions, SpeculativeTypeTracker } from './typeCacheUtils.ts';
 import {
     assignToTypedDict,
     assignTypedDictToTypedDict,
@@ -185,7 +185,7 @@ import {
     getTypedDictMembersForClass,
     getTypeOfIndexedTypedDict,
     synthesizeTypedDictClassMethods,
-} from './typedDicts';
+} from './typedDicts.ts';
 import {
     AbstractSymbol,
     Arg,
@@ -221,9 +221,9 @@ import {
     TypeResultWithNode,
     ValidateArgTypeParams,
     ValidateTypeArgsOptions,
-} from './typeEvaluatorTypes';
-import { enumerateLiteralsForType } from './typeGuards';
-import * as TypePrinter from './typePrinter';
+} from './typeEvaluatorTypes.ts';
+import { enumerateLiteralsForType } from './typeGuards.ts';
+import * as TypePrinter from './typePrinter.ts';
 import {
     AnyType,
     ClassType,
@@ -284,7 +284,7 @@ import {
     UnionType,
     UnknownType,
     Variance,
-} from './types';
+} from './types.ts';
 import {
     addConditionToType,
     addTypeVarsToListIfUnique,
@@ -372,7 +372,7 @@ import {
     transformPossibleRecursiveTypeAlias,
     UniqueSignatureTracker,
     validateTypeVarDefault,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 interface GetTypeArgsOptions {
     isAnnotatedClass?: boolean;

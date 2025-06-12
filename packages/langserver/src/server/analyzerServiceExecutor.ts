@@ -8,14 +8,14 @@
  * with a specified set of options.
  */
 
-import { CommandLineOptions } from 'typeserver/config/commandLineOptions';
-import { LogLevel } from 'typeserver/extensibility/console';
-import { FileSystem } from 'typeserver/files//fileSystem';
-import { Uri } from 'typeserver/files/uri/uri';
-import { isPythonBinary } from 'typeserver/service/pythonPathUtils';
-import { TypeService } from 'typeserver/service/typeService';
-import { LanguageServerBaseInterface, ServerSettings } from '../server/languageServerInterface';
-import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../server/workspaceFactory';
+import { CommandLineOptions } from 'typeserver/config/commandLineOptions.ts';
+import { LogLevel } from 'typeserver/extensibility/console.ts';
+import { FileSystem } from 'typeserver/files//fileSystem.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { isPythonBinary } from 'typeserver/service/pythonPathUtils.ts';
+import { TypeService } from 'typeserver/service/typeService.ts';
+import { LanguageServerBaseInterface, ServerSettings } from '../server/languageServerInterface.ts';
+import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../server/workspaceFactory.ts';
 
 export interface CloneOptions {
     typeStubTargetImportName?: string;

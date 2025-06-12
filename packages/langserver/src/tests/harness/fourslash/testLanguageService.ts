@@ -8,20 +8,20 @@
 
 import { CancellationToken, CodeAction, ExecuteCommandParams } from 'vscode-languageserver';
 
-import { Range } from 'typeserver/common/textRange';
-import { ConfigOptions } from 'typeserver/config/configOptions';
-import { ConsoleInterface } from 'typeserver/extensibility/console';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { FileSystem } from 'typeserver/files/fileSystem';
-import { Uri } from 'typeserver/files/uri/uri';
-import { ImportResolverFactory } from 'typeserver/imports/importResolver';
-import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService';
-import { CommandController } from '../../../commands/commandController';
-import { CodeActionProvider } from '../../../providers/codeActionProvider';
-import { LanguageServerInterface, ServerSettings } from '../../../server/languageServerInterface';
-import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../../../server/workspaceFactory';
-import { TestAccessHost } from '../testAccessHost';
-import { HostSpecificFeatures } from './testState';
+import { Range } from 'typeserver/common/textRange.ts';
+import { ConfigOptions } from 'typeserver/config/configOptions.ts';
+import { ConsoleInterface } from 'typeserver/extensibility/console.ts';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
+import { FileSystem } from 'typeserver/files/fileSystem.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { ImportResolverFactory } from 'typeserver/imports/importResolver.ts';
+import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService.ts';
+import { CommandController } from '../../../commands/commandController.ts';
+import { CodeActionProvider } from '../../../providers/codeActionProvider.ts';
+import { LanguageServerInterface, ServerSettings } from '../../../server/languageServerInterface.ts';
+import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../../../server/workspaceFactory.ts';
+import { TestAccessHost } from '../testAccessHost.ts';
+import { HostSpecificFeatures } from './testState.ts';
 
 export class TestFeatures implements HostSpecificFeatures {
     importResolverFactory: ImportResolverFactory = TypeService.createImportResolver;

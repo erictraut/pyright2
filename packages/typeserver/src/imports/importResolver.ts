@@ -10,30 +10,36 @@
 
 import type { Dirent } from 'fs';
 
-import * as SymbolNameUtils from '../binder/symbolNameUtils';
-import { isDunderName } from '../binder/symbolNameUtils';
-import { stubsSuffix } from '../common/pathConsts';
-import { PythonVersion, pythonVersion3_0 } from '../common/pythonVersion';
-import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from '../config/configOptions';
-import { Host } from '../extensibility/host';
-import { ServiceProvider } from '../extensibility/serviceProvider';
-import { stripFileExtension } from '../files/pathUtils';
-import { Uri } from '../files/uri/uri';
-import { getFileSystemEntriesFromDirEntries, isDirectory, isFile, tryRealpath, tryStat } from '../files/uri/uriUtils';
-import { Tokenizer } from '../parser/tokenizer';
+import * as SymbolNameUtils from '../binder/symbolNameUtils.ts';
+import { isDunderName } from '../binder/symbolNameUtils.ts';
+import { stubsSuffix } from '../common/pathConsts.ts';
+import { PythonVersion, pythonVersion3_0 } from '../common/pythonVersion.ts';
+import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from '../config/configOptions.ts';
+import { Host } from '../extensibility/host.ts';
+import { ServiceProvider } from '../extensibility/serviceProvider.ts';
+import { stripFileExtension } from '../files/pathUtils.ts';
+import { Uri } from '../files/uri/uri.ts';
+import {
+    getFileSystemEntriesFromDirEntries,
+    isDirectory,
+    isFile,
+    tryRealpath,
+    tryStat,
+} from '../files/uri/uriUtils.ts';
+import { Tokenizer } from '../parser/tokenizer.ts';
 import {
     findPythonSearchPaths,
     getTypeShedFallbackPath,
     getTypeshedSubdirectory,
     stdLibFolderName,
     thirdPartyFolderName,
-} from '../service/pythonPathUtils';
-import { appendArray, flatten, getMapValues, getOrAdd } from '../utils/collectionUtils';
-import { equateStringsCaseInsensitive, isPatternInSymbol } from '../utils/stringUtils';
-import { ImplicitImport, ImportResult, ImportType } from './importResult';
-import { getDirectoryLeadingDotsPointsTo } from './importStatementUtils';
-import { ImportPath, ParentDirectoryCache } from './parentDirectoryCache';
-import { PyTypedInfo, getPyTypedInfoForPyTypedFile } from './pyTypedUtils';
+} from '../service/pythonPathUtils.ts';
+import { appendArray, flatten, getMapValues, getOrAdd } from '../utils/collectionUtils.ts';
+import { equateStringsCaseInsensitive, isPatternInSymbol } from '../utils/stringUtils.ts';
+import { ImplicitImport, ImportResult, ImportType } from './importResult.ts';
+import { getDirectoryLeadingDotsPointsTo } from './importStatementUtils.ts';
+import { ImportPath, ParentDirectoryCache } from './parentDirectoryCache.ts';
+import { PyTypedInfo, getPyTypedInfoForPyTypedFile } from './pyTypedUtils.ts';
 
 export interface ImportedModuleDescriptor {
     leadingDots: number;

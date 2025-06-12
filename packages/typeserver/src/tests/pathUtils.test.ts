@@ -8,7 +8,7 @@
  */
 
 import assert from 'assert';
-import * as path from 'path';
+import path from 'path';
 
 import {
     combinePathComponents,
@@ -32,7 +32,7 @@ import {
     resolvePaths,
     stripFileExtension,
     stripTrailingDirectorySeparator,
-} from '../files/pathUtils';
+} from '../files/pathUtils.ts';
 
 test('getPathComponents1', () => {
     const components = getPathComponents('');

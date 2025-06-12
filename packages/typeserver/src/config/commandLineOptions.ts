@@ -9,9 +9,9 @@
  * of the analyzer).
  */
 
-import { TaskListToken } from '../common/diagnostic';
-import { PythonVersion } from '../common/pythonVersion';
-import { Uri } from '../files/uri/uri';
+import { TaskListToken } from '../common/diagnostic.ts';
+import { PythonVersion } from '../common/pythonVersion.ts';
+import { Uri } from '../files/uri/uri.ts';
 
 export const enum DiagnosticSeverityOverrides {
     Error = 'error',

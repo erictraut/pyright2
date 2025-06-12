@@ -16,7 +16,7 @@ import { timingStats } from 'typeserver/service/timing';
 import chalk from 'chalk';
 import { ChildProcess, fork } from 'child_process';
 import commandLineArgs, { CommandLineOptions, OptionDefinition } from 'command-line-args';
-import * as os from 'os';
+import os from 'os';
 
 import { Diagnostic, DiagnosticCategory, compareDiagnostics } from 'typeserver/common/diagnostic';
 import { FileDiagnostics } from 'typeserver/common/diagnosticSink';

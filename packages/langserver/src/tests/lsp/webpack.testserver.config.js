@@ -3,15 +3,19 @@
  * Copyright: Microsoft 2018
  */
 
-const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const { tsconfigResolveAliases } = require('../../../../../build/lib/webpack');
+import CopyPlugin from 'copy-webpack-plugin';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { tsconfigResolveAliases } from '../../../../../build/lib/webpack.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const outPath = path.resolve(__dirname, '..', '..', '..', 'out');
 const typeshedFallback = path.resolve(__dirname, '..', '..', '..', '..', 'typeserver', 'typeshed-fallback');
 
 /**@type {(env: any, argv: { mode: 'production' | 'development' | 'none' }) => import('webpack').Configuration}*/
-module.exports = (_, { mode }) => {
+export default (_, { mode }) => {
     return {
         context: __dirname,
         entry: {
@@ -19,7 +23,7 @@ module.exports = (_, { mode }) => {
         },
         target: 'node',
         output: {
-            filename: '[name].bundle.js',
+            filename: '[name].bundle.ts',
             path: outPath,
             libraryTarget: 'commonjs2',
             devtoolModuleFilenameTemplate: '[absolute-resource-path]',
@@ -33,7 +37,7 @@ module.exports = (_, { mode }) => {
             timings: true,
         },
         resolve: {
-            extensions: ['.ts', '.js'],
+            extensions: ['.ts', '.ts'],
             alias: tsconfigResolveAliases('tsconfig.json'),
         },
         externals: {

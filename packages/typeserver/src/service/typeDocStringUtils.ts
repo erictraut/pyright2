@@ -19,9 +19,9 @@ import {
     isVariableDeclaration,
     SpecialBuiltInClassDeclaration,
     VariableDeclaration,
-} from '../binder/declaration';
-import * as ParseTreeUtils from '../common/parseTreeUtils';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes';
+} from '../binder/declaration.ts';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
+import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
 import {
     ClassType,
     FunctionType,
@@ -32,18 +32,18 @@ import {
     OverloadedType,
     Type,
     TypeCategory,
-} from '../evaluator/types';
+} from '../evaluator/types.ts';
 import {
     ClassIteratorFlags,
     getClassIterator,
     getClassMemberIterator,
     isMaybeDescriptorInstance,
     MemberAccessFlags,
-} from '../evaluator/typeUtils';
-import { Uri } from '../files/uri/uri';
-import { ModuleNode, ParseNodeType } from '../parser/parseNodes';
-import { isStubFile, SourceMapper } from '../program/sourceMapper';
-import { addIfNotNull, appendArray } from '../utils/collectionUtils';
+} from '../evaluator/typeUtils.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { ModuleNode, ParseNodeType } from '../parser/parseNodes.ts';
+import { isStubFile, SourceMapper } from '../program/sourceMapper.ts';
+import { addIfNotNull, appendArray } from '../utils/collectionUtils.ts';
 
 const DefaultClassIteratorFlagsForFunctions =
     MemberAccessFlags.SkipObjectBaseClass |

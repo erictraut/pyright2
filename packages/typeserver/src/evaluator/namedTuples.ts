@@ -8,18 +8,18 @@
  * classes with defined entry names and types.
  */
 
-import { DeclarationType, VariableDeclaration } from '../binder/declaration';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions';
-import { Symbol, SymbolFlags } from '../binder/symbol';
-import { getFileInfo } from '../common/analyzerNodeInfo';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import * as ParseTreeUtils from '../common/parseTreeUtils';
-import { convertOffsetsToRange } from '../common/positionUtils';
-import { TextRange } from '../common/textRange';
-import { LocMessage } from '../localization/localize';
-import { ArgCategory, ExpressionNode, ParamCategory, ParseNodeType, StringListNode } from '../parser/parseNodes';
-import { Tokenizer } from '../parser/tokenizer';
-import { Arg, TypeEvaluator } from './typeEvaluatorTypes';
+import { DeclarationType, VariableDeclaration } from '../binder/declaration.ts';
+import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
+import { Symbol, SymbolFlags } from '../binder/symbol.ts';
+import { getFileInfo } from '../common/analyzerNodeInfo.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
+import { convertOffsetsToRange } from '../common/positionUtils.ts';
+import { TextRange } from '../common/textRange.ts';
+import { LocMessage } from '../localization/localize.ts';
+import { ArgCategory, ExpressionNode, ParamCategory, ParseNodeType, StringListNode } from '../parser/parseNodes.ts';
+import { Tokenizer } from '../parser/tokenizer.ts';
+import { Arg, TypeEvaluator } from './typeEvaluatorTypes.ts';
 import {
     computeMroLinearization,
     convertToInstance,
@@ -29,7 +29,7 @@ import {
     isUnboundedTupleClass,
     specializeTupleClass,
     synthesizeTypeVarForSelfCls,
-} from './typeUtils';
+} from './typeUtils.ts';
 import {
     AnyType,
     ClassType,
@@ -44,7 +44,7 @@ import {
     combineTypes,
     isClassInstance,
     isInstantiableClass,
-} from './types';
+} from './types.ts';
 
 // Creates a new custom tuple factory class with named values.
 // Supports both typed and untyped variants.

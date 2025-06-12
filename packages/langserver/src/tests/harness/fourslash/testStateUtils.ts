@@ -9,12 +9,18 @@
 import assert from 'assert';
 import * as JSONC from 'jsonc-parser';
 
-import { configFileName } from 'typeserver/common/pathConsts';
-import { combinePaths, getBaseFileName } from 'typeserver/files/pathUtils';
-import { Comparison, toBoolean } from 'typeserver/utils/core';
-import { getStringComparer } from 'typeserver/utils/stringUtils';
-import * as vfs from '../vfs/filesystem';
-import { FourSlashData, FourSlashFile, GlobalMetadataOptionNames, Marker, MetadataOptionNames } from './fourSlashTypes';
+import { configFileName } from 'typeserver/common/pathConsts.ts';
+import { combinePaths, getBaseFileName } from 'typeserver/files/pathUtils.ts';
+import { Comparison, toBoolean } from 'typeserver/utils/core.ts';
+import { getStringComparer } from 'typeserver/utils/stringUtils.ts';
+import * as vfs from '../vfs/filesystem.ts';
+import {
+    FourSlashData,
+    FourSlashFile,
+    GlobalMetadataOptionNames,
+    Marker,
+    MetadataOptionNames,
+} from './fourSlashTypes.ts';
 
 export function createVfsInfoFromFourSlashData(projectRoot: string, testData: FourSlashData) {
     const metaProjectRoot = testData.globalOptions[GlobalMetadataOptionNames.projectRoot];

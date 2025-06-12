@@ -8,17 +8,17 @@
  * (structural subtyping) classes.
  */
 
-import { DeclarationType } from '../binder/declaration';
-import { Symbol } from '../binder/symbol';
-import { getLastTypedDeclarationForSymbol, isEffectivelyClassVar } from '../binder/symbolUtils';
-import { defaultMaxDiagnosticDepth, DiagnosticAddendum } from '../common/diagnostic';
-import { LocAddendum } from '../localization/localize';
-import { assert } from '../utils/debug';
-import { ConstraintSolution } from './constraintSolution';
-import { assignTypeVar } from './constraintSolver';
-import { ConstraintTracker } from './constraintTracker';
-import { assignProperty } from './properties';
-import { AssignTypeFlags, TypeEvaluator } from './typeEvaluatorTypes';
+import { DeclarationType } from '../binder/declaration.ts';
+import { Symbol } from '../binder/symbol.ts';
+import { getLastTypedDeclarationForSymbol, isEffectivelyClassVar } from '../binder/symbolUtils.ts';
+import { defaultMaxDiagnosticDepth, DiagnosticAddendum } from '../common/diagnostic.ts';
+import { LocAddendum } from '../localization/localize.ts';
+import { assert } from '../utils/debug.ts';
+import { ConstraintSolution } from './constraintSolution.ts';
+import { assignTypeVar } from './constraintSolver.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import { assignProperty } from './properties.ts';
+import { AssignTypeFlags, TypeEvaluator } from './typeEvaluatorTypes.ts';
 import {
     ClassType,
     FunctionType,
@@ -35,7 +35,7 @@ import {
     TypeVarType,
     UnknownType,
     Variance,
-} from './types';
+} from './types.ts';
 import {
     addSolutionForSelfType,
     applySolvedTypeVars,
@@ -49,7 +49,7 @@ import {
     requiresTypeArgs,
     selfSpecializeClass,
     synthesizeTypeVarForSelfCls,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 interface ProtocolAssignmentStackEntry {
     srcType: ClassType;

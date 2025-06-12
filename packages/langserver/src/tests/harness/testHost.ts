@@ -4,17 +4,17 @@
  * Licensed under the MIT license.
  */
 
-import * as os from 'os';
+import os from 'os';
 import * as pathModule from 'path';
 
-import { NullConsole } from 'typeserver/extensibility/console';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector';
-import { combinePaths, FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils';
-import { createFromRealFileSystem } from 'typeserver/files/realFileSystem';
-import { FileUriSchema } from 'typeserver/files/uri/fileUri';
-import { Uri } from 'typeserver/files/uri/uri';
-import { directoryExists, fileExists, getFileSize, UriEx } from 'typeserver/files/uri/uriUtils';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils';
+import { NullConsole } from 'typeserver/extensibility/console.ts';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.ts';
+import { combinePaths, FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils.ts';
+import { createFromRealFileSystem } from 'typeserver/files/realFileSystem.ts';
+import { FileUriSchema } from 'typeserver/files/uri/fileUri.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { directoryExists, fileExists, getFileSize, UriEx } from 'typeserver/files/uri/uriUtils.ts';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.ts';
 
 export class TestCaseSensitivityDetector implements CaseSensitivityDetector {
     constructor(private _isCaseSensitive = true) {

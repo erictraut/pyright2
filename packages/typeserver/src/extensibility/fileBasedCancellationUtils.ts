@@ -6,9 +6,9 @@
  * Helper methods relating to file-based cancellation.
  */
 
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { CancellationId, CancellationTokenSource } from 'vscode-jsonrpc';
 import {
     AbstractCancellationTokenSource,
@@ -18,15 +18,15 @@ import {
     CancellationToken,
 } from 'vscode-languageserver';
 
-import { Uri } from '../files/uri/uri';
-import { UriEx } from '../files/uri/uriUtils';
+import { Uri } from '../files/uri/uri.ts';
+import { UriEx } from '../files/uri/uriUtils.ts';
 import {
     CancellationProvider,
     CancelledTokenId,
     FileBasedToken,
     getCancellationFolderName,
     setCancellationFolderName,
-} from './cancellationUtils';
+} from './cancellationUtils.ts';
 
 class StatSyncFromFs {
     statSync(uri: Uri) {

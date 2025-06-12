@@ -7,8 +7,8 @@
  * Functions that operate on Symbol objects.
  */
 
-import { Declaration, DeclarationType } from './declaration';
-import { Symbol } from './symbol';
+import { Declaration, DeclarationType } from './declaration.ts';
+import { Symbol } from './symbol.ts';
 
 export function getLastTypedDeclarationForSymbol(symbol: Symbol): Declaration | undefined {
     const typedDecls = symbol.getTypedDeclarations();

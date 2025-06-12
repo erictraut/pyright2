@@ -8,73 +8,73 @@
  * arbitrarily among multiple files so they can run in parallel.
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 
-import { pythonVersion3_10, pythonVersion3_11, pythonVersion3_8 } from '../common/pythonVersion';
-import { ConfigOptions } from '../config/configOptions';
-import { Uri } from '../files/uri/uri';
-import * as TestUtils from './testUtils';
+import { pythonVersion3_10, pythonVersion3_11, pythonVersion3_8 } from '../common/pythonVersion.ts';
+import { ConfigOptions } from '../config/configOptions.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { typeAnalyzeSampleFiles, validateResults } from './testUtils.ts';
 
 test('Import1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import1.py']);
-    TestUtils.validateResults(analysisResults, 0);
+    const analysisResults = typeAnalyzeSampleFiles(['import1.py']);
+    validateResults(analysisResults, 0);
 });
 
 test('Import2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import2.py']);
-    TestUtils.validateResults(analysisResults, 2);
+    const analysisResults = typeAnalyzeSampleFiles(['import2.py']);
+    validateResults(analysisResults, 2);
 });
 
 test('Import4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import4.py']);
-    TestUtils.validateResults(analysisResults, 2);
+    const analysisResults = typeAnalyzeSampleFiles(['import4.py']);
+    validateResults(analysisResults, 2);
 });
 
 test('Import6', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import6.py']);
-    TestUtils.validateResults(analysisResults, 2);
+    const analysisResults = typeAnalyzeSampleFiles(['import6.py']);
+    validateResults(analysisResults, 2);
 });
 
 test('Import7', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import7.py']);
-    TestUtils.validateResults(analysisResults, 2);
+    const analysisResults = typeAnalyzeSampleFiles(['import7.py']);
+    validateResults(analysisResults, 2);
 });
 
 test('Import9', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import9.py']);
-    TestUtils.validateResults(analysisResults, 0);
+    const analysisResults = typeAnalyzeSampleFiles(['import9.py']);
+    validateResults(analysisResults, 0);
 });
 
 test('Import10', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import10.py']);
-    TestUtils.validateResults(analysisResults, 1);
+    const analysisResults = typeAnalyzeSampleFiles(['import10.py']);
+    validateResults(analysisResults, 1);
 });
 
 test('Import11', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import11.py']);
-    TestUtils.validateResults(analysisResults, 0);
+    const analysisResults = typeAnalyzeSampleFiles(['import11.py']);
+    validateResults(analysisResults, 0);
 });
 
 test('Import12', () => {
     const configOptions = new ConfigOptions(Uri.empty());
 
     // By default, optional diagnostics are ignored.
-    let analysisResults = TestUtils.typeAnalyzeSampleFiles(['import12.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0, 2);
+    let analysisResults = typeAnalyzeSampleFiles(['import12.py'], configOptions);
+    validateResults(analysisResults, 0, 2);
 
     // Turn on error.
     configOptions.diagnosticRuleSet.reportWildcardImportFromLibrary = 'error';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['import12.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 2, 0);
+    analysisResults = typeAnalyzeSampleFiles(['import12.py'], configOptions);
+    validateResults(analysisResults, 2, 0);
 
     // Turn off diagnostic.
     configOptions.diagnosticRuleSet.reportWildcardImportFromLibrary = 'none';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['import12.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0, 0);
+    analysisResults = typeAnalyzeSampleFiles(['import12.py'], configOptions);
+    validateResults(analysisResults, 0, 0);
 });
 
 test('Import14', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import14.py', 'import13.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['import14.py', 'import13.py']);
 
     assert.strictEqual(analysisResults.length, 2);
     assert.strictEqual(analysisResults[0].errors.length, 0);
@@ -82,54 +82,54 @@ test('Import14', () => {
 });
 
 test('Import15', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import15.py']);
-    TestUtils.validateResults(analysisResults, 0);
+    const analysisResults = typeAnalyzeSampleFiles(['import15.py']);
+    validateResults(analysisResults, 0);
 });
 
 test('Import16', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import16.py']);
-    TestUtils.validateResults(analysisResults, 0);
+    const analysisResults = typeAnalyzeSampleFiles(['import16.py']);
+    validateResults(analysisResults, 0);
 });
 
 test('Import18', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['import18.py']);
-    TestUtils.validateResults(analysisResults, 2);
+    const analysisResults = typeAnalyzeSampleFiles(['import18.py']);
+    validateResults(analysisResults, 2);
 });
 
 test('DunderAll1', () => {
     const configOptions = new ConfigOptions(Uri.empty());
 
     // By default, reportUnsupportedDunderAll is a warning.
-    let analysisResults = TestUtils.typeAnalyzeSampleFiles(['dunderAll1.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0, 7);
+    let analysisResults = typeAnalyzeSampleFiles(['dunderAll1.py'], configOptions);
+    validateResults(analysisResults, 0, 7);
 
     // Turn on error.
     configOptions.diagnosticRuleSet.reportUnsupportedDunderAll = 'error';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['dunderAll1.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 7, 0);
+    analysisResults = typeAnalyzeSampleFiles(['dunderAll1.py'], configOptions);
+    validateResults(analysisResults, 7, 0);
 
     // Turn off diagnostic.
     configOptions.diagnosticRuleSet.reportUnsupportedDunderAll = 'none';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['dunderAll1.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0, 0);
+    analysisResults = typeAnalyzeSampleFiles(['dunderAll1.py'], configOptions);
+    validateResults(analysisResults, 0, 0);
 });
 
 test('DunderAll2', () => {
     const configOptions = new ConfigOptions(Uri.empty());
 
     // By default, reportUnsupportedDunderAll is a warning.
-    let analysisResults = TestUtils.typeAnalyzeSampleFiles(['dunderAll2.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0, 3);
+    let analysisResults = typeAnalyzeSampleFiles(['dunderAll2.py'], configOptions);
+    validateResults(analysisResults, 0, 3);
 
     // Turn on error.
     configOptions.diagnosticRuleSet.reportUnsupportedDunderAll = 'error';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['dunderAll2.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 3, 0);
+    analysisResults = typeAnalyzeSampleFiles(['dunderAll2.py'], configOptions);
+    validateResults(analysisResults, 3, 0);
 
     // Turn off diagnostic.
     configOptions.diagnosticRuleSet.reportUnsupportedDunderAll = 'none';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['dunderAll2.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0, 0);
+    analysisResults = typeAnalyzeSampleFiles(['dunderAll2.py'], configOptions);
+    validateResults(analysisResults, 0, 0);
 });
 
 test('DunderAll3', () => {
@@ -137,104 +137,104 @@ test('DunderAll3', () => {
 
     // Turn on error.
     configOptions.diagnosticRuleSet.reportUnsupportedDunderAll = 'error';
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['dunderAll3.pyi'], configOptions);
-    TestUtils.validateResults(analysisResults, 0, 0);
+    const analysisResults = typeAnalyzeSampleFiles(['dunderAll3.pyi'], configOptions);
+    validateResults(analysisResults, 0, 0);
 });
 
 test('CodeFlow1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow1.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('CodeFlow2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow2.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('CodeFlow3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow3.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('CodeFlow4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow4.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('CodeFlow5', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow5.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow5.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('CodeFlow6', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow6.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow6.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('CodeFlow7', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow7.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow7.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('CodeFlow8', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow8.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow8.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('CodeFlow9', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['codeFlow9.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['codeFlow9.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('CapturedVariable1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['capturedVariable1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['capturedVariable1.py']);
 
-    TestUtils.validateResults(analysisResults, 6);
+    validateResults(analysisResults, 6);
 });
 
 test('CapturedVariable2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['capturedVariable2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['capturedVariable2.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Property1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property1.py']);
 
-    TestUtils.validateResults(analysisResults, 5);
+    validateResults(analysisResults, 5);
 });
 
 test('Property2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property2.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Property3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property3.py']);
 
-    TestUtils.validateResults(analysisResults, 4);
+    validateResults(analysisResults, 4);
 });
 
 test('Property4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property4.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property5', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property5.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property5.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property6', () => {
@@ -242,157 +242,157 @@ test('Property6', () => {
 
     // Analyze with reportPropertyTypeMismatch enabled.
     configOptions.diagnosticRuleSet.reportPropertyTypeMismatch = 'error';
-    const analysisResult1 = TestUtils.typeAnalyzeSampleFiles(['property6.py'], configOptions);
-    TestUtils.validateResults(analysisResult1, 2);
+    const analysisResult1 = typeAnalyzeSampleFiles(['property6.py'], configOptions);
+    validateResults(analysisResult1, 2);
 
     // Analyze with reportPropertyTypeMismatch disabled.
     configOptions.diagnosticRuleSet.reportPropertyTypeMismatch = 'none';
-    const analysisResult2 = TestUtils.typeAnalyzeSampleFiles(['property6.py'], configOptions);
-    TestUtils.validateResults(analysisResult2, 0);
+    const analysisResult2 = typeAnalyzeSampleFiles(['property6.py'], configOptions);
+    validateResults(analysisResult2, 0);
 });
 
 test('Property7', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property7.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property7.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Property8', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property8.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property8.py']);
 
-    TestUtils.validateResults(analysisResults, 4);
+    validateResults(analysisResults, 4);
 });
 
 test('Property9', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property9.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property9.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property10', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property10.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property10.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property11', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property11.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property11.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Property12', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property12.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property12.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property13', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property13.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property13.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property14', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property14.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property14.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property15', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property15.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property15.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property16', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property16.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property16.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Property17', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property17.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property17.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Property18', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['property18.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['property18.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Operator1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator1.py']);
 
-    TestUtils.validateResults(analysisResults, 5);
+    validateResults(analysisResults, 5);
 });
 
 test('Operator2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator2.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Operator3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator3.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Operator4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator4.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Operator5', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator5.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator5.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Operator6', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator6.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator6.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Operator7', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator7.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator7.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Operator8', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator8.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator8.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Operator9', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator9.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator9.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Operator10', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator10.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator10.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Operator11', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator11.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator11.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Operator12', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['operator12.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['operator12.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Optional1', () => {
@@ -405,8 +405,8 @@ test('Optional1', () => {
     configOptions.diagnosticRuleSet.reportOptionalIterable = 'none';
     configOptions.diagnosticRuleSet.reportOptionalContextManager = 'none';
     configOptions.diagnosticRuleSet.reportOptionalOperand = 'none';
-    let analysisResults = TestUtils.typeAnalyzeSampleFiles(['optional1.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0);
+    let analysisResults = typeAnalyzeSampleFiles(['optional1.py'], configOptions);
+    validateResults(analysisResults, 0);
 
     // Turn on warnings.
     configOptions.diagnosticRuleSet.reportOptionalSubscript = 'warning';
@@ -415,8 +415,8 @@ test('Optional1', () => {
     configOptions.diagnosticRuleSet.reportOptionalIterable = 'warning';
     configOptions.diagnosticRuleSet.reportOptionalContextManager = 'warning';
     configOptions.diagnosticRuleSet.reportOptionalOperand = 'warning';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['optional1.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0, 8);
+    analysisResults = typeAnalyzeSampleFiles(['optional1.py'], configOptions);
+    validateResults(analysisResults, 0, 8);
 
     // Turn on errors.
     configOptions.diagnosticRuleSet.reportOptionalSubscript = 'error';
@@ -425,8 +425,8 @@ test('Optional1', () => {
     configOptions.diagnosticRuleSet.reportOptionalIterable = 'error';
     configOptions.diagnosticRuleSet.reportOptionalContextManager = 'error';
     configOptions.diagnosticRuleSet.reportOptionalOperand = 'error';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['optional1.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 8);
+    analysisResults = typeAnalyzeSampleFiles(['optional1.py'], configOptions);
+    validateResults(analysisResults, 8);
 });
 
 test('Optional2', () => {
@@ -434,481 +434,481 @@ test('Optional2', () => {
 
     // Disable diagnostics.
     configOptions.diagnosticRuleSet.reportOptionalOperand = 'none';
-    let analysisResults = TestUtils.typeAnalyzeSampleFiles(['optional2.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 0);
+    let analysisResults = typeAnalyzeSampleFiles(['optional2.py'], configOptions);
+    validateResults(analysisResults, 0);
 
     // Turn on errors.
     configOptions.diagnosticRuleSet.reportOptionalOperand = 'error';
-    analysisResults = TestUtils.typeAnalyzeSampleFiles(['optional2.py'], configOptions);
-    TestUtils.validateResults(analysisResults, 1);
+    analysisResults = typeAnalyzeSampleFiles(['optional2.py'], configOptions);
+    validateResults(analysisResults, 1);
 });
 
 test('Tuple1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple1.py']);
 
-    TestUtils.validateResults(analysisResults, 26);
+    validateResults(analysisResults, 26);
 });
 
 test('Tuple2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple2.py']);
 
-    TestUtils.validateResults(analysisResults, 5);
+    validateResults(analysisResults, 5);
 });
 
 test('Tuple3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple3.py']);
 
-    TestUtils.validateResults(analysisResults, 5);
+    validateResults(analysisResults, 5);
 });
 
 test('Tuple4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple4.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Tuple5', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple5.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple5.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Tuple6', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple6.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple6.py']);
 
-    TestUtils.validateResults(analysisResults, 10);
+    validateResults(analysisResults, 10);
 });
 
 test('Tuple7', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple7.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple7.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Tuple8', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple8.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple8.py']);
 
-    TestUtils.validateResults(analysisResults, 11);
+    validateResults(analysisResults, 11);
 });
 
 test('Tuple9', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple9.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple9.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Tuple10', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple10.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple10.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Tuple11', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple11.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple11.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Tuple12', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple12.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple12.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Tuple13', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple13.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple13.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Tuple15', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple15.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple15.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Tuple16', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple16.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple16.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Tuple17', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple17.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple17.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Tuple18', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple18.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple18.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Tuple19', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tuple19.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tuple19.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('NamedTuple1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple1.py']);
 
-    TestUtils.validateResults(analysisResults, 13);
+    validateResults(analysisResults, 13);
 });
 
 test('NamedTuple2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple2.py']);
 
-    TestUtils.validateResults(analysisResults, 8);
+    validateResults(analysisResults, 8);
 });
 
 test('NamedTuple3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple3.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('NamedTuple4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple4.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('NamedTuple5', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple5.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple5.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('NamedTuple6', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple6.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple6.py']);
 
-    TestUtils.validateResults(analysisResults, 6);
+    validateResults(analysisResults, 6);
 });
 
 test('NamedTuple7', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple7.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple7.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('NamedTuple8', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple8.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple8.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('NamedTuple9', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple9.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple9.py']);
 
-    TestUtils.validateResults(analysisResults, 3);
+    validateResults(analysisResults, 3);
 });
 
 test('NamedTuple10', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple10.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple10.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('NamedTuple11', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['namedTuple11.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['namedTuple11.py']);
 
-    TestUtils.validateResults(analysisResults, 3);
+    validateResults(analysisResults, 3);
 });
 
 test('Slots1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['slots1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['slots1.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Slots2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['slots2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['slots2.py']);
 
-    TestUtils.validateResults(analysisResults, 3);
+    validateResults(analysisResults, 3);
 });
 
 test('Slots3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['slots3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['slots3.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Slots4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['slots4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['slots4.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Parameters1', () => {
     const configOptions = new ConfigOptions(Uri.empty());
 
     configOptions.diagnosticRuleSet.reportMissingParameterType = 'none';
-    const analysisResults1 = TestUtils.typeAnalyzeSampleFiles(['parameters1.py'], configOptions);
-    TestUtils.validateResults(analysisResults1, 0);
+    const analysisResults1 = typeAnalyzeSampleFiles(['parameters1.py'], configOptions);
+    validateResults(analysisResults1, 0);
 
     configOptions.diagnosticRuleSet.reportMissingParameterType = 'error';
-    const analysisResults2 = TestUtils.typeAnalyzeSampleFiles(['parameters1.py'], configOptions);
-    TestUtils.validateResults(analysisResults2, 1);
+    const analysisResults2 = typeAnalyzeSampleFiles(['parameters1.py'], configOptions);
+    validateResults(analysisResults2, 1);
 });
 
 test('Self1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self1.py']);
 
-    TestUtils.validateResults(analysisResults, 15);
+    validateResults(analysisResults, 15);
 });
 
 test('Self2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self2.py']);
 
-    TestUtils.validateResults(analysisResults, 5);
+    validateResults(analysisResults, 5);
 });
 
 test('Self3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self3.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Self4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self4.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Self5', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self5.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self5.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Self6', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self6.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self6.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Self7', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self7.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self7.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Self8', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self8.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self8.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Self9', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self9.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self9.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Self10', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self10.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self10.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Self11', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['self11.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['self11.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('UnusedVariable1', () => {
     const configOptions = new ConfigOptions(Uri.empty());
 
     configOptions.diagnosticRuleSet.reportUnusedVariable = 'none';
-    const analysisResults1 = TestUtils.typeAnalyzeSampleFiles(['unusedVariable1.py'], configOptions);
-    TestUtils.validateResults(analysisResults1, 0);
+    const analysisResults1 = typeAnalyzeSampleFiles(['unusedVariable1.py'], configOptions);
+    validateResults(analysisResults1, 0);
 
     configOptions.diagnosticRuleSet.reportUnusedVariable = 'error';
-    const analysisResults2 = TestUtils.typeAnalyzeSampleFiles(['unusedVariable1.py'], configOptions);
-    TestUtils.validateResults(analysisResults2, 3);
+    const analysisResults2 = typeAnalyzeSampleFiles(['unusedVariable1.py'], configOptions);
+    validateResults(analysisResults2, 3);
 });
 
 test('Descriptor1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['descriptor1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['descriptor1.py']);
 
-    TestUtils.validateResults(analysisResults, 6);
+    validateResults(analysisResults, 6);
 });
 
 test('Descriptor2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['descriptor2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['descriptor2.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Descriptor3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['descriptor3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['descriptor3.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Partial1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['partial1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['partial1.py']);
 
-    TestUtils.validateResults(analysisResults, 18);
+    validateResults(analysisResults, 18);
 });
 
 test('Partial2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['partial2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['partial2.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Partial3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['partial3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['partial3.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Partial4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['partial4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['partial4.py']);
 
-    TestUtils.validateResults(analysisResults, 3);
+    validateResults(analysisResults, 3);
 });
 
 test('Partial5', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['partial5.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['partial5.py']);
 
-    TestUtils.validateResults(analysisResults, 3);
+    validateResults(analysisResults, 3);
 });
 
 test('Partial6', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['partial6.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['partial6.py']);
 
-    TestUtils.validateResults(analysisResults, 2);
+    validateResults(analysisResults, 2);
 });
 
 test('Partial7', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['partial7.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['partial7.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('TotalOrdering1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['totalOrdering1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['totalOrdering1.py']);
 
-    TestUtils.validateResults(analysisResults, 5);
+    validateResults(analysisResults, 5);
 });
 
 test('TupleUnpack1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['tupleUnpack1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['tupleUnpack1.py']);
 
-    TestUtils.validateResults(analysisResults, 5);
+    validateResults(analysisResults, 5);
 });
 
 test('TupleUnpack2', () => {
     const configOptions = new ConfigOptions(Uri.empty());
 
     configOptions.defaultPythonVersion = pythonVersion3_10;
-    const analysisResults1 = TestUtils.typeAnalyzeSampleFiles(['tupleUnpack2.py'], configOptions);
-    TestUtils.validateResults(analysisResults1, 18);
+    const analysisResults1 = typeAnalyzeSampleFiles(['tupleUnpack2.py'], configOptions);
+    validateResults(analysisResults1, 18);
 
     configOptions.defaultPythonVersion = pythonVersion3_11;
-    const analysisResults2 = TestUtils.typeAnalyzeSampleFiles(['tupleUnpack2.py'], configOptions);
-    TestUtils.validateResults(analysisResults2, 4);
+    const analysisResults2 = typeAnalyzeSampleFiles(['tupleUnpack2.py'], configOptions);
+    validateResults(analysisResults2, 4);
 });
 
 test('TupleUnpack3', () => {
     const configOptions = new ConfigOptions(Uri.empty());
 
     configOptions.defaultPythonVersion = pythonVersion3_11;
-    const analysisResults1 = TestUtils.typeAnalyzeSampleFiles(['tupleUnpack3.py'], configOptions);
-    TestUtils.validateResults(analysisResults1, 1);
+    const analysisResults1 = typeAnalyzeSampleFiles(['tupleUnpack3.py'], configOptions);
+    validateResults(analysisResults1, 1);
 });
 
 test('TupleUnpack4', () => {
-    const analysisResults1 = TestUtils.typeAnalyzeSampleFiles(['tupleUnpack4.py']);
-    TestUtils.validateResults(analysisResults1, 2);
+    const analysisResults1 = typeAnalyzeSampleFiles(['tupleUnpack4.py']);
+    validateResults(analysisResults1, 2);
 });
 
 test('TupleUnpack5', () => {
-    const analysisResults1 = TestUtils.typeAnalyzeSampleFiles(['tupleUnpack5.py']);
-    TestUtils.validateResults(analysisResults1, 0);
+    const analysisResults1 = typeAnalyzeSampleFiles(['tupleUnpack5.py']);
+    validateResults(analysisResults1, 0);
 });
 
 test('PseudoGeneric1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['pseudoGeneric1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['pseudoGeneric1.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('PseudoGeneric2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['pseudoGeneric2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['pseudoGeneric2.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('PseudoGeneric3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['pseudoGeneric3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['pseudoGeneric3.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Strings2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['strings2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['strings2.py']);
 
-    TestUtils.validateResults(analysisResults, 2, 1);
+    validateResults(analysisResults, 2, 1);
 });
 
 test('LiteralString1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['literalString1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['literalString1.py']);
 
-    TestUtils.validateResults(analysisResults, 10);
+    validateResults(analysisResults, 10);
 });
 
 test('LiteralString2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['literalString2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['literalString2.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('LiteralString3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['literalString3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['literalString3.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('ParamInference1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['paramInference1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['paramInference1.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('ParamInference2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['paramInference2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['paramInference2.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('Dictionary1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['dictionary1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['dictionary1.py']);
 
-    TestUtils.validateResults(analysisResults, 3);
+    validateResults(analysisResults, 3);
 });
 
 test('Dictionary2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['dictionary2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['dictionary2.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Dictionary3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['dictionary3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['dictionary3.py']);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });
 
 test('Dictionary4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['dictionary4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['dictionary4.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('StaticExpression1', () => {
@@ -917,104 +917,104 @@ test('StaticExpression1', () => {
     configOptions.defaultPythonVersion = pythonVersion3_8;
     configOptions.defaultPythonPlatform = 'windows';
 
-    const analysisResults1 = TestUtils.typeAnalyzeSampleFiles(['staticExpression1.py'], configOptions);
-    TestUtils.validateResults(analysisResults1, 9);
+    const analysisResults1 = typeAnalyzeSampleFiles(['staticExpression1.py'], configOptions);
+    validateResults(analysisResults1, 9);
 
     configOptions.defaultPythonVersion = pythonVersion3_11;
     configOptions.defaultPythonPlatform = 'Linux';
 
-    const analysisResults2 = TestUtils.typeAnalyzeSampleFiles(['staticExpression1.py'], configOptions);
-    TestUtils.validateResults(analysisResults2, 6);
+    const analysisResults2 = typeAnalyzeSampleFiles(['staticExpression1.py'], configOptions);
+    validateResults(analysisResults2, 6);
 
     configOptions.defineConstant.set('DEFINED_TRUE', true);
     configOptions.defineConstant.set('DEFINED_FALSE', false);
     configOptions.defineConstant.set('DEFINED_STR', 'hi!');
-    const analysisResults3 = TestUtils.typeAnalyzeSampleFiles(['staticExpression1.py'], configOptions);
-    TestUtils.validateResults(analysisResults3, 0);
+    const analysisResults3 = typeAnalyzeSampleFiles(['staticExpression1.py'], configOptions);
+    validateResults(analysisResults3, 0);
 });
 
 test('StaticExpression2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['staticExpression2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['staticExpression2.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('SpecialForm1', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['specialForm1.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['specialForm1.py']);
 
-    TestUtils.validateResults(analysisResults, 4);
+    validateResults(analysisResults, 4);
 });
 
 test('SpecialForm2', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['specialForm2.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['specialForm2.py']);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('SpecialForm3', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['specialForm3.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['specialForm3.py']);
 
-    TestUtils.validateResults(analysisResults, 22);
+    validateResults(analysisResults, 22);
 });
 
 test('SpecialForm4', () => {
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['specialForm4.py']);
+    const analysisResults = typeAnalyzeSampleFiles(['specialForm4.py']);
 
-    TestUtils.validateResults(analysisResults, 72);
+    validateResults(analysisResults, 72);
 });
 
 test('TypeForm1', () => {
     const configOptions = new ConfigOptions(Uri.empty());
     configOptions.diagnosticRuleSet.enableExperimentalFeatures = true;
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['typeForm1.py'], configOptions);
+    const analysisResults = typeAnalyzeSampleFiles(['typeForm1.py'], configOptions);
 
-    TestUtils.validateResults(analysisResults, 4);
+    validateResults(analysisResults, 4);
 });
 
 test('TypeForm2', () => {
     const configOptions = new ConfigOptions(Uri.empty());
     configOptions.diagnosticRuleSet.enableExperimentalFeatures = true;
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['typeForm2.py'], configOptions);
+    const analysisResults = typeAnalyzeSampleFiles(['typeForm2.py'], configOptions);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('TypeForm3', () => {
     const configOptions = new ConfigOptions(Uri.empty());
     configOptions.diagnosticRuleSet.enableExperimentalFeatures = true;
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['typeForm3.py'], configOptions);
+    const analysisResults = typeAnalyzeSampleFiles(['typeForm3.py'], configOptions);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('TypeForm4', () => {
     const configOptions = new ConfigOptions(Uri.empty());
     configOptions.diagnosticRuleSet.enableExperimentalFeatures = true;
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['typeForm4.py'], configOptions);
+    const analysisResults = typeAnalyzeSampleFiles(['typeForm4.py'], configOptions);
 
-    TestUtils.validateResults(analysisResults, 27);
+    validateResults(analysisResults, 27);
 });
 
 test('TypeForm5', () => {
     const configOptions = new ConfigOptions(Uri.empty());
     configOptions.diagnosticRuleSet.enableExperimentalFeatures = true;
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['typeForm5.py'], configOptions);
+    const analysisResults = typeAnalyzeSampleFiles(['typeForm5.py'], configOptions);
 
-    TestUtils.validateResults(analysisResults, 0);
+    validateResults(analysisResults, 0);
 });
 
 test('TypeForm6', () => {
     const configOptions = new ConfigOptions(Uri.empty());
     configOptions.diagnosticRuleSet.enableExperimentalFeatures = true;
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['typeForm6.py'], configOptions);
+    const analysisResults = typeAnalyzeSampleFiles(['typeForm6.py'], configOptions);
 
-    TestUtils.validateResults(analysisResults, 8);
+    validateResults(analysisResults, 8);
 });
 
 test('TypeForm7', () => {
     const configOptions = new ConfigOptions(Uri.empty());
     configOptions.diagnosticRuleSet.enableExperimentalFeatures = true;
-    const analysisResults = TestUtils.typeAnalyzeSampleFiles(['typeForm7.py'], configOptions);
+    const analysisResults = typeAnalyzeSampleFiles(['typeForm7.py'], configOptions);
 
-    TestUtils.validateResults(analysisResults, 1);
+    validateResults(analysisResults, 1);
 });

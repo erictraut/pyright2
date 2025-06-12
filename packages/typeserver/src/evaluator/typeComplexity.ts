@@ -9,7 +9,15 @@
  * meet the constraints.
  */
 
-import { AnyType, ClassType, isInstantiableClass, maxTypeRecursionCount, Type, TypeBase, TypeCategory } from './types';
+import {
+    AnyType,
+    ClassType,
+    isInstantiableClass,
+    maxTypeRecursionCount,
+    Type,
+    TypeBase,
+    TypeCategory,
+} from './types.ts';
 
 // Returns a "score" for a type that captures the relative complexity
 // of the type. Scores should all be between 0 and 1 where 0 means

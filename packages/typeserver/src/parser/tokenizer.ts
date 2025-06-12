@@ -10,9 +10,9 @@
  * Converts a Python program text stream into a stream of tokens.
  */
 
-import { TextRange } from '../common/textRange';
-import { TextRangeCollection } from '../common/textRangeCollection';
-import { cloneStr } from '../utils/core';
+import { TextRange } from '../common/textRange.ts';
+import { TextRangeCollection } from '../common/textRangeCollection.ts';
+import { cloneStr } from '../utils/core.ts';
 import {
     isBinary,
     isDecimal,
@@ -21,9 +21,9 @@ import {
     isIdentifierStartChar,
     isOctal,
     isSurrogateChar,
-} from './characters';
-import { CharacterStream } from './characterStream';
-import { Char } from './charCodes';
+} from './characters.ts';
+import { CharacterStream } from './characterStream.ts';
+import { Char } from './charCodes.ts';
 import {
     Comment,
     CommentType,
@@ -45,7 +45,7 @@ import {
     StringTokenFlags,
     Token,
     TokenType,
-} from './tokenizerTypes';
+} from './tokenizerTypes.ts';
 
 // This must be a Map, as operations like {}["constructor"] succeed.
 const _keywords: Map<string, KeywordType> = new Map([

@@ -7,10 +7,10 @@
  * overrides in code and in the configuration schema.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 
-import { DiagnosticRule } from 'typeserver/common/diagnosticRules';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.ts';
 
 describe('Diagnostic overrides', () => {
     test('Compare DiagnosticRule to pyrightconfig.schema.json', () => {

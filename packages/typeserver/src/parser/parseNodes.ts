@@ -8,7 +8,7 @@
  * syntax tree (AST).
  */
 
-import { TextRange } from '../common/textRange';
+import { TextRange } from '../common/textRange.ts';
 import {
     FStringEndToken,
     FStringMiddleToken,
@@ -21,7 +21,7 @@ import {
     StringToken,
     Token,
     TokenType,
-} from './tokenizerTypes';
+} from './tokenizerTypes.ts';
 
 export const enum ParseNodeType {
     Error, // 0

@@ -9,12 +9,12 @@
  * negative ("else") narrowing cases.
  */
 
-import { Declaration, DeclarationType } from '../binder/declaration';
-import { ScopeType } from '../binder/scope';
-import { getScopeForNode, isScopeContainedWithin } from '../binder/scopeUtils';
-import { Symbol, SymbolFlags } from '../binder/symbol';
-import { getFileInfo } from '../common/analyzerNodeInfo';
-import * as ParseTreeUtils from '../common/parseTreeUtils';
+import { Declaration, DeclarationType } from '../binder/declaration.ts';
+import { ScopeType } from '../binder/scope.ts';
+import { getScopeForNode, isScopeContainedWithin } from '../binder/scopeUtils.ts';
+import { Symbol, SymbolFlags } from '../binder/symbol.ts';
+import { getFileInfo } from '../common/analyzerNodeInfo.ts';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
 import {
     ArgCategory,
     AssignmentExpressionNode,
@@ -24,14 +24,14 @@ import {
     ParamCategory,
     ParseNode,
     ParseNodeType,
-} from '../parser/parseNodes';
-import { KeywordType, OperatorType } from '../parser/tokenizerTypes';
-import { assert } from '../utils/debug';
-import { addConstraintsForExpectedType } from './constraintSolver';
-import { ConstraintTracker } from './constraintTracker';
-import { transformTypeForEnumMember } from './enums';
-import { getTypedDictMembersForClass } from './typedDicts';
-import { AssignTypeFlags, EvalFlags, TypeEvaluator } from './typeEvaluatorTypes';
+} from '../parser/parseNodes.ts';
+import { KeywordType, OperatorType } from '../parser/tokenizerTypes.ts';
+import { assert } from '../utils/debug.ts';
+import { addConstraintsForExpectedType } from './constraintSolver.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import { transformTypeForEnumMember } from './enums.ts';
+import { getTypedDictMembersForClass } from './typedDicts.ts';
+import { AssignTypeFlags, EvalFlags, TypeEvaluator } from './typeEvaluatorTypes.ts';
 import {
     AnyType,
     ClassType,
@@ -64,7 +64,7 @@ import {
     TypedDictEntry,
     TypeVarType,
     UnknownType,
-} from './types';
+} from './types.ts';
 import {
     addConditionToType,
     ClassMember,
@@ -99,7 +99,7 @@ import {
     specializeWithUnknownTypeArgs,
     stripTypeForm,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 export interface TypeNarrowingResult {
     type: Type;

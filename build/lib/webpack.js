@@ -1,15 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const glob = require('glob');
-const JSONC = require('jsonc-parser');
-const assert = require('assert');
+import fs from 'fs';
+import path from 'path';
+import glob from 'glob';
+import JSONC from 'jsonc-parser';
+import assert from 'assert';
 
 /**
  * Builds a faked resource path for production source maps in webpack.
  *
  * @param {string} packageName The name of the package where webpack is running.
  */
-function monorepoResourceNameMapper(packageName) {
+export function monorepoResourceNameMapper(packageName) {
     /**@type {(info: {resourcePath: string}) => string} */
     const mapper = (info) => {
         const parts = [];
@@ -60,7 +60,7 @@ function managedPaths(workspaceRoot) {
  * @param {string} filename __filename
  * @param {string | undefined} name name of the webpack instance, if using multiple configs
  */
-function cacheConfig(dirname, filename, name = undefined) {
+export function cacheConfig(dirname, filename, name = undefined) {
     // Temporarily disabled: caching breaks when switching branches,
     // after typescript compilation errors, and so on.
     if (true) {
@@ -87,7 +87,7 @@ function cacheConfig(dirname, filename, name = undefined) {
  * https://github.com/dividab/tsconfig-paths-webpack-plugin/issues/60
  * @param {string} tsconfigPath Path to tsconfig
  */
-function tsconfigResolveAliases(tsconfigPath) {
+export function tsconfigResolveAliases(tsconfigPath) {
     tsconfigPath = path.resolve(tsconfigPath);
     const tsconfigDir = path.dirname(tsconfigPath);
 
@@ -117,9 +117,3 @@ function tsconfigResolveAliases(tsconfigPath) {
         })
     );
 }
-
-module.exports = {
-    monorepoResourceNameMapper,
-    cacheConfig,
-    tsconfigResolveAliases,
-};

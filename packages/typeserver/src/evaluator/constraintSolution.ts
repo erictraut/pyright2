@@ -8,8 +8,8 @@
  * of type variables.
  */
 
-import { assert } from '../utils/debug';
-import { FunctionType, ParamSpecType, Type, TypeVarType } from './types';
+import { assert } from '../utils/debug.ts';
+import { FunctionType, ParamSpecType, Type, TypeVarType } from './types.ts';
 
 // Records the types associated with a set of type variables.
 export class ConstraintSolutionSet {

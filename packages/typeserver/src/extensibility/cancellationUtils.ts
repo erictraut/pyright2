@@ -9,9 +9,9 @@
 import { AbstractCancellationTokenSource, CancellationTokenSource, Emitter, Event } from 'vscode-jsonrpc';
 import { CancellationToken, Disposable, LSPErrorCodes, ResponseError } from 'vscode-languageserver';
 
-import { Uri } from '../files/uri/uri';
-import { UriEx } from '../files/uri/uriUtils';
-import { isDebugMode } from '../utils/core';
+import { Uri } from '../files/uri/uri.ts';
+import { UriEx } from '../files/uri/uriUtils.ts';
+import { isDebugMode } from '../utils/core.ts';
 
 export interface CancellationProvider {
     createCancellationTokenSource(): AbstractCancellationTokenSource;

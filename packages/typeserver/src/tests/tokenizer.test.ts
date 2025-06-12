@@ -12,8 +12,8 @@
 
 import assert from 'assert';
 
-import * as StringTokenUtils from '../parser/stringTokenUtils';
-import { Tokenizer } from '../parser/tokenizer';
+import { getUnescapedString, UnescapeErrorType } from '../parser/stringTokenUtils.ts';
+import { Tokenizer } from '../parser/tokenizer.ts';
 import {
     CommentType,
     DedentToken,
@@ -30,8 +30,8 @@ import {
     StringToken,
     StringTokenFlags,
     TokenType,
-} from '../parser/tokenizerTypes';
-import * as TestUtils from './testUtils';
+} from '../parser/tokenizerTypes.ts';
+import { readSampleFile } from './testUtils.ts';
 
 const _implicitTokenCount = 2;
 const _implicitTokenCountNoImplicitNewLine = 1;
@@ -993,14 +993,14 @@ test('Strings: bytes string with non-ASCII', () => {
     assert.equal(results.tokens.count, 2 + _implicitTokenCount);
 
     const stringToken0 = results.tokens.getItemAt(0) as StringToken;
-    const unescapedValue0 = StringTokenUtils.getUnescapedString(stringToken0);
+    const unescapedValue0 = getUnescapedString(stringToken0);
     assert.equal(stringToken0.type, TokenType.String);
     assert.equal(stringToken0.flags, StringTokenFlags.DoubleQuote | StringTokenFlags.Bytes);
     assert.equal(unescapedValue0.nonAsciiInBytes, true);
     assert.equal(stringToken0.length, 7);
 
     const stringToken1 = results.tokens.getItemAt(1) as StringToken;
-    const unescapedValue1 = StringTokenUtils.getUnescapedString(stringToken1);
+    const unescapedValue1 = getUnescapedString(stringToken1);
     assert.equal(stringToken1.type, TokenType.String);
     assert.equal(
         stringToken1.flags,
@@ -1016,7 +1016,7 @@ test('Strings: raw strings with escapes', () => {
     assert.equal(results.tokens.count, 2 + _implicitTokenCount);
 
     const stringToken0 = results.tokens.getItemAt(0) as StringToken;
-    const unescapedValue0 = StringTokenUtils.getUnescapedString(stringToken0);
+    const unescapedValue0 = getUnescapedString(stringToken0);
     assert.equal(stringToken0.type, TokenType.String);
     assert.equal(stringToken0.flags, StringTokenFlags.DoubleQuote | StringTokenFlags.Raw);
     assert.equal(stringToken0.length, 5);
@@ -1024,7 +1024,7 @@ test('Strings: raw strings with escapes', () => {
     assert.equal(unescapedValue0.value, '\\"');
 
     const stringToken1 = results.tokens.getItemAt(1) as StringToken;
-    const unescapedValue1 = StringTokenUtils.getUnescapedString(stringToken1);
+    const unescapedValue1 = getUnescapedString(stringToken1);
     assert.equal(stringToken1.type, TokenType.String);
     assert.equal(stringToken1.flags, StringTokenFlags.DoubleQuote | StringTokenFlags.Raw);
     assert.equal(stringToken1.length, 10);
@@ -1053,7 +1053,7 @@ test('Strings: special escape characters', () => {
     assert.equal(results.tokens.count, 1 + _implicitTokenCount);
 
     const stringToken = results.tokens.getItemAt(0) as StringToken;
-    const unescapedValue = StringTokenUtils.getUnescapedString(stringToken);
+    const unescapedValue = getUnescapedString(stringToken);
     assert.equal(stringToken.type, TokenType.String);
     assert.equal(stringToken.flags, StringTokenFlags.DoubleQuote);
     assert.equal(stringToken.length, 18);
@@ -1073,7 +1073,7 @@ test('Strings: invalid escape characters', () => {
     assert.equal(results.tokens.count, 1 + _implicitTokenCount);
 
     const stringToken = results.tokens.getItemAt(0) as StringToken;
-    const unescapedValue = StringTokenUtils.getUnescapedString(stringToken);
+    const unescapedValue = getUnescapedString(stringToken);
     assert.equal(stringToken.type, TokenType.String);
     assert.equal(stringToken.flags, StringTokenFlags.DoubleQuote);
     assert.equal(stringToken.length, 8);
@@ -1081,10 +1081,10 @@ test('Strings: invalid escape characters', () => {
     assert.equal(unescapedValue.unescapeErrors.length, 2);
     assert.equal(unescapedValue.unescapeErrors[0].offset, 0);
     assert.equal(unescapedValue.unescapeErrors[0].length, 2);
-    assert.equal(unescapedValue.unescapeErrors[0].errorType, StringTokenUtils.UnescapeErrorType.InvalidEscapeSequence);
+    assert.equal(unescapedValue.unescapeErrors[0].errorType, UnescapeErrorType.InvalidEscapeSequence);
     assert.equal(unescapedValue.unescapeErrors[1].offset, 4);
     assert.equal(unescapedValue.unescapeErrors[1].length, 2);
-    assert.equal(unescapedValue.unescapeErrors[1].errorType, StringTokenUtils.UnescapeErrorType.InvalidEscapeSequence);
+    assert.equal(unescapedValue.unescapeErrors[1].errorType, UnescapeErrorType.InvalidEscapeSequence);
 });
 
 test('Strings: good hex escapes', () => {
@@ -1093,7 +1093,7 @@ test('Strings: good hex escapes', () => {
     assert.equal(results.tokens.count, 3 + _implicitTokenCount);
 
     const stringToken0 = results.tokens.getItemAt(0) as StringToken;
-    const unescapedValue0 = StringTokenUtils.getUnescapedString(stringToken0);
+    const unescapedValue0 = getUnescapedString(stringToken0);
     assert.equal(stringToken0.type, TokenType.String);
     assert.equal(stringToken0.flags, StringTokenFlags.DoubleQuote);
     assert.equal(stringToken0.length, 6);
@@ -1101,7 +1101,7 @@ test('Strings: good hex escapes', () => {
     assert.equal(unescapedValue0.value, 'M');
 
     const stringToken1 = results.tokens.getItemAt(1) as StringToken;
-    const unescapedValue1 = StringTokenUtils.getUnescapedString(stringToken1);
+    const unescapedValue1 = getUnescapedString(stringToken1);
     assert.equal(stringToken1.type, TokenType.String);
     assert.equal(stringToken1.flags, StringTokenFlags.DoubleQuote);
     assert.equal(stringToken1.length, 8);
@@ -1109,7 +1109,7 @@ test('Strings: good hex escapes', () => {
     assert.equal(unescapedValue1.value, 'k');
 
     const stringToken2 = results.tokens.getItemAt(2) as StringToken;
-    const unescapedValue2 = StringTokenUtils.getUnescapedString(stringToken2);
+    const unescapedValue2 = getUnescapedString(stringToken2);
     assert.equal(stringToken2.type, TokenType.String);
     assert.equal(stringToken2.flags, StringTokenFlags.DoubleQuote);
     assert.equal(stringToken2.length, 12);
@@ -1123,7 +1123,7 @@ test('Strings: bad hex escapes', () => {
     assert.equal(results.tokens.count, 3 + _implicitTokenCount);
 
     const stringToken0 = results.tokens.getItemAt(0) as StringToken;
-    const unescapedValue0 = StringTokenUtils.getUnescapedString(stringToken0);
+    const unescapedValue0 = getUnescapedString(stringToken0);
     assert.equal(stringToken0.type, TokenType.String);
     assert.equal(stringToken0.flags, StringTokenFlags.DoubleQuote);
     assert.equal(unescapedValue0.unescapeErrors.length, 1);
@@ -1131,7 +1131,7 @@ test('Strings: bad hex escapes', () => {
     assert.equal(unescapedValue0.value, '\\x4g');
 
     const stringToken1 = results.tokens.getItemAt(1) as StringToken;
-    const unescapedValue1 = StringTokenUtils.getUnescapedString(stringToken1);
+    const unescapedValue1 = getUnescapedString(stringToken1);
     assert.equal(stringToken1.type, TokenType.String);
     assert.equal(stringToken1.flags, StringTokenFlags.DoubleQuote);
     assert.equal(unescapedValue1.unescapeErrors.length, 1);
@@ -1139,7 +1139,7 @@ test('Strings: bad hex escapes', () => {
     assert.equal(unescapedValue1.value, '\\u006');
 
     const stringToken2 = results.tokens.getItemAt(2) as StringToken;
-    const unescapedValue2 = StringTokenUtils.getUnescapedString(stringToken2);
+    const unescapedValue2 = getUnescapedString(stringToken2);
     assert.equal(stringToken2.type, TokenType.String);
     assert.equal(stringToken2.flags, StringTokenFlags.DoubleQuote);
     assert.equal(unescapedValue2.unescapeErrors.length, 1);
@@ -1153,7 +1153,7 @@ test('Strings: good name escapes', () => {
     assert.equal(results.tokens.count, 2 + _implicitTokenCount);
 
     const stringToken0 = results.tokens.getItemAt(0) as StringToken;
-    const unescapedValue0 = StringTokenUtils.getUnescapedString(stringToken0);
+    const unescapedValue0 = getUnescapedString(stringToken0);
     assert.equal(stringToken0.type, TokenType.String);
     assert.equal(stringToken0.flags, StringTokenFlags.DoubleQuote | StringTokenFlags.NamedUnicodeEscape);
     assert.equal(stringToken0.length, 23);
@@ -1161,7 +1161,7 @@ test('Strings: good name escapes', () => {
     assert.equal(unescapedValue0.value, '-');
 
     const stringToken1 = results.tokens.getItemAt(1) as StringToken;
-    const unescapedValue1 = StringTokenUtils.getUnescapedString(stringToken1);
+    const unescapedValue1 = getUnescapedString(stringToken1);
     assert.equal(stringToken1.type, TokenType.String);
     assert.equal(stringToken1.flags, StringTokenFlags.DoubleQuote | StringTokenFlags.NamedUnicodeEscape);
     assert.equal(stringToken1.length, 10);
@@ -1175,7 +1175,7 @@ test('Strings: bad name escapes', () => {
     assert.equal(results.tokens.count, 2 + _implicitTokenCount);
 
     const stringToken0 = results.tokens.getItemAt(0) as StringToken;
-    const unescapedValue0 = StringTokenUtils.getUnescapedString(stringToken0);
+    const unescapedValue0 = getUnescapedString(stringToken0);
     assert.equal(stringToken0.type, TokenType.String);
     assert.equal(stringToken0.flags, StringTokenFlags.DoubleQuote | StringTokenFlags.NamedUnicodeEscape);
     assert.equal(unescapedValue0.unescapeErrors.length, 1);
@@ -1184,7 +1184,7 @@ test('Strings: bad name escapes', () => {
     assert.equal(unescapedValue0.value, '\\N{caret');
 
     const stringToken1 = results.tokens.getItemAt(1) as StringToken;
-    const unescapedValue1 = StringTokenUtils.getUnescapedString(stringToken1);
+    const unescapedValue1 = getUnescapedString(stringToken1);
     assert.equal(stringToken1.type, TokenType.String);
     assert.equal(stringToken1.flags, StringTokenFlags.DoubleQuote | StringTokenFlags.NamedUnicodeEscape);
     assert.equal(unescapedValue1.unescapeErrors.length, 1);
@@ -1658,7 +1658,7 @@ test('Identifiers', () => {
 });
 
 test('Lines1', () => {
-    const sampleText = TestUtils.readSampleFile('lines1.py');
+    const sampleText = readSampleFile('lines1.py');
     const t = new Tokenizer();
 
     // Start with the line feed only. We don't know whether the

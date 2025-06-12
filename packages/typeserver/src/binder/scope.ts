@@ -9,9 +9,9 @@
  * top-most built-in scope).
  */
 
-import { fail } from '../utils/debug';
-import { DeclarationType } from './declaration';
-import { Symbol, SymbolFlags, SymbolTable } from './symbol';
+import { fail } from '../utils/debug.ts';
+import { DeclarationType } from './declaration.ts';
+import { Symbol, SymbolFlags, SymbolTable } from './symbol.ts';
 
 export const enum ScopeType {
     // Used for PEP 695-style type parameters.

@@ -11,28 +11,28 @@
 
 import * as JSONC from 'jsonc-parser';
 import { AbstractCancellationTokenSource, CancellationToken } from 'vscode-languageserver';
-import { parse } from '../utils/tomlUtils';
+import { parse } from '../utils/tomlUtils.ts';
 
-import { Diagnostic } from '../common/diagnostic';
-import { FileEditAction } from '../common/editAction';
-import { configFileName, defaultStubsDirectory, pyprojectTomlName } from '../common/pathConsts';
-import { PythonVersion } from '../common/pythonVersion';
-import { Range } from '../common/textRange';
+import { Diagnostic } from '../common/diagnostic.ts';
+import { FileEditAction } from '../common/editAction.ts';
+import { configFileName, defaultStubsDirectory, pyprojectTomlName } from '../common/pathConsts.ts';
+import { PythonVersion } from '../common/pythonVersion.ts';
+import { Range } from '../common/textRange.ts';
 import {
     CommandLineConfigOptions,
     CommandLineLanguageServerOptions,
     CommandLineOptions,
-} from '../config/commandLineOptions';
-import { ConfigOptions, matchFileSpecs } from '../config/configOptions';
-import { ConsoleInterface, LogLevel, StandardConsole, log } from '../extensibility/console';
-import { IEditableProgram, IProgramView } from '../extensibility/extensibility';
-import { Host, HostFactory, NoAccessHost } from '../extensibility/host';
-import { ServiceKeys } from '../extensibility/serviceKeys';
-import { ServiceProvider } from '../extensibility/serviceProvider';
-import { FileSystem, ReadOnlyFileSystem } from '../files/fileSystem';
-import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from '../files/fileWatcher';
-import { getFileName, isRootedDiskPath, normalizeSlashes } from '../files/pathUtils';
-import { Uri } from '../files/uri/uri';
+} from '../config/commandLineOptions.ts';
+import { ConfigOptions, matchFileSpecs } from '../config/configOptions.ts';
+import { ConsoleInterface, LogLevel, StandardConsole, log } from '../extensibility/console.ts';
+import { IEditableProgram, IProgramView } from '../extensibility/extensibility.ts';
+import { Host, HostFactory, NoAccessHost } from '../extensibility/host.ts';
+import { ServiceKeys } from '../extensibility/serviceKeys.ts';
+import { ServiceProvider } from '../extensibility/serviceProvider.ts';
+import { FileSystem, ReadOnlyFileSystem } from '../files/fileSystem.ts';
+import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from '../files/fileWatcher.ts';
+import { getFileName, isRootedDiskPath, normalizeSlashes } from '../files/pathUtils.ts';
+import { Uri } from '../files/uri/uri.ts';
 import {
     FileSpec,
     deduplicateFolders,
@@ -45,14 +45,14 @@ import {
     makeDirectories,
     tryRealpath,
     tryStat,
-} from '../files/uri/uriUtils';
-import { ImportResolver, ImportResolverFactory, createImportedModuleDescriptor } from '../imports/importResolver';
-import { MaxAnalysisTime, Program } from '../program/program';
-import { IPythonMode } from '../program/sourceFile';
-import { timingStats } from '../service/timing';
-import { isString } from '../utils/core';
-import { AnalysisCompleteCallback } from './analysis';
-import { findPythonSearchPaths } from './pythonPathUtils';
+} from '../files/uri/uriUtils.ts';
+import { ImportResolver, ImportResolverFactory, createImportedModuleDescriptor } from '../imports/importResolver.ts';
+import { MaxAnalysisTime, Program } from '../program/program.ts';
+import { IPythonMode } from '../program/sourceFile.ts';
+import { timingStats } from '../service/timing.ts';
+import { isString } from '../utils/core.ts';
+import { AnalysisCompleteCallback } from './analysis.ts';
+import { findPythonSearchPaths } from './pythonPathUtils.ts';
 
 // How long since the last user activity should we wait until running
 // the analyzer on any files that have not yet been analyzed?

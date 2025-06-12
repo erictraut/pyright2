@@ -4,7 +4,7 @@
  * hoverProvider tests.
  */
 
-import { parseAndGetTestState } from './harness/fourslash/testState';
+import { parseAndGetTestState } from './harness/fourslash/testState.ts';
 
 test('import tooltip - import statement', async () => {
     const code = `

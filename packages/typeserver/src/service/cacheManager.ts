@@ -10,9 +10,9 @@
 
 import type { HeapInfo } from 'v8';
 import { Worker } from 'worker_threads';
-import { ConsoleInterface } from '../extensibility/console';
-import { fail } from '../utils/debug';
-import { getHeapStatistics, getSystemMemoryInfo } from '../utils/memUtils';
+import { ConsoleInterface } from '../extensibility/console.ts';
+import { fail } from '../utils/debug.ts';
+import { getHeapStatistics, getSystemMemoryInfo } from '../utils/memUtils.ts';
 
 export interface CacheOwner {
     // Returns a number between 0 and 1 that indicates how full

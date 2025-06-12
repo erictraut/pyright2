@@ -7,13 +7,13 @@
  * Functions that operate on Type objects.
  */
 
-import { DeclarationType } from '../binder/declaration';
-import { Symbol, SymbolFlags, SymbolTable } from '../binder/symbol';
-import { isEffectivelyClassVar, isTypedDictMemberAccessedThroughIndex } from '../binder/symbolUtils';
-import { ParamCategory } from '../parser/parseNodes';
-import { appendArray } from '../utils/collectionUtils';
-import { assert } from '../utils/debug';
-import { ConstraintSolution, ConstraintSolutionSet } from './constraintSolution';
+import { DeclarationType } from '../binder/declaration.ts';
+import { Symbol, SymbolFlags, SymbolTable } from '../binder/symbol.ts';
+import { isEffectivelyClassVar, isTypedDictMemberAccessedThroughIndex } from '../binder/symbolUtils.ts';
+import { ParamCategory } from '../parser/parseNodes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { assert } from '../utils/debug.ts';
+import { ConstraintSolution, ConstraintSolutionSet } from './constraintSolution.ts';
 import {
     AnyType,
     ClassType,
@@ -71,8 +71,8 @@ import {
     UnionType,
     UnknownType,
     Variance,
-} from './types';
-import { TypeWalker } from './typeWalker';
+} from './types.ts';
+import { TypeWalker } from './typeWalker.ts';
 
 export interface ClassMember {
     // Symbol

@@ -6,9 +6,9 @@
  * Utility functions for parameters.
  */
 
-import { isDunderName } from '../binder/symbolNameUtils';
-import { ParamCategory } from '../parser/parseNodes';
-import { assert } from '../utils/debug';
+import { isDunderName } from '../binder/symbolNameUtils.ts';
+import { ParamCategory } from '../parser/parseNodes.ts';
+import { assert } from '../utils/debug.ts';
 import {
     AnyType,
     ClassType,
@@ -25,8 +25,8 @@ import {
     isUnpackedClass,
     Type,
     TypeVarType,
-} from './types';
-import { doForEachSubtype, partiallySpecializeType } from './typeUtils';
+} from './types.ts';
+import { doForEachSubtype, partiallySpecializeType } from './typeUtils.ts';
 
 export function isTypedKwargs(param: FunctionParam, effectiveParamType: Type): boolean {
     return (

@@ -6,13 +6,13 @@
  * Utils functions that handles environment variables.
  */
 
-import * as os from 'os';
+import os from 'os';
 
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys';
-import { isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils';
-import { Uri } from 'typeserver/files/uri/uri';
-import { escapeRegExp } from 'typeserver/utils/stringUtils';
-import { Workspace, WorkspaceFolder } from '../server/workspaceFactory';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.ts';
+import { isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { escapeRegExp } from 'typeserver/utils/stringUtils.ts';
+import { Workspace, WorkspaceFolder } from '../server/workspaceFactory.ts';
 
 export function resolvePathWithEnvVariables(
     workspace: Workspace,

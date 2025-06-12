@@ -6,8 +6,8 @@
  * Specifies the range of text within a document.
  */
 
-import { Uri } from '../files/uri/uri';
-import { Range } from './textRange';
+import { Uri } from '../files/uri/uri.ts';
+import { Range } from './textRange.ts';
 
 export interface DocumentRange {
     uri: Uri;

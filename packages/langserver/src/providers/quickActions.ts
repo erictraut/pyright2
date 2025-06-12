@@ -9,10 +9,10 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { IProgramView } from 'typeserver/extensibility/extensibility';
-import { Uri } from 'typeserver/files/uri/uri';
-import { Commands } from '../commands/commands';
-import { ImportSorter } from './importSorter';
+import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { Commands } from '../commands/commands.ts';
+import { ImportSorter } from './importSorter.ts';
 
 export function performQuickAction(
     programView: IProgramView,

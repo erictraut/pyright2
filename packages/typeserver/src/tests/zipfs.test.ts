@@ -4,15 +4,17 @@
  * zip/egg file related FS tests.
  */
 
-import * as assert from 'assert';
-import * as path from 'path';
-import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem';
-import { Uri } from '../files/uri/uri';
-import { compareStringsCaseSensitive } from '../utils/stringUtils';
+import assert from 'assert';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { compareStringsCaseSensitive } from '../utils/stringUtils.ts';
 
 function runTests(p: string): void {
     const tempFile = new RealTempFile();
-    const zipRoot = Uri.file(path.resolve(path.dirname(module.filename), p), tempFile);
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const zipRoot = Uri.file(path.resolve(__dirname, p), tempFile);
     const fs = createFromRealFileSystem(tempFile);
 
     test('stat root', () => {
@@ -89,7 +91,7 @@ function runTests(p: string): void {
 
     test('isInZip', () => {
         assert.strictEqual(fs.isInZip(zipRoot.combinePaths('EGG-INFO', 'top_level.txt')), true);
-        assert.strictEqual(fs.isInZip(Uri.file(module.filename, tempFile)), false);
+        assert.strictEqual(fs.isInZip(Uri.file(fileURLToPath(import.meta.url), tempFile)), false);
     });
 
     tempFile.dispose();
@@ -101,7 +103,8 @@ describe('jar', () => runTests('./samples/zipfs/basic.jar'));
 
 function runBadTests(p: string): void {
     const tempFile = new RealTempFile();
-    const zipRoot = Uri.file(path.resolve(path.dirname(module.filename), p), tempFile);
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const zipRoot = Uri.file(path.resolve(__dirname, p), tempFile);
     const fs = createFromRealFileSystem(tempFile);
 
     test('stat root', () => {

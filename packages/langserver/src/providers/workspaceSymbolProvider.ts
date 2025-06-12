@@ -8,16 +8,16 @@
 
 import { CancellationToken, Location, ResultProgressReporter, SymbolInformation } from 'vscode-languageserver';
 
-import { getFileInfo } from 'typeserver/common/analyzerNodeInfo';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView } from 'typeserver/extensibility/extensibility';
-import { Uri } from 'typeserver/files/uri/uri';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
-import { appendArray } from 'typeserver/utils/collectionUtils';
-import * as StringUtils from 'typeserver/utils/stringUtils';
-import { Workspace } from '../server/workspaceFactory';
-import { IndexSymbolData, SymbolIndexer } from './symbolIndexer';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.ts';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.ts';
+import { appendArray } from 'typeserver/utils/collectionUtils.ts';
+import * as StringUtils from 'typeserver/utils/stringUtils.ts';
+import { Workspace } from '../server/workspaceFactory.ts';
+import { IndexSymbolData, SymbolIndexer } from './symbolIndexer.ts';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
 

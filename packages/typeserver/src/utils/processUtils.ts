@@ -5,7 +5,7 @@
  *
  * Utility routines for dealing with node processes.
  */
-import * as child_process from 'child_process';
+import child_process from 'child_process';
 
 export function terminateProcessTree(pid: number) {
     try {

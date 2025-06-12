@@ -20,22 +20,22 @@ import {
     SignatureInformation,
 } from 'vscode-languageserver';
 
-import { findNodeByOffset, getCallNodeAndActiveParamIndex, getNodeDepth } from 'typeserver/common/parseTreeUtils';
-import { convertPositionToOffset } from 'typeserver/common/positionUtils';
-import { Position } from 'typeserver/common/textRange';
-import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils';
-import { CallSignature, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
-import { PrintTypeFlags } from 'typeserver/evaluator/typePrinter';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView } from 'typeserver/extensibility/extensibility';
-import { Uri } from 'typeserver/files/uri/uri';
-import { CallNode, NameNode, ParseNodeType } from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { Tokenizer } from 'typeserver/parser/tokenizer';
-import { SourceMapper } from 'typeserver/program/sourceMapper';
-import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils';
-import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion';
-import { getDocumentationPartsForTypeAndDecl, getFunctionDocStringFromType } from './tooltipUtils';
+import { findNodeByOffset, getCallNodeAndActiveParamIndex, getNodeDepth } from 'typeserver/common/parseTreeUtils.ts';
+import { convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
+import { Position } from 'typeserver/common/textRange.ts';
+import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils.ts';
+import { CallSignature, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+import { PrintTypeFlags } from 'typeserver/evaluator/typePrinter.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { CallNode, NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { Tokenizer } from 'typeserver/parser/tokenizer.ts';
+import { SourceMapper } from 'typeserver/program/sourceMapper.ts';
+import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils.ts';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion.ts';
+import { getDocumentationPartsForTypeAndDecl, getFunctionDocStringFromType } from './tooltipUtils.ts';
 
 export class SignatureHelpProvider {
     private readonly _parseResults: ParseFileResults | undefined;

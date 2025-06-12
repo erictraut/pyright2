@@ -9,18 +9,18 @@
 
 import assert from 'assert';
 
-import { TaskListPriority } from 'typeserver/common/diagnostic';
-import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVersion';
-import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions';
-import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions';
-import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
-import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils';
-import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem';
-import { Uri } from 'typeserver/files/uri/uri';
-import { UriEx } from 'typeserver/files/uri/uriUtils';
-import { TypeService } from 'typeserver/service/typeService';
-import { TestAccessHost } from './harness/testAccessHost';
+import { TaskListPriority } from 'typeserver/common/diagnostic.ts';
+import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVersion.ts';
+import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.ts';
+import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.ts';
+import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.ts';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.ts';
+import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
+import { TypeService } from 'typeserver/service/typeService.ts';
+import { TestAccessHost } from './harness/testAccessHost.ts';
 
 describe(`config test'}`, () => {
     const tempFile = new RealTempFile();

@@ -8,20 +8,20 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { SymbolTable } from '../binder/symbol';
-import { Diagnostic } from '../common/diagnostic';
-import { Range } from '../common/textRange';
-import { ConfigOptions } from '../config/configOptions';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes';
-import { ServiceProvider } from '../extensibility/serviceProvider';
-import { ReadOnlyFileSystem } from '../files/fileSystem';
-import { Uri } from '../files/uri/uri';
-import { ImportResolver } from '../imports/importResolver';
-import { ParseFileResults, ParserOutput } from '../parser/parser';
-import { OpenFileOptions, Program } from '../program/program';
-import { IPythonMode } from '../program/sourceFile';
-import { SourceMapper } from '../program/sourceMapper';
-import { ConsoleInterface } from './console';
+import { SymbolTable } from '../binder/symbol.ts';
+import { Diagnostic } from '../common/diagnostic.ts';
+import { Range } from '../common/textRange.ts';
+import { ConfigOptions } from '../config/configOptions.ts';
+import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
+import { ServiceProvider } from '../extensibility/serviceProvider.ts';
+import { ReadOnlyFileSystem } from '../files/fileSystem.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { ImportResolver } from '../imports/importResolver.ts';
+import { ParseFileResults, ParserOutput } from '../parser/parser.ts';
+import { OpenFileOptions, Program } from '../program/program.ts';
+import { IPythonMode } from '../program/sourceFile.ts';
+import { SourceMapper } from '../program/sourceMapper.ts';
+import { ConsoleInterface } from './console.ts';
 
 export interface ISourceFile {
     // See whether we can convert these to regular properties.

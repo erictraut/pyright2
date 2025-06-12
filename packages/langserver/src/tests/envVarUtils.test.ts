@@ -6,20 +6,20 @@
  * Unit tests for functions in envVarUtils.
  */
 
-import * as os from 'os';
+import os from 'os';
 
 import assert from 'assert';
 
-import { ConfigOptions } from 'typeserver/config/configOptions';
-import { NullConsole } from 'typeserver/extensibility//console';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
-import { Uri } from 'typeserver/files/uri/uri';
-import { UriEx } from 'typeserver/files/uri/uriUtils';
-import { TypeService } from 'typeserver/service/typeService';
-import { expandPathVariables, resolvePathWithEnvVariables } from '../providers/envVarUtils';
-import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../server/workspaceFactory';
-import { TestAccessHost } from './harness/testAccessHost';
-import { TestFileSystem } from './harness/vfs/filesystem';
+import { ConfigOptions } from 'typeserver/config/configOptions.ts';
+import { NullConsole } from 'typeserver/extensibility//console.ts';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
+import { TypeService } from 'typeserver/service/typeService.ts';
+import { expandPathVariables, resolvePathWithEnvVariables } from '../providers/envVarUtils.ts';
+import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../server/workspaceFactory.ts';
+import { TestAccessHost } from './harness/testAccessHost.ts';
+import { TestFileSystem } from './harness/vfs/filesystem.ts';
 
 jest.mock('os', () => ({ __esModule: true, ...jest.requireActual('os') }));
 

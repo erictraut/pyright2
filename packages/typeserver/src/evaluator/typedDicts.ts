@@ -8,16 +8,16 @@
  * classes.
  */
 
-import { DeclarationType, VariableDeclaration } from '../binder/declaration';
-import { Symbol, SymbolFlags, SymbolTable } from '../binder/symbol';
-import { getLastTypedDeclarationForSymbol } from '../binder/symbolUtils';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import * as ParseTreeUtils from '../common/parseTreeUtils';
-import { convertOffsetsToRange } from '../common/positionUtils';
-import { TextRange } from '../common/textRange';
-import { LocAddendum, LocMessage } from '../localization/localize';
+import { DeclarationType, VariableDeclaration } from '../binder/declaration.ts';
+import { Symbol, SymbolFlags, SymbolTable } from '../binder/symbol.ts';
+import { getLastTypedDeclarationForSymbol } from '../binder/symbolUtils.ts';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
+import { convertOffsetsToRange } from '../common/positionUtils.ts';
+import { TextRange } from '../common/textRange.ts';
+import { LocAddendum, LocMessage } from '../localization/localize.ts';
 import {
     ArgCategory,
     ClassNode,
@@ -26,11 +26,11 @@ import {
     IndexNode,
     ParamCategory,
     ParseNodeType,
-} from '../parser/parseNodes';
-import { KeywordType } from '../parser/tokenizerTypes';
-import { appendArray } from '../utils/collectionUtils';
-import { assert } from '../utils/debug';
-import { ConstraintTracker } from './constraintTracker';
+} from '../parser/parseNodes.ts';
+import { KeywordType } from '../parser/tokenizerTypes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { assert } from '../utils/debug.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
 import {
     Arg,
     AssignTypeFlags,
@@ -38,7 +38,7 @@ import {
     TypeEvaluator,
     TypeResult,
     TypeResultWithNode,
-} from './typeEvaluatorTypes';
+} from './typeEvaluatorTypes.ts';
 import {
     AnyType,
     ClassType,
@@ -62,7 +62,7 @@ import {
     TypeVarScopeType,
     TypeVarType,
     UnknownType,
-} from './types';
+} from './types.ts';
 import {
     applySolvedTypeVars,
     buildSolutionFromSpecializedClass,
@@ -73,7 +73,7 @@ import {
     mapSubtypes,
     partiallySpecializeType,
     specializeTupleClass,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 // Creates a new custom TypedDict "alternate syntax" factory class.
 export function createTypedDictType(

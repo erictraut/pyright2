@@ -29,20 +29,20 @@ import {
     FlowPreFinallyGate,
     FlowVariableAnnotation,
     FlowWildcardImport,
-} from '../binder/codeFlowTypes';
-import { getFileInfo, getImportInfo } from '../common/analyzerNodeInfo';
-import { isMatchingExpression, isPartialMatchingExpression, printExpression } from '../common/parseTreeUtils';
-import { convertOffsetToPosition } from '../common/positionUtils';
-import { ConsoleInterface } from '../extensibility/console';
-import { ArgCategory, ExpressionNode, ParseNode, ParseNodeType } from '../parser/parseNodes';
-import { assert, fail } from '../utils/debug';
-import { formatControlFlowGraph } from './codeFlowUtils';
-import { getBoundCallMethod, getBoundNewMethod } from './constructors';
-import { getPatternSubtypeNarrowingCallback } from './patternMatching';
-import { SpeculativeTypeTracker } from './typeCacheUtils';
-import { narrowForKeyAssignment } from './typedDicts';
-import { EvalFlags, Reachability, TypeEvaluator, TypeResult } from './typeEvaluatorTypes';
-import { getTypeNarrowingCallback } from './typeGuards';
+} from '../binder/codeFlowTypes.ts';
+import { getFileInfo, getImportInfo } from '../common/analyzerNodeInfo.ts';
+import { isMatchingExpression, isPartialMatchingExpression, printExpression } from '../common/parseTreeUtils.ts';
+import { convertOffsetToPosition } from '../common/positionUtils.ts';
+import { ConsoleInterface } from '../extensibility/console.ts';
+import { ArgCategory, ExpressionNode, ParseNode, ParseNodeType } from '../parser/parseNodes.ts';
+import { assert, fail } from '../utils/debug.ts';
+import { formatControlFlowGraph } from './codeFlowUtils.ts';
+import { getBoundCallMethod, getBoundNewMethod } from './constructors.ts';
+import { getPatternSubtypeNarrowingCallback } from './patternMatching.ts';
+import { SpeculativeTypeTracker } from './typeCacheUtils.ts';
+import { narrowForKeyAssignment } from './typedDicts.ts';
+import { EvalFlags, Reachability, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
+import { getTypeNarrowingCallback } from './typeGuards.ts';
 import {
     ClassType,
     combineTypes,
@@ -65,7 +65,7 @@ import {
     TypeVarType,
     UnboundType,
     UnknownType,
-} from './types';
+} from './types.ts';
 import {
     cleanIncompleteUnknown,
     derivesFromStdlibClass,
@@ -73,7 +73,7 @@ import {
     isIncompleteUnknown,
     isTypeAliasPlaceholder,
     mapSubtypes,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 export interface FlowNodeTypeResult {
     type: Type | undefined;

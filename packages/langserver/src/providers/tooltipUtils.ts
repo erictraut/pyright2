@@ -8,12 +8,12 @@
  * completion suggestions, etc.
  */
 
-import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration';
-import { Symbol } from 'typeserver/binder/symbol';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
-import { SignatureDisplayType } from 'typeserver/config/configOptions';
-import { getBoundCallMethod } from 'typeserver/evaluator/constructors';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.ts';
+import { Symbol } from 'typeserver/binder/symbol.ts';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
+import { SignatureDisplayType } from 'typeserver/config/configOptions.ts';
+import { getBoundCallMethod } from 'typeserver/evaluator/constructors.ts';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
 import {
     ClassType,
     FunctionType,
@@ -29,10 +29,10 @@ import {
     isInstantiableClass,
     isModule,
     isOverloaded,
-} from 'typeserver/evaluator/types';
-import { MemberAccessFlags, lookUpClassMember } from 'typeserver/evaluator/typeUtils';
-import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes';
-import { SourceMapper } from 'typeserver/program/sourceMapper';
+} from 'typeserver/evaluator/types.ts';
+import { MemberAccessFlags, lookUpClassMember } from 'typeserver/evaluator/typeUtils.ts';
+import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
+import { SourceMapper } from 'typeserver/program/sourceMapper.ts';
 import {
     getClassDocString,
     getFunctionDocStringInherited,
@@ -41,8 +41,8 @@ import {
     getOverloadedDocStringsInherited,
     getPropertyDocStringInherited,
     getVariableDocString,
-} from 'typeserver/service/typeDocStringUtils';
-import { isDefined } from 'typeserver/utils/core';
+} from 'typeserver/service/typeDocStringUtils.ts';
+import { isDefined } from 'typeserver/utils/core.ts';
 
 // The number of spaces to indent each parameter, after moving to a newline in tooltips.
 const functionParamIndentOffset = 4;

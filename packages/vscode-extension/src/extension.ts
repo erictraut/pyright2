@@ -9,7 +9,7 @@
  * runs in another process.
  */
 
-import * as path from 'path';
+import path from 'path';
 import {
     commands,
     ExtensionContext,
@@ -38,8 +38,8 @@ import {
     TransportKind,
 } from 'vscode-languageclient/node';
 
-import { Commands } from 'pyright-internal/commands/commands';
-import { isThenable } from 'pyright-internal/common/core';
+import { Commands } from 'typeserver/common/commands.ts';
+import { isThenable } from 'typeserver/utils/core.ts';
 
 import { FileBasedCancellationStrategy } from './cancellationUtils';
 
@@ -72,7 +72,7 @@ export async function activate(context: ExtensionContext) {
 
     cancellationStrategy = new FileBasedCancellationStrategy();
 
-    const bundlePath = context.asAbsolutePath(path.join('dist', 'server.js'));
+    const bundlePath = context.asAbsolutePath(path.join('dist', 'server.ts'));
     const runOptions = { execArgv: [`--max-old-space-size=${defaultHeapSize}`] };
     const debugOptions = { execArgv: ['--nolazy', '--inspect=6600', `--max-old-space-size=${defaultHeapSize}`] };
 

@@ -9,10 +9,10 @@
 import { ConnectionOptions } from 'vscode-languageserver';
 import { createConnection } from 'vscode-languageserver/node';
 
-import { getCancellationStrategyFromArgv } from 'typeserver/extensibility/fileBasedCancellationUtils';
-import { initializeDependencies } from 'typeserver/service/asyncInitialization';
+import { getCancellationStrategyFromArgv } from 'typeserver/extensibility/fileBasedCancellationUtils.ts';
+import { initializeDependencies } from 'typeserver/service/asyncInitialization.ts';
 
-import { PyrightServer } from './server';
+import { PyrightServer } from './server.ts';
 
 export async function main(maxWorkers: number) {
     await initializeDependencies();

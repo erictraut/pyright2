@@ -20,10 +20,10 @@ import {
     FlowPreFinallyGate,
     FlowVariableAnnotation,
     FlowWildcardImport,
-} from '../binder/codeFlowTypes';
-import { getFileInfo } from '../common/analyzerNodeInfo';
-import { convertOffsetToPosition } from '../common/positionUtils';
-import { ParseNode } from '../parser/parseNodes';
+} from '../binder/codeFlowTypes.ts';
+import { getFileInfo } from '../common/analyzerNodeInfo.ts';
+import { convertOffsetToPosition } from '../common/positionUtils.ts';
+import { ParseNode } from '../parser/parseNodes.ts';
 
 export function formatControlFlowGraph(flowNode: FlowNode) {
     const enum BoxCharacter {

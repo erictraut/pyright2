@@ -6,16 +6,16 @@
  * Interface for language server
  */
 
-import { TaskListToken } from 'typeserver/common/diagnostic';
-import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions';
-import { SignatureDisplayType } from 'typeserver/config/configOptions';
-import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { FileSystem } from 'typeserver/files/fileSystem';
-import { FileWatcherHandler } from 'typeserver/files/fileWatcher';
-import { Uri } from 'typeserver/files/uri/uri';
-import { MaxAnalysisTime } from 'typeserver/program/program';
-import { Workspace } from '../server/workspaceFactory';
+import { TaskListToken } from 'typeserver/common/diagnostic.ts';
+import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.ts';
+import { SignatureDisplayType } from 'typeserver/config/configOptions.ts';
+import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console.ts';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
+import { FileSystem } from 'typeserver/files/fileSystem.ts';
+import { FileWatcherHandler } from 'typeserver/files/fileWatcher.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { MaxAnalysisTime } from 'typeserver/program/program.ts';
+import { Workspace } from '../server/workspaceFactory.ts';
 
 export interface ServerSettings {
     venvPath?: Uri | undefined;

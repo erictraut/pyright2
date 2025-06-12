@@ -6,9 +6,9 @@
  * NoAccessHost variation for test environment
  */
 
-import { NoAccessHost } from 'typeserver/extensibility/host';
-import { Uri } from 'typeserver/files/uri/uri';
-import { PythonPathResult } from 'typeserver/service/pythonPathUtils';
+import { NoAccessHost } from 'typeserver/extensibility/host.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { PythonPathResult } from 'typeserver/service/pythonPathUtils.ts';
 
 export class TestAccessHost extends NoAccessHost {
     constructor(private _modulePath = Uri.empty(), private _searchPaths: Uri[] = []) {

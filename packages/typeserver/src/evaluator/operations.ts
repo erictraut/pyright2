@@ -8,14 +8,14 @@
  * and ternary operators.
  */
 
-import { getScopeForNode } from '../binder/scopeUtils';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions';
-import { getFileInfo } from '../common/analyzerNodeInfo';
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { getEnclosingLambda, isWithinLoop, operatorSupportsChaining, printOperator } from '../common/parseTreeUtils';
-import { PythonVersion, pythonVersion3_10 } from '../common/pythonVersion';
-import { LocMessage } from '../localization/localize';
+import { getScopeForNode } from '../binder/scopeUtils.ts';
+import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
+import { getFileInfo } from '../common/analyzerNodeInfo.ts';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { getEnclosingLambda, isWithinLoop, operatorSupportsChaining, printOperator } from '../common/parseTreeUtils.ts';
+import { PythonVersion, pythonVersion3_10 } from '../common/pythonVersion.ts';
+import { LocMessage } from '../localization/localize.ts';
 import {
     AugmentedAssignmentNode,
     BinaryOperationNode,
@@ -23,9 +23,9 @@ import {
     ParseNodeType,
     TernaryNode,
     UnaryOperationNode,
-} from '../parser/parseNodes';
-import { OperatorType } from '../parser/tokenizerTypes';
-import { EvalFlags, MagicMethodDeprecationInfo, TypeEvaluator, TypeResult } from './typeEvaluatorTypes';
+} from '../parser/parseNodes.ts';
+import { OperatorType } from '../parser/tokenizerTypes.ts';
+import { EvalFlags, MagicMethodDeprecationInfo, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
 import {
     InferenceContext,
     convertToInstantiable,
@@ -46,7 +46,7 @@ import {
     specializeTupleClass,
     specializeWithDefaultTypeArgs,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils';
+} from './typeUtils.ts';
 import {
     ClassType,
     NeverType,
@@ -61,7 +61,7 @@ import {
     isInstantiableClass,
     isNever,
     isUnion,
-} from './types';
+} from './types.ts';
 
 // Maps binary operators to the magic methods that implement them.
 const binaryOperatorMap: { [operator: number]: [string, string] } = {

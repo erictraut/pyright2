@@ -6,10 +6,10 @@
  * Provides access to the host environment the language service is running on.
  */
 
-import { PythonVersion } from '../common/pythonVersion';
-import { PythonPlatform } from '../config/configOptions';
-import { Uri } from '../files/uri/uri';
-import { PythonPathResult } from '../service/pythonPathUtils';
+import { PythonVersion } from '../common/pythonVersion.ts';
+import { PythonPlatform } from '../config/configOptions.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { PythonPathResult } from '../service/pythonPathUtils.ts';
 
 export const enum HostKind {
     FullAccess,

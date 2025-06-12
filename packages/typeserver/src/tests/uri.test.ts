@@ -7,15 +7,15 @@
  */
 
 import assert from 'assert';
-import * as nodefs from 'fs-extra';
-import * as path from 'path';
+import nodefs from 'fs-extra';
+import path from 'path';
 
-import { CaseSensitivityDetector } from '../files/caseSensitivityDetector';
-import { isRootedDiskPath, normalizeSlashes } from '../files/pathUtils';
-import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem';
-import { FileUriSchema } from '../files/uri/fileUri';
-import { Uri } from '../files/uri/uri';
-import { UriEx, deduplicateFolders, getWildcardRegexPattern, getWildcardRoot } from '../files/uri/uriUtils';
+import { CaseSensitivityDetector } from '../files/caseSensitivityDetector.ts';
+import { isRootedDiskPath, normalizeSlashes } from '../files/pathUtils.ts';
+import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem.ts';
+import { FileUriSchema } from '../files/uri/fileUri.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { UriEx, deduplicateFolders, getWildcardRegexPattern, getWildcardRoot } from '../files/uri/uriUtils.ts';
 
 export class TestCaseSensitivityDetector implements CaseSensitivityDetector {
     constructor(private _isCaseSensitive = true) {
@@ -888,7 +888,7 @@ function lowerCaseDrive(entries: string[]) {
     return entries.map((p) => (process.platform === 'win32' ? p[0].toLowerCase() + p.slice(1) : p));
 }
 
-test('Realcase', () => {
+test('Real case', () => {
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
     const cwd = process.cwd();
@@ -919,7 +919,7 @@ test('Realcase', () => {
     tempFile.dispose();
 });
 
-test('Realcase use cwd implicitly', () => {
+test('Real case use cwd implicitly', () => {
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
     const cwd = process.cwd();
@@ -935,7 +935,7 @@ test('Realcase use cwd implicitly', () => {
     tempFile.dispose();
 });
 
-test('Web URIs dont exist', () => {
+test("Web URIs don't exist", () => {
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
     const uri = UriEx.parse('http://www.bing.com');

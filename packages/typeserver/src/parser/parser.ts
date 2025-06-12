@@ -11,9 +11,9 @@
  * into an abstract syntax tree (AST).
  */
 
-import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticSink } from '../common/diagnosticSink';
-import { convertOffsetsToRange } from '../common/positionUtils';
+import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticSink } from '../common/diagnosticSink.ts';
+import { convertOffsetsToRange } from '../common/positionUtils.ts';
 import {
     PythonVersion,
     latestStablePythonVersion,
@@ -27,14 +27,14 @@ import {
     pythonVersion3_6,
     pythonVersion3_8,
     pythonVersion3_9,
-} from '../common/pythonVersion';
-import { TextRange } from '../common/textRange';
-import { TextRangeCollection } from '../common/textRangeCollection';
-import { LocAddendum, LocMessage } from '../localization/localize';
-import { timingStats } from '../service/timing';
-import { appendArray } from '../utils/collectionUtils';
-import { assert } from '../utils/debug';
-import { hashString } from '../utils/stringUtils';
+} from '../common/pythonVersion.ts';
+import { TextRange } from '../common/textRange.ts';
+import { TextRangeCollection } from '../common/textRangeCollection.ts';
+import { LocAddendum, LocMessage } from '../localization/localize.ts';
+import { timingStats } from '../service/timing.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { assert } from '../utils/debug.ts';
+import { hashString } from '../utils/stringUtils.ts';
 import {
     ArgCategory,
     ArgumentNode,
@@ -128,9 +128,9 @@ import {
     YieldNode,
     extendRange,
     getNextNodeId,
-} from './parseNodes';
-import * as StringTokenUtils from './stringTokenUtils';
-import { Tokenizer, TokenizerOutput } from './tokenizer';
+} from './parseNodes.ts';
+import * as StringTokenUtils from './stringTokenUtils.ts';
+import { Tokenizer, TokenizerOutput } from './tokenizer.ts';
 import {
     DedentToken,
     FStringEndToken,
@@ -147,7 +147,7 @@ import {
     StringTokenFlags,
     Token,
     TokenType,
-} from './tokenizerTypes';
+} from './tokenizerTypes.ts';
 
 interface ListResult<T> {
     list: T[];

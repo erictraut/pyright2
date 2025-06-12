@@ -9,26 +9,26 @@
 
 import { isAbsolute } from 'path';
 
-import { TaskListToken } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import * as pathConsts from '../common/pathConsts';
-import { PythonVersion, latestStablePythonVersion } from '../common/pythonVersion';
-import { ConsoleInterface, NullConsole } from '../extensibility/console';
-import { Host } from '../extensibility/host';
-import { ServiceKeys } from '../extensibility/serviceKeys';
-import { ServiceProvider } from '../extensibility/serviceProvider';
-import { FileSystem } from '../files/fileSystem';
-import { Uri } from '../files/uri/uri';
-import { FileSpec, getFileSpec, isDirectory } from '../files/uri/uriUtils';
-import { getPathsFromPthFiles } from '../service/pythonPathUtils';
-import { appendArray } from '../utils/collectionUtils';
-import { isBoolean } from '../utils/core';
+import { TaskListToken } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import * as pathConsts from '../common/pathConsts.ts';
+import { PythonVersion, latestStablePythonVersion } from '../common/pythonVersion.ts';
+import { ConsoleInterface, NullConsole } from '../extensibility/console.ts';
+import { Host } from '../extensibility/host.ts';
+import { ServiceKeys } from '../extensibility/serviceKeys.ts';
+import { ServiceProvider } from '../extensibility/serviceProvider.ts';
+import { FileSystem } from '../files/fileSystem.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { FileSpec, getFileSpec, isDirectory } from '../files/uri/uriUtils.ts';
+import { getPathsFromPthFiles } from '../service/pythonPathUtils.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { isBoolean } from '../utils/core.ts';
 import {
     DiagnosticBooleanOverridesMap,
     DiagnosticSeverityOverrides,
     DiagnosticSeverityOverridesMap,
     getDiagnosticSeverityOverrides,
-} from './commandLineOptions';
+} from './commandLineOptions.ts';
 
 export enum PythonPlatform {
     Darwin = 'Darwin',

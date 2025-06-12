@@ -7,9 +7,9 @@
  * Unit tests for localizer module, including default localized strings.
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 
-import { LocMessage, Localizer, ParameterizedString, setGetRawString } from '../localization/localize';
+import { LocMessage, Localizer, ParameterizedString, setGetRawString } from '../localization/localize.ts';
 
 const namespaces = [Localizer.Diagnostic, Localizer.DiagnosticAddendum, Localizer.CodeAction];
 

@@ -8,19 +8,19 @@
 
 import { CancellationToken, CompletionItem, CompletionItemKind, SymbolKind } from 'vscode-languageserver';
 
-import { DeclarationType } from 'typeserver/binder/declaration';
-import { Symbol } from 'typeserver/binder/symbol';
-import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils';
-import { isVisibleExternally } from 'typeserver/binder/symbolUtils';
-import { TextEditAction } from 'typeserver/common/editAction';
-import { Position } from 'typeserver/common/textRange';
-import { ExecutionEnvironment } from 'typeserver/config/configOptions';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility';
-import { stripFileExtension } from 'typeserver/files/pathUtils';
-import { Uri } from 'typeserver/files/uri/uri';
-import { ImportResolver, ModuleNameAndType } from 'typeserver/imports/importResolver';
-import { ImportType } from 'typeserver/imports/importResult';
+import { DeclarationType } from 'typeserver/binder/declaration.ts';
+import { Symbol } from 'typeserver/binder/symbol.ts';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.ts';
+import { isVisibleExternally } from 'typeserver/binder/symbolUtils.ts';
+import { TextEditAction } from 'typeserver/common/editAction.ts';
+import { Position } from 'typeserver/common/textRange.ts';
+import { ExecutionEnvironment } from 'typeserver/config/configOptions.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility.ts';
+import { stripFileExtension } from 'typeserver/files/pathUtils.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { ImportResolver, ModuleNameAndType } from 'typeserver/imports/importResolver.ts';
+import { ImportType } from 'typeserver/imports/importResult.ts';
 import {
     ImportGroup,
     ImportNameInfo,
@@ -31,15 +31,15 @@ import {
     getTextEditsForAutoImportInsertion,
     getTextEditsForAutoImportSymbolAddition,
     getTopLevelImports,
-} from 'typeserver/imports/importStatementUtils';
-import { ParseNodeType } from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
-import { appendArray } from 'typeserver/utils/collectionUtils';
-import * as StringUtils from 'typeserver/utils/stringUtils';
-import { fromLSPAny } from '../server/lspUtils';
-import { CompletionItemData, CompletionMap } from './completionProvider';
-import { IndexAliasData } from './symbolIndexer';
+} from 'typeserver/imports/importStatementUtils.ts';
+import { ParseNodeType } from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.ts';
+import { appendArray } from 'typeserver/utils/collectionUtils.ts';
+import * as StringUtils from 'typeserver/utils/stringUtils.ts';
+import { fromLSPAny } from '../server/lspUtils.ts';
+import { CompletionItemData, CompletionMap } from './completionProvider.ts';
+import { IndexAliasData } from './symbolIndexer.ts';
 
 export interface AutoImportSymbol {
     readonly name: string;

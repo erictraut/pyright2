@@ -6,8 +6,8 @@
  * Helper functions that display user friendly debugging info.
  */
 
-import { stableSort } from './collectionUtils';
-import { AnyFunction, compareValues, hasProperty, isString } from './core';
+import { stableSort } from './collectionUtils.ts';
+import { AnyFunction, compareValues, hasProperty, isString } from './core.ts';
 
 export function assert(
     expression: any,

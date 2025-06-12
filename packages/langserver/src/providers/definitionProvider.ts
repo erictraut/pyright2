@@ -17,25 +17,25 @@ import {
     DeclarationType,
     isFunctionDeclaration,
     isUnresolvedAliasDeclaration,
-} from 'typeserver/binder/declaration';
-import { SynthesizedTypeInfo } from 'typeserver/binder/symbol';
-import { getFileInfo } from 'typeserver/common/analyzerNodeInfo';
-import { DocumentRange } from 'typeserver/common/docRange';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
-import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils';
-import { Position, rangesAreEqual } from 'typeserver/common/textRange';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
-import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator/types';
-import { doForEachSubtype } from 'typeserver/evaluator/typeUtils';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView } from 'typeserver/extensibility/extensibility';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { Uri } from 'typeserver/files/uri/uri';
-import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper';
-import { appendArray } from 'typeserver/utils/collectionUtils';
-import { isDefined } from 'typeserver/utils/core';
+} from 'typeserver/binder/declaration.ts';
+import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.ts';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.ts';
+import { DocumentRange } from 'typeserver/common/docRange.ts';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
+import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
+import { Position, rangesAreEqual } from 'typeserver/common/textRange.ts';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator/types.ts';
+import { doForEachSubtype } from 'typeserver/evaluator/typeUtils.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.ts';
+import { appendArray } from 'typeserver/utils/collectionUtils.ts';
+import { isDefined } from 'typeserver/utils/core.ts';
 
 export enum DefinitionFilter {
     All = 'all',

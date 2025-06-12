@@ -8,23 +8,30 @@
  * function or class decorators.
  */
 
-import { DeclarationType, FunctionDeclaration } from '../binder/declaration';
-import { getDeclaration, getFileInfo } from '../common/analyzerNodeInfo';
-import { ArgCategory, CallNode, DecoratorNode, FunctionNode, ParamCategory, ParseNodeType } from '../parser/parseNodes';
-import { appendArray } from '../utils/collectionUtils';
+import { DeclarationType, FunctionDeclaration } from '../binder/declaration.ts';
+import { getDeclaration, getFileInfo } from '../common/analyzerNodeInfo.ts';
+import {
+    ArgCategory,
+    CallNode,
+    DecoratorNode,
+    FunctionNode,
+    ParamCategory,
+    ParseNodeType,
+} from '../parser/parseNodes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
 import {
     applyDataClassDecorator,
     getDataclassDecoratorBehaviors,
     validateDataClassTransformDecorator,
-} from './dataClasses';
+} from './dataClasses.ts';
 import {
     clonePropertyWithDeleter,
     clonePropertyWithSetter,
     createProperty,
     validatePropertyMethod,
-} from './properties';
-import { Arg, EvalFlags, TypeEvaluator } from './typeEvaluatorTypes';
-import { isPartlyUnknown, isProperty } from './typeUtils';
+} from './properties.ts';
+import { Arg, EvalFlags, TypeEvaluator } from './typeEvaluatorTypes.ts';
+import { isPartlyUnknown, isProperty } from './typeUtils.ts';
 import {
     ClassType,
     ClassTypeFlags,
@@ -41,7 +48,7 @@ import {
     isFunction,
     isInstantiableClass,
     isOverloaded,
-} from './types';
+} from './types.ts';
 
 export interface FunctionDecoratorInfo {
     flags: FunctionTypeFlags;

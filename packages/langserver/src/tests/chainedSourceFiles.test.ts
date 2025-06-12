@@ -10,22 +10,20 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-jsonrpc';
 import { MarkupKind } from 'vscode-languageserver-types';
 
-import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/common/positionUtils';
-import { ConfigOptions } from 'typeserver/config/configOptions';
-import { NullConsole } from 'typeserver/extensibility/console';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { normalizeSlashes } from 'typeserver/files/pathUtils';
-import { Uri } from 'typeserver/files/uri/uri';
-import { UriEx } from 'typeserver/files/uri/uriUtils';
-import { Program } from 'typeserver/program/program';
-import { IPythonMode } from 'typeserver/program/sourceFile';
-import { TypeService } from 'typeserver/service/typeService';
-import { CompletionProvider } from '../providers/completionProvider';
-import { parseTestData } from './harness/fourslash/fourSlashParser';
-import { TestAccessHost } from './harness/testAccessHost';
-import * as host from './harness/testHost';
-import { createFromFileSystem, distlibFolder, libFolder } from './harness/vfs/factory';
-import * as vfs from './harness/vfs/filesystem';
+import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/common/positionUtils.ts';
+import { ConfigOptions } from 'typeserver/config/configOptions.ts';
+import { NullConsole } from 'typeserver/extensibility/console.ts';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
+import { normalizeSlashes } from 'typeserver/files/pathUtils.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
+import { Program } from 'typeserver/program/program.ts';
+import { IPythonMode } from 'typeserver/program/sourceFile.ts';
+import { TypeService } from 'typeserver/service/typeService.ts';
+import { CompletionProvider } from '../providers/completionProvider.ts';
+import { parseTestData } from './harness/fourslash/fourSlashParser.ts';
+import * as host from './harness/testHost.ts';
+import { createFromFileSystem } from './harness/vfs/factory.ts';
 
 test('check chained files', () => {
     const code = `
@@ -260,7 +258,6 @@ function createServiceWithChainedSourceFiles(basePath: Uri, code: string) {
     const fs = createFromFileSystem(host.HOST, /*ignoreCase*/ false, { cwd: basePath.getFilePath() });
     const service = new TypeService('test service', new ServiceProvider(), {
         console: new NullConsole(),
-        hostFactory: () => new TestAccessHost(UriEx.file(vfs.MODULE_PATH), [libFolder, distlibFolder]),
         importResolverFactory: TypeService.createImportResolver,
         configOptions: new ConfigOptions(basePath),
         fileSystem: fs,

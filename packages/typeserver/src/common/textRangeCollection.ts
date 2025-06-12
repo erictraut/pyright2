@@ -11,8 +11,8 @@
  * for indexing and fast lookups within this list.
  */
 
-import { fail } from '../utils/debug';
-import { TextRange } from './textRange';
+import { fail } from '../utils/debug.ts';
+import { TextRange } from './textRange.ts';
 
 export class TextRangeCollection<T extends TextRange> {
     private _items: T[];

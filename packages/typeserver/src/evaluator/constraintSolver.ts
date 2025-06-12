@@ -9,16 +9,16 @@
  *
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { LocAddendum } from '../localization/localize';
-import { ConstraintSolution, ConstraintSolutionSet } from './constraintSolution';
-import { ConstraintSet, ConstraintTracker, TypeVarConstraints } from './constraintTracker';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { LocAddendum } from '../localization/localize.ts';
+import { ConstraintSolution, ConstraintSolutionSet } from './constraintSolution.ts';
+import { ConstraintSet, ConstraintTracker, TypeVarConstraints } from './constraintTracker.ts';
 import {
     AssignTypeFlags,
     maxSubtypesForInferredType,
     SolveConstraintsOptions,
     TypeEvaluator,
-} from './typeEvaluatorTypes';
+} from './typeEvaluatorTypes.ts';
 import {
     ClassType,
     combineTypes,
@@ -46,7 +46,7 @@ import {
     TypeVarScopeId,
     TypeVarType,
     Variance,
-} from './types';
+} from './types.ts';
 import {
     addConditionToType,
     applySolvedTypeVars,
@@ -70,7 +70,7 @@ import {
     stripTypeForm,
     transformExpectedType,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 // As we widen the lower bound of a type variable, we may end up with
 // many subtypes. For performance reasons, we need to cap this at some

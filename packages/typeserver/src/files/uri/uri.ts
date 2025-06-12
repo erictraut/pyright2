@@ -7,16 +7,16 @@
  */
 
 import { URI, Utils } from 'vscode-uri';
-import { ServiceKeys } from '../../extensibility/serviceKeys';
-import { ServiceKey } from '../../extensibility/serviceProvider';
-import { isArray } from '../../utils/core';
-import { CaseSensitivityDetector } from '../caseSensitivityDetector';
-import { combinePaths, isRootedDiskPath, normalizeSlashes } from '../pathUtils';
-import { JsonObjType } from './baseUri';
-import { ConstantUri } from './constantUri';
-import { EmptyUri } from './emptyUri';
-import { FileUri, FileUriSchema } from './fileUri';
-import { WebUri } from './webUri';
+import { ServiceKeys } from '../../extensibility/serviceKeys.ts';
+import { ServiceKey } from '../../extensibility/serviceProvider.ts';
+import { isArray } from '../../utils/core.ts';
+import { CaseSensitivityDetector } from '../caseSensitivityDetector.ts';
+import { combinePaths, isRootedDiskPath, normalizeSlashes } from '../pathUtils.ts';
+import { JsonObjType } from './baseUri.ts';
+import { ConstantUri } from './constantUri.ts';
+import { EmptyUri } from './emptyUri.ts';
+import { FileUri, FileUriSchema } from './fileUri.ts';
+import { WebUri } from './webUri.ts';
 
 export const enum UriKinds {
     file,

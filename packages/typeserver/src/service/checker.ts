@@ -12,31 +12,31 @@
  * cannot (or should not be) performed lazily.
  */
 
-import { Declaration, DeclarationType, isAliasDeclaration, isVariableDeclaration } from '../binder/declaration';
-import { getNameNodeForDeclaration } from '../binder/declarationUtils';
-import { Scope, ScopeType } from '../binder/scope';
-import { getScopeForNode } from '../binder/scopeUtils';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions';
-import { Symbol } from '../binder/symbol';
-import * as SymbolNameUtils from '../binder/symbolNameUtils';
-import { getLastTypedDeclarationForSymbol } from '../binder/symbolUtils';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import * as ParseTreeUtils from '../common/parseTreeUtils';
-import { PythonVersion, pythonVersion3_12, pythonVersion3_5, pythonVersion3_6 } from '../common/pythonVersion';
-import { TextRange } from '../common/textRange';
-import { DiagnosticLevel } from '../config/configOptions';
-import { AnalyzerFileInfo } from '../evaluator/analyzerFileInfo';
-import { ConstraintTracker } from '../evaluator/constraintTracker';
-import { getBoundCallMethod, getBoundInitMethod, getBoundNewMethod } from '../evaluator/constructors';
-import { addInheritedDataClassEntries } from '../evaluator/dataClasses';
-import { getEnumDeclaredValueType, isEnumClassWithMembers, transformTypeForEnumMember } from '../evaluator/enums';
-import { getParamListDetails } from '../evaluator/parameterUtils';
-import { validateClassPattern } from '../evaluator/patternMatching';
-import { isMethodOnlyProtocol, isProtocolUnsafeOverlap } from '../evaluator/protocols';
-import { getEffectiveExtraItemsEntryType, getTypedDictMembersForClass } from '../evaluator/typedDicts';
-import { maxCodeComplexity } from '../evaluator/typeEvaluator';
+import { Declaration, DeclarationType, isAliasDeclaration, isVariableDeclaration } from '../binder/declaration.ts';
+import { getNameNodeForDeclaration } from '../binder/declarationUtils.ts';
+import { Scope, ScopeType } from '../binder/scope.ts';
+import { getScopeForNode } from '../binder/scopeUtils.ts';
+import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
+import { Symbol } from '../binder/symbol.ts';
+import * as SymbolNameUtils from '../binder/symbolNameUtils.ts';
+import { getLastTypedDeclarationForSymbol } from '../binder/symbolUtils.ts';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
+import { PythonVersion, pythonVersion3_12, pythonVersion3_5, pythonVersion3_6 } from '../common/pythonVersion.ts';
+import { TextRange } from '../common/textRange.ts';
+import { DiagnosticLevel } from '../config/configOptions.ts';
+import { AnalyzerFileInfo } from '../evaluator/analyzerFileInfo.ts';
+import { ConstraintTracker } from '../evaluator/constraintTracker.ts';
+import { getBoundCallMethod, getBoundInitMethod, getBoundNewMethod } from '../evaluator/constructors.ts';
+import { addInheritedDataClassEntries } from '../evaluator/dataClasses.ts';
+import { getEnumDeclaredValueType, isEnumClassWithMembers, transformTypeForEnumMember } from '../evaluator/enums.ts';
+import { getParamListDetails } from '../evaluator/parameterUtils.ts';
+import { validateClassPattern } from '../evaluator/patternMatching.ts';
+import { isMethodOnlyProtocol, isProtocolUnsafeOverlap } from '../evaluator/protocols.ts';
+import { getEffectiveExtraItemsEntryType, getTypedDictMembersForClass } from '../evaluator/typedDicts.ts';
+import { maxCodeComplexity } from '../evaluator/typeEvaluator.ts';
 import {
     Arg,
     AssignTypeFlags,
@@ -45,14 +45,14 @@ import {
     Reachability,
     TypeEvaluator,
     TypeResult,
-} from '../evaluator/typeEvaluatorTypes';
+} from '../evaluator/typeEvaluatorTypes.ts';
 import {
     enumerateLiteralsForType,
     getElementTypeForContainerNarrowing,
     getIsInstanceClassTypes,
     narrowTypeForContainerElementType,
     narrowTypeForInstanceOrSubclass,
-} from '../evaluator/typeGuards';
+} from '../evaluator/typeGuards.ts';
 import {
     AnyType,
     ClassType,
@@ -89,7 +89,7 @@ import {
     isUnbound,
     isUnion,
     isUnknown,
-} from '../evaluator/types';
+} from '../evaluator/types.ts';
 import {
     ClassMember,
     MemberAccessFlags,
@@ -119,12 +119,12 @@ import {
     partiallySpecializeType,
     selfSpecializeClass,
     transformPossibleRecursiveTypeAlias,
-} from '../evaluator/typeUtils';
-import { Uri } from '../files/uri/uri';
-import { ImportResolver, createImportedModuleDescriptor } from '../imports/importResolver';
-import { ImportResult, ImportType } from '../imports/importResult';
-import { getRelativeModuleName, getTopLevelImports } from '../imports/importStatementUtils';
-import { LocAddendum, LocMessage } from '../localization/localize';
+} from '../evaluator/typeUtils.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { ImportResolver, createImportedModuleDescriptor } from '../imports/importResolver.ts';
+import { ImportResult, ImportType } from '../imports/importResult.ts';
+import { getRelativeModuleName, getTopLevelImports } from '../imports/importStatementUtils.ts';
+import { LocAddendum, LocMessage } from '../localization/localize.ts';
 import {
     ArgCategory,
     AssertNode,
@@ -188,17 +188,17 @@ import {
     YieldFromNode,
     YieldNode,
     isExpressionNode,
-} from '../parser/parseNodes';
-import { ParserOutput } from '../parser/parser';
-import { ParseTreeWalker } from '../parser/parseTreeWalker';
-import { UnescapeError, UnescapeErrorType, getUnescapedString } from '../parser/stringTokenUtils';
-import { OperatorType, StringTokenFlags, TokenType } from '../parser/tokenizerTypes';
-import { IPythonMode } from '../program/sourceFile';
-import { SourceMapper, isStubFile } from '../program/sourceMapper';
-import { appendArray } from '../utils/collectionUtils';
-import { assert, assertNever } from '../utils/debug';
-import { Commands } from './commands';
-import { deprecatedAliases, deprecatedSpecialForms } from './deprecatedSymbols';
+} from '../parser/parseNodes.ts';
+import { ParserOutput } from '../parser/parser.ts';
+import { ParseTreeWalker } from '../parser/parseTreeWalker.ts';
+import { UnescapeError, UnescapeErrorType, getUnescapedString } from '../parser/stringTokenUtils.ts';
+import { OperatorType, StringTokenFlags, TokenType } from '../parser/tokenizerTypes.ts';
+import { IPythonMode } from '../program/sourceFile.ts';
+import { SourceMapper, isStubFile } from '../program/sourceMapper.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { assert, assertNever } from '../utils/debug.ts';
+import { Commands } from './commands.ts';
+import { deprecatedAliases, deprecatedSpecialForms } from './deprecatedSymbols.ts';
 
 interface TypeVarUsageInfo {
     typeVar: TypeVarType;

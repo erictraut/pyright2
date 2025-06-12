@@ -6,10 +6,10 @@
  * A simple logging class that can be used to track nested loggings.
  */
 
-import { ConsoleInterface, LogLevel } from '../extensibility/console';
-import { ReadOnlyFileSystem } from '../files/fileSystem';
-import { Uri } from '../files/uri/uri';
-import { Duration, timingStats } from '../service/timing';
+import { ConsoleInterface, LogLevel } from '../extensibility/console.ts';
+import { ReadOnlyFileSystem } from '../files/fileSystem.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { Duration, timingStats } from '../service/timing.ts';
 
 // Consider an operation "long running" if it goes longer than this.
 const durationThresholdForInfoInMs = 2000;

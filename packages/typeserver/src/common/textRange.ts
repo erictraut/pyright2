@@ -7,7 +7,7 @@
  * Specifies the range of text within a larger string.
  */
 
-import { fail } from '../utils/debug';
+import { fail } from '../utils/debug.ts';
 
 export interface TextRange {
     readonly start: number;

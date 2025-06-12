@@ -7,7 +7,7 @@
  * A list of implicitly-deprecated symbols as defined in PEP 585, etc.
  */
 
-import { PythonVersion, pythonVersion3_10, pythonVersion3_9 } from '../common/pythonVersion';
+import { PythonVersion, pythonVersion3_10, pythonVersion3_9 } from '../common/pythonVersion.ts';
 
 export interface DeprecatedForm {
     // The version of Python where this symbol becomes deprecated

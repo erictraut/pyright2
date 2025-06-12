@@ -8,22 +8,22 @@
 
 import assert from 'assert';
 
-import { FileEditAction, FileEditActions } from 'typeserver/common/editAction';
-import { findNodeByOffset } from 'typeserver/common/parseTreeUtils';
-import { TextRange, rangesAreEqual } from 'typeserver/common/textRange';
-import { ConfigOptions } from 'typeserver/config/configOptions';
-import { Uri } from 'typeserver/files/uri/uri';
-import { isFile } from 'typeserver/files/uri/uriUtils';
-import { NameNode } from 'typeserver/parser/parseNodes';
-import { Program } from 'typeserver/program/program';
-import { createMapFromItems } from 'typeserver/utils/collectionUtils';
-import { isArray } from 'typeserver/utils/core';
-import { assertNever } from 'typeserver/utils/debug';
+import { FileEditAction, FileEditActions } from 'typeserver/common/editAction.ts';
+import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.ts';
+import { TextRange, rangesAreEqual } from 'typeserver/common/textRange.ts';
+import { ConfigOptions } from 'typeserver/config/configOptions.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { isFile } from 'typeserver/files/uri/uriUtils.ts';
+import { NameNode } from 'typeserver/parser/parseNodes.ts';
+import { Program } from 'typeserver/program/program.ts';
+import { createMapFromItems } from 'typeserver/utils/collectionUtils.ts';
+import { isArray } from 'typeserver/utils/core.ts';
+import { assertNever } from 'typeserver/utils/debug.ts';
 import { CancellationToken } from 'vscode-languageserver';
-import { DocumentSymbolCollector } from '../providers/documentSymbolCollector';
-import { applyTextEditsToString } from '../server/workspaceEditUtils';
-import { Range } from './harness/fourslash/fourSlashTypes';
-import { TestState } from './harness/fourslash/testState';
+import { DocumentSymbolCollector } from '../providers/documentSymbolCollector.ts';
+import { applyTextEditsToString } from '../server/workspaceEditUtils.ts';
+import { Range } from './harness/fourslash/fourSlashTypes.ts';
+import { TestState } from './harness/fourslash/testState.ts';
 
 export function convertFileEditActionToString(edit: FileEditAction): string {
     return `'${edit.replacementText.replace(/\n/g, '!n!')}'@'${edit.fileUri}:(${edit.range.start.line},${

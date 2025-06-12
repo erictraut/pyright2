@@ -7,7 +7,7 @@
  */
 
 import { URI } from 'vscode-uri';
-import { isArray } from '../../utils/core';
+import { isArray } from '../../utils/core.ts';
 import {
     ensureTrailingDirectorySeparator,
     getDirectoryPath,
@@ -20,10 +20,10 @@ import {
     isDiskPathRoot,
     resolvePaths,
     stripFileExtension,
-} from '../pathUtils';
-import { BaseUri, JsonObjType } from './baseUri';
-import { cacheMethodWithNoArgs, cacheProperty, cacheStaticFunc } from './memoization';
-import { SerializedType, Uri, UriKinds } from './uri';
+} from '../pathUtils.ts';
+import { BaseUri, JsonObjType } from './baseUri.ts';
+import { cacheMethodWithNoArgs, cacheProperty, cacheStaticFunc } from './memoization.ts';
+import { SerializedType, Uri, UriKinds } from './uri.ts';
 
 type FileUriSerializedType = [0, string, string, string, string | undefined, 1 | 0];
 

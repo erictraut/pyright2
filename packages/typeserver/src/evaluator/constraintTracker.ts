@@ -9,9 +9,9 @@
  * each type variable.
  */
 
-import { assert } from '../utils/debug';
-import { getComplexityScoreForType } from './typeComplexity';
-import { Type, TypeVarScopeId, TypeVarType, isTypeSame } from './types';
+import { assert } from '../utils/debug.ts';
+import { getComplexityScoreForType } from './typeComplexity.ts';
+import { Type, TypeVarScopeId, TypeVarType, isTypeSame } from './types.ts';
 
 // The maximum number of constraint sets that can be associated
 // with a constraint tracker. This equates to the number of overloads

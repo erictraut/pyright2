@@ -7,25 +7,26 @@
  * Utility functions that are common to a bunch of the tests.
  */
 
-import * as assert from 'assert';
-import * as fs from 'fs';
-import * as path from 'path';
+import assert from 'assert';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import { Diagnostic, DiagnosticCategory } from '../common/diagnostic';
-import { DiagnosticSink } from '../common/diagnosticSink';
-import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../config/configOptions';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes';
-import { ConsoleWithLogLevel, NullConsole } from '../extensibility/console';
-import { FullAccessHost } from '../extensibility/fullAccessHost';
-import { createServiceProvider } from '../extensibility/serviceProviderExtensions';
-import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem';
-import { Uri } from '../files/uri/uri';
-import { UriEx } from '../files/uri/uriUtils';
-import { ImportResolver } from '../imports/importResolver';
-import { ParseFileResults, ParseOptions, Parser, ParserOutput } from '../parser/parser';
-import { NameTypeWalker } from '../parser/testWalker';
-import { Program } from '../program/program';
-import { fail } from '../utils/debug';
+import { Diagnostic, DiagnosticCategory } from '../common/diagnostic.ts';
+import { DiagnosticSink } from '../common/diagnosticSink.ts';
+import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../config/configOptions.ts';
+import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
+import { ConsoleWithLogLevel, NullConsole } from '../extensibility/console.ts';
+import { FullAccessHost } from '../extensibility/fullAccessHost.ts';
+import { createServiceProvider } from '../extensibility/serviceProviderExtensions.ts';
+import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { UriEx } from '../files/uri/uriUtils.ts';
+import { ImportResolver } from '../imports/importResolver.ts';
+import { ParseFileResults, ParseOptions, Parser, ParserOutput } from '../parser/parser.ts';
+import { NameTypeWalker } from '../parser/testWalker.ts';
+import { Program } from '../program/program.ts';
+import { fail } from '../utils/debug.ts';
 
 // This is a bit gross, but it's necessary to allow the fallback typeshed
 // directory to be located when running within the jest environment. This
@@ -45,7 +46,8 @@ export interface FileAnalysisResult {
 }
 
 export function resolveSampleFilePath(fileName: string): string {
-    return path.resolve(path.dirname(module.filename), `./samples/${fileName}`);
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    return path.resolve(__dirname, `./samples/${fileName}`);
 }
 
 export function readSampleFile(fileName: string): string {

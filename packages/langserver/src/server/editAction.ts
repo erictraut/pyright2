@@ -7,8 +7,8 @@
  * Represents a single edit within a file.
  */
 
-import { Range, rangesAreEqual } from 'typeserver/common/textRange';
-import { Uri } from 'typeserver/files/uri/uri';
+import { Range, rangesAreEqual } from 'typeserver/common/textRange.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
 
 export interface TextEditAction {
     range: Range;

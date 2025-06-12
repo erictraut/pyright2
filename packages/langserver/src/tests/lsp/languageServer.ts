@@ -20,20 +20,20 @@ import {
 } from 'vscode-languageserver/node';
 import { MessagePort, parentPort, setEnvironmentData } from 'worker_threads';
 
-import { FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils';
-import { Uri } from 'typeserver/files/uri/uri';
-import { Deferred, createDeferred } from 'typeserver/utils/deferred';
-import { parseTestData } from '../harness/fourslash/fourSlashParser';
-import * as PyrightTestHost from '../harness/testHost';
-import { clearCache } from '../harness/vfs/factory';
+import { FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { Deferred, createDeferred } from 'typeserver/utils/deferred.ts';
+import { parseTestData } from '../harness/fourslash/fourSlashParser.ts';
+import * as PyrightTestHost from '../harness/testHost.ts';
+import { clearCache } from '../harness/vfs/factory.ts';
 
-import { PythonVersion } from 'typeserver/common/pythonVersion';
-import { FileSystem } from 'typeserver/files/fileSystem';
-import { initializeDependencies } from 'typeserver/service/asyncInitialization';
-import { ServerSettings } from '../../server/languageServerInterface';
-import { PyrightServer } from '../../server/server';
-import { InitStatus, Workspace } from '../../server/workspaceFactory';
-import { CustomLSP } from './customLsp';
+import { PythonVersion } from 'typeserver/common/pythonVersion.ts';
+import { FileSystem } from 'typeserver/files/fileSystem.ts';
+import { initializeDependencies } from 'typeserver/service/asyncInitialization.ts';
+import { ServerSettings } from '../../server/languageServerInterface.ts';
+import { PyrightServer } from '../../server/server.ts';
+import { InitStatus, Workspace } from '../../server/workspaceFactory.ts';
+import { CustomLSP } from './customLsp.ts';
 import {
     DEFAULT_WORKSPACE_ROOT,
     TestHost,
@@ -43,7 +43,7 @@ import {
     logToDisk,
     serialize,
     sleep,
-} from './languageServerTestUtils';
+} from './languageServerTestUtils.ts';
 
 const WORKER_STARTED = 'WORKER_STARTED';
 const WORKER_BACKGROUND_DATA = 'WORKER_BACKGROUND_DATA';

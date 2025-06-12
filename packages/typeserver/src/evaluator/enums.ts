@@ -7,17 +7,17 @@
  * Provides special-case logic for the Enum class.
  */
 
-import { VariableDeclaration } from '../binder/declaration';
-import { Symbol, SymbolFlags } from '../binder/symbol';
-import { isPrivateName, isSingleDunderName } from '../binder/symbolNameUtils';
-import { getFileInfo } from '../common/analyzerNodeInfo';
-import { getClassFullName, getEnclosingClass, getTypeSourceId } from '../common/parseTreeUtils';
-import { PythonVersion, pythonVersion3_13 } from '../common/pythonVersion';
-import { ArgCategory, ExpressionNode, NameNode, ParseNode, ParseNodeType } from '../parser/parseNodes';
-import { assert } from '../utils/debug';
-import { Arg, EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes';
-import { enumerateLiteralsForType } from './typeGuards';
-import { MemberAccessFlags, computeMroLinearization, lookUpClassMember, makeInferenceContext } from './typeUtils';
+import { VariableDeclaration } from '../binder/declaration.ts';
+import { Symbol, SymbolFlags } from '../binder/symbol.ts';
+import { isPrivateName, isSingleDunderName } from '../binder/symbolNameUtils.ts';
+import { getFileInfo } from '../common/analyzerNodeInfo.ts';
+import { getClassFullName, getEnclosingClass, getTypeSourceId } from '../common/parseTreeUtils.ts';
+import { PythonVersion, pythonVersion3_13 } from '../common/pythonVersion.ts';
+import { ArgCategory, ExpressionNode, NameNode, ParseNode, ParseNodeType } from '../parser/parseNodes.ts';
+import { assert } from '../utils/debug.ts';
+import { Arg, EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
+import { enumerateLiteralsForType } from './typeGuards.ts';
+import { MemberAccessFlags, computeMroLinearization, lookUpClassMember, makeInferenceContext } from './typeUtils.ts';
 import {
     AnyType,
     ClassType,
@@ -35,7 +35,7 @@ import {
     isFunctionOrOverloaded,
     isInstantiableClass,
     maxTypeRecursionCount,
-} from './types';
+} from './types.ts';
 
 interface EnumEvalStackEntry {
     classType: ClassType;

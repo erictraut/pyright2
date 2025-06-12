@@ -7,12 +7,12 @@
  * Utility routines for traversing a parse tree.
  */
 
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import { getScope } from '../common/analyzerNodeInfo';
-import { convertPositionToOffset, convertTextRangeToRange } from '../common/positionUtils';
-import { Position, Range, TextRange } from '../common/textRange';
-import { TextRangeCollection, getIndexContaining } from '../common/textRangeCollection';
-import { TypeVarScopeId } from '../evaluator/types';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import { getScope } from '../common/analyzerNodeInfo.ts';
+import { convertPositionToOffset, convertTextRangeToRange } from '../common/positionUtils.ts';
+import { Position, Range, TextRange } from '../common/textRange.ts';
+import { TextRangeCollection, getIndexContaining } from '../common/textRangeCollection.ts';
+import { TypeVarScopeId } from '../evaluator/types.ts';
 import {
     ArgCategory,
     ArgumentNode,
@@ -43,14 +43,21 @@ import {
     TypeAnnotationNode,
     TypeParameterScopeNode,
     isExpressionNode,
-} from '../parser/parseNodes';
-import { OperatorTypeNameMap, ParseNodeTypeNameMap } from '../parser/parseNodeUtils';
-import { ParseFileResults } from '../parser/parser';
-import { ParseTreeWalker, getChildNodes } from '../parser/parseTreeWalker';
-import { Tokenizer, TokenizerOutput } from '../parser/tokenizer';
-import { KeywordType, OperatorType, StringToken, StringTokenFlags, Token, TokenType } from '../parser/tokenizerTypes';
-import { containsOnlyWhitespace } from '../utils/core';
-import { assert, assertNever, fail } from '../utils/debug';
+} from '../parser/parseNodes.ts';
+import { OperatorTypeNameMap, ParseNodeTypeNameMap } from '../parser/parseNodeUtils.ts';
+import { ParseFileResults } from '../parser/parser.ts';
+import { ParseTreeWalker, getChildNodes } from '../parser/parseTreeWalker.ts';
+import { Tokenizer, TokenizerOutput } from '../parser/tokenizer.ts';
+import {
+    KeywordType,
+    OperatorType,
+    StringToken,
+    StringTokenFlags,
+    Token,
+    TokenType,
+} from '../parser/tokenizerTypes.ts';
+import { containsOnlyWhitespace } from '../utils/core.ts';
+import { assert, assertNever, fail } from '../utils/debug.ts';
 
 export const enum PrintExpressionFlags {
     None = 0,

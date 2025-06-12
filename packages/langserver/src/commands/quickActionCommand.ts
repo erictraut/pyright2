@@ -8,12 +8,12 @@
 
 import { CancellationToken, ExecuteCommandParams } from 'vscode-languageserver';
 
-import { Uri } from 'typeserver/files/uri/uri';
-import { performQuickAction } from '../providers/quickActions';
-import { LanguageServerInterface } from '../server/languageServerInterface';
-import { convertToFileTextEdits, convertToWorkspaceEdit } from '../server/workspaceEditUtils';
-import { ServerCommand } from './commandController';
-import { Commands } from './commands';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { performQuickAction } from '../providers/quickActions.ts';
+import { LanguageServerInterface } from '../server/languageServerInterface.ts';
+import { convertToFileTextEdits, convertToWorkspaceEdit } from '../server/workspaceEditUtils.ts';
+import { ServerCommand } from './commandController.ts';
+import { Commands } from './commands.ts';
 
 export class QuickActionCommand implements ServerCommand {
     constructor(private _ls: LanguageServerInterface) {}

@@ -36,10 +36,10 @@ import {
     getUniqueFlowNodeId,
     isCodeFlowSupportedForReference,
     wildcardImportReferenceKey,
-} from '../binder/codeFlowTypes';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import { Diagnostic } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
+} from '../binder/codeFlowTypes.ts';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import { Diagnostic } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
 import {
     getArgsByRuntimeOrder,
     getEnclosingClass,
@@ -53,15 +53,15 @@ import {
     isNodeContainedWithinNodeType,
     isPartialMatchingExpression,
     isWithinLoop,
-} from '../common/parseTreeUtils';
-import { convertTextRangeToRange } from '../common/positionUtils';
-import { TextRange, getEmptyRange } from '../common/textRange';
-import { DiagnosticLevel } from '../config/configOptions';
-import { AnalyzerFileInfo, ImportLookupResult } from '../evaluator/analyzerFileInfo';
-import { stripFileExtension } from '../files/pathUtils';
-import { Uri } from '../files/uri/uri';
-import { ImplicitImport, ImportResult, ImportType } from '../imports/importResult';
-import { LocMessage } from '../localization/localize';
+} from '../common/parseTreeUtils.ts';
+import { convertTextRangeToRange } from '../common/positionUtils.ts';
+import { TextRange, getEmptyRange } from '../common/textRange.ts';
+import { DiagnosticLevel } from '../config/configOptions.ts';
+import { AnalyzerFileInfo, ImportLookupResult } from '../evaluator/analyzerFileInfo.ts';
+import { stripFileExtension } from '../files/pathUtils.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { ImplicitImport, ImportResult, ImportType } from '../imports/importResult.ts';
+import { LocMessage } from '../localization/localize.ts';
 import {
     ArgCategory,
     AssertNode,
@@ -114,11 +114,11 @@ import {
     WithNode,
     YieldFromNode,
     YieldNode,
-} from '../parser/parseNodes';
-import { ParseTreeWalker } from '../parser/parseTreeWalker';
-import { KeywordType, OperatorType } from '../parser/tokenizerTypes';
-import { appendArray } from '../utils/collectionUtils';
-import { assert, assertNever, fail } from '../utils/debug';
+} from '../parser/parseNodes.ts';
+import { ParseTreeWalker } from '../parser/parseTreeWalker.ts';
+import { KeywordType, OperatorType } from '../parser/tokenizerTypes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { assert, assertNever, fail } from '../utils/debug.ts';
 import {
     AliasDeclaration,
     ClassDeclaration,
@@ -132,11 +132,11 @@ import {
     TypeParamDeclaration,
     UnresolvedModuleMarker,
     VariableDeclaration,
-} from './declaration';
-import { NameBindingType, Scope, ScopeType } from './scope';
-import * as StaticExpressions from './staticExpressions';
-import { Symbol, SymbolFlags, indeterminateSymbolId } from './symbol';
-import { isConstantName, isPrivateName, isPrivateOrProtectedName } from './symbolNameUtils';
+} from './declaration.ts';
+import { NameBindingType, Scope, ScopeType } from './scope.ts';
+import * as StaticExpressions from './staticExpressions.ts';
+import { Symbol, SymbolFlags, indeterminateSymbolId } from './symbol.ts';
+import { isConstantName, isPrivateName, isPrivateOrProtectedName } from './symbolNameUtils.ts';
 
 interface MemberAccessInfo {
     classNode: ClassNode;

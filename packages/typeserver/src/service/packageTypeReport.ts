@@ -9,9 +9,9 @@
  * they have known types.
  */
 
-import { ScopeType } from '../binder/scope';
-import { Diagnostic, DiagnosticWithinFile } from '../common/diagnostic';
-import { Uri } from '../files/uri/uri';
+import { ScopeType } from '../binder/scope.ts';
+import { Diagnostic, DiagnosticWithinFile } from '../common/diagnostic.ts';
+import { Uri } from '../files/uri/uri.ts';
 
 export enum SymbolCategory {
     Indeterminate,

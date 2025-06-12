@@ -9,9 +9,9 @@
 import assert from 'assert';
 import { CancellationToken, MarkupKind } from 'vscode-languageserver';
 
-import { convertOffsetToPosition } from 'typeserver/common/positionUtils';
-import { SignatureHelpProvider } from '../providers/signatureHelpProvider';
-import { parseAndGetTestState } from './harness/fourslash/testState';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.ts';
+import { SignatureHelpProvider } from '../providers/signatureHelpProvider.ts';
+import { parseAndGetTestState } from './harness/fourslash/testState.ts';
 
 test('invalid position in format string segment', () => {
     const code = `

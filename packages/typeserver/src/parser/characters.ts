@@ -10,8 +10,8 @@
  * Utility routines used by tokenizer.
  */
 
-import { Char } from './charCodes';
-import * as unicode from './unicode';
+import { Char } from './charCodes.ts';
+import * as unicode from './unicode.ts';
 
 enum CharCategory {
     // Character cannot appear in identifier

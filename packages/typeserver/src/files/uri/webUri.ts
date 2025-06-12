@@ -11,11 +11,12 @@
  * - vscode-vfs://github.com/microsoft/debugpy/debugpy/launcher/debugAdapter.py
  */
 
-import { getRootLength, hasTrailingDirectorySeparator, resolvePaths } from '../pathUtils';
-import { BaseUri, JsonObjType } from './baseUri';
-import { cacheMethodWithNoArgs, cacheProperty, cacheStaticFunc } from './memoization';
-import { Uri } from './uri';
 import { URI } from 'vscode-uri';
+
+import { getRootLength, hasTrailingDirectorySeparator, resolvePaths } from '../pathUtils.ts';
+import { BaseUri, JsonObjType } from './baseUri.ts';
+import { cacheMethodWithNoArgs, cacheProperty, cacheStaticFunc } from './memoization.ts';
+import { Uri } from './uri.ts';
 
 export class WebUri extends BaseUri {
     private constructor(

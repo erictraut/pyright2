@@ -8,15 +8,15 @@
  * by the binder and checker.
  */
 
-import { Scope } from '../binder/scope';
-import { SymbolTable } from '../binder/symbol';
-import { TextRangeDiagnosticSink } from '../common/diagnosticSink';
-import { PythonVersion, pythonVersion3_14 } from '../common/pythonVersion';
-import { TextRange } from '../common/textRange';
-import { TextRangeCollection } from '../common/textRangeCollection';
-import { DiagnosticRuleSet, ExecutionEnvironment } from '../config/configOptions';
-import { Uri } from '../files/uri/uri';
-import { IPythonMode } from '../program/sourceFile';
+import { Scope } from '../binder/scope.ts';
+import { SymbolTable } from '../binder/symbol.ts';
+import { TextRangeDiagnosticSink } from '../common/diagnosticSink.ts';
+import { PythonVersion, pythonVersion3_14 } from '../common/pythonVersion.ts';
+import { TextRange } from '../common/textRange.ts';
+import { TextRangeCollection } from '../common/textRangeCollection.ts';
+import { DiagnosticRuleSet, ExecutionEnvironment } from '../config/configOptions.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { IPythonMode } from '../program/sourceFile.ts';
 
 // Maps import paths to the symbol table for the imported module.
 export interface AbsoluteModuleDescriptor {

@@ -8,10 +8,10 @@
 
 import assert from 'assert';
 
-import { DiagnosticSink } from '../common/diagnosticSink';
-import { convertOffsetToPosition, convertPositionToOffset, getLineEndPosition } from '../common/positionUtils';
-import { ParseOptions, Parser } from '../parser/parser';
-import { Tokenizer } from '../parser/tokenizer';
+import { DiagnosticSink } from '../common/diagnosticSink.ts';
+import { convertOffsetToPosition, convertPositionToOffset, getLineEndPosition } from '../common/positionUtils.ts';
+import { ParseOptions, Parser } from '../parser/parser.ts';
+import { Tokenizer } from '../parser/tokenizer.ts';
 
 test('getLineEndOffset', () => {
     const code = 'a = 1';

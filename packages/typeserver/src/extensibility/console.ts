@@ -9,8 +9,8 @@
  */
 
 import { Disposable } from 'vscode-jsonrpc';
-import { addIfUnique, removeArrayElements } from '../utils/collectionUtils';
-import * as debug from '../utils/debug';
+import { addIfUnique, removeArrayElements } from '../utils/collectionUtils.ts';
+import * as debug from '../utils/debug.ts';
 
 export enum LogLevel {
     Error = 'error',

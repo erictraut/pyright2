@@ -10,7 +10,7 @@
  */
 
 import * as lsp from 'vscode-languageserver';
-import { indexValueDetail } from '../../../providers/completionProvider';
+import { indexValueDetail } from '../../../providers/completionProvider.ts';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export namespace Consts {

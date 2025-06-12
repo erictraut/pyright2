@@ -6,14 +6,14 @@
  * Provide APIs to run fourslash tests from provided fourslash markup contents
  */
 
-import * as ts from 'typescript';
+import ts from 'typescript';
 
-import { combinePaths } from 'typeserver/files/pathUtils';
-import * as host from '../testHost';
-import { parseTestData } from './fourSlashParser';
-import { FourSlashData } from './fourSlashTypes';
-import { HostSpecificFeatures, TestState } from './testState';
-import { Consts } from './testState.Consts';
+import { combinePaths } from 'typeserver/files/pathUtils.ts';
+import * as host from '../testHost.ts';
+import { parseTestData } from './fourSlashParser.ts';
+import { FourSlashData } from './fourSlashTypes.ts';
+import { Consts } from './testState.Consts.ts';
+import { HostSpecificFeatures, TestState } from './testState.ts';
 
 export type TestStateFactory = (
     basePath: string,

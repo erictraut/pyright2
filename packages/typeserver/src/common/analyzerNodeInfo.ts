@@ -10,11 +10,11 @@
  * (e.g. hover information).
  */
 
-import { FlowFlags, FlowNode } from '../binder/codeFlowTypes';
-import { Declaration } from '../binder/declaration';
-import { Scope } from '../binder/scope';
-import { AnalyzerFileInfo } from '../evaluator/analyzerFileInfo';
-import { ImportResult } from '../imports/importResult';
+import { FlowFlags, FlowNode } from '../binder/codeFlowTypes.ts';
+import { Declaration } from '../binder/declaration.ts';
+import { Scope } from '../binder/scope.ts';
+import { AnalyzerFileInfo } from '../evaluator/analyzerFileInfo.ts';
+import { ImportResult } from '../imports/importResult.ts';
 import {
     ClassNode,
     ComprehensionNode,
@@ -25,7 +25,7 @@ import {
     ParseNode,
     ParseNodeType,
     StringNode,
-} from '../parser/parseNodes';
+} from '../parser/parseNodes.ts';
 
 export interface DunderAllInfo {
     names: string[];

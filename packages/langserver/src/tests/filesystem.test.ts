@@ -8,11 +8,11 @@
 
 import assert from 'assert';
 
-import { combinePaths, normalizeSlashes } from 'typeserver/files/pathUtils';
-import { UriEx } from 'typeserver/files/uri/uriUtils';
-import * as host from './harness/testHost';
-import * as factory from './harness/vfs/factory';
-import * as vfs from './harness/vfs/filesystem';
+import { combinePaths, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
+import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
+import * as host from './harness/testHost.ts';
+import * as factory from './harness/vfs/factory.ts';
+import * as vfs from './harness/vfs/filesystem.ts';
 
 test('CreateVFS', () => {
     const cwd = normalizeSlashes('/');

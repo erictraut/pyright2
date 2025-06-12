@@ -3,9 +3,9 @@
 
 'use strict';
 
-import * as assert from 'assert';
+import assert from 'assert';
 
-import { createDeferred } from '../utils/deferred';
+import { createDeferred } from '../utils/deferred.ts';
 
 test('Deferred - resolve', (done) => {
     const valueToSent = new Date().getTime();

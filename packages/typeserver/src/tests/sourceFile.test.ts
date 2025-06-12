@@ -7,14 +7,14 @@
  * Unit tests for pyright sourceFile module.
  */
 
-import { ConfigOptions } from '../config/configOptions';
-import { FullAccessHost } from '../extensibility/fullAccessHost';
-import { createServiceProvider } from '../extensibility/serviceProviderExtensions';
-import { combinePaths } from '../files/pathUtils';
-import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem';
-import { Uri } from '../files/uri/uri';
-import { ImportResolver } from '../imports/importResolver';
-import { SourceFile } from '../program/sourceFile';
+import { ConfigOptions } from '../config/configOptions.ts';
+import { FullAccessHost } from '../extensibility/fullAccessHost.ts';
+import { createServiceProvider } from '../extensibility/serviceProviderExtensions.ts';
+import { combinePaths } from '../files/pathUtils.ts';
+import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { ImportResolver } from '../imports/importResolver.ts';
+import { SourceFile } from '../program/sourceFile.ts';
 
 test('Empty', () => {
     const filePath = combinePaths(process.cwd(), 'tests/samples/test_file1.py');

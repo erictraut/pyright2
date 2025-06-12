@@ -8,19 +8,19 @@
  * the parser gets lots of exercise in the type checker tests.
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 
-import { DiagnosticSink } from '../common/diagnosticSink';
-import { findNodeByOffset, getFirstAncestorOrSelfOfKind } from '../common/parseTreeUtils';
-import { pythonVersion3_13, pythonVersion3_14 } from '../common/pythonVersion';
-import { ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../config/configOptions';
-import { UriEx } from '../files/uri/uriUtils';
-import { ParseNodeType, StatementListNode } from '../parser/parseNodes';
-import * as TestUtils from './testUtils';
+import { DiagnosticSink } from '../common/diagnosticSink.ts';
+import { findNodeByOffset, getFirstAncestorOrSelfOfKind } from '../common/parseTreeUtils.ts';
+import { pythonVersion3_13, pythonVersion3_14 } from '../common/pythonVersion.ts';
+import { ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../config/configOptions.ts';
+import { UriEx } from '../files/uri/uriUtils.ts';
+import { ParseNodeType, StatementListNode } from '../parser/parseNodes.ts';
+import { parseSampleFile, parseText } from './testUtils.ts';
 
 test('Empty', () => {
     const diagSink = new DiagnosticSink();
-    const parserOutput = TestUtils.parseText('', diagSink).parserOutput;
+    const parserOutput = parseText('', diagSink).parserOutput;
 
     assert.equal(diagSink.fetchAndClear().length, 0);
     assert.equal(parserOutput.parseTree.d.statements.length, 0);
@@ -28,7 +28,7 @@ test('Empty', () => {
 
 test('Parser1', () => {
     const diagSink = new DiagnosticSink();
-    const parserOutput = TestUtils.parseSampleFile('parser1.py', diagSink).parserOutput;
+    const parserOutput = parseSampleFile('parser1.py', diagSink).parserOutput;
 
     assert.equal(diagSink.fetchAndClear().length, 0);
     assert.equal(parserOutput.parseTree.d.statements.length, 4);
@@ -36,38 +36,38 @@ test('Parser1', () => {
 
 test('Parser2', () => {
     const diagSink = new DiagnosticSink();
-    TestUtils.parseSampleFile('parser2.py', diagSink);
+    parseSampleFile('parser2.py', diagSink);
     assert.strictEqual(diagSink.getErrors().length, 0);
 });
 
 test('FStringEmptyTuple', () => {
     assert.doesNotThrow(() => {
         const diagSink = new DiagnosticSink();
-        TestUtils.parseSampleFile('fstring6.py', diagSink);
+        parseSampleFile('fstring6.py', diagSink);
     });
 });
 
 test('SuiteExpectedColon1', () => {
     const diagSink = new DiagnosticSink();
-    TestUtils.parseSampleFile('suiteExpectedColon1.py', diagSink);
+    parseSampleFile('suiteExpectedColon1.py', diagSink);
     assert.strictEqual(diagSink.getErrors().length, 1);
 });
 
 test('SuiteExpectedColon2', () => {
     const diagSink = new DiagnosticSink();
-    TestUtils.parseSampleFile('suiteExpectedColon2.py', diagSink);
+    parseSampleFile('suiteExpectedColon2.py', diagSink);
     assert.strictEqual(diagSink.getErrors().length, 1);
 });
 
 test('SuiteExpectedColon3', () => {
     const diagSink = new DiagnosticSink();
-    TestUtils.parseSampleFile('suiteExpectedColon3.py', diagSink);
+    parseSampleFile('suiteExpectedColon3.py', diagSink);
     assert.strictEqual(diagSink.getErrors().length, 1);
 });
 
 test('ExpressionWrappedInParens', () => {
     const diagSink = new DiagnosticSink();
-    const parserOutput = TestUtils.parseText('(str)', diagSink).parserOutput;
+    const parserOutput = parseText('(str)', diagSink).parserOutput;
 
     assert.equal(diagSink.fetchAndClear().length, 0);
     assert.equal(parserOutput.parseTree.d.statements.length, 1);
@@ -83,13 +83,13 @@ test('ExpressionWrappedInParens', () => {
 
 test('MaxParseDepth1', () => {
     const diagSink = new DiagnosticSink();
-    TestUtils.parseSampleFile('maxParseDepth1.py', diagSink);
+    parseSampleFile('maxParseDepth1.py', diagSink);
     assert.strictEqual(diagSink.getErrors().length, 1);
 });
 
 test('MaxParseDepth2', () => {
     const diagSink = new DiagnosticSink();
-    TestUtils.parseSampleFile('maxParseDepth2.py', diagSink);
+    parseSampleFile('maxParseDepth2.py', diagSink);
     assert.strictEqual(diagSink.getErrors().length, 4);
 });
 
@@ -108,7 +108,7 @@ test('MaxParseDepth2', () => {
 
 test('ParserRecovery1', () => {
     const diagSink = new DiagnosticSink();
-    const parseResults = TestUtils.parseSampleFile('parserRecovery1.py', diagSink);
+    const parseResults = parseSampleFile('parserRecovery1.py', diagSink);
 
     const node = findNodeByOffset(parseResults.parserOutput.parseTree, parseResults.text.length - 2);
     const functionNode = getFirstAncestorOrSelfOfKind(node, ParseNodeType.Function);
@@ -117,7 +117,7 @@ test('ParserRecovery1', () => {
 
 test('ParserRecovery2', () => {
     const diagSink = new DiagnosticSink();
-    const parseResults = TestUtils.parseSampleFile('parserRecovery2.py', diagSink);
+    const parseResults = parseSampleFile('parserRecovery2.py', diagSink);
 
     const node = findNodeByOffset(parseResults.parserOutput.parseTree, parseResults.text.length - 2);
     const functionNode = getFirstAncestorOrSelfOfKind(node, ParseNodeType.Function);
@@ -126,7 +126,7 @@ test('ParserRecovery2', () => {
 
 test('ParserRecovery3', () => {
     const diagSink = new DiagnosticSink();
-    const parseResults = TestUtils.parseSampleFile('parserRecovery3.py', diagSink);
+    const parseResults = parseSampleFile('parserRecovery3.py', diagSink);
 
     const node = findNodeByOffset(parseResults.parserOutput.parseTree, parseResults.text.length - 2);
     const functionNode = getFirstAncestorOrSelfOfKind(node, ParseNodeType.Function);
@@ -145,11 +145,11 @@ test('FinallyExit1', () => {
 
     const diagSink1 = new DiagnosticSink();
     execEnvironment.pythonVersion = pythonVersion3_13;
-    TestUtils.parseSampleFile('finallyExit1.py', diagSink1, execEnvironment);
+    parseSampleFile('finallyExit1.py', diagSink1, execEnvironment);
     assert.strictEqual(diagSink1.getErrors().length, 0);
 
     const diagSink2 = new DiagnosticSink();
     execEnvironment.pythonVersion = pythonVersion3_14;
-    TestUtils.parseSampleFile('finallyExit1.py', diagSink2, execEnvironment);
+    parseSampleFile('finallyExit1.py', diagSink2, execEnvironment);
     assert.strictEqual(diagSink2.getErrors().length, 5);
 });

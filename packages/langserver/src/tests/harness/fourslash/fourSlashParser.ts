@@ -12,11 +12,11 @@ import {
     isRootedDiskPath,
     normalizePath,
     normalizeSlashes,
-} from 'typeserver/files/pathUtils';
-import { UriEx } from 'typeserver/files/uri/uriUtils';
-import { contains } from 'typeserver/utils/collectionUtils';
-import { toBoolean } from 'typeserver/utils/core';
-import { distlibFolder, libFolder } from '../vfs/factory';
+} from 'typeserver/files/pathUtils.ts';
+import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
+import { contains } from 'typeserver/utils/collectionUtils.ts';
+import { toBoolean } from 'typeserver/utils/core.ts';
+import { distlibFolder, libFolder } from '../vfs/factory.ts';
 import {
     FourSlashData,
     FourSlashFile,
@@ -25,7 +25,7 @@ import {
     MetadataOptionNames,
     Range,
     fileMetadataNames,
-} from './fourSlashTypes';
+} from './fourSlashTypes.ts';
 
 /**
  * Parse given fourslash markup code and return content with markup/range data

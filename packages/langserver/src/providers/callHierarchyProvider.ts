@@ -16,33 +16,33 @@ import {
     Range,
 } from 'vscode-languageserver-types';
 
-import { Declaration, DeclarationType } from 'typeserver/binder/declaration';
-import * as DeclarationUtils from 'typeserver/binder/declarationUtils';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils';
-import { convertOffsetsToRange } from 'typeserver/common/positionUtils';
-import { Position, rangesAreEqual } from 'typeserver/common/textRange';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
-import { ClassType, isClassInstance, isFunction, isInstantiableClass } from 'typeserver/evaluator/types';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration.ts';
+import * as DeclarationUtils from 'typeserver/binder/declarationUtils.ts';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
+import { convertOffsetsToRange } from 'typeserver/common/positionUtils.ts';
+import { Position, rangesAreEqual } from 'typeserver/common/textRange.ts';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+import { ClassType, isClassInstance, isFunction, isInstantiableClass } from 'typeserver/evaluator/types.ts';
 import {
     MemberAccessFlags,
     doForEachSubtype,
     lookUpClassMember,
     lookUpObjectMember,
-} from 'typeserver/evaluator/typeUtils';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem';
-import { Uri } from 'typeserver/files/uri/uri';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils';
-import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes';
-import { ParseFileResults } from 'typeserver/parser/parser';
-import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils';
-import { appendArray } from 'typeserver/utils/collectionUtils';
-import { getSymbolKind } from '../server/lspUtils';
-import { DocumentSymbolCollector } from './documentSymbolCollector';
-import { canNavigateToFile } from './navigationUtils';
-import { ReferencesProvider, ReferencesResult } from './referencesProvider';
+} from 'typeserver/evaluator/typeUtils.ts';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.ts';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.ts';
+import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
+import { ParseFileResults } from 'typeserver/parser/parser.ts';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.ts';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.ts';
+import { appendArray } from 'typeserver/utils/collectionUtils.ts';
+import { getSymbolKind } from '../server/lspUtils.ts';
+import { DocumentSymbolCollector } from './documentSymbolCollector.ts';
+import { canNavigateToFile } from './navigationUtils.ts';
+import { ReferencesProvider, ReferencesResult } from './referencesProvider.ts';
 
 export class CallHierarchyProvider {
     private readonly _parseResults: ParseFileResults | undefined;

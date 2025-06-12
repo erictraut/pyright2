@@ -6,8 +6,8 @@
  * URI class that represents a constant/marker URI.
  */
 
-import { BaseUri } from './baseUri';
-import { Uri } from './uri';
+import { BaseUri } from './baseUri.ts';
+import { Uri } from './uri.ts';
 
 export class ConstantUri extends BaseUri {
     constructor(name: string) {

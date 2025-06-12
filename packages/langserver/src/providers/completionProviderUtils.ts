@@ -8,10 +8,10 @@
 
 import { InsertTextFormat, MarkupContent, MarkupKind, TextEdit } from 'vscode-languageserver-types';
 
-import { Declaration, DeclarationType } from 'typeserver/binder/declaration';
-import { TextEditAction } from 'typeserver/common/editAction';
-import { SignatureDisplayType } from 'typeserver/config/configOptions';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration.ts';
+import { TextEditAction } from 'typeserver/common/editAction.ts';
+import { SignatureDisplayType } from 'typeserver/config/configOptions.ts';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
 import {
     ClassType,
     Type,
@@ -22,12 +22,12 @@ import {
     isClassInstance,
     isFunctionOrOverloaded,
     isModule,
-} from 'typeserver/evaluator/types';
-import { isProperty } from 'typeserver/evaluator/typeUtils';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { Uri } from 'typeserver/files/uri/uri';
-import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion';
-import { getToolTipForType } from './tooltipUtils';
+} from 'typeserver/evaluator/types.ts';
+import { isProperty } from 'typeserver/evaluator/typeUtils.ts';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
+import { Uri } from 'typeserver/files/uri/uri.ts';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion.ts';
+import { getToolTipForType } from './tooltipUtils.ts';
 
 export interface Edits {
     format?: InsertTextFormat;

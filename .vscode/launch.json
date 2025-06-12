@@ -62,6 +62,9 @@
             "name": "Typeserver Jest current file",
             "type": "node",
             "request": "launch",
+            "runtimeArgs": [
+                "--experimental-vm-modules"
+            ],
             "args": [
                 "${fileBasenameNoExtension}",
                 "--runInBand",
@@ -78,6 +81,9 @@
             "name": "Langserver Jest current file",
             "type": "node",
             "request": "launch",
+            "runtimeArgs": [
+                "--experimental-vm-modules"
+            ],
             "args": [
                 "${fileBasenameNoExtension}",
                 "--runInBand",

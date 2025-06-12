@@ -7,13 +7,13 @@
  * Converts a type into a string representation.
  */
 
-import * as ParseTreeUtils from '../common/parseTreeUtils';
-import { ConfigOptions } from '../config/configOptions';
-import { ParamCategory } from '../parser/parseNodes';
-import { appendArray } from '../utils/collectionUtils';
-import { assert } from '../utils/debug';
-import { isTypedKwargs } from './parameterUtils';
-import { printBytesLiteral, printStringLiteral } from './typePrinterUtils';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
+import { ConfigOptions } from '../config/configOptions.ts';
+import { ParamCategory } from '../parser/parseNodes.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { assert } from '../utils/debug.ts';
+import { isTypedKwargs } from './parameterUtils.ts';
+import { printBytesLiteral, printStringLiteral } from './typePrinterUtils.ts';
 import {
     ClassType,
     EnumLiteral,
@@ -40,7 +40,7 @@ import {
     TypeVarType,
     UnionType,
     Variance,
-} from './types';
+} from './types.ts';
 import {
     convertToInstance,
     doForEachSubtype,
@@ -48,7 +48,7 @@ import {
     isSentinelLiteral,
     isTupleClass,
     removeNoneFromUnion,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 export const enum PrintTypeFlags {
     None = 0,

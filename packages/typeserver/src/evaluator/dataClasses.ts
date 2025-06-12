@@ -8,23 +8,23 @@
  * classes and dataclass transform.
  */
 
-import { DeclarationType } from '../binder/declaration';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions';
-import { Symbol, SymbolFlags } from '../binder/symbol';
-import { isPrivateName } from '../binder/symbolNameUtils';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import { getFileInfo } from '../common/analyzerNodeInfo';
-import { DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
+import { DeclarationType } from '../binder/declaration.ts';
+import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
+import { Symbol, SymbolFlags } from '../binder/symbol.ts';
+import { isPrivateName } from '../binder/symbolNameUtils.ts';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import { getFileInfo } from '../common/analyzerNodeInfo.ts';
+import { DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
 import {
     getClassFullName,
     getEnclosingClassOrFunction,
     getScopeIdForNode,
     getTypeSourceId,
     getTypeVarScopesForNode,
-} from '../common/parseTreeUtils';
-import { PythonVersion, pythonVersion3_13 } from '../common/pythonVersion';
-import { LocMessage } from '../localization/localize';
+} from '../common/parseTreeUtils.ts';
+import { PythonVersion, pythonVersion3_13 } from '../common/pythonVersion.ts';
+import { LocMessage } from '../localization/localize.ts';
 import {
     ArgCategory,
     ArgumentNode,
@@ -36,13 +36,13 @@ import {
     ParseNode,
     ParseNodeType,
     TypeAnnotationNode,
-} from '../parser/parseNodes';
-import { assert } from '../utils/debug';
-import { ConstraintSolution } from './constraintSolution';
-import { ConstraintTracker } from './constraintTracker';
-import { createFunctionFromConstructor, getBoundInitMethod } from './constructors';
-import { updateNamedTupleBaseClass } from './namedTuples';
-import { Arg, EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes';
+} from '../parser/parseNodes.ts';
+import { assert } from '../utils/debug.ts';
+import { ConstraintSolution } from './constraintSolution.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import { createFunctionFromConstructor, getBoundInitMethod } from './constructors.ts';
+import { updateNamedTupleBaseClass } from './namedTuples.ts';
+import { Arg, EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
 import {
     AnyType,
     ClassType,
@@ -68,7 +68,7 @@ import {
     TypeVarType,
     UnknownType,
     Variance,
-} from './types';
+} from './types.ts';
 import {
     addSolutionForSelfType,
     applySolvedTypeVars,
@@ -87,7 +87,7 @@ import {
     requiresSpecialization,
     specializeTupleClass,
     synthesizeTypeVarForSelfCls,
-} from './typeUtils';
+} from './typeUtils.ts';
 
 // Validates fields for compatibility with a dataclass and synthesizes
 // an appropriate __new__ and __init__ methods plus __dataclass_fields__

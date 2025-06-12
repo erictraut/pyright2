@@ -7,12 +7,12 @@
  * Representation of types used during type analysis within Python.
  */
 
-import { ClassDeclaration, FunctionDeclaration, SpecialBuiltInClassDeclaration } from '../binder/declaration';
-import { Symbol, SymbolTable } from '../binder/symbol';
-import { Uri } from '../files/uri/uri';
-import { ArgumentNode, ExpressionNode, NameNode, ParamCategory, TypeAnnotationNode } from '../parser/parseNodes';
-import { partition } from '../utils/collectionUtils';
-import { assert } from '../utils/debug';
+import { ClassDeclaration, FunctionDeclaration, SpecialBuiltInClassDeclaration } from '../binder/declaration.ts';
+import { Symbol, SymbolTable } from '../binder/symbol.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { ArgumentNode, ExpressionNode, NameNode, ParamCategory, TypeAnnotationNode } from '../parser/parseNodes.ts';
+import { partition } from '../utils/collectionUtils.ts';
+import { assert } from '../utils/debug.ts';
 
 export const enum TypeCategory {
     // Name is not bound to a value of any type

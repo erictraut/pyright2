@@ -4,9 +4,9 @@
  * Licensed under the MIT license.
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 
-import { doRangesOverlap, isPositionInRange, Range, rangesAreEqual, TextRange } from '../common/textRange';
+import { doRangesOverlap, isPositionInRange, Range, rangesAreEqual, TextRange } from '../common/textRange.ts';
 
 test('textRange create', () => {
     assert.throws(() => TextRange.create(-1, 1), Error);

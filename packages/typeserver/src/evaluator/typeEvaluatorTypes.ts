@@ -9,15 +9,15 @@
 
 import { CancellationToken } from 'vscode-languageserver-protocol';
 
-import { CodeFlowReferenceExpressionNode, FlowNode } from '../binder/codeFlowTypes';
-import { Declaration } from '../binder/declaration';
-import { ResolvedAliasInfo } from '../binder/declarationUtils';
-import { SymbolWithScope } from '../binder/scope';
-import { Symbol, SynthesizedTypeInfo } from '../binder/symbol';
-import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic';
-import { DiagnosticRule } from '../common/diagnosticRules';
-import { TextRange } from '../common/textRange';
-import { ConsoleInterface } from '../extensibility/console';
+import { CodeFlowReferenceExpressionNode, FlowNode } from '../binder/codeFlowTypes.ts';
+import { Declaration } from '../binder/declaration.ts';
+import { ResolvedAliasInfo } from '../binder/declarationUtils.ts';
+import { SymbolWithScope } from '../binder/scope.ts';
+import { Symbol, SynthesizedTypeInfo } from '../binder/symbol.ts';
+import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic.ts';
+import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { TextRange } from '../common/textRange.ts';
+import { ConsoleInterface } from '../extensibility/console.ts';
 import {
     ArgCategory,
     ArgumentNode,
@@ -33,11 +33,11 @@ import {
     ParameterNode,
     ParseNode,
     StringNode,
-} from '../parser/parseNodes';
-import { AnalyzerFileInfo } from './analyzerFileInfo';
-import { ConstraintTracker } from './constraintTracker';
-import { SpeculativeModeOptions } from './typeCacheUtils';
-import { PrintTypeFlags } from './typePrinter';
+} from '../parser/parseNodes.ts';
+import { AnalyzerFileInfo } from './analyzerFileInfo.ts';
+import { ConstraintTracker } from './constraintTracker.ts';
+import { SpeculativeModeOptions } from './typeCacheUtils.ts';
+import { PrintTypeFlags } from './typePrinter.ts';
 import {
     AnyType,
     ClassType,
@@ -50,8 +50,8 @@ import {
     TypeVarType,
     UnknownType,
     Variance,
-} from './types';
-import { ApplyTypeVarOptions, ClassMember, InferenceContext, MemberAccessFlags } from './typeUtils';
+} from './types.ts';
+import { ApplyTypeVarOptions, ClassMember, InferenceContext, MemberAccessFlags } from './typeUtils.ts';
 
 // Maximum number of unioned subtypes for an inferred type (e.g.
 // a list) before the type is considered an "Any".

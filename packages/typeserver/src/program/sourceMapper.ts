@@ -22,23 +22,23 @@ import {
     ParamDeclaration,
     SpecialBuiltInClassDeclaration,
     VariableDeclaration,
-} from '../binder/declaration';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo';
-import * as ParseTreeUtils from '../common/parseTreeUtils';
-import { ExecutionEnvironment } from '../config/configOptions';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes';
-import { ClassType, isFunction, isInstantiableClass, isOverloaded, OverloadedType } from '../evaluator/types';
-import { lookUpClassMember } from '../evaluator/typeUtils';
-import { Uri } from '../files/uri/uri';
-import { ImportResolver } from '../imports/importResolver';
-import { ClassNode, ModuleNode, ParseNode, ParseNodeType } from '../parser/parseNodes';
-import { SourceFile } from '../program/sourceFile';
-import { appendArray } from '../utils/collectionUtils';
-import { isDefined } from '../utils/core';
-import { assert, assertNever } from '../utils/debug';
-import { SourceFileInfo } from './sourceFileInfo';
-import { isUserCode } from './sourceFileInfoUtils';
-import { buildImportTree } from './sourceMapperUtils';
+} from '../binder/declaration.ts';
+import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
+import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
+import { ExecutionEnvironment } from '../config/configOptions.ts';
+import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
+import { ClassType, isFunction, isInstantiableClass, isOverloaded, OverloadedType } from '../evaluator/types.ts';
+import { lookUpClassMember } from '../evaluator/typeUtils.ts';
+import { Uri } from '../files/uri/uri.ts';
+import { ImportResolver } from '../imports/importResolver.ts';
+import { ClassNode, ModuleNode, ParseNode, ParseNodeType } from '../parser/parseNodes.ts';
+import { SourceFile } from '../program/sourceFile.ts';
+import { appendArray } from '../utils/collectionUtils.ts';
+import { isDefined } from '../utils/core.ts';
+import { assert, assertNever } from '../utils/debug.ts';
+import { SourceFileInfo } from './sourceFileInfo.ts';
+import { isUserCode } from './sourceFileInfoUtils.ts';
+import { buildImportTree } from './sourceMapperUtils.ts';
 
 type ClassOrFunctionOrVariableDeclaration =
     | ClassDeclaration

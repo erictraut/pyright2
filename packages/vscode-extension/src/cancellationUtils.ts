@@ -6,9 +6,9 @@
  * Helper methods around cancellation
  */
 
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { CancellationId, MessageConnection } from 'vscode-jsonrpc';
 import {
     CancellationReceiverStrategy,
@@ -17,7 +17,7 @@ import {
     Disposable,
 } from 'vscode-languageserver';
 
-import { randomBytesHex } from 'pyright-internal/common/crypto';
+import { randomBytesHex } from 'typeserver/utils/crypto.ts';
 
 function getCancellationFolderPath(folderName: string) {
     return path.join(os.tmpdir(), 'python-languageserver-cancellation', folderName);
