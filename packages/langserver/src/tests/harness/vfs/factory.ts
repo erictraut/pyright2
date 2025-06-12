@@ -53,7 +53,7 @@ export const srcFolder = normalizeSlashes('/.src');
 /**
  * Create a virtual file system from a physical file system using the following path mappings:
  *
- *  - `/typeshed-fallback` is a directory mapped to `packages/pyright-internal/typeshed-fallback`
+ *  - `/typeshed-fallback` is a directory mapped to `packages/typeserver/typeshed-fallback`
  *  - `/.src` is a virtual directory to be used for tests.
  *
  * @param host it provides an access to host (real) file system

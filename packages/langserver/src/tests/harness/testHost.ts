@@ -189,7 +189,7 @@ function createHost(): TestHost {
         log: (s) => {
             console.log(s);
         },
-        getWorkspaceRoot: () => resolvePaths(__dirname, '../../..'),
+        getWorkspaceRoot: () => resolvePaths(__dirname, '../../../../typeserver'),
         getAccessibleFileSystemEntries,
     };
 }

@@ -11,8 +11,8 @@
     "scripts": {
         "build": "tsc",
         "clean": "shx rm -rf ./dist ./out",
-        "webpack:testtypeserver": "webpack --config ./src/tests/webpack.testlangserver.config.js --mode=development",
-        "test": "NODE_OPTIONS='--experimental-vm-modules' jest --forceExit"
+        "webpack:testserver": "webpack --config ./src/tests/lsp/webpack.testserver.config.js --mode=development",
+        "test": "npm run webpack:testserver && NODE_OPTIONS='--experimental-vm-modules' jest --forceExit"
     },
     "dependencies": {
         "@yarnpkg/fslib": "2.10.4",

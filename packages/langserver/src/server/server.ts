@@ -48,7 +48,10 @@ export class PyrightServer extends LanguageServerBase {
 
     constructor(connection: Connection, maxWorkers: number, realFileSystem?: FileSystem) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const version = require('../package.json').version || '';
+        //const version = require('../package.json').version || '';
+
+        // TODO - fix the version retrieval logic
+        const version = 'Unknown Version';
 
         const tempFile = new RealTempFile();
         const console = new ConsoleWithLogLevel(connection.console);
