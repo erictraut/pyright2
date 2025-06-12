@@ -17,7 +17,8 @@
         "noImplicitReturns": true,
         "noImplicitOverride": true,
         "checkJs": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "isolatedModules": true
     },
     "exclude": [
         "node_modules",

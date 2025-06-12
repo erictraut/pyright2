@@ -6,6 +6,7 @@
 
 module.exports = {
     testEnvironment: 'node',
+    testEnvironmentOptions: { experimentalVmModules: true },
     roots: ['<rootDir>/src/tests'],
     transform: {
         '^.+\\.tsx?$': [
@@ -16,11 +17,14 @@ module.exports = {
 
                     // Needed because jest calls tsc in a way that doesn't
                     // inline const enums.
-                    preserveConstEnums: false,
+                    preserveConstEnums: true,
                 },
             },
         ],
     },
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+    moduleNameMapper: {
+        '^typeserver/(.*)$': '<rootDir>/../typeserver/src/$1',
+    },
 };

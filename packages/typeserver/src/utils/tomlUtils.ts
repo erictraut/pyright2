@@ -3,7 +3,7 @@
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
- * helpers related to TOML
+ * Helpers related to TOML
  */
 
 type TomlPrimitive =

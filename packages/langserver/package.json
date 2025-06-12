@@ -12,7 +12,7 @@
         "build": "tsc",
         "clean": "shx rm -rf ./dist ./out",
         "webpack:testtypeserver": "webpack --config ./src/tests/webpack.testlangserver.config.js --mode=development",
-        "test": "jest --forceExit"
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest --forceExit"
     },
     "dependencies": {
         "@yarnpkg/fslib": "2.10.4",

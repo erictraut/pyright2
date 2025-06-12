@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Typechecker CLI",
+            "name": "Pyright CLI",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/packages/pyright/index.js",
@@ -17,16 +17,16 @@
             ]
         },
         {
-            "name": "Typechecker Tests",
+            "name": "Typeserver Tests",
             "type": "node",
             "request": "launch",
             "args": [
                 "--runInBand"
             ],
-            "cwd": "${workspaceRoot}/packages/typechecker",
+            "cwd": "${workspaceRoot}/packages/typeserver",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "program": "${workspaceFolder}/packages/typechecker/node_modules/jest/bin/jest"
+            "program": "${workspaceFolder}/packages/typeserver/node_modules/jest/bin/jest"
         },
         {
             "name": "VSCode Extension",
@@ -59,7 +59,7 @@
             ]
         },
         {
-            "name": "Typechecker Jest current file",
+            "name": "Typeserver Jest current file",
             "type": "node",
             "request": "launch",
             "args": [
@@ -69,10 +69,26 @@
                 "--forceExit",
                 "--testTimeout=180000"
             ],
-            "cwd": "${workspaceRoot}/packages/typechecker",
+            "cwd": "${workspaceRoot}/packages/typeserver",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "program": "${workspaceFolder}/packages/typechecker/node_modules/jest/bin/jest"
+            "program": "${workspaceFolder}/packages/typeserver/node_modules/jest/bin/jest"
+        },
+        {
+            "name": "Langserver Jest current file",
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "${fileBasenameNoExtension}",
+                "--runInBand",
+                "--detectOpenHandles",
+                "--forceExit",
+                "--testTimeout=180000"
+            ],
+            "cwd": "${workspaceRoot}/packages/langserver",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "program": "${workspaceFolder}/packages/langserver/node_modules/jest/bin/jest"
         },
     ]
 }
