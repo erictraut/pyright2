@@ -8,8 +8,8 @@
  * literal values.
  */
 
-import { Char } from '../parser/charCodes.ts';
-import { FStringMiddleToken, StringToken, StringTokenFlags } from './tokenizerTypes.ts';
+import { Char } from 'typeserver/parser/charCodes.js';
+import { FStringMiddleToken, StringToken, StringTokenFlags } from 'typeserver/parser/tokenizerTypes.js';
 
 export const enum UnescapeErrorType {
     InvalidEscapeSequence,

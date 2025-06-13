@@ -8,19 +8,22 @@
 
 import { CancellationToken, CompletionItem, CompletionItemKind, SymbolKind } from 'vscode-languageserver';
 
-import { DeclarationType } from 'typeserver/binder/declaration.ts';
-import { Symbol } from 'typeserver/binder/symbol.ts';
-import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.ts';
-import { isVisibleExternally } from 'typeserver/binder/symbolUtils.ts';
-import { TextEditAction } from 'typeserver/common/editAction.ts';
-import { Position } from 'typeserver/common/textRange.ts';
-import { ExecutionEnvironment } from 'typeserver/config/configOptions.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility.ts';
-import { stripFileExtension } from 'typeserver/files/pathUtils.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { ImportResolver, ModuleNameAndType } from 'typeserver/imports/importResolver.ts';
-import { ImportType } from 'typeserver/imports/importResult.ts';
+import { CompletionItemData, CompletionMap } from 'langserver/providers/completionProvider.js';
+import { IndexAliasData } from 'langserver/providers/symbolIndexer.js';
+import { fromLSPAny } from 'langserver/server/lspUtils.js';
+import { DeclarationType } from 'typeserver/binder/declaration.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.js';
+import { isVisibleExternally } from 'typeserver/binder/symbolUtils.js';
+import { TextEditAction } from 'typeserver/common/editAction.js';
+import { Position } from 'typeserver/common/textRange.js';
+import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
+import { stripFileExtension } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ImportResolver, ModuleNameAndType } from 'typeserver/imports/importResolver.js';
+import { ImportType } from 'typeserver/imports/importResult.js';
 import {
     ImportGroup,
     ImportNameInfo,
@@ -31,15 +34,12 @@ import {
     getTextEditsForAutoImportInsertion,
     getTextEditsForAutoImportSymbolAddition,
     getTopLevelImports,
-} from 'typeserver/imports/importStatementUtils.ts';
-import { ParseNodeType } from 'typeserver/parser/parseNodes.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.ts';
-import { appendArray } from 'typeserver/utils/collectionUtils.ts';
-import * as StringUtils from 'typeserver/utils/stringUtils.ts';
-import { fromLSPAny } from '../server/lspUtils.ts';
-import { CompletionItemData, CompletionMap } from './completionProvider.ts';
-import { IndexAliasData } from './symbolIndexer.ts';
+} from 'typeserver/imports/importStatementUtils.js';
+import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import * as StringUtils from 'typeserver/utils/stringUtils.js';
 
 export interface AutoImportSymbol {
     readonly name: string;

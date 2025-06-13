@@ -22,23 +22,29 @@ import {
     ParamDeclaration,
     SpecialBuiltInClassDeclaration,
     VariableDeclaration,
-} from '../binder/declaration.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { ExecutionEnvironment } from '../config/configOptions.ts';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
-import { ClassType, isFunction, isInstantiableClass, isOverloaded, OverloadedType } from '../evaluator/types.ts';
-import { lookUpClassMember } from '../evaluator/typeUtils.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { ImportResolver } from '../imports/importResolver.ts';
-import { ClassNode, ModuleNode, ParseNode, ParseNodeType } from '../parser/parseNodes.ts';
-import { SourceFile } from '../program/sourceFile.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { isDefined } from '../utils/core.ts';
-import { assert, assertNever } from '../utils/debug.ts';
-import { SourceFileInfo } from './sourceFileInfo.ts';
-import { isUserCode } from './sourceFileInfoUtils.ts';
-import { buildImportTree } from './sourceMapperUtils.ts';
+} from 'typeserver/binder/declaration.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import {
+    ClassType,
+    isFunction,
+    isInstantiableClass,
+    isOverloaded,
+    OverloadedType,
+} from 'typeserver/evaluator/types.js';
+import { lookUpClassMember } from 'typeserver/evaluator/typeUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ImportResolver } from 'typeserver/imports/importResolver.js';
+import { ClassNode, ModuleNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { SourceFile } from 'typeserver/program/sourceFile.js';
+import { SourceFileInfo } from 'typeserver/program/sourceFileInfo.js';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { buildImportTree } from 'typeserver/program/sourceMapperUtils.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { isDefined } from 'typeserver/utils/core.js';
+import { assert, assertNever } from 'typeserver/utils/debug.js';
 
 type ClassOrFunctionOrVariableDeclaration =
     | ClassDeclaration

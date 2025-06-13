@@ -19,4 +19,7 @@ export default {
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
     extensionsToTreatAsEsm: ['.ts'],
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+    moduleNameMapper: {
+        '^typeserver/(.*).js$': '<rootDir>/../typeserver/src/$1.ts',
+    },
 };

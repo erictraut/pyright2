@@ -8,30 +8,21 @@
  * function or class decorators.
  */
 
-import { DeclarationType, FunctionDeclaration } from '../binder/declaration.ts';
-import { getDeclaration, getFileInfo } from '../common/analyzerNodeInfo.ts';
-import {
-    ArgCategory,
-    CallNode,
-    DecoratorNode,
-    FunctionNode,
-    ParamCategory,
-    ParseNodeType,
-} from '../parser/parseNodes.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
+import { DeclarationType, FunctionDeclaration } from 'typeserver/binder/declaration.js';
+import { getDeclaration, getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import {
     applyDataClassDecorator,
     getDataclassDecoratorBehaviors,
     validateDataClassTransformDecorator,
-} from './dataClasses.ts';
+} from 'typeserver/evaluator/dataClasses.js';
 import {
     clonePropertyWithDeleter,
     clonePropertyWithSetter,
     createProperty,
     validatePropertyMethod,
-} from './properties.ts';
-import { Arg, EvalFlags, TypeEvaluator } from './typeEvaluatorTypes.ts';
-import { isPartlyUnknown, isProperty } from './typeUtils.ts';
+} from 'typeserver/evaluator/properties.js';
+import { Arg, EvalFlags, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { isPartlyUnknown, isProperty } from 'typeserver/evaluator/typeUtils.js';
 import {
     ClassType,
     ClassTypeFlags,
@@ -48,7 +39,16 @@ import {
     isFunction,
     isInstantiableClass,
     isOverloaded,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
+import {
+    ArgCategory,
+    CallNode,
+    DecoratorNode,
+    FunctionNode,
+    ParamCategory,
+    ParseNodeType,
+} from 'typeserver/parser/parseNodes.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
 
 export interface FunctionDecoratorInfo {
     flags: FunctionTypeFlags;

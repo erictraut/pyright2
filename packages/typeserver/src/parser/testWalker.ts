@@ -7,12 +7,12 @@
  * Walks a parse tree to validate internal consistency and completeness.
  */
 
-import { isCompliantWithNodeRangeRules } from '../common/parseTreeUtils.ts';
-import { TextRange } from '../common/textRange.ts';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
-import { NameNode, ParseNode, ParseNodeArray, ParseNodeType } from '../parser/parseNodes.ts';
-import { fail } from '../utils/debug.ts';
-import { ParseTreeWalker } from './parseTreeWalker.ts';
+import { isCompliantWithNodeRangeRules } from 'typeserver/common/parseTreeUtils.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { NameNode, ParseNode, ParseNodeArray, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
+import { fail } from 'typeserver/utils/debug.js';
 
 export class TestWalker extends ParseTreeWalker {
     constructor() {

@@ -6,14 +6,14 @@
 
 import assert from 'assert';
 
-import { CommandLineOptions } from 'typeserver/config/commandLineOptions.ts';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { IPythonMode } from 'typeserver/program/sourceFile.ts';
+import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
+import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
+import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { CancellationToken } from 'vscode-jsonrpc';
-import { parseTestData } from './harness/fourslash/fourSlashParser.ts';
-import { parseAndGetTestState, TestState } from './harness/fourslash/testState.ts';
 
 test('random library file changed', () => {
     const state = parseAndGetTestState('', '/projectRoot').state;

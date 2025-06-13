@@ -4,8 +4,8 @@
  * Licensed under the MIT license.
  */
 
+import { Uri } from 'typeserver/files/uri/uri.js';
 import { CancellationToken } from 'vscode-jsonrpc';
-import { Uri } from '../files/uri/uri.ts';
 
 const MAX_TREE_SEARCH_COUNT = 1000;
 

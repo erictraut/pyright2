@@ -6,9 +6,9 @@
  * Container for different services used within the application.
  */
 
-import { addIfUnique, removeArrayElements } from '../utils/collectionUtils.ts';
-import { Disposable } from '../utils/core.ts';
-import { assertNever } from '../utils/debug.ts';
+import { addIfUnique, removeArrayElements } from 'typeserver/utils/collectionUtils.js';
+import { Disposable } from 'typeserver/utils/core.js';
+import { assertNever } from 'typeserver/utils/debug.js';
 
 abstract class InternalKey {
     abstract readonly kind: 'singleton' | 'group';

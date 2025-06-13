@@ -12,17 +12,25 @@
 import { CancellationToken, Hover, MarkupKind } from 'vscode-languageserver';
 
 import {
+    getClassAndConstructorTypes,
+    getConstructorTooltip,
+    getDocumentationPartsForTypeAndDecl,
+    getToolTipForType,
+    getTypeForToolTip,
+} from 'langserver/providers/tooltipUtils.js';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
+import {
     Declaration,
     DeclarationType,
     VariableDeclaration,
     isUnresolvedAliasDeclaration,
-} from 'typeserver/binder/declaration.ts';
-import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.ts';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
-import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
-import { Position, Range, TextRange } from 'typeserver/common/textRange.ts';
-import { SignatureDisplayType } from 'typeserver/config/configOptions.ts';
-import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+} from 'typeserver/binder/declaration.js';
+import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
+import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
+import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
+import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     Type,
@@ -34,25 +42,17 @@ import {
     isModule,
     isParamSpec,
     isTypeVar,
-} from 'typeserver/evaluator/types.ts';
-import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
-import { SourceMapper } from 'typeserver/program/sourceMapper.ts';
-import { assertNever, fail } from 'typeserver/utils/debug.ts';
-import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils.ts';
-import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion.ts';
-import {
-    getClassAndConstructorTypes,
-    getConstructorTooltip,
-    getDocumentationPartsForTypeAndDecl,
-    getToolTipForType,
-    getTypeForToolTip,
-} from './tooltipUtils.ts';
+} from 'typeserver/evaluator/types.js';
+import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { assertNever, fail } from 'typeserver/utils/debug.js';
+import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils.js';
 
 export interface HoverTextPart {
     python?: boolean;

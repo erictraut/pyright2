@@ -9,11 +9,11 @@
 
 import type * as fs from 'fs';
 
+import { FileSystem, MkDirOptions, Stats, VirtualDirent } from 'typeserver/files/fileSystem.js';
+import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriMap } from 'typeserver/files/uri/uriMap.js';
 import { Disposable } from 'vscode-jsonrpc';
-import { FileSystem, MkDirOptions, Stats, VirtualDirent } from './fileSystem.ts';
-import { FileWatcher, FileWatcherEventHandler } from './fileWatcher.ts';
-import { Uri } from './uri/uri.ts';
-import { UriMap } from './uri/uriMap.ts';
 
 interface MappedEntry {
     mappedUri: Uri;

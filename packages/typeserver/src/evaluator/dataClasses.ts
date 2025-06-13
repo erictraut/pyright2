@@ -8,41 +8,27 @@
  * classes and dataclass transform.
  */
 
-import { DeclarationType } from '../binder/declaration.ts';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
-import { Symbol, SymbolFlags } from '../binder/symbol.ts';
-import { isPrivateName } from '../binder/symbolNameUtils.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import { getFileInfo } from '../common/analyzerNodeInfo.ts';
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
+import { DeclarationType } from 'typeserver/binder/declaration.js';
+import { evaluateStaticBoolExpression } from 'typeserver/binder/staticExpressions.js';
+import { Symbol, SymbolFlags } from 'typeserver/binder/symbol.js';
+import { isPrivateName } from 'typeserver/binder/symbolNameUtils.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
 import {
     getClassFullName,
     getEnclosingClassOrFunction,
     getScopeIdForNode,
     getTypeSourceId,
     getTypeVarScopesForNode,
-} from '../common/parseTreeUtils.ts';
-import { PythonVersion, pythonVersion3_13 } from '../common/pythonVersion.ts';
-import { LocMessage } from '../localization/localize.ts';
-import {
-    ArgCategory,
-    ArgumentNode,
-    CallNode,
-    ClassNode,
-    ExpressionNode,
-    NameNode,
-    ParamCategory,
-    ParseNode,
-    ParseNodeType,
-    TypeAnnotationNode,
-} from '../parser/parseNodes.ts';
-import { assert } from '../utils/debug.ts';
-import { ConstraintSolution } from './constraintSolution.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
-import { createFunctionFromConstructor, getBoundInitMethod } from './constructors.ts';
-import { updateNamedTupleBaseClass } from './namedTuples.ts';
-import { Arg, EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
+} from 'typeserver/common/parseTreeUtils.js';
+import { PythonVersion, pythonVersion3_13 } from 'typeserver/common/pythonVersion.js';
+import { ConstraintSolution } from 'typeserver/evaluator/constraintSolution.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { createFunctionFromConstructor, getBoundInitMethod } from 'typeserver/evaluator/constructors.js';
+import { updateNamedTupleBaseClass } from 'typeserver/evaluator/namedTuples.js';
+import { Arg, EvalFlags, TypeEvaluator, TypeResult } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     AnyType,
     ClassType,
@@ -68,7 +54,7 @@ import {
     TypeVarType,
     UnknownType,
     Variance,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     addSolutionForSelfType,
     applySolvedTypeVars,
@@ -87,7 +73,21 @@ import {
     requiresSpecialization,
     specializeTupleClass,
     synthesizeTypeVarForSelfCls,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocMessage } from 'typeserver/localization/localize.js';
+import {
+    ArgCategory,
+    ArgumentNode,
+    CallNode,
+    ClassNode,
+    ExpressionNode,
+    NameNode,
+    ParamCategory,
+    ParseNode,
+    ParseNodeType,
+    TypeAnnotationNode,
+} from 'typeserver/parser/parseNodes.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 // Validates fields for compatibility with a dataclass and synthesizes
 // an appropriate __new__ and __init__ methods plus __dataclass_fields__

@@ -6,9 +6,7 @@
  * Utility functions for parameters.
  */
 
-import { isDunderName } from '../binder/symbolNameUtils.ts';
-import { ParamCategory } from '../parser/parseNodes.ts';
-import { assert } from '../utils/debug.ts';
+import { isDunderName } from 'typeserver/binder/symbolNameUtils.js';
 import {
     AnyType,
     ClassType,
@@ -25,8 +23,10 @@ import {
     isUnpackedClass,
     Type,
     TypeVarType,
-} from './types.ts';
-import { doForEachSubtype, partiallySpecializeType } from './typeUtils.ts';
+} from 'typeserver/evaluator/types.js';
+import { doForEachSubtype, partiallySpecializeType } from 'typeserver/evaluator/typeUtils.js';
+import { ParamCategory } from 'typeserver/parser/parseNodes.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 export function isTypedKwargs(param: FunctionParam, effectiveParamType: Type): boolean {
     return (

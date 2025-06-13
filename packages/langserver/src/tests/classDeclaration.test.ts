@@ -8,14 +8,14 @@
 
 import assert from 'assert';
 
-import { isClassDeclaration, isSpecialBuiltInClassDeclaration } from 'typeserver/binder/declaration.ts';
-import { getEnclosingFunction } from 'typeserver/common/parseTreeUtils.ts';
-import { TextRange } from 'typeserver/common/textRange.ts';
-import { isProperty } from 'typeserver/evaluator/typeUtils.ts';
-import { TypeCategory, isClassInstance } from 'typeserver/evaluator/types.ts';
-import { ParseNodeType } from 'typeserver/parser/parseNodes.ts';
-import { Range } from './harness/fourslash/fourSlashTypes.ts';
-import { TestState, getNodeAtMarker, parseAndGetTestState } from './harness/fourslash/testState.ts';
+import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
+import { TestState, getNodeAtMarker, parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
+import { isClassDeclaration, isSpecialBuiltInClassDeclaration } from 'typeserver/binder/declaration.js';
+import { getEnclosingFunction } from 'typeserver/common/parseTreeUtils.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { isProperty } from 'typeserver/evaluator/typeUtils.js';
+import { TypeCategory, isClassInstance } from 'typeserver/evaluator/types.js';
+import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 
 test('regular class', () => {
     const code = `

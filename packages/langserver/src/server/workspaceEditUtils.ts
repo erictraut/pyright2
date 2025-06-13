@@ -18,18 +18,18 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { FileEditAction, FileEditActions, TextEditAction } from 'typeserver/common/editAction.ts';
-import { convertRangeToTextRange, convertTextRangeToRange } from 'typeserver/common/positionUtils.ts';
-import { TextRange } from 'typeserver/common/textRange.ts';
-import { TextRangeCollection } from 'typeserver/common/textRangeCollection.ts';
-import { IEditableProgram, ISourceFileInfo } from 'typeserver/extensibility/extensibility.ts';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.ts';
-import { TypeService } from 'typeserver/service/typeService.ts';
-import { createMapFromItems } from 'typeserver/utils/collectionUtils.ts';
-import { isArray } from 'typeserver/utils/core.ts';
-import { assertNever } from 'typeserver/utils/debug.ts';
+import { FileEditAction, FileEditActions, TextEditAction } from 'typeserver/common/editAction.js';
+import { convertRangeToTextRange, convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
+import { IEditableProgram, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
+import { TypeService } from 'typeserver/service/typeService.js';
+import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';
+import { isArray } from 'typeserver/utils/core.js';
+import { assertNever } from 'typeserver/utils/debug.js';
 
 export function convertToTextEdits(editActions: TextEditAction[]): TextEdit[] {
     return editActions.map((editAction) => ({

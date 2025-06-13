@@ -8,12 +8,12 @@
 
 import ts from 'typescript';
 
-import { combinePaths } from 'typeserver/files/pathUtils.ts';
-import * as host from '../testHost.ts';
-import { parseTestData } from './fourSlashParser.ts';
-import { FourSlashData } from './fourSlashTypes.ts';
-import { Consts } from './testState.Consts.ts';
-import { HostSpecificFeatures, TestState } from './testState.ts';
+import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
+import { FourSlashData } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
+import { Consts } from 'langserver/tests/harness/fourslash/testState.Consts.js';
+import { HostSpecificFeatures, TestState } from 'langserver/tests/harness/fourslash/testState.js';
+import * as host from 'langserver/tests/harness/testHost.js';
+import { combinePaths } from 'typeserver/files/pathUtils.js';
 
 export type TestStateFactory = (
     basePath: string,

@@ -9,6 +9,12 @@
 import assert from 'assert';
 
 import {
+    TestState,
+    getNodeAtMarker,
+    getNodeForRange,
+    parseAndGetTestState,
+} from 'langserver/tests/harness//fourslash/testState.js';
+import {
     findNodeByOffset,
     getDottedName,
     getDottedNameWithGivenNodeAsLastName,
@@ -24,16 +30,15 @@ import {
     isImportModuleName,
     isLastNameOfDottedName,
     printExpression,
-} from 'typeserver/common/parseTreeUtils.ts';
-import { TextRange, rangesAreEqual } from 'typeserver/common/textRange.ts';
+} from 'typeserver/common/parseTreeUtils.js';
+import { TextRange, rangesAreEqual } from 'typeserver/common/textRange.js';
 import {
     MemberAccessNode,
     NameNode,
     ParseNodeType,
     StringNode,
     isExpressionNode,
-} from 'typeserver/parser/parseNodes.ts';
-import { TestState, getNodeAtMarker, getNodeForRange, parseAndGetTestState } from './harness/fourslash/testState.ts';
+} from 'typeserver/parser/parseNodes.js';
 
 test('isImportModuleName', () => {
     const code = `

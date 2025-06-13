@@ -29,20 +29,21 @@ import {
     FlowPreFinallyGate,
     FlowVariableAnnotation,
     FlowWildcardImport,
-} from '../binder/codeFlowTypes.ts';
-import { getFileInfo, getImportInfo } from '../common/analyzerNodeInfo.ts';
-import { isMatchingExpression, isPartialMatchingExpression, printExpression } from '../common/parseTreeUtils.ts';
-import { convertOffsetToPosition } from '../common/positionUtils.ts';
-import { ConsoleInterface } from '../extensibility/console.ts';
-import { ArgCategory, ExpressionNode, ParseNode, ParseNodeType } from '../parser/parseNodes.ts';
-import { assert, fail } from '../utils/debug.ts';
-import { formatControlFlowGraph } from './codeFlowUtils.ts';
-import { getBoundCallMethod, getBoundNewMethod } from './constructors.ts';
-import { getPatternSubtypeNarrowingCallback } from './patternMatching.ts';
-import { SpeculativeTypeTracker } from './typeCacheUtils.ts';
-import { narrowForKeyAssignment } from './typedDicts.ts';
-import { EvalFlags, Reachability, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
-import { getTypeNarrowingCallback } from './typeGuards.ts';
+} from 'typeserver/binder/codeFlowTypes.js';
+import { getFileInfo, getImportInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import {
+    isMatchingExpression,
+    isPartialMatchingExpression,
+    printExpression,
+} from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
+import { formatControlFlowGraph } from 'typeserver/evaluator/codeFlowUtils.js';
+import { getBoundCallMethod, getBoundNewMethod } from 'typeserver/evaluator/constructors.js';
+import { getPatternSubtypeNarrowingCallback } from 'typeserver/evaluator/patternMatching.js';
+import { SpeculativeTypeTracker } from 'typeserver/evaluator/typeCacheUtils.js';
+import { narrowForKeyAssignment } from 'typeserver/evaluator/typedDicts.js';
+import { EvalFlags, Reachability, TypeEvaluator, TypeResult } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { getTypeNarrowingCallback } from 'typeserver/evaluator/typeGuards.js';
 import {
     ClassType,
     combineTypes,
@@ -65,7 +66,7 @@ import {
     TypeVarType,
     UnboundType,
     UnknownType,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     cleanIncompleteUnknown,
     derivesFromStdlibClass,
@@ -73,7 +74,10 @@ import {
     isIncompleteUnknown,
     isTypeAliasPlaceholder,
     mapSubtypes,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { ArgCategory, ExpressionNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { assert, fail } from 'typeserver/utils/debug.js';
 
 export interface FlowNodeTypeResult {
     type: Type | undefined;

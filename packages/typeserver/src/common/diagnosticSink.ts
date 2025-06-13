@@ -7,14 +7,14 @@
  * Class that collects and deduplicates diagnostics.
  */
 
-import { DiagnosticLevel } from '../config/configOptions.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { hashString } from '../utils/stringUtils.ts';
-import { Diagnostic, DiagnosticAction, DiagnosticCategory } from './diagnostic.ts';
-import { convertOffsetsToRange } from './positionUtils.ts';
-import { Range, TextRange } from './textRange.ts';
-import { TextRangeCollection } from './textRangeCollection.ts';
+import { Diagnostic, DiagnosticAction, DiagnosticCategory } from 'typeserver/common/diagnostic.js';
+import { convertOffsetsToRange } from 'typeserver/common/positionUtils.js';
+import { Range, TextRange } from 'typeserver/common/textRange.js';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
+import { DiagnosticLevel } from 'typeserver/config/configOptions.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { hashString } from 'typeserver/utils/stringUtils.js';
 
 // Represents a collection of diagnostics within a file.
 export interface FileDiagnostics {

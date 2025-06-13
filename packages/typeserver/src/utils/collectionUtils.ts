@@ -6,7 +6,7 @@
  * Helper functions relating to collections and arrays.
  */
 
-import { compareValues, Comparison, equateValues, isArray, MapLike } from './core.ts';
+import { compareValues, Comparison, equateValues, isArray, MapLike } from 'typeserver/utils/core.js';
 
 export const emptyArray: never[] = [] as never[];
 export type EqualityComparer<T> = (a: T, b: T) => boolean;

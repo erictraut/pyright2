@@ -6,13 +6,13 @@
 
 import assert from 'assert';
 
-import { lib, sitePackages } from 'typeserver/common/pathConsts.ts';
-import { PartialStubService } from 'typeserver/files/partialStubService.ts';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { TestFileSystem } from './harness/vfs/filesystem.ts';
+import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
+import { lib, sitePackages } from 'typeserver/common/pathConsts.js';
+import { PartialStubService } from 'typeserver/files/partialStubService.js';
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 const libraryRootUri = UriEx.file(libraryRoot);

@@ -7,17 +7,14 @@
  * Provides special-case logic for the Enum class.
  */
 
-import { VariableDeclaration } from '../binder/declaration.ts';
-import { Symbol, SymbolFlags } from '../binder/symbol.ts';
-import { isPrivateName, isSingleDunderName } from '../binder/symbolNameUtils.ts';
-import { getFileInfo } from '../common/analyzerNodeInfo.ts';
-import { getClassFullName, getEnclosingClass, getTypeSourceId } from '../common/parseTreeUtils.ts';
-import { PythonVersion, pythonVersion3_13 } from '../common/pythonVersion.ts';
-import { ArgCategory, ExpressionNode, NameNode, ParseNode, ParseNodeType } from '../parser/parseNodes.ts';
-import { assert } from '../utils/debug.ts';
-import { Arg, EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
-import { enumerateLiteralsForType } from './typeGuards.ts';
-import { MemberAccessFlags, computeMroLinearization, lookUpClassMember, makeInferenceContext } from './typeUtils.ts';
+import { VariableDeclaration } from 'typeserver/binder/declaration.js';
+import { Symbol, SymbolFlags } from 'typeserver/binder/symbol.js';
+import { isPrivateName, isSingleDunderName } from 'typeserver/binder/symbolNameUtils.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { getClassFullName, getEnclosingClass, getTypeSourceId } from 'typeserver/common/parseTreeUtils.js';
+import { PythonVersion, pythonVersion3_13 } from 'typeserver/common/pythonVersion.js';
+import { Arg, EvalFlags, TypeEvaluator, TypeResult } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { enumerateLiteralsForType } from 'typeserver/evaluator/typeGuards.js';
 import {
     AnyType,
     ClassType,
@@ -35,7 +32,15 @@ import {
     isFunctionOrOverloaded,
     isInstantiableClass,
     maxTypeRecursionCount,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
+import {
+    MemberAccessFlags,
+    computeMroLinearization,
+    lookUpClassMember,
+    makeInferenceContext,
+} from 'typeserver/evaluator/typeUtils.js';
+import { ArgCategory, ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 interface EnumEvalStackEntry {
     classType: ClassType;

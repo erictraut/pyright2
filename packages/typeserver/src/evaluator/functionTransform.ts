@@ -8,11 +8,9 @@
  *
  */
 
-import { Symbol, SymbolFlags } from '../binder/symbol.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { LocMessage } from '../localization/localize.ts';
-import { ExpressionNode, ParamCategory } from '../parser/parseNodes.ts';
-import { Arg, FunctionResult, TypeEvaluator } from './typeEvaluatorTypes.ts';
+import { Symbol, SymbolFlags } from 'typeserver/binder/symbol.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { Arg, FunctionResult, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     FunctionParam,
@@ -23,8 +21,15 @@ import {
     isInstantiableClass,
     OverloadedType,
     Type,
-} from './types.ts';
-import { ClassMember, lookUpObjectMember, MemberAccessFlags, synthesizeTypeVarForSelfCls } from './typeUtils.ts';
+} from 'typeserver/evaluator/types.js';
+import {
+    ClassMember,
+    lookUpObjectMember,
+    MemberAccessFlags,
+    synthesizeTypeVarForSelfCls,
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocMessage } from 'typeserver/localization/localize.js';
+import { ExpressionNode, ParamCategory } from 'typeserver/parser/parseNodes.js';
 
 export function applyFunctionTransform(
     evaluator: TypeEvaluator,

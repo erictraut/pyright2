@@ -10,11 +10,9 @@ import fs from 'fs';
 import tmp from 'tmp';
 import { isMainThread } from 'worker_threads';
 
-import { Disposable } from 'vscode-jsonrpc';
-import { ConsoleInterface, NullConsole } from '../extensibility/console.ts';
-import { randomBytesHex } from '../utils/crypto.ts';
-import { CaseSensitivityDetector } from './caseSensitivityDetector.ts';
-import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from './fileSystem.ts';
+import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import {
     FileWatcher,
     FileWatcherEventHandler,
@@ -22,11 +20,13 @@ import {
     FileWatcherHandler,
     FileWatcherProvider,
     nullFileWatcherProvider,
-} from './fileWatcher.ts';
-import { combinePaths, getRootLength } from './pathUtils.ts';
-import { FileUri, FileUriSchema } from './uri/fileUri.ts';
-import { Uri } from './uri/uri.ts';
-import { getRootUri } from './uri/uriUtils.ts';
+} from 'typeserver/files/fileWatcher.js';
+import { combinePaths, getRootLength } from 'typeserver/files/pathUtils.js';
+import { FileUri, FileUriSchema } from 'typeserver/files/uri/fileUri.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { getRootUri } from 'typeserver/files/uri/uriUtils.js';
+import { randomBytesHex } from 'typeserver/utils/crypto.js';
+import { Disposable } from 'vscode-jsonrpc';
 
 // Automatically remove files created by tmp at process exit.
 tmp.setGracefulCleanup();

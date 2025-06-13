@@ -10,18 +10,18 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { TextEditAction } from 'typeserver/common/editAction.ts';
-import { convertOffsetToPosition } from 'typeserver/common/positionUtils.ts';
-import { Range, TextRange } from 'typeserver/common/textRange.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
+import { TextEditAction } from 'typeserver/common/editAction.js';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
+import { Range, TextRange } from 'typeserver/common/textRange.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import {
     compareImportStatements,
     getImportGroup,
     getTopLevelImports,
     ImportStatement,
-} from 'typeserver/imports/importStatementUtils.ts';
-import { ImportAsNode, ImportFromAsNode, ImportFromNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
+} from 'typeserver/imports/importStatementUtils.js';
+import { ImportAsNode, ImportFromAsNode, ImportFromNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
 
 // We choose a line length that matches the default for the popular
 // "black" formatter used in many Python projects.

@@ -36,10 +36,28 @@ import {
     getUniqueFlowNodeId,
     isCodeFlowSupportedForReference,
     wildcardImportReferenceKey,
-} from '../binder/codeFlowTypes.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import { Diagnostic } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
+} from 'typeserver/binder/codeFlowTypes.js';
+import {
+    AliasDeclaration,
+    ClassDeclaration,
+    DeclarationType,
+    FunctionDeclaration,
+    IntrinsicType,
+    ModuleLoaderActions,
+    ParamDeclaration,
+    SpecialBuiltInClassDeclaration,
+    TypeAliasDeclaration,
+    TypeParamDeclaration,
+    UnresolvedModuleMarker,
+    VariableDeclaration,
+} from 'typeserver/binder/declaration.js';
+import { NameBindingType, Scope, ScopeType } from 'typeserver/binder/scope.js';
+import * as StaticExpressions from 'typeserver/binder/staticExpressions.js';
+import { Symbol, SymbolFlags, indeterminateSymbolId } from 'typeserver/binder/symbol.js';
+import { isConstantName, isPrivateName, isPrivateOrProtectedName } from 'typeserver/binder/symbolNameUtils.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { Diagnostic } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
 import {
     getArgsByRuntimeOrder,
     getEnclosingClass,
@@ -53,15 +71,15 @@ import {
     isNodeContainedWithinNodeType,
     isPartialMatchingExpression,
     isWithinLoop,
-} from '../common/parseTreeUtils.ts';
-import { convertTextRangeToRange } from '../common/positionUtils.ts';
-import { TextRange, getEmptyRange } from '../common/textRange.ts';
-import { DiagnosticLevel } from '../config/configOptions.ts';
-import { AnalyzerFileInfo, ImportLookupResult } from '../evaluator/analyzerFileInfo.ts';
-import { stripFileExtension } from '../files/pathUtils.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { ImplicitImport, ImportResult, ImportType } from '../imports/importResult.ts';
-import { LocMessage } from '../localization/localize.ts';
+} from 'typeserver/common/parseTreeUtils.js';
+import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
+import { TextRange, getEmptyRange } from 'typeserver/common/textRange.js';
+import { DiagnosticLevel } from 'typeserver/config/configOptions.js';
+import { AnalyzerFileInfo, ImportLookupResult } from 'typeserver/evaluator/analyzerFileInfo.js';
+import { stripFileExtension } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ImplicitImport, ImportResult, ImportType } from 'typeserver/imports/importResult.js';
+import { LocMessage } from 'typeserver/localization/localize.js';
 import {
     ArgCategory,
     AssertNode,
@@ -114,29 +132,11 @@ import {
     WithNode,
     YieldFromNode,
     YieldNode,
-} from '../parser/parseNodes.ts';
-import { ParseTreeWalker } from '../parser/parseTreeWalker.ts';
-import { KeywordType, OperatorType } from '../parser/tokenizerTypes.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { assert, assertNever, fail } from '../utils/debug.ts';
-import {
-    AliasDeclaration,
-    ClassDeclaration,
-    DeclarationType,
-    FunctionDeclaration,
-    IntrinsicType,
-    ModuleLoaderActions,
-    ParamDeclaration,
-    SpecialBuiltInClassDeclaration,
-    TypeAliasDeclaration,
-    TypeParamDeclaration,
-    UnresolvedModuleMarker,
-    VariableDeclaration,
-} from './declaration.ts';
-import { NameBindingType, Scope, ScopeType } from './scope.ts';
-import * as StaticExpressions from './staticExpressions.ts';
-import { Symbol, SymbolFlags, indeterminateSymbolId } from './symbol.ts';
-import { isConstantName, isPrivateName, isPrivateOrProtectedName } from './symbolNameUtils.ts';
+} from 'typeserver/parser/parseNodes.js';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
+import { KeywordType, OperatorType } from 'typeserver/parser/tokenizerTypes.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { assert, assertNever, fail } from 'typeserver/utils/debug.js';
 
 interface MemberAccessInfo {
     classNode: ClassNode;

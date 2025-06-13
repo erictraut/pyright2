@@ -8,15 +8,15 @@
  * that the types are complete.
  */
 
-import { DeclarationType, FunctionDeclaration, VariableDeclaration } from '../binder/declaration.ts';
-import { ScopeType } from '../binder/scope.ts';
-import { getScopeForNode } from '../binder/scopeUtils.ts';
-import { Symbol, SymbolTable } from '../binder/symbol.ts';
-import { isDunderName, isPrivateOrProtectedName } from '../binder/symbolNameUtils.ts';
-import { Diagnostic, DiagnosticAddendum, DiagnosticCategory } from '../common/diagnostic.ts';
-import { getEmptyRange, Range } from '../common/textRange.ts';
-import { CommandLineOptions } from '../config/commandLineOptions.ts';
-import { ConfigOptions, ExecutionEnvironment } from '../config/configOptions.ts';
+import { DeclarationType, FunctionDeclaration, VariableDeclaration } from 'typeserver/binder/declaration.js';
+import { ScopeType } from 'typeserver/binder/scope.js';
+import { getScopeForNode } from 'typeserver/binder/scopeUtils.js';
+import { Symbol, SymbolTable } from 'typeserver/binder/symbol.js';
+import { isDunderName, isPrivateOrProtectedName } from 'typeserver/binder/symbolNameUtils.js';
+import { Diagnostic, DiagnosticAddendum, DiagnosticCategory } from 'typeserver/common/diagnostic.js';
+import { getEmptyRange, Range } from 'typeserver/common/textRange.js';
+import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
+import { ConfigOptions, ExecutionEnvironment } from 'typeserver/config/configOptions.js';
 import {
     ClassType,
     FunctionParam,
@@ -33,7 +33,7 @@ import {
     Type,
     TypeBase,
     TypeCategory,
-} from '../evaluator/types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     doForEachSubtype,
     getFullNameOfType,
@@ -42,18 +42,17 @@ import {
     isPartlyUnknown,
     partiallySpecializeType,
     specializeForBaseClass,
-} from '../evaluator/typeUtils.ts';
-import { NullConsole } from '../extensibility/console.ts';
-import { FullAccessHost } from '../extensibility/fullAccessHost.ts';
-import { Host } from '../extensibility/host.ts';
-import { ServiceProvider } from '../extensibility/serviceProvider.ts';
-import { getFileExtension, stripFileExtension } from '../files/pathUtils.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { tryStat } from '../files/uri/uriUtils.ts';
-import { createImportedModuleDescriptor, ImportResolver } from '../imports/importResolver.ts';
-import { getPyTypedInfo, PyTypedInfo } from '../imports/pyTypedUtils.ts';
-import { Program } from '../program/program.ts';
-import { assert } from '../utils/debug.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { NullConsole } from 'typeserver/extensibility/console.js';
+import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
+import { Host } from 'typeserver/extensibility/host.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { getFileExtension, stripFileExtension } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { tryStat } from 'typeserver/files/uri/uriUtils.js';
+import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
+import { getPyTypedInfo, PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
+import { Program } from 'typeserver/program/program.js';
 import {
     AlternateSymbolNameMap,
     getEmptyReport,
@@ -62,7 +61,8 @@ import {
     SymbolCategory,
     SymbolInfo,
     TypeKnownStatus,
-} from './packageTypeReport.ts';
+} from 'typeserver/service/packageTypeReport.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 type PublicSymbolSet = Set<string>;
 

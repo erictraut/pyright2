@@ -19,9 +19,9 @@ import {
     isVariableDeclaration,
     SpecialBuiltInClassDeclaration,
     VariableDeclaration,
-} from '../binder/declaration.ts';
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
+} from 'typeserver/binder/declaration.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     FunctionType,
@@ -32,18 +32,18 @@ import {
     OverloadedType,
     Type,
     TypeCategory,
-} from '../evaluator/types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     ClassIteratorFlags,
     getClassIterator,
     getClassMemberIterator,
     isMaybeDescriptorInstance,
     MemberAccessFlags,
-} from '../evaluator/typeUtils.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { ModuleNode, ParseNodeType } from '../parser/parseNodes.ts';
-import { isStubFile, SourceMapper } from '../program/sourceMapper.ts';
-import { addIfNotNull, appendArray } from '../utils/collectionUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ModuleNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { addIfNotNull, appendArray } from 'typeserver/utils/collectionUtils.js';
 
 const DefaultClassIteratorFlagsForFunctions =
     MemberAccessFlags.SkipObjectBaseClass |

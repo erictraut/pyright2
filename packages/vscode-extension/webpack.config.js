@@ -5,7 +5,7 @@
 
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
-const { cacheConfig, monorepoResourceNameMapper, tsconfigResolveAliases } = require('../../build/lib/webpack');
+const { cacheConfig, monorepoResourceNameMapper, tsconfigResolveAliases } = require('typeserver/../build/lib/webpack');
 
 const outPath = path.resolve(__dirname, 'dist');
 const typeshedFallback = path.resolve(__dirname, '..', 'pyright-internal', 'typeshed-fallback');
@@ -24,7 +24,7 @@ module.exports = (_, { mode }) => {
             path: outPath,
             libraryTarget: 'commonjs2',
             devtoolModuleFilenameTemplate:
-                mode === 'development' ? '../[resource-path]' : monorepoResourceNameMapper('vscode-pyright'),
+                mode === 'development' ? 'typeserver/[resource-path]' : monorepoResourceNameMapper('vscode-pyright'),
             clean: true,
         },
         devtool: mode === 'development' ? 'source-map' : 'nosources-source-map',

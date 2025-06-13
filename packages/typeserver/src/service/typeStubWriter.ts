@@ -8,12 +8,12 @@
  * and analyzed python source file.
  */
 
-import { getScopeForNode } from '../binder/scopeUtils.ts';
-import { Symbol } from '../binder/symbol.ts';
-import * as SymbolNameUtils from '../binder/symbolNameUtils.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
+import { getScopeForNode } from 'typeserver/binder/scopeUtils.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     isClassInstance,
@@ -22,8 +22,8 @@ import {
     isNever,
     isUnknown,
     removeUnknownFromUnion,
-} from '../evaluator/types.ts';
-import { Uri } from '../files/uri/uri.ts';
+} from 'typeserver/evaluator/types.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     ArgCategory,
     AssignmentNode,
@@ -53,10 +53,10 @@ import {
     TypeParameterNode,
     WhileNode,
     WithNode,
-} from '../parser/parseNodes.ts';
-import { ParseTreeWalker } from '../parser/parseTreeWalker.ts';
-import { OperatorType } from '../parser/tokenizerTypes.ts';
-import { SourceFile } from '../program/sourceFile.ts';
+} from 'typeserver/parser/parseNodes.js';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
+import { OperatorType } from 'typeserver/parser/tokenizerTypes.js';
+import { SourceFile } from 'typeserver/program/sourceFile.js';
 
 class TrackedImport {
     isAccessed = false;

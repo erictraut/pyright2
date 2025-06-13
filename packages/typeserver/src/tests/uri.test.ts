@@ -10,12 +10,12 @@ import assert from 'assert';
 import nodefs from 'fs-extra';
 import path from 'path';
 
-import { CaseSensitivityDetector } from '../files/caseSensitivityDetector.ts';
-import { isRootedDiskPath, normalizeSlashes } from '../files/pathUtils.ts';
-import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem.ts';
-import { FileUriSchema } from '../files/uri/fileUri.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { UriEx, deduplicateFolders, getWildcardRegexPattern, getWildcardRoot } from '../files/uri/uriUtils.ts';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
+import { FileUriSchema } from 'typeserver/files/uri/fileUri.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx, deduplicateFolders, getWildcardRegexPattern, getWildcardRoot } from 'typeserver/files/uri/uriUtils.js';
 
 export class TestCaseSensitivityDetector implements CaseSensitivityDetector {
     constructor(private _isCaseSensitive = true) {

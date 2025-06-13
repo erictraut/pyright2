@@ -11,7 +11,7 @@
  * the Python tokenizer.
  */
 
-import { TextRange } from '../common/textRange.ts';
+import { TextRange } from 'typeserver/common/textRange.js';
 
 export const enum TokenType {
     Invalid,

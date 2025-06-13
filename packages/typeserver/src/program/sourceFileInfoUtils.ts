@@ -6,9 +6,9 @@
  * Functions that operate on SourceFileInfo objects.
  */
 
-import { IProgramView, ISourceFileInfo } from '../extensibility/extensibility.ts';
-import { fail } from '../utils/debug.ts';
-import { IPythonMode } from './sourceFile.ts';
+import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { fail } from 'typeserver/utils/debug.js';
 
 export function isUserCode(fileInfo: ISourceFileInfo | undefined) {
     return !!fileInfo && fileInfo.isTracked && !fileInfo.isThirdPartyImport && !fileInfo.isTypeshedFile;

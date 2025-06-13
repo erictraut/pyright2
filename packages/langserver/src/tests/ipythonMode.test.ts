@@ -9,12 +9,12 @@
 import assert from 'assert';
 import { CompletionItemKind, MarkupKind } from 'vscode-languageserver-types';
 
-import { DiagnosticRule } from 'typeserver/common/diagnosticRules.ts';
-import { TextRange } from 'typeserver/common/textRange.ts';
-import { TextRangeCollection } from 'typeserver/common/textRangeCollection.ts';
-import { LocMessage } from 'typeserver/localization/localize.ts';
-import { Comment, CommentType, Token } from 'typeserver/parser/tokenizerTypes.ts';
-import { parseAndGetTestState } from './harness/fourslash/testState.ts';
+import { parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
+import { LocMessage } from 'typeserver/localization/localize.js';
+import { Comment, CommentType, Token } from 'typeserver/parser/tokenizerTypes.js';
 
 test('regular mode', () => {
     const code = `

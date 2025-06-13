@@ -1,17 +1,23 @@
 /**
- * webpack.config-cli.js
+ * webpack.config.js
  * Copyright: Microsoft 2018
  */
 
-const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const { cacheConfig, monorepoResourceNameMapper, tsconfigResolveAliases } = require('../../build/lib/webpack');
+import CopyPlugin from 'copy-webpack-plugin';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// eslint-disable-next-line no-restricted-imports
+import { cacheConfig, monorepoResourceNameMapper, tsconfigResolveAliases } from '../../build/lib/webpack.mjs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const outPath = path.resolve(__dirname, 'dist');
 const typeshedFallback = path.resolve(__dirname, '..', 'typeserver', 'typeshed-fallback');
 
 /**@type {(env: any, argv: { mode: 'production' | 'development' | 'none' }) => import('webpack').Configuration}*/
-module.exports = (_, { mode }) => {
+export default (_, { mode }) => {
     return {
         context: __dirname,
         entry: {
@@ -20,12 +26,17 @@ module.exports = (_, { mode }) => {
         },
         target: 'node',
         output: {
-            filename: '[name].ts',
+            filename: '[name].js',
             path: outPath,
+            // library: {
+            //     type: 'module',
+            // },
+            module: true,
             devtoolModuleFilenameTemplate:
-                mode === 'development' ? '../[resource-path]' : monorepoResourceNameMapper('pyright'),
+                mode === 'development' ? 'typeserver/[resource-path]' : monorepoResourceNameMapper('pyright'),
             clean: true,
         },
+        experiments: { outputModule: true },
         devtool: mode === 'development' ? 'source-map' : 'nosources-source-map',
         cache: mode === 'development' ? cacheConfig(__dirname, __filename) : false,
         stats: {
@@ -36,11 +47,18 @@ module.exports = (_, { mode }) => {
             timings: true,
         },
         resolve: {
-            extensions: ['.ts', '.ts'],
+            extensions: ['.ts', '.js'],
+            extensionAlias: {
+                '.js': ['.ts', '.js'],
+                '.cjs': ['.cts', '.cjs'],
+                '.mjs': ['.mts', '.mjs'],
+            },
             alias: tsconfigResolveAliases('tsconfig.json'),
         },
         externals: {
             fsevents: 'commonjs2 fsevents',
+            'lodash.camelcase': 'commonjs2 lodash',
+            chalk: 'commonjs2 chalk',
         },
         module: {
             rules: [
@@ -65,6 +83,8 @@ module.exports = (_, { mode }) => {
         },
         plugins: [new CopyPlugin({ patterns: [{ from: typeshedFallback, to: 'typeshed-fallback' }] })],
         optimization: {
+            usedExports: false,
+            sideEffects: true,
             splitChunks: {
                 cacheGroups: {
                     defaultVendors: {

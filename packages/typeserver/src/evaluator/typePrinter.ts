@@ -7,13 +7,10 @@
  * Converts a type into a string representation.
  */
 
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { ConfigOptions } from '../config/configOptions.ts';
-import { ParamCategory } from '../parser/parseNodes.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { assert } from '../utils/debug.ts';
-import { isTypedKwargs } from './parameterUtils.ts';
-import { printBytesLiteral, printStringLiteral } from './typePrinterUtils.ts';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { isTypedKwargs } from 'typeserver/evaluator/parameterUtils.js';
+import { printBytesLiteral, printStringLiteral } from 'typeserver/evaluator/typePrinterUtils.js';
 import {
     ClassType,
     EnumLiteral,
@@ -40,7 +37,7 @@ import {
     TypeVarType,
     UnionType,
     Variance,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     convertToInstance,
     doForEachSubtype,
@@ -48,7 +45,10 @@ import {
     isSentinelLiteral,
     isTupleClass,
     removeNoneFromUnion,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { ParamCategory } from 'typeserver/parser/parseNodes.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 export const enum PrintTypeFlags {
     None = 0,

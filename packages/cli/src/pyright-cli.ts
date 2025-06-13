@@ -10,7 +10,7 @@
 // Add the start timer at the very top of the file, before we import other modules.
 
 /* eslint-disable */
-import { timingStats } from 'typeserver/service/timing';
+import { timingStats } from 'typeserver/service/timing.js';
 /* eslint-enable */
 
 import chalk from 'chalk';
@@ -18,32 +18,32 @@ import { ChildProcess, fork } from 'child_process';
 import commandLineArgs, { CommandLineOptions, OptionDefinition } from 'command-line-args';
 import os from 'os';
 
-import { Diagnostic, DiagnosticCategory, compareDiagnostics } from 'typeserver/common/diagnostic';
-import { FileDiagnostics } from 'typeserver/common/diagnosticSink';
-import { PythonVersion } from 'typeserver/common/pythonVersion';
-import { Range, isEmptyRange } from 'typeserver/common/textRange';
-import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/config/commandLineOptions';
-import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/extensibility/console';
-import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions';
-import { ChokidarFileWatcherProvider } from 'typeserver/files/chokidarFileWatcherProvider';
-import { combinePaths, normalizePath } from 'typeserver/files/pathUtils';
-import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem';
-import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem';
-import { Uri } from 'typeserver/files/uri/uri';
-import { getFileSpec, tryStat } from 'typeserver/files/uri/uriUtils';
-import { maxSourceFileSize } from 'typeserver/program/sourceFile';
-import { SourceFileInfo } from 'typeserver/program/sourceFileInfo';
-import { AnalysisResults } from 'typeserver/service/analysis';
-import { initializeDependencies } from 'typeserver/service/asyncInitialization';
-import { PackageTypeReport, TypeKnownStatus } from 'typeserver/service/packageTypeReport';
-import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier';
-import { TypeService } from 'typeserver/service/typeService';
-import { fail } from 'typeserver/utils/debug';
-import { createDeferred } from 'typeserver/utils/deferred';
-import { getStdin } from 'typeserver/utils/streamUtils';
+import { Diagnostic, DiagnosticCategory, compareDiagnostics } from 'typeserver/common/diagnostic.js';
+import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
+import { PythonVersion } from 'typeserver/common/pythonVersion.js';
+import { Range, isEmptyRange } from 'typeserver/common/textRange.js';
+import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/config/commandLineOptions.js';
+import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/extensibility/console.js';
+import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { ChokidarFileWatcherProvider } from 'typeserver/files/chokidarFileWatcherProvider.js';
+import { combinePaths, normalizePath } from 'typeserver/files/pathUtils.js';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { getFileSpec, tryStat } from 'typeserver/files/uri/uriUtils.js';
+import { maxSourceFileSize } from 'typeserver/program/sourceFile.js';
+import { SourceFileInfo } from 'typeserver/program/sourceFileInfo.js';
+import { AnalysisResults } from 'typeserver/service/analysis.js';
+import { initializeDependencies } from 'typeserver/service/asyncInitialization.js';
+import { PackageTypeReport, TypeKnownStatus } from 'typeserver/service/packageTypeReport.js';
+import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
+import { TypeService } from 'typeserver/service/typeService.js';
+import { fail } from 'typeserver/utils/debug.js';
+import { createDeferred } from 'typeserver/utils/deferred.js';
+import { getStdin } from 'typeserver/utils/streamUtils.js';
 
 const toolName = 'pyright';
 
@@ -1138,9 +1138,11 @@ function printUsage() {
 }
 
 function getVersionString() {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const version = require('../package.json').version;
-    return version.toString();
+    // const require = createRequire(import.meta.url);
+    // const version = require('typeserver/package.json').version;
+    // return version.toString();
+    // TODO - fix me
+    return '<Unknown version>';
 }
 
 function printVersion(console: ConsoleInterface) {
@@ -1341,7 +1343,7 @@ function parseThreadsArgValue(input: string | null): any {
 // crashes with deep stack traces.
 Error.stackTraceLimit = 64;
 
-export async function main() {
+async function main() {
     await initializeDependencies();
 
     // Is this a worker process for multi-threaded analysis?

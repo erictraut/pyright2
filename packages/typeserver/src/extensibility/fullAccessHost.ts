@@ -8,16 +8,16 @@
 
 import child_process from 'child_process';
 
-import { PythonVersion } from '../common/pythonVersion.ts';
-import { PythonPlatform } from '../config/configOptions.ts';
-import { ServiceKeys } from '../extensibility/serviceKeys.ts';
-import { ServiceProvider } from '../extensibility/serviceProvider.ts';
-import { getAnyExtensionFromPath, normalizePath } from '../files/pathUtils.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { isDirectory } from '../files/uri/uriUtils.ts';
-import { PythonPathResult } from '../service/pythonPathUtils.ts';
-import { assertNever } from '../utils/debug.ts';
-import { HostKind, NoAccessHost } from './host.ts';
+import { PythonVersion } from 'typeserver/common/pythonVersion.js';
+import { PythonPlatform } from 'typeserver/config/configOptions.js';
+import { HostKind, NoAccessHost } from 'typeserver/extensibility/host.js';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { getAnyExtensionFromPath, normalizePath } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { isDirectory } from 'typeserver/files/uri/uriUtils.js';
+import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
+import { assertNever } from 'typeserver/utils/debug.js';
 
 // preventLocalImports removes the working directory from sys.path.
 // The -c flag adds it automatically, which can allow some stdlib

@@ -8,10 +8,17 @@
  * whose values can be evaluated statically.
  */
 
-import { PythonReleaseLevel, PythonVersion } from '../common/pythonVersion.ts';
-import { ExecutionEnvironment, PythonPlatform } from '../config/configOptions.ts';
-import { ArgCategory, ExpressionNode, NameNode, NumberNode, ParseNodeType, TupleNode } from '../parser/parseNodes.ts';
-import { KeywordType, OperatorType } from '../parser/tokenizerTypes.ts';
+import { PythonReleaseLevel, PythonVersion } from 'typeserver/common/pythonVersion.js';
+import { ExecutionEnvironment, PythonPlatform } from 'typeserver/config/configOptions.js';
+import {
+    ArgCategory,
+    ExpressionNode,
+    NameNode,
+    NumberNode,
+    ParseNodeType,
+    TupleNode,
+} from 'typeserver/parser/parseNodes.js';
+import { KeywordType, OperatorType } from 'typeserver/parser/tokenizerTypes.js';
 
 // Returns undefined if the expression cannot be evaluated
 // statically as a bool value or true/false if it can.

@@ -8,13 +8,13 @@
 
 import type * as fs from 'fs';
 
+import { stubsSuffix } from 'typeserver/common/pathConsts.js';
+import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { isDirectory, tryStat } from 'typeserver/files/uri/uriUtils.js';
+import { getPyTypedInfo, PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
 import { Disposable } from 'vscode-jsonrpc';
-import { stubsSuffix } from '../common/pathConsts.ts';
-import { ExecutionEnvironment } from '../config/configOptions.ts';
-import { FileSystem } from '../files/fileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { isDirectory, tryStat } from '../files/uri/uriUtils.ts';
-import { getPyTypedInfo, PyTypedInfo } from '../imports/pyTypedUtils.ts';
 
 export interface SupportPartialStubs {
     isPartialStubPackagesScanned(execEnv: ExecutionEnvironment): boolean;

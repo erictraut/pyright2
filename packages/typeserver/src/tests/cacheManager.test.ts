@@ -9,7 +9,7 @@
 import assert from 'assert';
 import { Worker } from 'worker_threads';
 
-import { CacheManager, CacheOwner } from '../service/cacheManager.ts';
+import { CacheManager, CacheOwner } from 'typeserver/service/cacheManager.js';
 
 test('basic', () => {
     const manager = new CacheManager();

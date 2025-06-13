@@ -6,8 +6,8 @@
  * LanguageServer features that can be dynamically added or removed from LSP server
  */
 
+import { ServerSettings } from 'langserver/server/languageServerInterface.js';
 import { Disposable } from 'vscode-languageserver';
-import { ServerSettings } from '../server/languageServerInterface.ts';
 
 export abstract class DynamicFeature {
     private _lastRegistration: Disposable | undefined;

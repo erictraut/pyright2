@@ -8,10 +8,10 @@
  * arbitrarily among multiple files so they can run in parallel.
  */
 
-import { pythonVersion3_10, pythonVersion3_9 } from '../common/pythonVersion.ts';
-import { ConfigOptions } from '../config/configOptions.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { typeAnalyzeSampleFiles, validateResults } from './testUtils.ts';
+import { pythonVersion3_10, pythonVersion3_9 } from 'typeserver/common/pythonVersion.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { typeAnalyzeSampleFiles, validateResults } from 'typeserver/tests/testUtils.js';
 
 test('CallbackProtocol1', () => {
     const analysisResults = typeAnalyzeSampleFiles(['callbackProtocol1.py']);

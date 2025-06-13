@@ -7,16 +7,14 @@
  * Provides type evaluation logic that is specific to properties.
  */
 
-import { Symbol, SymbolFlags } from '../binder/symbol.ts';
-import { getFileInfo } from '../common/analyzerNodeInfo.ts';
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { getClassFullName, getTypeAnnotationForParam, getTypeSourceId } from '../common/parseTreeUtils.ts';
-import { LocAddendum, LocMessage } from '../localization/localize.ts';
-import { DecoratorNode, FunctionNode, ParamCategory, ParseNode } from '../parser/parseNodes.ts';
-import { ConstraintSolution } from './constraintSolution.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
-import { AssignTypeFlags, TypeEvaluator } from './typeEvaluatorTypes.ts';
+import { Symbol, SymbolFlags } from 'typeserver/binder/symbol.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { getClassFullName, getTypeAnnotationForParam, getTypeSourceId } from 'typeserver/common/parseTreeUtils.js';
+import { ConstraintSolution } from 'typeserver/evaluator/constraintSolution.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { AssignTypeFlags, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     AnyType,
     ClassType,
@@ -37,8 +35,15 @@ import {
     Type,
     TypeVarType,
     UnknownType,
-} from './types.ts';
-import { applySolvedTypeVars, computeMroLinearization, getTypeVarScopeId, isProperty } from './typeUtils.ts';
+} from 'typeserver/evaluator/types.js';
+import {
+    applySolvedTypeVars,
+    computeMroLinearization,
+    getTypeVarScopeId,
+    isProperty,
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocAddendum, LocMessage } from 'typeserver/localization/localize.js';
+import { DecoratorNode, FunctionNode, ParamCategory, ParseNode } from 'typeserver/parser/parseNodes.js';
 
 export function validatePropertyMethod(evaluator: TypeEvaluator, method: FunctionType, errorNode: ParseNode) {
     if (FunctionType.isStaticMethod(method)) {

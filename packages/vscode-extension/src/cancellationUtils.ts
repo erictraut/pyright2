@@ -17,7 +17,7 @@ import {
     Disposable,
 } from 'vscode-languageserver';
 
-import { randomBytesHex } from 'typeserver/utils/crypto.ts';
+import { randomBytesHex } from 'typeserver/utils/crypto.js';
 
 function getCancellationFolderPath(folderName: string) {
     return path.join(os.tmpdir(), 'python-languageserver-cancellation', folderName);

@@ -10,27 +10,27 @@
 
 import { CancellationToken, Location, ResultProgressReporter } from 'vscode-languageserver';
 
-import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.ts';
-import { getNameFromDeclaration } from 'typeserver/binder/declarationUtils.ts';
-import { Symbol } from 'typeserver/binder/symbol.ts';
-import { isVisibleExternally } from 'typeserver/binder/symbolUtils.ts';
-import { DocumentRange } from 'typeserver/common/docRange.ts';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
-import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
-import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/textRange.ts';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
-import { maxTypeRecursionCount } from 'typeserver/evaluator/types.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.ts';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.ts';
-import { appendArray } from 'typeserver/utils/collectionUtils.ts';
-import { assertNever } from 'typeserver/utils/debug.ts';
-import { CollectionResult, DocumentSymbolCollector } from './documentSymbolCollector.ts';
-import { convertDocumentRangesToLocation } from './navigationUtils.ts';
+import { CollectionResult, DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { convertDocumentRangesToLocation } from 'langserver/providers/navigationUtils.js';
+import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
+import { getNameFromDeclaration } from 'typeserver/binder/declarationUtils.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
+import { isVisibleExternally } from 'typeserver/binder/symbolUtils.js';
+import { DocumentRange } from 'typeserver/common/docRange.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
+import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/textRange.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { maxTypeRecursionCount } from 'typeserver/evaluator/types.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { assertNever } from 'typeserver/utils/debug.js';
 
 export type ReferenceCallback = (locations: DocumentRange[]) => void;
 

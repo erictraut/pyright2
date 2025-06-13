@@ -8,8 +8,8 @@
 
 import chokidar from 'chokidar';
 
-import { ConsoleInterface } from '../extensibility/console.ts';
-import { FileWatcher, FileWatcherEventHandler, FileWatcherProvider } from './fileWatcher.ts';
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { FileWatcher, FileWatcherEventHandler, FileWatcherProvider } from 'typeserver/files/fileWatcher.js';
 
 const _isMacintosh = process.platform === 'darwin';
 const _isLinux = process.platform === 'linux';

@@ -8,11 +8,11 @@
 
 import { CancellationToken, ExecuteCommandParams, ResponseError } from 'vscode-languageserver';
 
-import { LanguageServerInterface } from '../server/languageServerInterface.ts';
-import { Commands } from './commands.ts';
-import { CreateTypeStubCommand } from './createTypeStub.ts';
-import { QuickActionCommand } from './quickActionCommand.ts';
-import { RestartServerCommand } from './restartServer.ts';
+import { Commands } from 'langserver/commands/commands.js';
+import { CreateTypeStubCommand } from 'langserver/commands/createTypeStub.js';
+import { QuickActionCommand } from 'langserver/commands/quickActionCommand.js';
+import { RestartServerCommand } from 'langserver/commands/restartServer.js';
+import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
 
 export interface ServerCommand {
     execute(cmdParams: ExecuteCommandParams, token: CancellationToken): Promise<any>;

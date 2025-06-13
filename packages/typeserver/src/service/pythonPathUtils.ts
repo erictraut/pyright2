@@ -7,14 +7,14 @@
  * Utility routines used to resolve various paths in Python.
  */
 
-import * as pathConsts from '../common/pathConsts.ts';
-import { PythonVersion } from '../common/pythonVersion.ts';
-import { ConfigOptions } from '../config/configOptions.ts';
-import { Host } from '../extensibility/host.ts';
-import { FileSystem } from '../files/fileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { getFileSystemEntries, isDirectory, tryStat } from '../files/uri/uriUtils.ts';
-import { compareComparableValues } from '../utils/core.ts';
+import * as pathConsts from 'typeserver/common/pathConsts.js';
+import { PythonVersion } from 'typeserver/common/pythonVersion.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { Host } from 'typeserver/extensibility/host.js';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { getFileSystemEntries, isDirectory, tryStat } from 'typeserver/files/uri/uriUtils.js';
+import { compareComparableValues } from 'typeserver/utils/core.js';
 
 export interface PythonPathResult {
     paths: Uri[];

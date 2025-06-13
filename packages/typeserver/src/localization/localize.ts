@@ -7,7 +7,7 @@
  * Code that localizes user-visible strings.
  */
 
-import { fail } from '../utils/debug.ts';
+import { fail } from 'typeserver/utils/debug.js';
 
 import csStrings = require('./package.nls.cs.json');
 import deStrings = require('./package.nls.de.json');

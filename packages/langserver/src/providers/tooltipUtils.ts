@@ -8,12 +8,12 @@
  * completion suggestions, etc.
  */
 
-import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.ts';
-import { Symbol } from 'typeserver/binder/symbol.ts';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
-import { SignatureDisplayType } from 'typeserver/config/configOptions.ts';
-import { getBoundCallMethod } from 'typeserver/evaluator/constructors.ts';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
+import { getBoundCallMethod } from 'typeserver/evaluator/constructors.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     FunctionType,
@@ -29,10 +29,10 @@ import {
     isInstantiableClass,
     isModule,
     isOverloaded,
-} from 'typeserver/evaluator/types.ts';
-import { MemberAccessFlags, lookUpClassMember } from 'typeserver/evaluator/typeUtils.ts';
-import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
-import { SourceMapper } from 'typeserver/program/sourceMapper.ts';
+} from 'typeserver/evaluator/types.js';
+import { MemberAccessFlags, lookUpClassMember } from 'typeserver/evaluator/typeUtils.js';
+import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import {
     getClassDocString,
     getFunctionDocStringInherited,
@@ -41,8 +41,8 @@ import {
     getOverloadedDocStringsInherited,
     getPropertyDocStringInherited,
     getVariableDocString,
-} from 'typeserver/service/typeDocStringUtils.ts';
-import { isDefined } from 'typeserver/utils/core.ts';
+} from 'typeserver/service/typeDocStringUtils.js';
+import { isDefined } from 'typeserver/utils/core.js';
 
 // The number of spaces to indent each parameter, after moving to a newline in tooltips.
 const functionParamIndentOffset = 4;

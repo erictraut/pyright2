@@ -17,25 +17,25 @@ import {
     DeclarationType,
     isFunctionDeclaration,
     isUnresolvedAliasDeclaration,
-} from 'typeserver/binder/declaration.ts';
-import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.ts';
-import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.ts';
-import { DocumentRange } from 'typeserver/common/docRange.ts';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.ts';
-import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
-import { Position, rangesAreEqual } from 'typeserver/common/textRange.ts';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
-import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator/types.ts';
-import { doForEachSubtype } from 'typeserver/evaluator/typeUtils.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
-import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.ts';
-import { appendArray } from 'typeserver/utils/collectionUtils.ts';
-import { isDefined } from 'typeserver/utils/core.ts';
+} from 'typeserver/binder/declaration.js';
+import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { DocumentRange } from 'typeserver/common/docRange.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
+import { Position, rangesAreEqual } from 'typeserver/common/textRange.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator/types.js';
+import { doForEachSubtype } from 'typeserver/evaluator/typeUtils.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { isDefined } from 'typeserver/utils/core.js';
 
 export enum DefinitionFilter {
     All = 'all',

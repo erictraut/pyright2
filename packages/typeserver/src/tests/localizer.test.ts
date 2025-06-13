@@ -9,7 +9,7 @@
 
 import assert from 'assert';
 
-import { LocMessage, Localizer, ParameterizedString, setGetRawString } from '../localization/localize.ts';
+import { LocMessage, Localizer, ParameterizedString, setGetRawString } from 'typeserver/localization/localize.js';
 
 const namespaces = [Localizer.Diagnostic, Localizer.DiagnosticAddendum, Localizer.CodeAction];
 

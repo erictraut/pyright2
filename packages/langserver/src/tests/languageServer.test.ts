@@ -16,11 +16,9 @@ import {
     MarkupContent,
 } from 'vscode-languageserver';
 
-import { convertOffsetToPosition } from 'typeserver/common/positionUtils.ts';
-import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.ts';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
+import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.js';
 
-import { normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { isArray } from 'typeserver/utils/core.ts';
 import {
     cleanupAfterAll,
     DEFAULT_WORKSPACE_ROOT,
@@ -31,7 +29,9 @@ import {
     PyrightServerInfo,
     runPyrightServer,
     waitForDiagnostics,
-} from './lsp/languageServerTestUtils.ts';
+} from 'langserver/tests/lsp/languageServerTestUtils.js';
+import { normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { isArray } from 'typeserver/utils/core.js';
 
 describe(`Basic language server tests`, () => {
     let serverInfo: PyrightServerInfo | undefined;

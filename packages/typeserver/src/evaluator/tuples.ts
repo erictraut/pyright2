@@ -7,20 +7,18 @@
  * Provides special-case logic for type analysis of tuples.
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { getTypeVarScopesForNode } from '../common/parseTreeUtils.ts';
-import { LocAddendum, LocMessage } from '../localization/localize.ts';
-import { ExpressionNode, ParseNodeType, SliceNode, TupleNode } from '../parser/parseNodes.ts';
-import { addConstraintsForExpectedType } from './constraintSolver.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { getTypeVarScopesForNode } from 'typeserver/common/parseTreeUtils.js';
+import { addConstraintsForExpectedType } from 'typeserver/evaluator/constraintSolver.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
 import {
     AssignTypeFlags,
     EvalFlags,
     maxInferredContainerDepth,
     TypeEvaluator,
     TypeResult,
-} from './typeEvaluatorTypes.ts';
+} from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     AnyType,
     ClassType,
@@ -38,7 +36,7 @@ import {
     Type,
     TypeVarType,
     UnknownType,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     convertToInstance,
     doForEachSubtype,
@@ -50,7 +48,9 @@ import {
     makeInferenceContext,
     specializeTupleClass,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocAddendum, LocMessage } from 'typeserver/localization/localize.js';
+import { ExpressionNode, ParseNodeType, SliceNode, TupleNode } from 'typeserver/parser/parseNodes.js';
 
 // If a tuple expression with no declared type contains a large number
 // of elements, it can cause performance issues. This value limits the

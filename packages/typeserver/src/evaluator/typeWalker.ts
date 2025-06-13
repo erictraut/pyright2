@@ -8,7 +8,6 @@
  * or the type arguments of a class). It detects and prevents infinite recursion.
  */
 
-import { assert, assertNever } from '../utils/debug.ts';
 import {
     AnyType,
     ClassType,
@@ -23,7 +22,8 @@ import {
     UnionType,
     UnknownType,
     maxTypeRecursionCount,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
+import { assert, assertNever } from 'typeserver/utils/debug.js';
 
 export class TypeWalker {
     private _recursionCount = 0;

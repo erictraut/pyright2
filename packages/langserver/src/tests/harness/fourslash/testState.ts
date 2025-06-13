@@ -26,62 +26,30 @@ import {
     WorkspaceEdit,
 } from 'vscode-languageserver';
 
-import { DiagnosticCategory } from 'typeserver/common/diagnostic.ts';
-import { DocumentRange } from 'typeserver/common/docRange.ts';
-import { FileEditAction } from 'typeserver/common/editAction.ts';
-import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.ts';
-import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.ts';
-import { Position, Range as PositionRange, TextRange, rangesAreEqual } from 'typeserver/common/textRange.ts';
-import { TextRangeCollection } from 'typeserver/common/textRangeCollection.ts';
-import { CommandLineOptions } from 'typeserver/config/commandLineOptions.ts';
-import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.ts';
-import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.ts';
-import { Host } from 'typeserver/extensibility/host.ts';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.ts';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.ts';
-import { PartialStubService } from 'typeserver/files/partialStubService.ts';
-import { getFileExtension, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { UriEx, getFileSpec } from 'typeserver/files/uri/uriUtils.ts';
-import { ImportResolver, ImportResolverFactory } from 'typeserver/imports//importResolver.ts';
-import { Char } from 'typeserver/parser/charCodes.ts';
-import { ParseNode } from 'typeserver/parser/parseNodes.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
-import { Tokenizer } from 'typeserver/parser/tokenizer.ts';
-import { Program } from 'typeserver/program/program.ts';
-import { PackageTypeReport } from 'typeserver/service/packageTypeReport.ts';
-import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.ts';
-import { TypeService } from 'typeserver/service/typeService.ts';
-import { Comparison, isNumber, isString } from 'typeserver/utils/core.ts';
-import { assertNever } from 'typeserver/utils/debug.ts';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.ts';
-import { CommandResult } from '../../../commands/commandResult.ts';
-import { CallHierarchyProvider } from '../../../providers/callHierarchyProvider.ts';
-import { CompletionOptions, CompletionProvider } from '../../../providers/completionProvider.ts';
-import { DefinitionFilter, DefinitionProvider, TypeDefinitionProvider } from '../../../providers/definitionProvider.ts';
-import { DocumentHighlightProvider } from '../../../providers/documentHighlightProvider.ts';
-import { CollectionResult } from '../../../providers/documentSymbolCollector.ts';
-import { HoverProvider } from '../../../providers/hoverProvider.ts';
-import { convertDocumentRangesToLocation } from '../../../providers/navigationUtils.ts';
-import { ReferencesProvider } from '../../../providers/referencesProvider.ts';
-import { RenameProvider } from '../../../providers/renameProvider.ts';
-import { SignatureHelpProvider } from '../../../providers/signatureHelpProvider.ts';
-import { LanguageServerInterface } from '../../../server/languageServerInterface.ts';
-import { convertToWorkspaceEdit } from '../../../server/workspaceEditUtils.ts';
+import { CommandResult } from 'langserver/commands/commandResult.js';
+import { CallHierarchyProvider } from 'langserver/providers/callHierarchyProvider.js';
+import { CompletionOptions, CompletionProvider } from 'langserver/providers/completionProvider.js';
+import {
+    DefinitionFilter,
+    DefinitionProvider,
+    TypeDefinitionProvider,
+} from 'langserver/providers/definitionProvider.js';
+import { DocumentHighlightProvider } from 'langserver/providers/documentHighlightProvider.js';
+import { CollectionResult } from 'langserver/providers/documentSymbolCollector.js';
+import { HoverProvider } from 'langserver/providers/hoverProvider.js';
+import { convertDocumentRangesToLocation } from 'langserver/providers/navigationUtils.js';
+import { ReferencesProvider } from 'langserver/providers/referencesProvider.js';
+import { RenameProvider } from 'langserver/providers/renameProvider.js';
+import { SignatureHelpProvider } from 'langserver/providers/signatureHelpProvider.js';
+import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
+import { convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
 import {
     NormalWorkspace,
     WellKnownWorkspaceKinds,
     Workspace,
     createInitStatus,
-} from '../../../server/workspaceFactory.ts';
-import { TestAccessHost } from '../testAccessHost.ts';
-import * as host from '../testHost.ts';
-import { stringify } from '../utils.ts';
-import { createFromFileSystem, distlibFolder, libFolder, typeshedFolder } from '../vfs/factory.ts';
-import * as vfs from '../vfs/filesystem.ts';
-import { parseTestData } from './fourSlashParser.ts';
+} from 'langserver/server/workspaceFactory.js';
+import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import {
     FourSlashData,
     FourSlashFile,
@@ -90,16 +58,57 @@ import {
     MultiMap,
     Range,
     TestCancellationToken,
-} from './fourSlashTypes.ts';
-import { TestFeatures, TestLanguageService } from './testLanguageService.ts';
+} from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
+import { TestFeatures, TestLanguageService } from 'langserver/tests/harness/fourslash/testLanguageService.js';
 import {
     createVfsInfoFromFourSlashData,
     getMarkerByName,
     getMarkerName,
     getMarkerNames,
     getRangeByMarkerName,
-} from './testStateUtils.ts';
-import { verifyWorkspaceEdit } from './workspaceEditTestUtils.ts';
+} from 'langserver/tests/harness/fourslash/testStateUtils.js';
+import { verifyWorkspaceEdit } from 'langserver/tests/harness/fourslash/workspaceEditTestUtils.js';
+import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import * as host from 'langserver/tests/harness/testHost.js';
+import { stringify } from 'langserver/tests/harness/utils.js';
+import {
+    createFromFileSystem,
+    distlibFolder,
+    libFolder,
+    typeshedFolder,
+} from 'langserver/tests/harness/vfs/factory.js';
+import * as vfs from 'langserver/tests/harness/vfs/filesystem.js';
+import { DiagnosticCategory } from 'typeserver/common/diagnostic.js';
+import { DocumentRange } from 'typeserver/common/docRange.js';
+import { FileEditAction } from 'typeserver/common/editAction.js';
+import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
+import { Position, Range as PositionRange, TextRange, rangesAreEqual } from 'typeserver/common/textRange.js';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
+import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
+import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
+import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
+import { Host } from 'typeserver/extensibility/host.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { PartialStubService } from 'typeserver/files/partialStubService.js';
+import { getFileExtension, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx, getFileSpec } from 'typeserver/files/uri/uriUtils.js';
+import { ImportResolver, ImportResolverFactory } from 'typeserver/imports//importResolver.js';
+import { Char } from 'typeserver/parser/charCodes.js';
+import { ParseNode } from 'typeserver/parser/parseNodes.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { Tokenizer } from 'typeserver/parser/tokenizer.js';
+import { Program } from 'typeserver/program/program.js';
+import { PackageTypeReport } from 'typeserver/service/packageTypeReport.js';
+import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
+import { TypeService } from 'typeserver/service/typeService.js';
+import { Comparison, isNumber, isString } from 'typeserver/utils/core.js';
+import { assertNever } from 'typeserver/utils/debug.js';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 
 export interface TextChange {
     span: TextRange;

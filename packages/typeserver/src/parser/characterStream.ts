@@ -10,8 +10,8 @@
  * Class that represents a stream of characters.
  */
 
-import { Char } from './charCodes.ts';
-import { isLineBreak, isWhiteSpace } from './characters.ts';
+import { Char } from 'typeserver/parser/charCodes.js';
+import { isLineBreak, isWhiteSpace } from 'typeserver/parser/characters.js';
 
 export class CharacterStream {
     private _text: string;

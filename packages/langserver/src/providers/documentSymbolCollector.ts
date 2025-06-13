@@ -10,22 +10,22 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.ts';
+import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
 import {
     areDeclarationsSame,
     getDeclarationsWithUsesLocalNameRemoved,
     synthesizeAliasDeclaration,
-} from 'typeserver/binder/declarationUtils.ts';
-import { ScopeType } from 'typeserver/binder/scope.ts';
-import * as ScopeUtils from 'typeserver/binder/scopeUtils.ts';
-import { Symbol } from 'typeserver/binder/symbol.ts';
-import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.ts';
-import { getModuleNode, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.ts';
-import { TextRange } from 'typeserver/common/textRange.ts';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
-import { TypeCategory } from 'typeserver/evaluator/types.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.ts';
+} from 'typeserver/binder/declarationUtils.js';
+import { ScopeType } from 'typeserver/binder/scope.js';
+import * as ScopeUtils from 'typeserver/binder/scopeUtils.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { getModuleNode, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { TypeCategory } from 'typeserver/evaluator/types.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
 import {
     ImportAsNode,
     NameNode,
@@ -33,13 +33,13 @@ import {
     ParseNodeType,
     StringListNode,
     StringNode,
-} from 'typeserver/parser/parseNodes.ts';
-import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.ts';
-import { IPythonMode } from 'typeserver/program/sourceFile.ts';
-import { collectImportedByCells } from 'typeserver/program/sourceFileInfoUtils.ts';
-import { isStubFile } from 'typeserver/program/sourceMapper.ts';
-import { appendArray } from 'typeserver/utils/collectionUtils.ts';
-import { assert } from 'typeserver/utils/debug.ts';
+} from 'typeserver/parser/parseNodes.js';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { collectImportedByCells } from 'typeserver/program/sourceFileInfoUtils.js';
+import { isStubFile } from 'typeserver/program/sourceMapper.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 export type CollectionResult = {
     node: NameNode | StringNode;

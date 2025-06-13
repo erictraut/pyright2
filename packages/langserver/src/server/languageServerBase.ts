@@ -74,56 +74,65 @@ import {
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { Diagnostic as AnalyzerDiagnostic, DiagnosticCategory } from 'typeserver/common/diagnostic.ts';
-import { DiagnosticRule } from 'typeserver/common/diagnosticRules.ts';
-import { FileDiagnostics } from 'typeserver/common/diagnosticSink.ts';
-import { DocumentRange } from 'typeserver/common/docRange.ts';
-import { Position, Range } from 'typeserver/common/textRange.ts';
-import { DiagnosticSeverityOverrides, getDiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.ts';
-import { ConfigOptions, getDiagLevelDiagnosticRules, parseDiagLevel } from 'typeserver/config/configOptions.ts';
-import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.ts';
-import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/extensibility/console.ts';
-import { Host } from 'typeserver/extensibility/host.ts';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.ts';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.ts';
-import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.ts';
-import { FileWatcherEventType } from 'typeserver/files/fileWatcher.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.ts';
-import { ImportResolver } from 'typeserver/imports/importResolver.ts';
-import { Localizer, setLocaleOverride } from 'typeserver/localization/localize.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
-import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.ts';
-import { AnalysisResults } from 'typeserver/service/analysis.ts';
-import { TypeService } from 'typeserver/service/typeService.ts';
-import { getNestedProperty } from 'typeserver/utils/collectionUtils.ts';
-import { CommandResult } from '../commands/commandResult.ts';
-import { CallHierarchyProvider } from '../providers/callHierarchyProvider.ts';
-import { CompletionItemData, CompletionProvider } from '../providers/completionProvider.ts';
-import { DefinitionFilter, DefinitionProvider, TypeDefinitionProvider } from '../providers/definitionProvider.ts';
-import { DocumentHighlightProvider } from '../providers/documentHighlightProvider.ts';
-import { CollectionResult } from '../providers/documentSymbolCollector.ts';
-import { DocumentSymbolProvider } from '../providers/documentSymbolProvider.ts';
-import { DynamicFeature, DynamicFeatures } from '../providers/dynamicFeature.ts';
-import { FileWatcherDynamicFeature } from '../providers/fileWatcherDynamicFeature.ts';
-import { HoverProvider } from '../providers/hoverProvider.ts';
-import { canNavigateToFile } from '../providers/navigationUtils.ts';
-import { ReferencesProvider } from '../providers/referencesProvider.ts';
-import { RenameProvider } from '../providers/renameProvider.ts';
-import { SignatureHelpProvider } from '../providers/signatureHelpProvider.ts';
-import { WorkspaceSymbolProvider } from '../providers/workspaceSymbolProvider.ts';
-import { ProgressReportTracker, ProgressReporter } from '../server/progressReporter.ts';
-import { getEffectiveCommandLineOptions } from './analyzerServiceExecutor.ts';
+import { CommandResult } from 'langserver/commands/commandResult.js';
+import { CallHierarchyProvider } from 'langserver/providers/callHierarchyProvider.js';
+import { CompletionItemData, CompletionProvider } from 'langserver/providers/completionProvider.js';
+import {
+    DefinitionFilter,
+    DefinitionProvider,
+    TypeDefinitionProvider,
+} from 'langserver/providers/definitionProvider.js';
+import { DocumentHighlightProvider } from 'langserver/providers/documentHighlightProvider.js';
+import { CollectionResult } from 'langserver/providers/documentSymbolCollector.js';
+import { DocumentSymbolProvider } from 'langserver/providers/documentSymbolProvider.js';
+import { DynamicFeature, DynamicFeatures } from 'langserver/providers/dynamicFeature.js';
+import { FileWatcherDynamicFeature } from 'langserver/providers/fileWatcherDynamicFeature.js';
+import { HoverProvider } from 'langserver/providers/hoverProvider.js';
+import { canNavigateToFile } from 'langserver/providers/navigationUtils.js';
+import { ReferencesProvider } from 'langserver/providers/referencesProvider.js';
+import { RenameProvider } from 'langserver/providers/renameProvider.js';
+import { SignatureHelpProvider } from 'langserver/providers/signatureHelpProvider.js';
+import { WorkspaceSymbolProvider } from 'langserver/providers/workspaceSymbolProvider.js';
+import { getEffectiveCommandLineOptions } from 'langserver/server/analyzerServiceExecutor.js';
 import {
     LanguageServerInterface,
     ServerOptions,
     ServerSettings,
     WorkspaceServices,
-} from './languageServerInterface.ts';
-import { fromLSPAny, isNullProgressReporter } from './lspUtils.ts';
-import { ClientCapabilities, InitializationOptions } from './types.ts';
-import { InitStatus, WellKnownWorkspaceKinds, Workspace, WorkspaceFactory } from './workspaceFactory.ts';
+} from 'langserver/server/languageServerInterface.js';
+import { fromLSPAny, isNullProgressReporter } from 'langserver/server/lspUtils.js';
+import { ProgressReportTracker, ProgressReporter } from 'langserver/server/progressReporter.js';
+import { ClientCapabilities, InitializationOptions } from 'langserver/server/types.js';
+import {
+    InitStatus,
+    WellKnownWorkspaceKinds,
+    Workspace,
+    WorkspaceFactory,
+} from 'langserver/server/workspaceFactory.js';
+import { Diagnostic as AnalyzerDiagnostic, DiagnosticCategory } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
+import { DocumentRange } from 'typeserver/common/docRange.js';
+import { Position, Range } from 'typeserver/common/textRange.js';
+import { DiagnosticSeverityOverrides, getDiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.js';
+import { ConfigOptions, getDiagLevelDiagnosticRules, parseDiagLevel } from 'typeserver/config/configOptions.js';
+import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
+import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/extensibility/console.js';
+import { Host } from 'typeserver/extensibility/host.js';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
+import { ImportResolver } from 'typeserver/imports/importResolver.js';
+import { Localizer, setLocaleOverride } from 'typeserver/localization/localize.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
+import { AnalysisResults } from 'typeserver/service/analysis.js';
+import { TypeService } from 'typeserver/service/typeService.js';
+import { getNestedProperty } from 'typeserver/utils/collectionUtils.js';
 
 const DiagnosticsVersionNone = -1;
 

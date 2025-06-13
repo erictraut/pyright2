@@ -9,10 +9,12 @@
         },
     },
     "include": [
+        "../typeserver/src/**/*",
         "src/**/*",
         "**/*.js"
     ],
     "exclude": [
+        "../typeserver/src/tests/**/*",
         "node_modules",
         "dist",
         "out"

@@ -38,8 +38,8 @@ import {
     TransportKind,
 } from 'vscode-languageclient/node';
 
-import { Commands } from 'typeserver/common/commands.ts';
-import { isThenable } from 'typeserver/utils/core.ts';
+import { Commands } from 'typeserver/common/commands.js';
+import { isThenable } from 'typeserver/utils/core.js';
 
 import { FileBasedCancellationStrategy } from './cancellationUtils';
 

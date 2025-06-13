@@ -10,44 +10,55 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
+import { Scope } from 'typeserver/binder/scope.js';
+import { Symbol, SymbolTable } from 'typeserver/binder/symbol.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { Diagnostic, DiagnosticCategory } from 'typeserver/common/diagnostic.js';
+import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
+import { FileEditAction } from 'typeserver/common/editAction.js';
+import { getDocString } from 'typeserver/common/parseTreeUtils.js';
+import { convertRangeToTextRange } from 'typeserver/common/positionUtils.js';
+import { doRangesIntersect, Range } from 'typeserver/common/textRange.js';
+import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/config/configOptions.js';
+import {
+    AbsoluteModuleDescriptor,
+    ImportLookupResult,
+    LookupImportOptions,
+} from 'typeserver/evaluator/analyzerFileInfo.js';
+import { createTypeEvaluator } from 'typeserver/evaluator/typeEvaluator.js';
+import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { getPrintTypeFlags } from 'typeserver/evaluator/typePrinter.js';
+import { Type } from 'typeserver/evaluator/types.js';
+import {
+    OperationCanceledException,
+    throwIfCancellationRequested,
+} from 'typeserver/extensibility/cancellationUtils.js';
+import { ConsoleInterface, StandardConsole } from 'typeserver/extensibility/console.js';
+import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { makeDirectories } from 'typeserver/files/uri/uriUtils.js';
+import { ImportResolver } from 'typeserver/imports/importResolver.js';
+import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
+import { ParseFileResults, ParserOutput } from 'typeserver/parser/parser.js';
+import { LogTracker } from 'typeserver/program/logTracker.js';
+import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
+import { SourceFileInfo } from 'typeserver/program/sourceFileInfo.js';
+import {
+    createChainedByList,
+    isUserCode,
+    verifyNoCyclesInChainedFiles,
+} from 'typeserver/program/sourceFileInfoUtils.js';
+import { SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { AnalysisCompleteCallback, analyzeProgram, RequiringAnalysisCount } from 'typeserver/service/analysis.js';
+import { CacheManager } from 'typeserver/service/cacheManager.js';
+import { CircularDependency } from 'typeserver/service/circularDependency.js';
+import { Duration, timingStats } from 'typeserver/service/timing.js';
+import { TypeStubWriter } from 'typeserver/service/typeStubWriter.js';
+import { isThenable } from 'typeserver/utils/core.js';
+import { assert, fail } from 'typeserver/utils/debug.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { Scope } from '../binder/scope.ts';
-import { Symbol, SymbolTable } from '../binder/symbol.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import { Diagnostic, DiagnosticCategory } from '../common/diagnostic.ts';
-import { FileDiagnostics } from '../common/diagnosticSink.ts';
-import { FileEditAction } from '../common/editAction.ts';
-import { getDocString } from '../common/parseTreeUtils.ts';
-import { convertRangeToTextRange } from '../common/positionUtils.ts';
-import { doRangesIntersect, Range } from '../common/textRange.ts';
-import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from '../config/configOptions.ts';
-import { AbsoluteModuleDescriptor, ImportLookupResult, LookupImportOptions } from '../evaluator/analyzerFileInfo.ts';
-import { createTypeEvaluator } from '../evaluator/typeEvaluator.ts';
-import { PrintTypeOptions, TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
-import { getPrintTypeFlags } from '../evaluator/typePrinter.ts';
-import { Type } from '../evaluator/types.ts';
-import { OperationCanceledException, throwIfCancellationRequested } from '../extensibility/cancellationUtils.ts';
-import { ConsoleInterface, StandardConsole } from '../extensibility/console.ts';
-import { IEditableProgram, IProgramView } from '../extensibility/extensibility.ts';
-import { ServiceKeys } from '../extensibility/serviceKeys.ts';
-import { ServiceProvider } from '../extensibility/serviceProvider.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { makeDirectories } from '../files/uri/uriUtils.ts';
-import { ImportResolver } from '../imports/importResolver.ts';
-import { ImportResult, ImportType } from '../imports/importResult.ts';
-import { ParseFileResults, ParserOutput } from '../parser/parser.ts';
-import { LogTracker } from '../program/logTracker.ts';
-import { AnalysisCompleteCallback, analyzeProgram, RequiringAnalysisCount } from '../service/analysis.ts';
-import { CacheManager } from '../service/cacheManager.ts';
-import { CircularDependency } from '../service/circularDependency.ts';
-import { Duration, timingStats } from '../service/timing.ts';
-import { TypeStubWriter } from '../service/typeStubWriter.ts';
-import { isThenable } from '../utils/core.ts';
-import { assert, fail } from '../utils/debug.ts';
-import { IPythonMode, SourceFile } from './sourceFile.ts';
-import { SourceFileInfo } from './sourceFileInfo.ts';
-import { createChainedByList, isUserCode, verifyNoCyclesInChainedFiles } from './sourceFileInfoUtils.ts';
-import { SourceMapper } from './sourceMapper.ts';
 
 const _maxImportDepth = 256;
 

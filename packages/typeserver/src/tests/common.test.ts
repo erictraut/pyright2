@@ -6,7 +6,7 @@
 
 import assert from 'assert';
 
-import { doRangesOverlap, isPositionInRange, Range, rangesAreEqual, TextRange } from '../common/textRange.ts';
+import { doRangesOverlap, isPositionInRange, Range, rangesAreEqual, TextRange } from 'typeserver/common/textRange.js';
 
 test('textRange create', () => {
     assert.throws(() => TextRange.create(-1, 1), Error);

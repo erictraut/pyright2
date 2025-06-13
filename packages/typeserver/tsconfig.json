@@ -3,6 +3,9 @@
     "compilerOptions": {
         "outDir": "./out",
         "paths": {
+            "typeserver/*": [
+                "../typeserver/src/*"
+            ],
         },
         "typeRoots": ["./node_modules/@types", "./typings"]
     },

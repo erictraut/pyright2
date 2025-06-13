@@ -11,9 +11,9 @@
  * into an abstract syntax tree (AST).
  */
 
-import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticSink } from '../common/diagnosticSink.ts';
-import { convertOffsetsToRange } from '../common/positionUtils.ts';
+import { Diagnostic, DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
+import { convertOffsetsToRange } from 'typeserver/common/positionUtils.js';
 import {
     PythonVersion,
     latestStablePythonVersion,
@@ -27,14 +27,10 @@ import {
     pythonVersion3_6,
     pythonVersion3_8,
     pythonVersion3_9,
-} from '../common/pythonVersion.ts';
-import { TextRange } from '../common/textRange.ts';
-import { TextRangeCollection } from '../common/textRangeCollection.ts';
-import { LocAddendum, LocMessage } from '../localization/localize.ts';
-import { timingStats } from '../service/timing.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { assert } from '../utils/debug.ts';
-import { hashString } from '../utils/stringUtils.ts';
+} from 'typeserver/common/pythonVersion.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
+import { LocAddendum, LocMessage } from 'typeserver/localization/localize.js';
 import {
     ArgCategory,
     ArgumentNode,
@@ -128,9 +124,9 @@ import {
     YieldNode,
     extendRange,
     getNextNodeId,
-} from './parseNodes.ts';
-import * as StringTokenUtils from './stringTokenUtils.ts';
-import { Tokenizer, TokenizerOutput } from './tokenizer.ts';
+} from 'typeserver/parser/parseNodes.js';
+import * as StringTokenUtils from 'typeserver/parser/stringTokenUtils.js';
+import { Tokenizer, TokenizerOutput } from 'typeserver/parser/tokenizer.js';
 import {
     DedentToken,
     FStringEndToken,
@@ -147,7 +143,11 @@ import {
     StringTokenFlags,
     Token,
     TokenType,
-} from './tokenizerTypes.ts';
+} from 'typeserver/parser/tokenizerTypes.js';
+import { timingStats } from 'typeserver/service/timing.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { assert } from 'typeserver/utils/debug.js';
+import { hashString } from 'typeserver/utils/stringUtils.js';
 
 interface ListResult<T> {
     list: T[];

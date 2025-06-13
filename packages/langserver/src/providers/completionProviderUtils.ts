@@ -8,10 +8,12 @@
 
 import { InsertTextFormat, MarkupContent, MarkupKind, TextEdit } from 'vscode-languageserver-types';
 
-import { Declaration, DeclarationType } from 'typeserver/binder/declaration.ts';
-import { TextEditAction } from 'typeserver/common/editAction.ts';
-import { SignatureDisplayType } from 'typeserver/config/configOptions.ts';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
+import { getToolTipForType } from 'langserver/providers/tooltipUtils.js';
+import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
+import { TextEditAction } from 'typeserver/common/editAction.js';
+import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     Type,
@@ -22,12 +24,10 @@ import {
     isClassInstance,
     isFunctionOrOverloaded,
     isModule,
-} from 'typeserver/evaluator/types.ts';
-import { isProperty } from 'typeserver/evaluator/typeUtils.ts';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { convertDocStringToMarkdown, convertDocStringToPlainText } from '../server/docStringConversion.ts';
-import { getToolTipForType } from './tooltipUtils.ts';
+} from 'typeserver/evaluator/types.js';
+import { isProperty } from 'typeserver/evaluator/typeUtils.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 
 export interface Edits {
     format?: InsertTextFormat;

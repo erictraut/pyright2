@@ -28,9 +28,9 @@ import {
     ParseNodeType,
     StringNode,
     SuiteNode,
-} from '../parser/parseNodes.ts';
-import { OperatorType } from '../parser/tokenizerTypes.ts';
-import { assert, fail } from '../utils/debug.ts';
+} from 'typeserver/parser/parseNodes.js';
+import { OperatorType } from 'typeserver/parser/tokenizerTypes.js';
+import { assert, fail } from 'typeserver/utils/debug.js';
 
 export enum FlowFlags {
     UnreachableStructural = 1 << 0, // Code that is structurally unreachable (e.g. following a return statement)

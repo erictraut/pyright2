@@ -8,16 +8,16 @@
 
 import { CancellationToken, Location, ResultProgressReporter, SymbolInformation } from 'vscode-languageserver';
 
-import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.ts';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.ts';
-import { appendArray } from 'typeserver/utils/collectionUtils.ts';
-import * as StringUtils from 'typeserver/utils/stringUtils.ts';
-import { Workspace } from '../server/workspaceFactory.ts';
-import { IndexSymbolData, SymbolIndexer } from './symbolIndexer.ts';
+import { IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndexer.js';
+import { Workspace } from 'langserver/server/workspaceFactory.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import * as StringUtils from 'typeserver/utils/stringUtils.js';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
 

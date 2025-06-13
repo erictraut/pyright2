@@ -10,17 +10,17 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-languageserver';
 import { TextDocumentEdit, WorkspaceEdit } from 'vscode-languageserver-types';
 
-import { combinePaths, getDirectoryPath } from 'typeserver/files/pathUtils.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { IPythonMode } from 'typeserver/program/sourceFile.ts';
-import { TypeService } from 'typeserver/service/typeService.ts';
-import { CloneOptions, getEffectiveCommandLineOptions } from '../server/analyzerServiceExecutor.ts';
-import { LanguageServerBaseInterface } from '../server/languageServerInterface.ts';
-import { applyWorkspaceEdit, generateWorkspaceEdit } from '../server/workspaceEditUtils.ts';
-import { createInitStatus, WellKnownWorkspaceKinds, Workspace } from '../server/workspaceFactory.ts';
-import { TestLanguageService } from './harness/fourslash/testLanguageService.ts';
-import { parseAndGetTestState, TestState } from './harness/fourslash/testState.ts';
-import { verifyWorkspaceEdit } from './harness/fourslash/workspaceEditTestUtils.ts';
+import { CloneOptions, getEffectiveCommandLineOptions } from 'langserver/server/analyzerServiceExecutor.js';
+import { LanguageServerBaseInterface } from 'langserver/server/languageServerInterface.js';
+import { applyWorkspaceEdit, generateWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
+import { createInitStatus, WellKnownWorkspaceKinds, Workspace } from 'langserver/server/workspaceFactory.js';
+import { TestLanguageService } from 'langserver/tests/harness/fourslash/testLanguageService.js';
+import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
+import { verifyWorkspaceEdit } from 'langserver/tests/harness/fourslash/workspaceEditTestUtils.js';
+import { combinePaths, getDirectoryPath } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { TypeService } from 'typeserver/service/typeService.js';
 
 test('test applyWorkspaceEdits changes', async () => {
     const code = `

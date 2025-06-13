@@ -5,8 +5,12 @@
  */
 
 import assert from 'assert';
-import { Comparison } from '../utils/core.ts';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive, isPatternInSymbol } from '../utils/stringUtils.ts';
+import { Comparison } from 'typeserver/utils/core.js';
+import {
+    compareStringsCaseInsensitive,
+    compareStringsCaseSensitive,
+    isPatternInSymbol,
+} from 'typeserver/utils/stringUtils.js';
 
 test('stringUtils isPatternInSymbol', () => {
     assert.equal(isPatternInSymbol('', 'abcd'), true);

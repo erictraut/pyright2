@@ -9,10 +9,10 @@
  * in the program.
  */
 
-import { Type } from '../evaluator/types.ts';
-import { NameNode } from '../parser/parseNodes.ts';
-import { Declaration, DeclarationType } from './declaration.ts';
-import { areDeclarationsSame, hasTypeForDeclaration } from './declarationUtils.ts';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
+import { areDeclarationsSame, hasTypeForDeclaration } from 'typeserver/binder/declarationUtils.js';
+import { Type } from 'typeserver/evaluator/types.js';
+import { NameNode } from 'typeserver/parser/parseNodes.js';
 
 export const enum SymbolFlags {
     None = 0,

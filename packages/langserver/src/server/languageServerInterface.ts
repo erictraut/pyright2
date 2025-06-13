@@ -6,16 +6,16 @@
  * Interface for language server
  */
 
-import { TaskListToken } from 'typeserver/common/diagnostic.ts';
-import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.ts';
-import { SignatureDisplayType } from 'typeserver/config/configOptions.ts';
-import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console.ts';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
-import { FileSystem } from 'typeserver/files/fileSystem.ts';
-import { FileWatcherHandler } from 'typeserver/files/fileWatcher.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { MaxAnalysisTime } from 'typeserver/program/program.ts';
-import { Workspace } from '../server/workspaceFactory.ts';
+import { Workspace } from 'langserver/server/workspaceFactory.js';
+import { TaskListToken } from 'typeserver/common/diagnostic.js';
+import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.js';
+import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
+import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { MaxAnalysisTime } from 'typeserver/program/program.js';
 
 export interface ServerSettings {
     venvPath?: Uri | undefined;

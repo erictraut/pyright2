@@ -8,15 +8,15 @@
  * by the binder and checker.
  */
 
-import { Scope } from '../binder/scope.ts';
-import { SymbolTable } from '../binder/symbol.ts';
-import { TextRangeDiagnosticSink } from '../common/diagnosticSink.ts';
-import { PythonVersion, pythonVersion3_14 } from '../common/pythonVersion.ts';
-import { TextRange } from '../common/textRange.ts';
-import { TextRangeCollection } from '../common/textRangeCollection.ts';
-import { DiagnosticRuleSet, ExecutionEnvironment } from '../config/configOptions.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { IPythonMode } from '../program/sourceFile.ts';
+import { Scope } from 'typeserver/binder/scope.js';
+import { SymbolTable } from 'typeserver/binder/symbol.js';
+import { TextRangeDiagnosticSink } from 'typeserver/common/diagnosticSink.js';
+import { PythonVersion, pythonVersion3_14 } from 'typeserver/common/pythonVersion.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
+import { DiagnosticRuleSet, ExecutionEnvironment } from 'typeserver/config/configOptions.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
 
 // Maps import paths to the symbol table for the imported module.
 export interface AbsoluteModuleDescriptor {

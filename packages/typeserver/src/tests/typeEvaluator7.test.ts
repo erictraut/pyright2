@@ -15,10 +15,10 @@ import {
     pythonVersion3_13,
     pythonVersion3_14,
     pythonVersion3_8,
-} from '../common/pythonVersion.ts';
-import { ConfigOptions } from '../config/configOptions.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { typeAnalyzeSampleFiles, validateResults } from './testUtils.ts';
+} from 'typeserver/common/pythonVersion.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { typeAnalyzeSampleFiles, validateResults } from 'typeserver/tests/testUtils.js';
 
 test('GenericType1', () => {
     const analysisResults = typeAnalyzeSampleFiles(['genericType1.py']);

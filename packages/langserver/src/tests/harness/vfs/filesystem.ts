@@ -11,16 +11,16 @@ import { Dirent, ReadStream, WriteStream } from 'fs';
 
 import { Disposable } from 'vscode-jsonrpc';
 
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.ts';
-import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.ts';
-import { FileWatcher, FileWatcherEventHandler, FileWatcherEventType } from 'typeserver/files/fileWatcher.ts';
-import * as pathUtil from 'typeserver/files/pathUtils.ts';
-import { FileUriSchema } from 'typeserver/files/uri/fileUri.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.ts';
-import { bufferFrom, createIOError } from '../utils.ts';
-import { Metadata, SortedMap, closeIterator, getIterator, nextResult } from './../utils.ts';
-import { ValidationFlags, validate } from './pathValidation.ts';
+import { Metadata, SortedMap, closeIterator, getIterator, nextResult } from 'langserver/tests/harness//utils.js';
+import { bufferFrom, createIOError } from 'langserver/tests/harness/utils.js';
+import { ValidationFlags, validate } from 'langserver/tests/harness/vfs/pathValidation.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
+import { FileWatcher, FileWatcherEventHandler, FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
+import * as pathUtil from 'typeserver/files/pathUtils.js';
+import { FileUriSchema } from 'typeserver/files/uri/fileUri.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 
 export const MODULE_PATH = pathUtil.normalizeSlashes('/');
 

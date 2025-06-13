@@ -8,11 +8,11 @@
 
 import assert from 'assert';
 
-import { combinePaths, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import * as host from './harness/testHost.ts';
-import * as factory from './harness/vfs/factory.ts';
-import * as vfs from './harness/vfs/filesystem.ts';
+import * as host from 'langserver/tests/harness/testHost.js';
+import * as factory from 'langserver/tests/harness/vfs/factory.js';
+import * as vfs from 'langserver/tests/harness/vfs/filesystem.js';
+import { combinePaths, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 
 test('CreateVFS', () => {
     const cwd = normalizeSlashes('/');
@@ -186,7 +186,7 @@ test('createFromFileSystem2', () => {
 });
 
 test('createFromFileSystemWithCustomTypeshedPath', () => {
-    const invalidPath = normalizeSlashes(combinePaths(host.HOST.getWorkspaceRoot(), '../docs'));
+    const invalidPath = normalizeSlashes(combinePaths(host.HOST.getWorkspaceRoot(), 'typeserver/docs'));
     const fs = factory.createFromFileSystem(host.HOST, /* ignoreCase */ false, {
         cwd: factory.srcFolder,
         meta: { [factory.typeshedFolder.getFilePath()]: invalidPath },

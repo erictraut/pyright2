@@ -6,10 +6,10 @@
 
 import assert from 'assert';
 import path from 'path';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 import { fileURLToPath } from 'url';
-import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { compareStringsCaseSensitive } from '../utils/stringUtils.ts';
 
 function runTests(p: string): void {
     const tempFile = new RealTempFile();
@@ -97,9 +97,9 @@ function runTests(p: string): void {
     tempFile.dispose();
 }
 
-describe('zip', () => runTests('./samples/zipfs/basic.zip'));
-describe('egg', () => runTests('./samples/zipfs/basic.egg'));
-describe('jar', () => runTests('./samples/zipfs/basic.jar'));
+describe('zip', () => runTests('samples/zipfs/basic.zip'));
+describe('egg', () => runTests('samples/zipfs/basic.egg'));
+describe('jar', () => runTests('samples/zipfs/basic.jar'));
 
 function runBadTests(p: string): void {
     const tempFile = new RealTempFile();
@@ -120,10 +120,10 @@ function runBadTests(p: string): void {
     tempFile.dispose();
 }
 
-describe('corrupt zip', () => runBadTests('./samples/zipfs/bad.zip'));
-describe('corrupt egg', () => runBadTests('./samples/zipfs/bad.egg'));
-describe('corrupt jar', () => runBadTests('./samples/zipfs/bad.jar'));
+describe('corrupt zip', () => runBadTests('samples/zipfs/bad.zip'));
+describe('corrupt egg', () => runBadTests('samples/zipfs/bad.egg'));
+describe('corrupt jar', () => runBadTests('samples/zipfs/bad.jar'));
 
-describe('corrupt zip with magic', () => runBadTests('./samples/zipfs/corrupt.zip'));
-describe('corrupt egg with magic', () => runBadTests('./samples/zipfs/corrupt.egg'));
-describe('corrupt jar with magic', () => runBadTests('./samples/zipfs/corrupt.jar'));
+describe('corrupt zip with magic', () => runBadTests('samples/zipfs/corrupt.zip'));
+describe('corrupt egg with magic', () => runBadTests('samples/zipfs/corrupt.egg'));
+describe('corrupt jar with magic', () => runBadTests('samples/zipfs/corrupt.jar'));

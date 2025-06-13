@@ -9,8 +9,8 @@
  * This file is used to map the string keys to the const enum values.
  */
 
-import { ParseNodeType } from './parseNodes.ts';
-import { OperatorType } from './tokenizerTypes.ts';
+import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { OperatorType } from 'typeserver/parser/tokenizerTypes.js';
 
 type ParseNodeEnumStringKeys = Exclude<keyof typeof ParseNodeType, `${number}`>;
 type ParseNodeTypeMapType = Record<ParseNodeEnumStringKeys, ParseNodeType>;

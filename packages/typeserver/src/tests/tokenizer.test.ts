@@ -12,8 +12,8 @@
 
 import assert from 'assert';
 
-import { getUnescapedString, UnescapeErrorType } from '../parser/stringTokenUtils.ts';
-import { Tokenizer } from '../parser/tokenizer.ts';
+import { getUnescapedString, UnescapeErrorType } from 'typeserver/parser/stringTokenUtils.js';
+import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 import {
     CommentType,
     DedentToken,
@@ -30,8 +30,8 @@ import {
     StringToken,
     StringTokenFlags,
     TokenType,
-} from '../parser/tokenizerTypes.ts';
-import { readSampleFile } from './testUtils.ts';
+} from 'typeserver/parser/tokenizerTypes.js';
+import { readSampleFile } from 'typeserver/tests/testUtils.js';
 
 const _implicitTokenCount = 2;
 const _implicitTokenCountNoImplicitNewLine = 1;

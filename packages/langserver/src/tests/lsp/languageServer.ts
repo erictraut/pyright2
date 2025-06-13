@@ -20,20 +20,17 @@ import {
 } from 'vscode-languageserver/node';
 import { MessagePort, parentPort, setEnvironmentData } from 'worker_threads';
 
-import { FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { Deferred, createDeferred } from 'typeserver/utils/deferred.ts';
-import { parseTestData } from '../harness/fourslash/fourSlashParser.ts';
-import * as PyrightTestHost from '../harness/testHost.ts';
-import { clearCache } from '../harness/vfs/factory.ts';
+import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
+import * as PyrightTestHost from 'langserver/tests/harness/testHost.js';
+import { clearCache } from 'langserver/tests/harness/vfs/factory.js';
+import { FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { Deferred, createDeferred } from 'typeserver/utils/deferred.js';
 
-import { PythonVersion } from 'typeserver/common/pythonVersion.ts';
-import { FileSystem } from 'typeserver/files/fileSystem.ts';
-import { initializeDependencies } from 'typeserver/service/asyncInitialization.ts';
-import { ServerSettings } from '../../server/languageServerInterface.ts';
-import { PyrightServer } from '../../server/server.ts';
-import { InitStatus, Workspace } from '../../server/workspaceFactory.ts';
-import { CustomLSP } from './customLsp.ts';
+import { ServerSettings } from 'langserver/server/languageServerInterface.js';
+import { PyrightServer } from 'langserver/server/server.js';
+import { InitStatus, Workspace } from 'langserver/server/workspaceFactory.js';
+import { CustomLSP } from 'langserver/tests/lsp/customLsp.js';
 import {
     DEFAULT_WORKSPACE_ROOT,
     TestHost,
@@ -43,7 +40,10 @@ import {
     logToDisk,
     serialize,
     sleep,
-} from './languageServerTestUtils.ts';
+} from 'langserver/tests/lsp/languageServerTestUtils.js';
+import { PythonVersion } from 'typeserver/common/pythonVersion.js';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { initializeDependencies } from 'typeserver/service/asyncInitialization.js';
 
 const WORKER_STARTED = 'WORKER_STARTED';
 const WORKER_BACKGROUND_DATA = 'WORKER_BACKGROUND_DATA';

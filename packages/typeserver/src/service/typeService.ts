@@ -10,29 +10,29 @@
  */
 
 import * as JSONC from 'jsonc-parser';
+import { parse } from 'typeserver/utils/tomlUtils.js';
 import { AbstractCancellationTokenSource, CancellationToken } from 'vscode-languageserver';
-import { parse } from '../utils/tomlUtils.ts';
 
-import { Diagnostic } from '../common/diagnostic.ts';
-import { FileEditAction } from '../common/editAction.ts';
-import { configFileName, defaultStubsDirectory, pyprojectTomlName } from '../common/pathConsts.ts';
-import { PythonVersion } from '../common/pythonVersion.ts';
-import { Range } from '../common/textRange.ts';
+import { Diagnostic } from 'typeserver/common/diagnostic.js';
+import { FileEditAction } from 'typeserver/common/editAction.js';
+import { configFileName, defaultStubsDirectory, pyprojectTomlName } from 'typeserver/common/pathConsts.js';
+import { PythonVersion } from 'typeserver/common/pythonVersion.js';
+import { Range } from 'typeserver/common/textRange.js';
 import {
     CommandLineConfigOptions,
     CommandLineLanguageServerOptions,
     CommandLineOptions,
-} from '../config/commandLineOptions.ts';
-import { ConfigOptions, matchFileSpecs } from '../config/configOptions.ts';
-import { ConsoleInterface, LogLevel, StandardConsole, log } from '../extensibility/console.ts';
-import { IEditableProgram, IProgramView } from '../extensibility/extensibility.ts';
-import { Host, HostFactory, NoAccessHost } from '../extensibility/host.ts';
-import { ServiceKeys } from '../extensibility/serviceKeys.ts';
-import { ServiceProvider } from '../extensibility/serviceProvider.ts';
-import { FileSystem, ReadOnlyFileSystem } from '../files/fileSystem.ts';
-import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from '../files/fileWatcher.ts';
-import { getFileName, isRootedDiskPath, normalizeSlashes } from '../files/pathUtils.ts';
-import { Uri } from '../files/uri/uri.ts';
+} from 'typeserver/config/commandLineOptions.js';
+import { ConfigOptions, matchFileSpecs } from 'typeserver/config/configOptions.js';
+import { ConsoleInterface, LogLevel, StandardConsole, log } from 'typeserver/extensibility/console.js';
+import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { Host, HostFactory, NoAccessHost } from 'typeserver/extensibility/host.js';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from 'typeserver/files/fileWatcher.js';
+import { getFileName, isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     FileSpec,
     deduplicateFolders,
@@ -45,14 +45,18 @@ import {
     makeDirectories,
     tryRealpath,
     tryStat,
-} from '../files/uri/uriUtils.ts';
-import { ImportResolver, ImportResolverFactory, createImportedModuleDescriptor } from '../imports/importResolver.ts';
-import { MaxAnalysisTime, Program } from '../program/program.ts';
-import { IPythonMode } from '../program/sourceFile.ts';
-import { timingStats } from '../service/timing.ts';
-import { isString } from '../utils/core.ts';
-import { AnalysisCompleteCallback } from './analysis.ts';
-import { findPythonSearchPaths } from './pythonPathUtils.ts';
+} from 'typeserver/files/uri/uriUtils.js';
+import {
+    ImportResolver,
+    ImportResolverFactory,
+    createImportedModuleDescriptor,
+} from 'typeserver/imports/importResolver.js';
+import { MaxAnalysisTime, Program } from 'typeserver/program/program.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { AnalysisCompleteCallback } from 'typeserver/service/analysis.js';
+import { findPythonSearchPaths } from 'typeserver/service/pythonPathUtils.js';
+import { timingStats } from 'typeserver/service/timing.js';
+import { isString } from 'typeserver/utils/core.js';
 
 // How long since the last user activity should we wait until running
 // the analyzer on any files that have not yet been analyzed?

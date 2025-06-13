@@ -6,17 +6,17 @@
  * URI namespace for storing and manipulating URIs.
  */
 
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceKey } from 'typeserver/extensibility/serviceProvider.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { combinePaths, isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { JsonObjType } from 'typeserver/files/uri/baseUri.js';
+import { ConstantUri } from 'typeserver/files/uri/constantUri.js';
+import { EmptyUri } from 'typeserver/files/uri/emptyUri.js';
+import { FileUri, FileUriSchema } from 'typeserver/files/uri/fileUri.js';
+import { WebUri } from 'typeserver/files/uri/webUri.js';
+import { isArray } from 'typeserver/utils/core.js';
 import { URI, Utils } from 'vscode-uri';
-import { ServiceKeys } from '../../extensibility/serviceKeys.ts';
-import { ServiceKey } from '../../extensibility/serviceProvider.ts';
-import { isArray } from '../../utils/core.ts';
-import { CaseSensitivityDetector } from '../caseSensitivityDetector.ts';
-import { combinePaths, isRootedDiskPath, normalizeSlashes } from '../pathUtils.ts';
-import { JsonObjType } from './baseUri.ts';
-import { ConstantUri } from './constantUri.ts';
-import { EmptyUri } from './emptyUri.ts';
-import { FileUri, FileUriSchema } from './fileUri.ts';
-import { WebUri } from './webUri.ts';
 
 export const enum UriKinds {
     file,

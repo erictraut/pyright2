@@ -7,8 +7,8 @@
  * Functions that operate on Symbol objects.
  */
 
-import { Declaration, DeclarationType } from './declaration.ts';
-import { Symbol } from './symbol.ts';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
 
 export function getLastTypedDeclarationForSymbol(symbol: Symbol): Declaration | undefined {
     const typedDecls = symbol.getTypedDeclarations();

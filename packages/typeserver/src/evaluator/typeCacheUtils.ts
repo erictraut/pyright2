@@ -7,10 +7,10 @@
  * Utilities for managing type caches.
  */
 
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { ParseNode } from '../parser/parseNodes.ts';
-import { assert } from '../utils/debug.ts';
-import { isTypeSame, Type } from './types.ts';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { isTypeSame, Type } from 'typeserver/evaluator/types.js';
+import { ParseNode } from 'typeserver/parser/parseNodes.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 // Define an interface to track speculative entries that need to
 // be cleaned up when they go out of scope.

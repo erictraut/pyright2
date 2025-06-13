@@ -24,7 +24,7 @@ import {
     FlowWildcardImport,
     isCodeFlowSupportedForReference,
     wildcardImportReferenceKey,
-} from '../binder/codeFlowTypes.ts';
+} from 'typeserver/binder/codeFlowTypes.js';
 import {
     ClassDeclaration,
     Declaration,
@@ -34,108 +34,60 @@ import {
     ModuleLoaderActions,
     SpecialBuiltInClassDeclaration,
     VariableDeclaration,
-} from '../binder/declaration.ts';
+} from 'typeserver/binder/declaration.js';
 import {
     getDeclarationsWithUsesLocalNameRemoved,
     getNameNodeForDeclaration,
     resolveAliasDeclaration as resolveAliasDeclarationUtil,
     ResolvedAliasInfo,
     synthesizeAliasDeclaration,
-} from '../binder/declarationUtils.ts';
-import { Scope, ScopeType, SymbolWithScope } from '../binder/scope.ts';
-import * as ScopeUtils from '../binder/scopeUtils.ts';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
-import { indeterminateSymbolId, Symbol, SymbolFlags, SynthesizedTypeInfo } from '../binder/symbol.ts';
-import { isConstantName, isPrivateName, isPrivateOrProtectedName } from '../binder/symbolNameUtils.ts';
-import { getLastTypedDeclarationForSymbol, isEffectivelyClassVar } from '../binder/symbolUtils.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { convertOffsetsToRange, convertOffsetToPosition } from '../common/positionUtils.ts';
+} from 'typeserver/binder/declarationUtils.js';
+import { Scope, ScopeType, SymbolWithScope } from 'typeserver/binder/scope.js';
+import * as ScopeUtils from 'typeserver/binder/scopeUtils.js';
+import { evaluateStaticBoolExpression } from 'typeserver/binder/staticExpressions.js';
+import { indeterminateSymbolId, Symbol, SymbolFlags, SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
+import { isConstantName, isPrivateName, isPrivateOrProtectedName } from 'typeserver/binder/symbolNameUtils.js';
+import { getLastTypedDeclarationForSymbol, isEffectivelyClassVar } from 'typeserver/binder/symbolUtils.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import {
     PythonVersion,
     pythonVersion3_13,
     pythonVersion3_6,
     pythonVersion3_7,
     pythonVersion3_9,
-} from '../common/pythonVersion.ts';
-import { TextRange } from '../common/textRange.ts';
-import { DiagnosticLevel } from '../config/configOptions.ts';
-import { AnalyzerFileInfo, ImportLookup, isAnnotationEvaluationPostponed } from '../evaluator/analyzerFileInfo.ts';
-import { invalidateTypeCacheIfCanceled, throwIfCancellationRequested } from '../extensibility/cancellationUtils.ts';
-import { ConsoleInterface } from '../extensibility/console.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { LocAddendum, LocMessage, ParameterizedString } from '../localization/localize.ts';
+} from 'typeserver/common/pythonVersion.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { DiagnosticLevel } from 'typeserver/config/configOptions.js';
 import {
-    ArgCategory,
-    ArgumentNode,
-    AssignmentNode,
-    AugmentedAssignmentNode,
-    AwaitNode,
-    CallNode,
-    CaseNode,
-    ClassNode,
-    ComprehensionForIfNode,
-    ComprehensionNode,
-    ConstantNode,
-    DecoratorNode,
-    DictionaryNode,
-    ErrorExpressionCategory,
-    ExceptNode,
-    ExecutionScopeNode,
-    ExpressionNode,
-    FormatStringNode,
-    ForNode,
-    FunctionNode,
-    ImportAsNode,
-    ImportFromAsNode,
-    ImportFromNode,
-    IndexNode,
-    isExpressionNode,
-    LambdaNode,
-    ListNode,
-    MatchNode,
-    MemberAccessNode,
-    NameNode,
-    NumberNode,
-    ParamCategory,
-    ParameterNode,
-    ParseNode,
-    ParseNodeType,
-    SetNode,
-    SliceNode,
-    StringListNode,
-    StringNode,
-    TupleNode,
-    TypeAliasNode,
-    TypeAnnotationNode,
-    TypeParameterListNode,
-    TypeParameterNode,
-    TypeParameterScopeNode,
-    TypeParamKind,
-    UnpackNode,
-    WithItemNode,
-    YieldFromNode,
-    YieldNode,
-} from '../parser/parseNodes.ts';
-import { ParseOptions, Parser, ParseTextMode } from '../parser/parser.ts';
-import { KeywordType, OperatorType, StringTokenFlags } from '../parser/tokenizerTypes.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { isThenable } from '../utils/core.ts';
-import { assert, assertNever, fail } from '../utils/debug.ts';
-import { CodeFlowAnalyzer, FlowNodeTypeOptions, FlowNodeTypeResult, getCodeFlowEngine } from './codeFlowEngine.ts';
-import { ConstraintSolution } from './constraintSolution.ts';
+    AnalyzerFileInfo,
+    ImportLookup,
+    isAnnotationEvaluationPostponed,
+} from 'typeserver/evaluator/analyzerFileInfo.js';
+import {
+    CodeFlowAnalyzer,
+    FlowNodeTypeOptions,
+    FlowNodeTypeResult,
+    getCodeFlowEngine,
+} from 'typeserver/evaluator/codeFlowEngine.js';
+import { ConstraintSolution } from 'typeserver/evaluator/constraintSolution.js';
 import {
     addConstraintsForExpectedType,
     applySourceSolutionToConstraints,
     assignTypeVar,
     solveConstraints,
     solveConstraintSet,
-} from './constraintSolver.ts';
-import { ConstraintSet, ConstraintTracker } from './constraintTracker.ts';
-import { createFunctionFromConstructor, getBoundInitMethod, validateConstructorArgs } from './constructors.ts';
-import { applyDataClassClassBehaviorOverrides, synthesizeDataClassMethods } from './dataClasses.ts';
+} from 'typeserver/evaluator/constraintSolver.js';
+import { ConstraintSet, ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import {
+    createFunctionFromConstructor,
+    getBoundInitMethod,
+    validateConstructorArgs,
+} from 'typeserver/evaluator/constructors.js';
+import { applyDataClassClassBehaviorOverrides, synthesizeDataClassMethods } from 'typeserver/evaluator/dataClasses.js';
 import {
     addOverloadsToFunctionType,
     applyClassDecorator,
@@ -143,7 +95,7 @@ import {
     FunctionDecoratorInfo,
     getDeprecatedMessageFromCall,
     getFunctionInfoFromDecorators,
-} from './decorators.ts';
+} from 'typeserver/evaluator/decorators.js';
 import {
     createEnumType,
     getEnumAutoValueType,
@@ -151,15 +103,15 @@ import {
     isDeclInEnumClass,
     isEnumClassWithMembers,
     isEnumMetaclass,
-} from './enums.ts';
-import { applyFunctionTransform } from './functionTransform.ts';
-import { createNamedTupleType } from './namedTuples.ts';
+} from 'typeserver/evaluator/enums.js';
+import { applyFunctionTransform } from 'typeserver/evaluator/functionTransform.js';
+import { createNamedTupleType } from 'typeserver/evaluator/namedTuples.js';
 import {
     getTypeOfAugmentedAssignment,
     getTypeOfBinaryOperation,
     getTypeOfTernaryOperation,
     getTypeOfUnaryOperation,
-} from './operations.ts';
+} from 'typeserver/evaluator/operations.js';
 import {
     getParamListDetails,
     isParamSpecArgs,
@@ -168,13 +120,23 @@ import {
     ParamKind,
     ParamListDetails,
     VirtualParamDetails,
-} from './parameterUtils.ts';
-import { assignTypeToPatternTargets, checkForUnusedPattern, narrowTypeBasedOnPattern } from './patternMatching.ts';
-import { assignProperty } from './properties.ts';
-import { assignClassToProtocol, assignModuleToProtocol } from './protocols.ts';
-import { createSentinelType } from './sentinel.ts';
-import { assignTupleTypeArgs, expandTuple, getSlicedTupleType, getTypeOfTuple, makeTupleObject } from './tuples.ts';
-import { SpeculativeModeOptions, SpeculativeTypeTracker } from './typeCacheUtils.ts';
+} from 'typeserver/evaluator/parameterUtils.js';
+import {
+    assignTypeToPatternTargets,
+    checkForUnusedPattern,
+    narrowTypeBasedOnPattern,
+} from 'typeserver/evaluator/patternMatching.js';
+import { assignProperty } from 'typeserver/evaluator/properties.js';
+import { assignClassToProtocol, assignModuleToProtocol } from 'typeserver/evaluator/protocols.js';
+import { createSentinelType } from 'typeserver/evaluator/sentinel.js';
+import {
+    assignTupleTypeArgs,
+    expandTuple,
+    getSlicedTupleType,
+    getTypeOfTuple,
+    makeTupleObject,
+} from 'typeserver/evaluator/tuples.js';
+import { SpeculativeModeOptions, SpeculativeTypeTracker } from 'typeserver/evaluator/typeCacheUtils.js';
 import {
     assignToTypedDict,
     assignTypedDictToTypedDict,
@@ -185,7 +147,7 @@ import {
     getTypedDictMembersForClass,
     getTypeOfIndexedTypedDict,
     synthesizeTypedDictClassMethods,
-} from './typedDicts.ts';
+} from 'typeserver/evaluator/typedDicts.js';
 import {
     AbstractSymbol,
     Arg,
@@ -221,9 +183,9 @@ import {
     TypeResultWithNode,
     ValidateArgTypeParams,
     ValidateTypeArgsOptions,
-} from './typeEvaluatorTypes.ts';
-import { enumerateLiteralsForType } from './typeGuards.ts';
-import * as TypePrinter from './typePrinter.ts';
+} from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { enumerateLiteralsForType } from 'typeserver/evaluator/typeGuards.js';
+import * as TypePrinter from 'typeserver/evaluator/typePrinter.js';
 import {
     AnyType,
     ClassType,
@@ -284,7 +246,7 @@ import {
     UnionType,
     UnknownType,
     Variance,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     addConditionToType,
     addTypeVarsToListIfUnique,
@@ -372,7 +334,71 @@ import {
     transformPossibleRecursiveTypeAlias,
     UniqueSignatureTracker,
     validateTypeVarDefault,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import {
+    invalidateTypeCacheIfCanceled,
+    throwIfCancellationRequested,
+} from 'typeserver/extensibility/cancellationUtils.js';
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { LocAddendum, LocMessage, ParameterizedString } from 'typeserver/localization/localize.js';
+import {
+    ArgCategory,
+    ArgumentNode,
+    AssignmentNode,
+    AugmentedAssignmentNode,
+    AwaitNode,
+    CallNode,
+    CaseNode,
+    ClassNode,
+    ComprehensionForIfNode,
+    ComprehensionNode,
+    ConstantNode,
+    DecoratorNode,
+    DictionaryNode,
+    ErrorExpressionCategory,
+    ExceptNode,
+    ExecutionScopeNode,
+    ExpressionNode,
+    FormatStringNode,
+    ForNode,
+    FunctionNode,
+    ImportAsNode,
+    ImportFromAsNode,
+    ImportFromNode,
+    IndexNode,
+    isExpressionNode,
+    LambdaNode,
+    ListNode,
+    MatchNode,
+    MemberAccessNode,
+    NameNode,
+    NumberNode,
+    ParamCategory,
+    ParameterNode,
+    ParseNode,
+    ParseNodeType,
+    SetNode,
+    SliceNode,
+    StringListNode,
+    StringNode,
+    TupleNode,
+    TypeAliasNode,
+    TypeAnnotationNode,
+    TypeParameterListNode,
+    TypeParameterNode,
+    TypeParameterScopeNode,
+    TypeParamKind,
+    UnpackNode,
+    WithItemNode,
+    YieldFromNode,
+    YieldNode,
+} from 'typeserver/parser/parseNodes.js';
+import { ParseOptions, Parser, ParseTextMode } from 'typeserver/parser/parser.js';
+import { KeywordType, OperatorType, StringTokenFlags } from 'typeserver/parser/tokenizerTypes.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { isThenable } from 'typeserver/utils/core.js';
+import { assert, assertNever, fail } from 'typeserver/utils/debug.js';
 
 interface GetTypeArgsOptions {
     isAnnotatedClass?: boolean;

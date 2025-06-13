@@ -10,10 +10,10 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { runFourSlashTest } from './harness/fourslash/runner.ts';
-import * as host from './harness/testHost.ts';
-import { MODULE_PATH } from './harness/vfs/filesystem.ts';
+import { runFourSlashTest } from 'langserver/tests/harness/fourslash/runner.js';
+import * as host from 'langserver/tests/harness/testHost.js';
+import { MODULE_PATH } from 'langserver/tests/harness/vfs/filesystem.js';
+import { normalizeSlashes } from 'typeserver/files/pathUtils.js';
 
 describe('fourslash tests', () => {
     const testFiles: string[] = [];

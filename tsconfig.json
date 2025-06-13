@@ -19,8 +19,6 @@
         "checkJs": true,
         "experimentalDecorators": true,
         "isolatedModules": true,
-        "allowImportingTsExtensions": true,
-        "noEmit": true
     },
     "exclude": [
         "node_modules",

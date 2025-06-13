@@ -8,20 +8,20 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { SymbolTable } from '../binder/symbol.ts';
-import { Diagnostic } from '../common/diagnostic.ts';
-import { Range } from '../common/textRange.ts';
-import { ConfigOptions } from '../config/configOptions.ts';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
-import { ServiceProvider } from '../extensibility/serviceProvider.ts';
-import { ReadOnlyFileSystem } from '../files/fileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { ImportResolver } from '../imports/importResolver.ts';
-import { ParseFileResults, ParserOutput } from '../parser/parser.ts';
-import { OpenFileOptions, Program } from '../program/program.ts';
-import { IPythonMode } from '../program/sourceFile.ts';
-import { SourceMapper } from '../program/sourceMapper.ts';
-import { ConsoleInterface } from './console.ts';
+import { SymbolTable } from 'typeserver/binder/symbol.js';
+import { Diagnostic } from 'typeserver/common/diagnostic.js';
+import { Range } from 'typeserver/common/textRange.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ImportResolver } from 'typeserver/imports/importResolver.js';
+import { ParseFileResults, ParserOutput } from 'typeserver/parser/parser.js';
+import { OpenFileOptions, Program } from 'typeserver/program/program.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 
 export interface ISourceFile {
     // See whether we can convert these to regular properties.

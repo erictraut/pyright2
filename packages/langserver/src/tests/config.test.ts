@@ -9,18 +9,18 @@
 
 import assert from 'assert';
 
-import { TaskListPriority } from 'typeserver/common/diagnostic.ts';
-import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVersion.ts';
-import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.ts';
-import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.ts';
-import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.ts';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.ts';
-import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { TypeService } from 'typeserver/service/typeService.ts';
-import { TestAccessHost } from './harness/testAccessHost.ts';
+import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import { TaskListPriority } from 'typeserver/common/diagnostic.js';
+import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVersion.js';
+import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.js';
+import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
+import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { TypeService } from 'typeserver/service/typeService.js';
 
 describe(`config test'}`, () => {
     const tempFile = new RealTempFile();

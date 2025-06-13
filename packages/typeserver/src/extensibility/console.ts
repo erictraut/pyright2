@@ -8,9 +8,9 @@
  * methods.
  */
 
+import { addIfUnique, removeArrayElements } from 'typeserver/utils/collectionUtils.js';
+import * as debug from 'typeserver/utils/debug.js';
 import { Disposable } from 'vscode-jsonrpc';
-import { addIfUnique, removeArrayElements } from '../utils/collectionUtils.ts';
-import * as debug from '../utils/debug.ts';
 
 export enum LogLevel {
     Error = 'error',

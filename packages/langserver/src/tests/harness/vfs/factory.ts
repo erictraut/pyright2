@@ -6,12 +6,9 @@
  * Provides a factory to create virtual file system backed by a real file system with some path remapped
  */
 
-import * as pathConsts from 'typeserver/common/pathConsts.ts';
-import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from 'typeserver/files/pathUtils.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { GlobalMetadataOptionNames } from '../fourslash/fourSlashTypes.ts';
-import { TestHost } from '../testHost.ts';
-import { bufferFrom } from '../utils.ts';
+import { GlobalMetadataOptionNames } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
+import { TestHost } from 'langserver/tests/harness/testHost.js';
+import { bufferFrom } from 'langserver/tests/harness/utils.js';
 import {
     FileSet,
     FileSystemOptions,
@@ -21,7 +18,10 @@ import {
     S_IFDIR,
     S_IFREG,
     TestFileSystem,
-} from './filesystem.ts';
+} from 'langserver/tests/harness/vfs/filesystem.js';
+import * as pathConsts from 'typeserver/common/pathConsts.js';
+import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from 'typeserver/files/pathUtils.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 
 export class TextDocument {
     readonly meta: Map<string, string>;

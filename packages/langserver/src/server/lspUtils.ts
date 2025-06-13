@@ -7,9 +7,9 @@
 
 import { LSPAny, SymbolKind, WorkDoneProgressReporter } from 'vscode-languageserver';
 
-import { Declaration, DeclarationType } from 'typeserver/binder/declaration.ts';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.ts';
-import { isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.ts';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.js';
 
 // Converts an internal object to LSPAny to be sent out via LSP
 export function toLSPAny(obj: any) {

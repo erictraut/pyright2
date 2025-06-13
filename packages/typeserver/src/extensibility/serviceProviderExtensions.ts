@@ -6,16 +6,16 @@
  * Shortcuts to common services.
  */
 
-import { CaseSensitivityDetector } from '../files/caseSensitivityDetector.ts';
-import { FileSystem, TempFile } from '../files/fileSystem.ts';
-import { PartialStubService, SupportPartialStubs } from '../files/partialStubService.ts';
-import { CacheManager } from '../service/cacheManager.ts';
-import { CancellationProvider, DefaultCancellationProvider } from './cancellationUtils.ts';
-import { ConsoleInterface } from './console.ts';
-import { ServiceKeys } from './serviceKeys.ts';
-import { ServiceProvider } from './serviceProvider.ts';
+import { CancellationProvider, DefaultCancellationProvider } from 'typeserver/extensibility/cancellationUtils.js';
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { FileSystem, TempFile } from 'typeserver/files/fileSystem.js';
+import { PartialStubService, SupportPartialStubs } from 'typeserver/files/partialStubService.js';
+import { CacheManager } from 'typeserver/service/cacheManager.js';
 
-declare module './serviceProvider.ts' {
+declare module 'typeserver/extensibility/serviceProvider.js' {
     interface ServiceProvider {
         fs(): FileSystem;
         console(): ConsoleInterface;

@@ -1,6 +1,7 @@
 {
     "name": "pyright-root",
     "private": true,
+    "type": "module",
     "scripts": {
         "postinstall": "node ./build/skipBootstrap.js || npm run install:others",
         "clean": "lerna run --no-bail --stream clean",

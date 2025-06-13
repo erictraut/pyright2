@@ -7,9 +7,9 @@
  * Parser for py.typed files.
  */
 
-import { FileSystem } from '../files/fileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { isDirectory, isFile } from '../files/uri/uriUtils.ts';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { isDirectory, isFile } from 'typeserver/files/uri/uriUtils.js';
 
 export interface PyTypedInfo {
     pyTypedPath: Uri;

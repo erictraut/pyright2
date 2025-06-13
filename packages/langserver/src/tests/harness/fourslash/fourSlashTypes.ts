@@ -5,8 +5,8 @@
  *
  * Various common types for fourslash test framework
  */
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { assert } from 'typeserver/utils/debug.ts';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 /** well known global option names */
 export const enum GlobalMetadataOptionNames {

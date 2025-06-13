@@ -7,17 +7,6 @@
  */
 
 import {
-    combinePaths,
-    getRelativePath,
-    isRootedDiskPath,
-    normalizePath,
-    normalizeSlashes,
-} from 'typeserver/files/pathUtils.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { contains } from 'typeserver/utils/collectionUtils.ts';
-import { toBoolean } from 'typeserver/utils/core.ts';
-import { distlibFolder, libFolder } from '../vfs/factory.ts';
-import {
     FourSlashData,
     FourSlashFile,
     GlobalMetadataOptionNames,
@@ -25,7 +14,18 @@ import {
     MetadataOptionNames,
     Range,
     fileMetadataNames,
-} from './fourSlashTypes.ts';
+} from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
+import { distlibFolder, libFolder } from 'langserver/tests/harness/vfs/factory.js';
+import {
+    combinePaths,
+    getRelativePath,
+    isRootedDiskPath,
+    normalizePath,
+    normalizeSlashes,
+} from 'typeserver/files/pathUtils.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { contains } from 'typeserver/utils/collectionUtils.js';
+import { toBoolean } from 'typeserver/utils/core.js';
 
 /**
  * Parse given fourslash markup code and return content with markup/range data

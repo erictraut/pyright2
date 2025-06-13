@@ -8,13 +8,13 @@
 
 import { CancellationToken, CodeAction, CodeActionKind, Command } from 'vscode-languageserver';
 
-import { CreateTypeStubFileAction } from 'typeserver/common/diagnostic.ts';
-import { Range } from 'typeserver/common/textRange.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { Localizer } from 'typeserver/localization/localize.ts';
-import { Commands } from '../commands/commands.ts';
-import { Workspace } from '../server/workspaceFactory.ts';
+import { Commands } from 'langserver/commands/commands.js';
+import { Workspace } from 'langserver/server/workspaceFactory.js';
+import { CreateTypeStubFileAction } from 'typeserver/common/diagnostic.js';
+import { Range } from 'typeserver/common/textRange.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { Localizer } from 'typeserver/localization/localize.js';
 
 export class CodeActionProvider {
     static mightSupport(kinds: CodeActionKind[] | undefined): boolean {

@@ -10,17 +10,19 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import * as SymbolNameUtils from '../binder/symbolNameUtils.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import { TextEditAction } from '../common/editAction.ts';
-import { getTokenAfter, getTokenAt } from '../common/parseTreeUtils.ts';
-import { convertOffsetToPosition, convertPositionToOffset } from '../common/positionUtils.ts';
-import { Position, Range, TextRange } from '../common/textRange.ts';
-import { ConfigOptions } from '../config/configOptions.ts';
-import { throwIfCancellationRequested } from '../extensibility/cancellationUtils.ts';
-import { ReadOnlyFileSystem } from '../files/fileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { isFile } from '../files/uri/uriUtils.ts';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { TextEditAction } from 'typeserver/common/editAction.js';
+import { getTokenAfter, getTokenAt } from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
+import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { isFile } from 'typeserver/files/uri/uriUtils.js';
+import { ModuleNameAndType } from 'typeserver/imports/importResolver.js';
+import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
 import {
     ImportAsNode,
     ImportFromAsNode,
@@ -30,13 +32,11 @@ import {
     ModuleNode,
     ParseNode,
     ParseNodeType,
-} from '../parser/parseNodes.ts';
-import { ParseFileResults } from '../parser/parser.ts';
-import { TokenType } from '../parser/tokenizerTypes.ts';
-import { addIfUnique, appendArray, createMapFromItems } from '../utils/collectionUtils.ts';
-import { compareStringsCaseSensitive } from '../utils/stringUtils.ts';
-import { ModuleNameAndType } from './importResolver.ts';
-import { ImportResult, ImportType } from './importResult.ts';
+} from 'typeserver/parser/parseNodes.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { TokenType } from 'typeserver/parser/tokenizerTypes.js';
+import { addIfUnique, appendArray, createMapFromItems } from 'typeserver/utils/collectionUtils.js';
+import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 
 const underscoreRegEx = /_/g;
 const indentTextRegEx = /^\s*$/;

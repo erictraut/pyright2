@@ -8,12 +8,14 @@
 
 import assert from 'assert';
 
-import { isFunctionDeclaration } from 'typeserver/binder/declaration.ts';
-import { TextEditAction } from 'typeserver/common/editAction.ts';
-import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.ts';
-import { convertOffsetToPosition } from 'typeserver/common/positionUtils.ts';
-import { rangesAreEqual } from 'typeserver/common/textRange.ts';
-import { ImportType } from 'typeserver/imports/importResult.ts';
+import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
+import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
+import { isFunctionDeclaration } from 'typeserver/binder/declaration.js';
+import { TextEditAction } from 'typeserver/common/editAction.js';
+import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
+import { rangesAreEqual } from 'typeserver/common/textRange.js';
+import { ImportType } from 'typeserver/imports/importResult.js';
 import {
     getRelativeModuleName,
     getTextEditsForAutoImportInsertions,
@@ -21,11 +23,9 @@ import {
     getTopLevelImports,
     ImportNameInfo,
     ImportNameWithModuleInfo,
-} from 'typeserver/imports/importStatementUtils.ts';
-import { NameNode } from 'typeserver/parser/parseNodes.ts';
-import { isArray } from 'typeserver/utils/core.ts';
-import { Range } from './harness/fourslash/fourSlashTypes.ts';
-import { parseAndGetTestState, TestState } from './harness/fourslash/testState.ts';
+} from 'typeserver/imports/importStatementUtils.js';
+import { NameNode } from 'typeserver/parser/parseNodes.js';
+import { isArray } from 'typeserver/utils/core.js';
 
 test('getTextEditsForAutoImportInsertion - import empty', () => {
     const code = `

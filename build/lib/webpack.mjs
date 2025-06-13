@@ -1,8 +1,8 @@
+import assert from 'assert';
 import fs from 'fs';
-import path from 'path';
 import glob from 'glob';
 import JSONC from 'jsonc-parser';
-import assert from 'assert';
+import path from 'path';
 
 /**
  * Builds a faked resource path for production source maps in webpack.

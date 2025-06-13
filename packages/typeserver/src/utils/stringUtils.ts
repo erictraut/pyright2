@@ -7,7 +7,7 @@
  * Utility methods for manipulating and comparing strings.
  */
 
-import { compareComparableValues, Comparison } from './core.ts';
+import { compareComparableValues, Comparison } from 'typeserver/utils/core.js';
 
 // Determines if typed string matches a symbol
 // name. Characters must appear in order.

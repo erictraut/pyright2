@@ -9,8 +9,8 @@
  * is explicitly declared).
  */
 
-import { Range } from '../common/textRange.ts';
-import { Uri } from '../files/uri/uri.ts';
+import { Range } from 'typeserver/common/textRange.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     ClassNode,
     ExpressionNode,
@@ -30,7 +30,7 @@ import {
     TypeParameterNode,
     YieldFromNode,
     YieldNode,
-} from '../parser/parseNodes.ts';
+} from 'typeserver/parser/parseNodes.js';
 
 export const UnresolvedModuleMarker = Uri.constant('*** unresolved module ***');
 

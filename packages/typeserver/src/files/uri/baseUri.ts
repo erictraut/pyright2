@@ -6,10 +6,10 @@
  * Base URI class for storing and manipulating URIs.
  */
 
-import { some } from '../../utils/collectionUtils.ts';
-import { getRootLength, getShortenedFileName } from '../pathUtils.ts';
-import { cacheProperty } from './memoization.ts';
-import { Uri } from './uri.ts';
+import { getRootLength, getShortenedFileName } from 'typeserver/files/pathUtils.js';
+import { cacheProperty } from 'typeserver/files/uri/memoization.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { some } from 'typeserver/utils/collectionUtils.js';
 
 export type JsonObjType = any;
 

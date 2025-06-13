@@ -9,11 +9,11 @@
 
 import path from 'path';
 
-import { Char } from '../parser/charCodes.ts';
-import { some } from '../utils/collectionUtils.ts';
-import { identity } from '../utils/core.ts';
-import * as debug from '../utils/debug.ts';
-import { equateStringsCaseInsensitive, equateStringsCaseSensitive } from '../utils/stringUtils.ts';
+import { Char } from 'typeserver/parser/charCodes.js';
+import { some } from 'typeserver/utils/collectionUtils.js';
+import { identity } from 'typeserver/utils/core.js';
+import * as debug from 'typeserver/utils/debug.js';
+import { equateStringsCaseInsensitive, equateStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 
 export type GetCanonicalFileName = (fileName: string) => string;
 

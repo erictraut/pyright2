@@ -5,8 +5,8 @@
  *
  * file watcher related functionality.
  */
-import { Stats } from './fileSystem.ts';
-import { Uri } from './uri/uri.ts';
+import { Stats } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 
 export type FileWatcherEventType = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 export type FileWatcherEventHandler = (eventName: FileWatcherEventType, path: string, stats?: Stats) => void;

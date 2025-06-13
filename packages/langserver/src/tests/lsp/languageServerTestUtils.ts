@@ -11,21 +11,28 @@ import fs from 'fs-extra';
 import { isMainThread, threadId, Worker } from 'node:worker_threads';
 import path from 'path';
 
-import { DiagnosticSink } from 'typeserver/common/diagnosticSink.ts';
-import { convertOffsetToPosition } from 'typeserver/common/positionUtils.ts';
-import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.ts';
-import { PythonPlatform } from 'typeserver/config/configOptions.ts';
-import { LimitedAccessHost } from 'typeserver/extensibility/fullAccessHost.ts';
-import { HostKind, ScriptOutput } from 'typeserver/extensibility/host.ts';
-import { FileSystem } from 'typeserver/files/fileSystem.ts';
-import { combinePaths, resolvePaths } from 'typeserver/files/pathUtils.ts';
-import { FileUri } from 'typeserver/files/uri/fileUri.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { ParseOptions, Parser } from 'typeserver/parser/parser.ts';
-import { PythonPathResult } from 'typeserver/service/pythonPathUtils.ts';
-import { toBoolean } from 'typeserver/utils/core.ts';
-import { createDeferred, Deferred } from 'typeserver/utils/deferred.ts';
+import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
+import { FourSlashData, GlobalMetadataOptionNames } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
+import { createVfsInfoFromFourSlashData, getMarkerByName } from 'langserver/tests/harness/fourslash/testStateUtils.js';
+import * as host from 'langserver/tests/harness/testHost.js';
+import { createFromFileSystem, distlibFolder, libFolder } from 'langserver/tests/harness/vfs/factory.js';
+import * as vfs from 'langserver/tests/harness/vfs/filesystem.js';
+import { CustomLSP } from 'langserver/tests/lsp/customLsp.js';
+import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
+import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.js';
+import { PythonPlatform } from 'typeserver/config/configOptions.js';
+import { LimitedAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
+import { HostKind, ScriptOutput } from 'typeserver/extensibility/host.js';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { combinePaths, resolvePaths } from 'typeserver/files/pathUtils.js';
+import { FileUri } from 'typeserver/files/uri/fileUri.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { ParseOptions, Parser } from 'typeserver/parser/parser.js';
+import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
+import { toBoolean } from 'typeserver/utils/core.js';
+import { createDeferred, Deferred } from 'typeserver/utils/deferred.js';
 import {
     ApplyWorkspaceEditParams,
     ApplyWorkspaceEditRequest,
@@ -73,20 +80,13 @@ import {
     WorkDoneProgressCancelNotification,
     WorkDoneProgressCreateRequest,
 } from 'vscode-languageserver/node';
-import { parseTestData } from '../harness/fourslash/fourSlashParser.ts';
-import { FourSlashData, GlobalMetadataOptionNames } from '../harness/fourslash/fourSlashTypes.ts';
-import { createVfsInfoFromFourSlashData, getMarkerByName } from '../harness/fourslash/testStateUtils.ts';
-import * as host from '../harness/testHost.ts';
-import { createFromFileSystem, distlibFolder, libFolder } from '../harness/vfs/factory.ts';
-import * as vfs from '../harness/vfs/filesystem.ts';
-import { CustomLSP } from './customLsp.ts';
 
 // bundled root on test virtual file system.
 const bundledStubsFolder = combinePaths(vfs.MODULE_PATH, 'bundled', 'stubs');
 
 // bundled file path on real file system.
-const bundledStubsFolderPath = resolvePaths(__dirname, '../../bundled/stubs');
-const bundledStubsFolderPathTestServer = resolvePaths(__dirname, '../bundled/stubs');
+const bundledStubsFolderPath = resolvePaths(__dirname, 'typeserver/../bundled/stubs');
+const bundledStubsFolderPathTestServer = resolvePaths(__dirname, 'typeserver/bundled/stubs');
 
 // project root on test virtual file system.
 export const DEFAULT_WORKSPACE_ROOT = combinePaths('/', 'src');

@@ -8,7 +8,7 @@
  * durations at the millisecond level of resolution.
  */
 
-import { ConsoleInterface } from '../extensibility/console.ts';
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 
 export class Duration {
     private _startTime: number;

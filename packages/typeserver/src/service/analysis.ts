@@ -8,13 +8,16 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { FileDiagnostics } from '../common/diagnosticSink.ts';
-import { ConfigOptions } from '../config/configOptions.ts';
-import { OperationCanceledException, throwIfCancellationRequested } from '../extensibility/cancellationUtils.ts';
-import { ConsoleInterface } from '../extensibility/console.ts';
-import { MaxAnalysisTime, Program } from '../program/program.ts';
-import * as debug from '../utils/debug.ts';
-import { Duration } from './timing.ts';
+import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import {
+    OperationCanceledException,
+    throwIfCancellationRequested,
+} from 'typeserver/extensibility/cancellationUtils.js';
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { MaxAnalysisTime, Program } from 'typeserver/program/program.js';
+import { Duration } from 'typeserver/service/timing.js';
+import * as debug from 'typeserver/utils/debug.js';
 
 export const nullCallback: AnalysisCompleteCallback = () => {
     /* empty */

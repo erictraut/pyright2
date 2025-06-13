@@ -6,7 +6,7 @@
 
 import assert from 'assert';
 
-import { TextRange } from '../common/textRange.ts';
+import { TextRange } from 'typeserver/common/textRange.js';
 
 test('textRange combine', () => {
     const range1 = TextRange.create(10, 2);

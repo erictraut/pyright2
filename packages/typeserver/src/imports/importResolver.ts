@@ -10,36 +10,36 @@
 
 import type { Dirent } from 'fs';
 
-import * as SymbolNameUtils from '../binder/symbolNameUtils.ts';
-import { isDunderName } from '../binder/symbolNameUtils.ts';
-import { stubsSuffix } from '../common/pathConsts.ts';
-import { PythonVersion, pythonVersion3_0 } from '../common/pythonVersion.ts';
-import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from '../config/configOptions.ts';
-import { Host } from '../extensibility/host.ts';
-import { ServiceProvider } from '../extensibility/serviceProvider.ts';
-import { stripFileExtension } from '../files/pathUtils.ts';
-import { Uri } from '../files/uri/uri.ts';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.js';
+import { isDunderName } from 'typeserver/binder/symbolNameUtils.js';
+import { stubsSuffix } from 'typeserver/common/pathConsts.js';
+import { PythonVersion, pythonVersion3_0 } from 'typeserver/common/pythonVersion.js';
+import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/config/configOptions.js';
+import { Host } from 'typeserver/extensibility/host.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { stripFileExtension } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     getFileSystemEntriesFromDirEntries,
     isDirectory,
     isFile,
     tryRealpath,
     tryStat,
-} from '../files/uri/uriUtils.ts';
-import { Tokenizer } from '../parser/tokenizer.ts';
+} from 'typeserver/files/uri/uriUtils.js';
+import { ImplicitImport, ImportResult, ImportType } from 'typeserver/imports/importResult.js';
+import { getDirectoryLeadingDotsPointsTo } from 'typeserver/imports/importStatementUtils.js';
+import { ImportPath, ParentDirectoryCache } from 'typeserver/imports/parentDirectoryCache.js';
+import { PyTypedInfo, getPyTypedInfoForPyTypedFile } from 'typeserver/imports/pyTypedUtils.js';
+import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 import {
     findPythonSearchPaths,
     getTypeShedFallbackPath,
     getTypeshedSubdirectory,
     stdLibFolderName,
     thirdPartyFolderName,
-} from '../service/pythonPathUtils.ts';
-import { appendArray, flatten, getMapValues, getOrAdd } from '../utils/collectionUtils.ts';
-import { equateStringsCaseInsensitive, isPatternInSymbol } from '../utils/stringUtils.ts';
-import { ImplicitImport, ImportResult, ImportType } from './importResult.ts';
-import { getDirectoryLeadingDotsPointsTo } from './importStatementUtils.ts';
-import { ImportPath, ParentDirectoryCache } from './parentDirectoryCache.ts';
-import { PyTypedInfo, getPyTypedInfoForPyTypedFile } from './pyTypedUtils.ts';
+} from 'typeserver/service/pythonPathUtils.js';
+import { appendArray, flatten, getMapValues, getOrAdd } from 'typeserver/utils/collectionUtils.js';
+import { equateStringsCaseInsensitive, isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
 
 export interface ImportedModuleDescriptor {
     leadingDots: number;

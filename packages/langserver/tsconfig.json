@@ -6,6 +6,9 @@
             "typeserver/*": [
                 "../typeserver/src/*"
             ],
+            "langserver/*": [
+                "./src/*"
+            ],
         },
         "typeRoots": ["./node_modules/@types", "./typings"]
     },

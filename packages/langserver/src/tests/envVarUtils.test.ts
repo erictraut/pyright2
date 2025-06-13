@@ -10,16 +10,16 @@ import os from 'os';
 
 import assert from 'assert';
 
-import { ConfigOptions } from 'typeserver/config/configOptions.ts';
-import { NullConsole } from 'typeserver/extensibility//console.ts';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { TypeService } from 'typeserver/service/typeService.ts';
-import { expandPathVariables, resolvePathWithEnvVariables } from '../providers/envVarUtils.ts';
-import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from '../server/workspaceFactory.ts';
-import { TestAccessHost } from './harness/testAccessHost.ts';
-import { TestFileSystem } from './harness/vfs/filesystem.ts';
+import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/providers/envVarUtils.js';
+import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
+import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { NullConsole } from 'typeserver/extensibility//console.js';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { TypeService } from 'typeserver/service/typeService.js';
 
 jest.mock('os', () => ({ __esModule: true, ...jest.requireActual('os') }));
 

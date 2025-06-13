@@ -8,24 +8,24 @@
  * and ternary operators.
  */
 
-import { getScopeForNode } from '../binder/scopeUtils.ts';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
-import { getFileInfo } from '../common/analyzerNodeInfo.ts';
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { getEnclosingLambda, isWithinLoop, operatorSupportsChaining, printOperator } from '../common/parseTreeUtils.ts';
-import { PythonVersion, pythonVersion3_10 } from '../common/pythonVersion.ts';
-import { LocMessage } from '../localization/localize.ts';
+import { getScopeForNode } from 'typeserver/binder/scopeUtils.js';
+import { evaluateStaticBoolExpression } from 'typeserver/binder/staticExpressions.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
 import {
-    AugmentedAssignmentNode,
-    BinaryOperationNode,
-    ExpressionNode,
-    ParseNodeType,
-    TernaryNode,
-    UnaryOperationNode,
-} from '../parser/parseNodes.ts';
-import { OperatorType } from '../parser/tokenizerTypes.ts';
-import { EvalFlags, MagicMethodDeprecationInfo, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
+    getEnclosingLambda,
+    isWithinLoop,
+    operatorSupportsChaining,
+    printOperator,
+} from 'typeserver/common/parseTreeUtils.js';
+import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.js';
+import {
+    EvalFlags,
+    MagicMethodDeprecationInfo,
+    TypeEvaluator,
+    TypeResult,
+} from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     InferenceContext,
     convertToInstantiable,
@@ -46,7 +46,7 @@ import {
     specializeTupleClass,
     specializeWithDefaultTypeArgs,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
 import {
     ClassType,
     NeverType,
@@ -61,7 +61,17 @@ import {
     isInstantiableClass,
     isNever,
     isUnion,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
+import { LocMessage } from 'typeserver/localization/localize.js';
+import {
+    AugmentedAssignmentNode,
+    BinaryOperationNode,
+    ExpressionNode,
+    ParseNodeType,
+    TernaryNode,
+    UnaryOperationNode,
+} from 'typeserver/parser/parseNodes.js';
+import { OperatorType } from 'typeserver/parser/tokenizerTypes.js';
 
 // Maps binary operators to the magic methods that implement them.
 const binaryOperatorMap: { [operator: number]: [string, string] } = {

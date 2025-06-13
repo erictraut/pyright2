@@ -10,20 +10,20 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-jsonrpc';
 import { MarkupKind } from 'vscode-languageserver-types';
 
-import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/common/positionUtils.ts';
-import { ConfigOptions } from 'typeserver/config/configOptions.ts';
-import { NullConsole } from 'typeserver/extensibility/console.ts';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
-import { normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { Program } from 'typeserver/program/program.ts';
-import { IPythonMode } from 'typeserver/program/sourceFile.ts';
-import { TypeService } from 'typeserver/service/typeService.ts';
-import { CompletionProvider } from '../providers/completionProvider.ts';
-import { parseTestData } from './harness/fourslash/fourSlashParser.ts';
-import * as host from './harness/testHost.ts';
-import { createFromFileSystem } from './harness/vfs/factory.ts';
+import { CompletionProvider } from 'langserver/providers/completionProvider.js';
+import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
+import * as host from 'langserver/tests/harness/testHost.js';
+import { createFromFileSystem } from 'langserver/tests/harness/vfs/factory.js';
+import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { NullConsole } from 'typeserver/extensibility/console.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { Program } from 'typeserver/program/program.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { TypeService } from 'typeserver/service/typeService.js';
 
 test('check chained files', () => {
     const code = `

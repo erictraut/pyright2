@@ -9,7 +9,7 @@
 
 import assert from 'assert';
 
-import { printType, PrintTypeFlags } from '../evaluator/typePrinter.ts';
+import { printType, PrintTypeFlags } from 'typeserver/evaluator/typePrinter.js';
 import {
     AnyType,
     ClassType,
@@ -27,9 +27,9 @@ import {
     TypeVarType,
     UnboundType,
     UnknownType,
-} from '../evaluator/types.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { ParamCategory } from '../parser/parseNodes.ts';
+} from 'typeserver/evaluator/types.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ParamCategory } from 'typeserver/parser/parseNodes.js';
 
 function returnTypeCallback(type: FunctionType) {
     return type.shared.declaredReturnType ?? UnknownType.create(/* isEllipsis */ true);

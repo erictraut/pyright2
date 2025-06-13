@@ -8,10 +8,10 @@
  * line/column positions.
  */
 
-import { TokenizerOutput } from '../parser/tokenizer.ts';
-import { assert } from '../utils/debug.ts';
-import { Position, Range, TextRange } from './textRange.ts';
-import { TextRangeCollection } from './textRangeCollection.ts';
+import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
+import { TokenizerOutput } from 'typeserver/parser/tokenizer.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 // Translates a file offset into a line/column pair.
 export function convertOffsetToPosition(offset: number, lines: TextRangeCollection<TextRange>): Position {

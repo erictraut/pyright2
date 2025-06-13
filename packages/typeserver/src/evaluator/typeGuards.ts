@@ -9,29 +9,17 @@
  * negative ("else") narrowing cases.
  */
 
-import { Declaration, DeclarationType } from '../binder/declaration.ts';
-import { ScopeType } from '../binder/scope.ts';
-import { getScopeForNode, isScopeContainedWithin } from '../binder/scopeUtils.ts';
-import { Symbol, SymbolFlags } from '../binder/symbol.ts';
-import { getFileInfo } from '../common/analyzerNodeInfo.ts';
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import {
-    ArgCategory,
-    AssignmentExpressionNode,
-    ExpressionNode,
-    isExpressionNode,
-    NameNode,
-    ParamCategory,
-    ParseNode,
-    ParseNodeType,
-} from '../parser/parseNodes.ts';
-import { KeywordType, OperatorType } from '../parser/tokenizerTypes.ts';
-import { assert } from '../utils/debug.ts';
-import { addConstraintsForExpectedType } from './constraintSolver.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
-import { transformTypeForEnumMember } from './enums.ts';
-import { getTypedDictMembersForClass } from './typedDicts.ts';
-import { AssignTypeFlags, EvalFlags, TypeEvaluator } from './typeEvaluatorTypes.ts';
+import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
+import { ScopeType } from 'typeserver/binder/scope.js';
+import { getScopeForNode, isScopeContainedWithin } from 'typeserver/binder/scopeUtils.js';
+import { Symbol, SymbolFlags } from 'typeserver/binder/symbol.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { addConstraintsForExpectedType } from 'typeserver/evaluator/constraintSolver.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { transformTypeForEnumMember } from 'typeserver/evaluator/enums.js';
+import { getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts.js';
+import { AssignTypeFlags, EvalFlags, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     AnyType,
     ClassType,
@@ -64,7 +52,7 @@ import {
     TypedDictEntry,
     TypeVarType,
     UnknownType,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     addConditionToType,
     ClassMember,
@@ -99,7 +87,19 @@ import {
     specializeWithUnknownTypeArgs,
     stripTypeForm,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import {
+    ArgCategory,
+    AssignmentExpressionNode,
+    ExpressionNode,
+    isExpressionNode,
+    NameNode,
+    ParamCategory,
+    ParseNode,
+    ParseNodeType,
+} from 'typeserver/parser/parseNodes.js';
+import { KeywordType, OperatorType } from 'typeserver/parser/tokenizerTypes.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 export interface TypeNarrowingResult {
     type: Type;

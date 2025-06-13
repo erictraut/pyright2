@@ -10,9 +10,9 @@
 
 // * NOTE * except tests, this should be only file that import "fs"
 import type * as fs from 'fs';
+import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 import { Disposable } from 'vscode-jsonrpc';
-import { FileWatcher, FileWatcherEventHandler } from './fileWatcher.ts';
-import { Uri } from './uri/uri.ts';
 
 export interface Stats {
     size: number;

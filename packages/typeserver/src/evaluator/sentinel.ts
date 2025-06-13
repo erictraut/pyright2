@@ -7,13 +7,13 @@
  * Provides type evaluation logic that is specific to PEP 661 Sentinels.
  */
 
-import { getFileInfo } from '../common/analyzerNodeInfo.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { getClassFullName, getTypeSourceId } from '../common/parseTreeUtils.ts';
-import { LocMessage } from '../localization/localize.ts';
-import { ArgCategory, ExpressionNode, ParseNodeType } from '../parser/parseNodes.ts';
-import { Arg, TypeEvaluator } from './typeEvaluatorTypes.ts';
-import { ClassType, ClassTypeFlags, SentinelLiteral, Type, TypeBase } from './types.ts';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { getClassFullName, getTypeSourceId } from 'typeserver/common/parseTreeUtils.js';
+import { Arg, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { ClassType, ClassTypeFlags, SentinelLiteral, Type, TypeBase } from 'typeserver/evaluator/types.js';
+import { LocMessage } from 'typeserver/localization/localize.js';
+import { ArgCategory, ExpressionNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 
 export function createSentinelType(
     evaluator: TypeEvaluator,

@@ -7,11 +7,11 @@
  * Class that represents errors and warnings.
  */
 
-import { DiagnosticLevel } from '../config/configOptions.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { Commands } from '../service/commands.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { Range, TextRange } from './textRange.ts';
+import { Range, TextRange } from 'typeserver/common/textRange.js';
+import { DiagnosticLevel } from 'typeserver/config/configOptions.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { Commands } from 'typeserver/service/commands.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
 
 export const defaultMaxDiagnosticDepth = 5;
 export const defaultMaxDiagnosticLineCount = 8;

@@ -17,7 +17,7 @@ import {
     Type,
     TypeBase,
     TypeCategory,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 
 // Returns a "score" for a type that captures the relative complexity
 // of the type. Scores should all be between 0 and 1 where 0 means

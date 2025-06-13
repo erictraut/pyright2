@@ -9,15 +9,38 @@
 
 import { CancellationToken } from 'vscode-languageserver-protocol';
 
-import { CodeFlowReferenceExpressionNode, FlowNode } from '../binder/codeFlowTypes.ts';
-import { Declaration } from '../binder/declaration.ts';
-import { ResolvedAliasInfo } from '../binder/declarationUtils.ts';
-import { SymbolWithScope } from '../binder/scope.ts';
-import { Symbol, SynthesizedTypeInfo } from '../binder/symbol.ts';
-import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { TextRange } from '../common/textRange.ts';
-import { ConsoleInterface } from '../extensibility/console.ts';
+import { CodeFlowReferenceExpressionNode, FlowNode } from 'typeserver/binder/codeFlowTypes.js';
+import { Declaration } from 'typeserver/binder/declaration.js';
+import { ResolvedAliasInfo } from 'typeserver/binder/declarationUtils.js';
+import { SymbolWithScope } from 'typeserver/binder/scope.js';
+import { Symbol, SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
+import { Diagnostic, DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { AnalyzerFileInfo } from 'typeserver/evaluator/analyzerFileInfo.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { SpeculativeModeOptions } from 'typeserver/evaluator/typeCacheUtils.js';
+import { PrintTypeFlags } from 'typeserver/evaluator/typePrinter.js';
+import {
+    AnyType,
+    ClassType,
+    FunctionParam,
+    FunctionType,
+    OverloadedType,
+    TupleTypeArg,
+    Type,
+    TypeCondition,
+    TypeVarType,
+    UnknownType,
+    Variance,
+} from 'typeserver/evaluator/types.js';
+import {
+    ApplyTypeVarOptions,
+    ClassMember,
+    InferenceContext,
+    MemberAccessFlags,
+} from 'typeserver/evaluator/typeUtils.js';
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import {
     ArgCategory,
     ArgumentNode,
@@ -33,25 +56,7 @@ import {
     ParameterNode,
     ParseNode,
     StringNode,
-} from '../parser/parseNodes.ts';
-import { AnalyzerFileInfo } from './analyzerFileInfo.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
-import { SpeculativeModeOptions } from './typeCacheUtils.ts';
-import { PrintTypeFlags } from './typePrinter.ts';
-import {
-    AnyType,
-    ClassType,
-    FunctionParam,
-    FunctionType,
-    OverloadedType,
-    TupleTypeArg,
-    Type,
-    TypeCondition,
-    TypeVarType,
-    UnknownType,
-    Variance,
-} from './types.ts';
-import { ApplyTypeVarOptions, ClassMember, InferenceContext, MemberAccessFlags } from './typeUtils.ts';
+} from 'typeserver/parser/parseNodes.js';
 
 // Maximum number of unioned subtypes for an inferred type (e.g.
 // a list) before the type is considered an "Any".

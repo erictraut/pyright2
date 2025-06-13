@@ -7,20 +7,20 @@
  * Collection of static methods that operate on declarations.
  */
 
-import { getFileInfoFromNode } from '../common/parseTreeUtils.ts';
-import { getEmptyRange } from '../common/textRange.ts';
-import { ImportLookup, ImportLookupResult } from '../evaluator/analyzerFileInfo.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { NameNode, ParseNodeType } from '../parser/parseNodes.ts';
-import { assertNever } from '../utils/debug.ts';
 import {
     AliasDeclaration,
     Declaration,
     DeclarationType,
     ModuleLoaderActions,
     isAliasDeclaration,
-} from './declaration.ts';
-import { Symbol } from './symbol.ts';
+} from 'typeserver/binder/declaration.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
+import { getFileInfoFromNode } from 'typeserver/common/parseTreeUtils.js';
+import { getEmptyRange } from 'typeserver/common/textRange.js';
+import { ImportLookup, ImportLookupResult } from 'typeserver/evaluator/analyzerFileInfo.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { assertNever } from 'typeserver/utils/debug.js';
 
 export interface ResolvedAliasInfo {
     declaration: Declaration | undefined;

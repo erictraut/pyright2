@@ -8,28 +8,15 @@
  * classes with defined entry names and types.
  */
 
-import { DeclarationType, VariableDeclaration } from '../binder/declaration.ts';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
-import { Symbol, SymbolFlags } from '../binder/symbol.ts';
-import { getFileInfo } from '../common/analyzerNodeInfo.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { convertOffsetsToRange } from '../common/positionUtils.ts';
-import { TextRange } from '../common/textRange.ts';
-import { LocMessage } from '../localization/localize.ts';
-import { ArgCategory, ExpressionNode, ParamCategory, ParseNodeType, StringListNode } from '../parser/parseNodes.ts';
-import { Tokenizer } from '../parser/tokenizer.ts';
-import { Arg, TypeEvaluator } from './typeEvaluatorTypes.ts';
-import {
-    computeMroLinearization,
-    convertToInstance,
-    getTypeVarScopeId,
-    isLiteralType,
-    isTupleClass,
-    isUnboundedTupleClass,
-    specializeTupleClass,
-    synthesizeTypeVarForSelfCls,
-} from './typeUtils.ts';
+import { DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.js';
+import { evaluateStaticBoolExpression } from 'typeserver/binder/staticExpressions.js';
+import { Symbol, SymbolFlags } from 'typeserver/binder/symbol.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetsToRange } from 'typeserver/common/positionUtils.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { Arg, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     AnyType,
     ClassType,
@@ -44,7 +31,26 @@ import {
     combineTypes,
     isClassInstance,
     isInstantiableClass,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
+import {
+    computeMroLinearization,
+    convertToInstance,
+    getTypeVarScopeId,
+    isLiteralType,
+    isTupleClass,
+    isUnboundedTupleClass,
+    specializeTupleClass,
+    synthesizeTypeVarForSelfCls,
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocMessage } from 'typeserver/localization/localize.js';
+import {
+    ArgCategory,
+    ExpressionNode,
+    ParamCategory,
+    ParseNodeType,
+    StringListNode,
+} from 'typeserver/parser/parseNodes.js';
+import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 
 // Creates a new custom tuple factory class with named values.
 // Supports both typed and untyped variants.

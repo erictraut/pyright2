@@ -8,8 +8,8 @@
 
 import { ExecuteCommandParams } from 'vscode-languageserver';
 
-import { LanguageServerInterface } from '../server/languageServerInterface.ts';
-import { ServerCommand } from './commandController.ts';
+import { ServerCommand } from 'langserver/commands/commandController.js';
+import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
 
 export class RestartServerCommand implements ServerCommand {
     constructor(private _ls: LanguageServerInterface) {}

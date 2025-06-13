@@ -8,17 +8,15 @@
  * (structural subtyping) classes.
  */
 
-import { DeclarationType } from '../binder/declaration.ts';
-import { Symbol } from '../binder/symbol.ts';
-import { getLastTypedDeclarationForSymbol, isEffectivelyClassVar } from '../binder/symbolUtils.ts';
-import { defaultMaxDiagnosticDepth, DiagnosticAddendum } from '../common/diagnostic.ts';
-import { LocAddendum } from '../localization/localize.ts';
-import { assert } from '../utils/debug.ts';
-import { ConstraintSolution } from './constraintSolution.ts';
-import { assignTypeVar } from './constraintSolver.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
-import { assignProperty } from './properties.ts';
-import { AssignTypeFlags, TypeEvaluator } from './typeEvaluatorTypes.ts';
+import { DeclarationType } from 'typeserver/binder/declaration.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
+import { getLastTypedDeclarationForSymbol, isEffectivelyClassVar } from 'typeserver/binder/symbolUtils.js';
+import { defaultMaxDiagnosticDepth, DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { ConstraintSolution } from 'typeserver/evaluator/constraintSolution.js';
+import { assignTypeVar } from 'typeserver/evaluator/constraintSolver.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { assignProperty } from 'typeserver/evaluator/properties.js';
+import { AssignTypeFlags, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     FunctionType,
@@ -35,7 +33,7 @@ import {
     TypeVarType,
     UnknownType,
     Variance,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     addSolutionForSelfType,
     applySolvedTypeVars,
@@ -49,7 +47,9 @@ import {
     requiresTypeArgs,
     selfSpecializeClass,
     synthesizeTypeVarForSelfCls,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocAddendum } from 'typeserver/localization/localize.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 interface ProtocolAssignmentStackEntry {
     srcType: ClassType;

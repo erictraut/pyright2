@@ -10,14 +10,14 @@
 
 import { CancellationToken, DocumentSymbol, Location, SymbolInformation } from 'vscode-languageserver';
 
-import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { IProgramView } from 'typeserver/extensibility/extensibility.ts';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
-import { IndexOptions, IndexSymbolData, SymbolIndexer } from './symbolIndexer.ts';
+import { IndexOptions, IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndexer.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
 
 export function convertToFlatSymbols(
     program: IProgramView,

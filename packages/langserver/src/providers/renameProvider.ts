@@ -9,18 +9,18 @@
 
 import { CancellationToken, WorkspaceEdit } from 'vscode-languageserver';
 
-import { FileEditAction } from 'typeserver/common/editAction.ts';
-import { convertTextRangeToRange } from 'typeserver/common/positionUtils.ts';
-import { Position, Range } from 'typeserver/common/textRange.ts';
-import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.ts';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { ParseNodeType } from 'typeserver/parser/parseNodes.ts';
-import { ParseFileResults } from 'typeserver/parser/parser.ts';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.ts';
-import { assertNever } from 'typeserver/utils/debug.ts';
-import { convertToWorkspaceEdit } from '../server/workspaceEditUtils.ts';
-import { ReferencesProvider, ReferencesResult } from './referencesProvider.ts';
+import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
+import { convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
+import { FileEditAction } from 'typeserver/common/editAction.js';
+import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
+import { Position, Range } from 'typeserver/common/textRange.js';
+import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
+import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { assertNever } from 'typeserver/utils/debug.js';
 
 export class RenameProvider {
     private readonly _parseResults: ParseFileResults | undefined;

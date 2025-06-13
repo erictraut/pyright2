@@ -8,16 +8,16 @@
 
 import type { Dirent } from 'fs';
 
-import { ServiceKeys } from '../../extensibility/serviceKeys.ts';
-import { ServiceProvider } from '../../extensibility/serviceProvider.ts';
-import { CaseSensitivityDetector } from '../caseSensitivityDetector.ts';
-import { FileSystem, ReadOnlyFileSystem, Stats } from '../fileSystem.ts';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { FileSystem, ReadOnlyFileSystem, Stats } from 'typeserver/files/fileSystem.js';
 import {
     getRegexEscapedSeparator,
     isDirectoryWildcardPatternPresent,
     stripTrailingDirectorySeparator,
-} from '../pathUtils.ts';
-import { Uri } from './uri.ts';
+} from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 
 export interface FileSpec {
     // File specs can contain wildcard characters (**, *, ?). This

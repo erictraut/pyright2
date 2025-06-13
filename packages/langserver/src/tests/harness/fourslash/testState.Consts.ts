@@ -9,14 +9,14 @@
  * Ones defined here will be used on runtime.
  */
 
+import { indexValueDetail } from 'langserver/providers/completionProvider.js';
 import * as lsp from 'vscode-languageserver';
-import { indexValueDetail } from '../../../providers/completionProvider.ts';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export namespace Consts {
     export import CodeActionKind = lsp.CodeActionKind;
 
-    // it is duped here since original definition in '../../../commands/commands'
+    // it is duped here since original definition in 'typeserver/../../commands/commands'
     // is marked as const enum and we can't import "const enum" which get removed
     // once compiled
     export enum Commands {

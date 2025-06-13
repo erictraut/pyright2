@@ -6,7 +6,7 @@
  * Platform-independent helper functions for crypto.
  */
 
-import { fail } from './debug.ts';
+import { fail } from 'typeserver/utils/debug.js';
 
 let nodeCrypto: typeof import('crypto') | undefined;
 

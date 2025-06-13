@@ -8,11 +8,11 @@
  * if memory usage approaches the max heap space.
  */
 
+import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { fail } from 'typeserver/utils/debug.js';
+import { getHeapStatistics, getSystemMemoryInfo } from 'typeserver/utils/memUtils.js';
 import type { HeapInfo } from 'v8';
 import { Worker } from 'worker_threads';
-import { ConsoleInterface } from '../extensibility/console.ts';
-import { fail } from '../utils/debug.ts';
-import { getHeapStatistics, getSystemMemoryInfo } from '../utils/memUtils.ts';
 
 export interface CacheOwner {
     // Returns a number between 0 and 1 that indicates how full

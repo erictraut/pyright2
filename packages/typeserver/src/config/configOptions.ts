@@ -9,26 +9,26 @@
 
 import { isAbsolute } from 'path';
 
-import { TaskListToken } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import * as pathConsts from '../common/pathConsts.ts';
-import { PythonVersion, latestStablePythonVersion } from '../common/pythonVersion.ts';
-import { ConsoleInterface, NullConsole } from '../extensibility/console.ts';
-import { Host } from '../extensibility/host.ts';
-import { ServiceKeys } from '../extensibility/serviceKeys.ts';
-import { ServiceProvider } from '../extensibility/serviceProvider.ts';
-import { FileSystem } from '../files/fileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { FileSpec, getFileSpec, isDirectory } from '../files/uri/uriUtils.ts';
-import { getPathsFromPthFiles } from '../service/pythonPathUtils.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { isBoolean } from '../utils/core.ts';
+import { TaskListToken } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import * as pathConsts from 'typeserver/common/pathConsts.js';
+import { PythonVersion, latestStablePythonVersion } from 'typeserver/common/pythonVersion.js';
 import {
     DiagnosticBooleanOverridesMap,
     DiagnosticSeverityOverrides,
     DiagnosticSeverityOverridesMap,
     getDiagnosticSeverityOverrides,
-} from './commandLineOptions.ts';
+} from 'typeserver/config/commandLineOptions.js';
+import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
+import { Host } from 'typeserver/extensibility/host.js';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { FileSpec, getFileSpec, isDirectory } from 'typeserver/files/uri/uriUtils.js';
+import { getPathsFromPthFiles } from 'typeserver/service/pythonPathUtils.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { isBoolean } from 'typeserver/utils/core.js';
 
 export enum PythonPlatform {
     Darwin = 'Darwin',

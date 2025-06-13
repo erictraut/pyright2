@@ -10,16 +10,13 @@
  *
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { LocMessage } from '../localization/localize.ts';
-import { ArgCategory, ExpressionNode, ParamCategory } from '../parser/parseNodes.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
-import { createFunctionFromConstructor } from './constructors.ts';
-import { getParamListDetails, ParamKind } from './parameterUtils.ts';
-import { getTypedDictMembersForClass } from './typedDicts.ts';
-import { Arg, FunctionResult, TypeEvaluator } from './typeEvaluatorTypes.ts';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { createFunctionFromConstructor } from 'typeserver/evaluator/constructors.js';
+import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils.js';
+import { getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts.js';
+import { Arg, FunctionResult, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     AnyType,
     ClassType,
@@ -36,8 +33,16 @@ import {
     OverloadedType,
     Type,
     TypedDictEntry,
-} from './types.ts';
-import { convertToInstance, lookUpObjectMember, makeInferenceContext, MemberAccessFlags } from './typeUtils.ts';
+} from 'typeserver/evaluator/types.js';
+import {
+    convertToInstance,
+    lookUpObjectMember,
+    makeInferenceContext,
+    MemberAccessFlags,
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocMessage } from 'typeserver/localization/localize.js';
+import { ArgCategory, ExpressionNode, ParamCategory } from 'typeserver/parser/parseNodes.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
 
 export function hasConstructorTransform(classType: ClassType): boolean {
     if (classType.shared.fullName === 'functools.partial') {

@@ -18,15 +18,15 @@ import {
     CancellationToken,
 } from 'vscode-languageserver';
 
-import { Uri } from '../files/uri/uri.ts';
-import { UriEx } from '../files/uri/uriUtils.ts';
 import {
     CancellationProvider,
     CancelledTokenId,
     FileBasedToken,
     getCancellationFolderName,
     setCancellationFolderName,
-} from './cancellationUtils.ts';
+} from 'typeserver/extensibility/cancellationUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 
 class StatSyncFromFs {
     statSync(uri: Uri) {

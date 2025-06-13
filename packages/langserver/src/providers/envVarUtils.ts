@@ -8,11 +8,11 @@
 
 import os from 'os';
 
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.ts';
-import { isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { escapeRegExp } from 'typeserver/utils/stringUtils.ts';
-import { Workspace, WorkspaceFolder } from '../server/workspaceFactory.ts';
+import { Workspace, WorkspaceFolder } from 'langserver/server/workspaceFactory.js';
+import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
+import { isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { escapeRegExp } from 'typeserver/utils/stringUtils.js';
 
 export function resolvePathWithEnvVariables(
     workspace: Workspace,

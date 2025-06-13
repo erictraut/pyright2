@@ -13,7 +13,7 @@ import {
     isProtectedName,
     isPublicConstantOrTypeAlias,
     isTypeAliasName,
-} from '../binder/symbolNameUtils.ts';
+} from 'typeserver/binder/symbolNameUtils.js';
 
 test('symbolNameUtils isPrivateName', () => {
     assert.strictEqual(isPrivateName('__var'), true);

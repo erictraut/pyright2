@@ -22,6 +22,15 @@
         "no-constant-condition": 0,
         "no-inner-declarations": 0,
         "no-unused-vars": "off",
+        "no-restricted-imports": [
+            "error",
+            {
+                "patterns": [
+                    "../*",
+                    "./*"
+                ]
+            }
+        ],
         "no-undef": 0,
         "simple-import-sort/exports": "error",
         "@typescript-eslint/explicit-function-return-type": 0,
@@ -31,7 +40,25 @@
         "@typescript-eslint/member-ordering": [
             "error",
             {
-                "classes": ["field", "constructor", ["public-get", "public-set"], "public-method", ["protected-get", "protected-set"], "protected-method", ["private-get", "private-set"], "private-method"],
+                "classes": [
+                    "field",
+                    "constructor",
+                    [
+                        "public-get",
+                        "public-set"
+                    ],
+                    "public-method",
+                    [
+                        "protected-get",
+                        "protected-set"
+                    ],
+                    "protected-method",
+                    [
+                        "private-get",
+                        "private-set"
+                    ],
+                    "private-method"
+                ],
                 "interfaces": []
             }
         ],
@@ -40,7 +67,12 @@
         "@typescript-eslint/no-namespace": 0,
         "@typescript-eslint/no-non-null-assertion": 0,
         "@typescript-eslint/no-this-alias": 0,
-        "@typescript-eslint/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
+        "@typescript-eslint/explicit-member-accessibility": [
+            "error",
+            {
+                "accessibility": "no-public"
+            }
+        ],
         "@typescript-eslint/no-unused-vars": [
             "error",
             {
@@ -59,9 +91,13 @@
                     "typeMethod",
                     "accessor"
                 ],
-                "modifiers": ["private"],
+                "modifiers": [
+                    "private"
+                ],
                 "leadingUnderscore": "require",
-                "format": ["camelCase"],
+                "format": [
+                    "camelCase"
+                ],
                 "filter": {
                     "regex": "^(test_| )",
                     "match": false
@@ -76,9 +112,13 @@
                     "typeMethod",
                     "accessor"
                 ],
-                "modifiers": ["protected"],
+                "modifiers": [
+                    "protected"
+                ],
                 "leadingUnderscore": "forbid",
-                "format": ["camelCase"],
+                "format": [
+                    "camelCase"
+                ],
                 "filter": {
                     "regex": "^(test_| )",
                     "match": false
@@ -93,9 +133,13 @@
                     "typeMethod",
                     "accessor"
                 ],
-                "modifiers": ["public"],
+                "modifiers": [
+                    "public"
+                ],
                 "leadingUnderscore": "forbid",
-                "format": ["camelCase"],
+                "format": [
+                    "camelCase"
+                ],
                 "filter": {
                     "regex": "^(test_| )",
                     "match": false
@@ -105,7 +149,9 @@
     },
     "overrides": [
         {
-            "files": ["**/*.js"],
+            "files": [
+                "**/*.js"
+            ],
             "rules": {
                 "@typescript-eslint/no-var-requires": 0
             }

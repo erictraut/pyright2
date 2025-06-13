@@ -8,10 +8,10 @@
  * symbol tables.
  */
 
-import { getScope } from '../common/analyzerNodeInfo.ts';
-import { getEvaluationScopeNode } from '../common/parseTreeUtils.ts';
-import { EvaluationScopeNode, ParseNode } from '../parser/parseNodes.ts';
-import { Scope, ScopeType } from './scope.ts';
+import { Scope, ScopeType } from 'typeserver/binder/scope.js';
+import { getScope } from 'typeserver/common/analyzerNodeInfo.js';
+import { getEvaluationScopeNode } from 'typeserver/common/parseTreeUtils.js';
+import { EvaluationScopeNode, ParseNode } from 'typeserver/parser/parseNodes.js';
 
 export function getBuiltInScope(currentScope: Scope): Scope {
     // Starting at the current scope, find the built-in scope, which should

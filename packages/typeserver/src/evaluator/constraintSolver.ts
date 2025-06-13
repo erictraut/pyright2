@@ -9,16 +9,15 @@
  *
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { LocAddendum } from '../localization/localize.ts';
-import { ConstraintSolution, ConstraintSolutionSet } from './constraintSolution.ts';
-import { ConstraintSet, ConstraintTracker, TypeVarConstraints } from './constraintTracker.ts';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { ConstraintSolution, ConstraintSolutionSet } from 'typeserver/evaluator/constraintSolution.js';
+import { ConstraintSet, ConstraintTracker, TypeVarConstraints } from 'typeserver/evaluator/constraintTracker.js';
 import {
     AssignTypeFlags,
     maxSubtypesForInferredType,
     SolveConstraintsOptions,
     TypeEvaluator,
-} from './typeEvaluatorTypes.ts';
+} from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     combineTypes,
@@ -46,7 +45,7 @@ import {
     TypeVarScopeId,
     TypeVarType,
     Variance,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     addConditionToType,
     applySolvedTypeVars,
@@ -70,7 +69,8 @@ import {
     stripTypeForm,
     transformExpectedType,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocAddendum } from 'typeserver/localization/localize.js';
 
 // As we widen the lower bound of a type variable, we may end up with
 // many subtypes. For performance reasons, we need to cap this at some

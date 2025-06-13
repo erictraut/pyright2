@@ -12,31 +12,45 @@
  * cannot (or should not be) performed lazily.
  */
 
-import { Declaration, DeclarationType, isAliasDeclaration, isVariableDeclaration } from '../binder/declaration.ts';
-import { getNameNodeForDeclaration } from '../binder/declarationUtils.ts';
-import { Scope, ScopeType } from '../binder/scope.ts';
-import { getScopeForNode } from '../binder/scopeUtils.ts';
-import { evaluateStaticBoolExpression } from '../binder/staticExpressions.ts';
-import { Symbol } from '../binder/symbol.ts';
-import * as SymbolNameUtils from '../binder/symbolNameUtils.ts';
-import { getLastTypedDeclarationForSymbol } from '../binder/symbolUtils.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import { Diagnostic, DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { PythonVersion, pythonVersion3_12, pythonVersion3_5, pythonVersion3_6 } from '../common/pythonVersion.ts';
-import { TextRange } from '../common/textRange.ts';
-import { DiagnosticLevel } from '../config/configOptions.ts';
-import { AnalyzerFileInfo } from '../evaluator/analyzerFileInfo.ts';
-import { ConstraintTracker } from '../evaluator/constraintTracker.ts';
-import { getBoundCallMethod, getBoundInitMethod, getBoundNewMethod } from '../evaluator/constructors.ts';
-import { addInheritedDataClassEntries } from '../evaluator/dataClasses.ts';
-import { getEnumDeclaredValueType, isEnumClassWithMembers, transformTypeForEnumMember } from '../evaluator/enums.ts';
-import { getParamListDetails } from '../evaluator/parameterUtils.ts';
-import { validateClassPattern } from '../evaluator/patternMatching.ts';
-import { isMethodOnlyProtocol, isProtocolUnsafeOverlap } from '../evaluator/protocols.ts';
-import { getEffectiveExtraItemsEntryType, getTypedDictMembersForClass } from '../evaluator/typedDicts.ts';
-import { maxCodeComplexity } from '../evaluator/typeEvaluator.ts';
+import {
+    Declaration,
+    DeclarationType,
+    isAliasDeclaration,
+    isVariableDeclaration,
+} from 'typeserver/binder/declaration.js';
+import { getNameNodeForDeclaration } from 'typeserver/binder/declarationUtils.js';
+import { Scope, ScopeType } from 'typeserver/binder/scope.js';
+import { getScopeForNode } from 'typeserver/binder/scopeUtils.js';
+import { evaluateStaticBoolExpression } from 'typeserver/binder/staticExpressions.js';
+import { Symbol } from 'typeserver/binder/symbol.js';
+import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.js';
+import { getLastTypedDeclarationForSymbol } from 'typeserver/binder/symbolUtils.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { Diagnostic, DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import {
+    PythonVersion,
+    pythonVersion3_12,
+    pythonVersion3_5,
+    pythonVersion3_6,
+} from 'typeserver/common/pythonVersion.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { DiagnosticLevel } from 'typeserver/config/configOptions.js';
+import { AnalyzerFileInfo } from 'typeserver/evaluator/analyzerFileInfo.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { getBoundCallMethod, getBoundInitMethod, getBoundNewMethod } from 'typeserver/evaluator/constructors.js';
+import { addInheritedDataClassEntries } from 'typeserver/evaluator/dataClasses.js';
+import {
+    getEnumDeclaredValueType,
+    isEnumClassWithMembers,
+    transformTypeForEnumMember,
+} from 'typeserver/evaluator/enums.js';
+import { getParamListDetails } from 'typeserver/evaluator/parameterUtils.js';
+import { validateClassPattern } from 'typeserver/evaluator/patternMatching.js';
+import { isMethodOnlyProtocol, isProtocolUnsafeOverlap } from 'typeserver/evaluator/protocols.js';
+import { getEffectiveExtraItemsEntryType, getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts.js';
+import { maxCodeComplexity } from 'typeserver/evaluator/typeEvaluator.js';
 import {
     Arg,
     AssignTypeFlags,
@@ -45,14 +59,14 @@ import {
     Reachability,
     TypeEvaluator,
     TypeResult,
-} from '../evaluator/typeEvaluatorTypes.ts';
+} from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     enumerateLiteralsForType,
     getElementTypeForContainerNarrowing,
     getIsInstanceClassTypes,
     narrowTypeForContainerElementType,
     narrowTypeForInstanceOrSubclass,
-} from '../evaluator/typeGuards.ts';
+} from 'typeserver/evaluator/typeGuards.js';
 import {
     AnyType,
     ClassType,
@@ -89,7 +103,7 @@ import {
     isUnbound,
     isUnion,
     isUnknown,
-} from '../evaluator/types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     ClassMember,
     MemberAccessFlags,
@@ -119,12 +133,12 @@ import {
     partiallySpecializeType,
     selfSpecializeClass,
     transformPossibleRecursiveTypeAlias,
-} from '../evaluator/typeUtils.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { ImportResolver, createImportedModuleDescriptor } from '../imports/importResolver.ts';
-import { ImportResult, ImportType } from '../imports/importResult.ts';
-import { getRelativeModuleName, getTopLevelImports } from '../imports/importStatementUtils.ts';
-import { LocAddendum, LocMessage } from '../localization/localize.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ImportResolver, createImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
+import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
+import { getRelativeModuleName, getTopLevelImports } from 'typeserver/imports/importStatementUtils.js';
+import { LocAddendum, LocMessage } from 'typeserver/localization/localize.js';
 import {
     ArgCategory,
     AssertNode,
@@ -188,17 +202,17 @@ import {
     YieldFromNode,
     YieldNode,
     isExpressionNode,
-} from '../parser/parseNodes.ts';
-import { ParserOutput } from '../parser/parser.ts';
-import { ParseTreeWalker } from '../parser/parseTreeWalker.ts';
-import { UnescapeError, UnescapeErrorType, getUnescapedString } from '../parser/stringTokenUtils.ts';
-import { OperatorType, StringTokenFlags, TokenType } from '../parser/tokenizerTypes.ts';
-import { IPythonMode } from '../program/sourceFile.ts';
-import { SourceMapper, isStubFile } from '../program/sourceMapper.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { assert, assertNever } from '../utils/debug.ts';
-import { Commands } from './commands.ts';
-import { deprecatedAliases, deprecatedSpecialForms } from './deprecatedSymbols.ts';
+} from 'typeserver/parser/parseNodes.js';
+import { ParserOutput } from 'typeserver/parser/parser.js';
+import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
+import { UnescapeError, UnescapeErrorType, getUnescapedString } from 'typeserver/parser/stringTokenUtils.js';
+import { OperatorType, StringTokenFlags, TokenType } from 'typeserver/parser/tokenizerTypes.js';
+import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.js';
+import { Commands } from 'typeserver/service/commands.js';
+import { deprecatedAliases, deprecatedSpecialForms } from 'typeserver/service/deprecatedSymbols.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { assert, assertNever } from 'typeserver/utils/debug.js';
 
 interface TypeVarUsageInfo {
     typeVar: TypeVarType;

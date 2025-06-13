@@ -8,9 +8,9 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-languageserver';
 import { CompletionItemKind, MarkupKind } from 'vscode-languageserver-types';
 
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { CompletionOptions, CompletionProvider } from '../providers/completionProvider.ts';
-import { parseAndGetTestState } from './harness/fourslash/testState.ts';
+import { CompletionOptions, CompletionProvider } from 'langserver/providers/completionProvider.js';
+import { parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
 
 test('completion import statement tooltip', async () => {
     const code = `

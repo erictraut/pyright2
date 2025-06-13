@@ -1,10 +1,10 @@
 /*
- * jest.config.js
+ * jest.config.mjs
  *
  * Configuration for jest tests.
  */
 
-module.exports = {
+export default {
     testEnvironment: 'node',
     testEnvironmentOptions: { experimentalVmModules: true },
     roots: ['<rootDir>/src/tests'],

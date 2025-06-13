@@ -15,35 +15,35 @@ import {
     WorkDoneProgressServerReporter,
 } from 'vscode-languageserver';
 
-import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.ts';
-import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.ts';
-import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils.ts';
-import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.ts';
-import { Host } from 'typeserver/extensibility/host.ts';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.ts';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.ts';
-import { FileSystem } from 'typeserver/files/fileSystem.ts';
-import { PartialStubService } from 'typeserver/files/partialStubService.ts';
-import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.ts';
+import { CommandController } from 'langserver/commands/commandController.js';
+import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
+import { resolvePathWithEnvVariables } from 'langserver/providers/envVarUtils.js';
+import { LanguageServerBase } from 'langserver/server/languageServerBase.js';
+import { ServerSettings } from 'langserver/server/languageServerInterface.js';
+import { ProgressReporter } from 'langserver/server/progressReporter.js';
+import { WellKnownWorkspaceKinds, Workspace } from 'langserver/server/workspaceFactory.js';
+import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
+import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.js';
+import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils.js';
+import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
+import { Host } from 'typeserver/extensibility/host.js';
+import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { PartialStubService } from 'typeserver/files/partialStubService.js';
+import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import {
     RealTempFile,
     WorkspaceFileWatcherProvider,
     createFromRealFileSystem,
-} from 'typeserver/files/realFileSystem.ts';
-import { Uri } from 'typeserver/files/uri/uri.ts';
-import { getRootUri } from 'typeserver/files/uri/uriUtils.ts';
-import { ImportResolver } from 'typeserver/imports/importResolver.ts';
-import { AnalysisResults } from 'typeserver/service/analysis.ts';
-import { CacheManager } from 'typeserver/service/cacheManager.ts';
-import { isPythonBinary } from 'typeserver/service/pythonPathUtils.ts';
-import { isDefined, isString } from 'typeserver/utils/core.ts';
-import { CommandController } from '../commands/commandController.ts';
-import { CodeActionProvider } from '../providers/codeActionProvider.ts';
-import { resolvePathWithEnvVariables } from '../providers/envVarUtils.ts';
-import { ServerSettings } from '../server/languageServerInterface.ts';
-import { LanguageServerBase } from './languageServerBase.ts';
-import { ProgressReporter } from './progressReporter.ts';
-import { WellKnownWorkspaceKinds, Workspace } from './workspaceFactory.ts';
+} from 'typeserver/files/realFileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { getRootUri } from 'typeserver/files/uri/uriUtils.js';
+import { ImportResolver } from 'typeserver/imports/importResolver.js';
+import { AnalysisResults } from 'typeserver/service/analysis.js';
+import { CacheManager } from 'typeserver/service/cacheManager.js';
+import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
+import { isDefined, isString } from 'typeserver/utils/core.js';
 
 const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };
 
@@ -52,7 +52,7 @@ export class PyrightServer extends LanguageServerBase {
 
     constructor(connection: Connection, maxWorkers: number, realFileSystem?: FileSystem) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        //const version = require('../package.json').version || '';
+        //const version = require('typeserver/package.json').version || '';
 
         // TODO - fix the version retrieval logic
         const version = 'Unknown Version';

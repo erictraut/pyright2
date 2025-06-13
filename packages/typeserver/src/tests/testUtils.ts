@@ -12,21 +12,21 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { Diagnostic, DiagnosticCategory } from '../common/diagnostic.ts';
-import { DiagnosticSink } from '../common/diagnosticSink.ts';
-import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../config/configOptions.ts';
-import { TypeEvaluator } from '../evaluator/typeEvaluatorTypes.ts';
-import { ConsoleWithLogLevel, NullConsole } from '../extensibility/console.ts';
-import { FullAccessHost } from '../extensibility/fullAccessHost.ts';
-import { createServiceProvider } from '../extensibility/serviceProviderExtensions.ts';
-import { RealTempFile, createFromRealFileSystem } from '../files/realFileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { UriEx } from '../files/uri/uriUtils.ts';
-import { ImportResolver } from '../imports/importResolver.ts';
-import { ParseFileResults, ParseOptions, Parser, ParserOutput } from '../parser/parser.ts';
-import { NameTypeWalker } from '../parser/testWalker.ts';
-import { Program } from '../program/program.ts';
-import { fail } from '../utils/debug.ts';
+import { Diagnostic, DiagnosticCategory } from 'typeserver/common/diagnostic.js';
+import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
+import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
+import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
+import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
+import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { ImportResolver } from 'typeserver/imports/importResolver.js';
+import { ParseFileResults, ParseOptions, Parser, ParserOutput } from 'typeserver/parser/parser.js';
+import { NameTypeWalker } from 'typeserver/parser/testWalker.js';
+import { Program } from 'typeserver/program/program.js';
+import { fail } from 'typeserver/utils/debug.js';
 
 // This is a bit gross, but it's necessary to allow the fallback typeshed
 // directory to be located when running within the jest environment. This

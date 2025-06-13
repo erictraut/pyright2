@@ -10,13 +10,13 @@
 
 import assert from 'assert';
 
-import { DiagnosticSink } from '../common/diagnosticSink.ts';
-import { findNodeByOffset, getFirstAncestorOrSelfOfKind } from '../common/parseTreeUtils.ts';
-import { pythonVersion3_13, pythonVersion3_14 } from '../common/pythonVersion.ts';
-import { ExecutionEnvironment, getStandardDiagnosticRuleSet } from '../config/configOptions.ts';
-import { UriEx } from '../files/uri/uriUtils.ts';
-import { ParseNodeType, StatementListNode } from '../parser/parseNodes.ts';
-import { parseSampleFile, parseText } from './testUtils.ts';
+import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
+import { findNodeByOffset, getFirstAncestorOrSelfOfKind } from 'typeserver/common/parseTreeUtils.js';
+import { pythonVersion3_13, pythonVersion3_14 } from 'typeserver/common/pythonVersion.js';
+import { ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { ParseNodeType, StatementListNode } from 'typeserver/parser/parseNodes.js';
+import { parseSampleFile, parseText } from 'typeserver/tests/testUtils.js';
 
 test('Empty', () => {
     const diagSink = new DiagnosticSink();

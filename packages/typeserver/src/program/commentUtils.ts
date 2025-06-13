@@ -8,11 +8,11 @@
  * or other directives from them.
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { convertOffsetToPosition } from '../common/positionUtils.ts';
-import { TextRange } from '../common/textRange.ts';
-import { TextRangeCollection } from '../common/textRangeCollection.ts';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import {
     cloneDiagnosticRuleSet,
     DiagnosticLevel,
@@ -23,10 +23,10 @@ import {
     getStandardDiagnosticRuleSet,
     getStrictDiagnosticRuleSet,
     getStrictModeNotOverriddenRules,
-} from '../config/configOptions.ts';
-import { LocAddendum, LocMessage } from '../localization/localize.ts';
-import { Token } from '../parser/tokenizerTypes.ts';
-import { assert } from '../utils/debug.ts';
+} from 'typeserver/config/configOptions.js';
+import { LocAddendum, LocMessage } from 'typeserver/localization/localize.js';
+import { Token } from 'typeserver/parser/tokenizerTypes.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 const strictSetting = 'strict';
 const standardSetting = 'standard';

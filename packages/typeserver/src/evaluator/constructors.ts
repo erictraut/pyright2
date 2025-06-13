@@ -12,15 +12,13 @@
  * the `__init__` method on the resulting object with the same arguments.
  */
 
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { ExpressionNode, ParamCategory } from '../parser/parseNodes.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { ConstraintSolution } from './constraintSolution.ts';
-import { addConstraintsForExpectedType } from './constraintSolver.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
-import { applyConstructorTransform, hasConstructorTransform } from './constructorTransform.ts';
-import { Arg, CallResult, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { ConstraintSolution } from 'typeserver/evaluator/constraintSolution.js';
+import { addConstraintsForExpectedType } from 'typeserver/evaluator/constraintSolver.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { applyConstructorTransform, hasConstructorTransform } from 'typeserver/evaluator/constructorTransform.js';
+import { Arg, CallResult, TypeEvaluator, TypeResult } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     FunctionType,
@@ -42,7 +40,7 @@ import {
     isOverloaded,
     isTypeVar,
     isUnknown,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     InferenceContext,
     MemberAccessFlags,
@@ -59,7 +57,9 @@ import {
     mapSubtypes,
     selfSpecializeClass,
     specializeTupleClass,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { ExpressionNode, ParamCategory } from 'typeserver/parser/parseNodes.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
 
 // Fetches and binds the __new__ method from a class.
 export function getBoundNewMethod(

@@ -9,13 +9,13 @@
 
 import assert from 'assert';
 
-import { getBaseFileName, normalizeSlashes } from 'typeserver/files/pathUtils.ts';
-import { UriEx } from 'typeserver/files/uri/uriUtils.ts';
-import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.ts';
-import { parseTestData } from './harness/fourslash/fourSlashParser.ts';
-import { CompilerSettings } from './harness/fourslash/fourSlashTypes.ts';
-import * as host from './harness/testHost.ts';
-import * as factory from './harness/vfs/factory.ts';
+import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
+import { CompilerSettings } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
+import * as host from 'langserver/tests/harness/testHost.js';
+import * as factory from 'langserver/tests/harness/vfs/factory.js';
+import { getBaseFileName, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 
 test('GlobalOptions', () => {
     const code = `
@@ -32,7 +32,7 @@ test('GlobalOptions', () => {
 
     const data = parseTestData('.', code, 'test.py');
     assertOptions(data.globalOptions, [
-        ['libpath', '../dist/lib'],
+        ['libpath', 'typeserver/dist/lib'],
         ['pythonversion', '3.7'],
     ]);
 

@@ -7,10 +7,10 @@
  * we don't repeatedly search folders.
  */
 
-import { FileSystem } from '../files/fileSystem.ts';
-import { Uri } from '../files/uri/uri.ts';
-import { getOrAdd } from '../utils/collectionUtils.ts';
-import { ImportResult } from './importResult.ts';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { Uri } from 'typeserver/files/uri/uri.js';
+import { ImportResult } from 'typeserver/imports/importResult.js';
+import { getOrAdd } from 'typeserver/utils/collectionUtils.js';
 
 export type ImportPath = { importPath: Uri | undefined };
 

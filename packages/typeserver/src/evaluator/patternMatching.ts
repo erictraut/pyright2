@@ -9,37 +9,20 @@
  * PEP 634.
  */
 
-import { CodeFlowReferenceExpressionNode } from '../binder/codeFlowTypes.ts';
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import { getTypeVarScopesForNode, isMatchingExpression } from '../common/parseTreeUtils.ts';
-import { LocAddendum, LocMessage } from '../localization/localize.ts';
-import {
-    ArgCategory,
-    ExpressionNode,
-    ParseNode,
-    ParseNodeType,
-    PatternAsNode,
-    PatternAtomNode,
-    PatternClassArgumentNode,
-    PatternClassNode,
-    PatternLiteralNode,
-    PatternMappingNode,
-    PatternSequenceNode,
-    PatternValueNode,
-} from '../parser/parseNodes.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { assert } from '../utils/debug.ts';
-import { addConstraintsForExpectedType } from './constraintSolver.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
-import { getTypedDictMembersForClass } from './typedDicts.ts';
-import { EvalFlags, TypeEvaluator, TypeResult } from './typeEvaluatorTypes.ts';
+import { CodeFlowReferenceExpressionNode } from 'typeserver/binder/codeFlowTypes.js';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import { getTypeVarScopesForNode, isMatchingExpression } from 'typeserver/common/parseTreeUtils.js';
+import { addConstraintsForExpectedType } from 'typeserver/evaluator/constraintSolver.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
+import { getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts.js';
+import { EvalFlags, TypeEvaluator, TypeResult } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     enumerateLiteralsForType,
     narrowTypeForDiscriminatedDictEntryComparison,
     narrowTypeForDiscriminatedLiteralFieldComparison,
     narrowTypeForDiscriminatedTupleComparison,
-} from './typeGuards.ts';
+} from 'typeserver/evaluator/typeGuards.js';
 import {
     AnyType,
     ClassType,
@@ -62,7 +45,7 @@ import {
     isUnknown,
     isUnpackedTypeVar,
     isUnpackedTypeVarTuple,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     addConditionToType,
     containsAnyOrUnknown,
@@ -85,7 +68,24 @@ import {
     specializeTupleClass,
     specializeWithUnknownTypeArgs,
     transformPossibleRecursiveTypeAlias,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocAddendum, LocMessage } from 'typeserver/localization/localize.js';
+import {
+    ArgCategory,
+    ExpressionNode,
+    ParseNode,
+    ParseNodeType,
+    PatternAsNode,
+    PatternAtomNode,
+    PatternClassArgumentNode,
+    PatternClassNode,
+    PatternLiteralNode,
+    PatternMappingNode,
+    PatternSequenceNode,
+    PatternValueNode,
+} from 'typeserver/parser/parseNodes.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 // PEP 634 indicates that several built-in classes are handled differently
 // when used with class pattern matching.

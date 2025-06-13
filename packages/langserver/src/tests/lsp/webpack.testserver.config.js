@@ -6,7 +6,8 @@
 import CopyPlugin from 'copy-webpack-plugin';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { tsconfigResolveAliases } from '../../../../../build/lib/webpack.js';
+// eslint-disable-next-line no-restricted-imports
+import { tsconfigResolveAliases } from '../../../../../build/lib/webpack.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,11 +24,12 @@ export default (_, { mode }) => {
         },
         target: 'node',
         output: {
-            filename: '[name].bundle.ts',
+            filename: '[name].bundle.js',
             path: outPath,
-            libraryTarget: 'commonjs2',
+            libraryTarget: 'module',
             devtoolModuleFilenameTemplate: '[absolute-resource-path]',
         },
+        experiments: { outputModule: true },
         devtool: 'source-map',
         stats: {
             all: false,
@@ -37,11 +39,18 @@ export default (_, { mode }) => {
             timings: true,
         },
         resolve: {
-            extensions: ['.ts', '.ts'],
+            extensions: ['.ts', '.tsx', '.js', '.jsx'],
             alias: tsconfigResolveAliases('tsconfig.json'),
         },
         externals: {
             fsevents: 'commonjs2 fsevents',
+            'fs-extra': 'commonjs2 fs-extra',
+            'jsonc-parser': 'commonjs2 jsonc-parser',
+            'vscode-jsonrpc': 'commonjs2 vscode-jsonrpc',
+            'vscode-languageserver-protocol': 'commonjs2 vscode-languageserver-protocol',
+            'vscode-languageserver': 'commonjs2 vscode-languageserver',
+            '@yarnpkg/fslib': 'commonjs2 @yarnpkg/fslib',
+            '@yarnpkg/libzip': 'commonjs2 @yarnpkg/libzip',
         },
         module: {
             rules: [

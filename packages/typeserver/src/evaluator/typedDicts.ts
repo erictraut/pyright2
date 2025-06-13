@@ -8,29 +8,16 @@
  * classes.
  */
 
-import { DeclarationType, VariableDeclaration } from '../binder/declaration.ts';
-import { Symbol, SymbolFlags, SymbolTable } from '../binder/symbol.ts';
-import { getLastTypedDeclarationForSymbol } from '../binder/symbolUtils.ts';
-import * as AnalyzerNodeInfo from '../common/analyzerNodeInfo.ts';
-import { DiagnosticAddendum } from '../common/diagnostic.ts';
-import { DiagnosticRule } from '../common/diagnosticRules.ts';
-import * as ParseTreeUtils from '../common/parseTreeUtils.ts';
-import { convertOffsetsToRange } from '../common/positionUtils.ts';
-import { TextRange } from '../common/textRange.ts';
-import { LocAddendum, LocMessage } from '../localization/localize.ts';
-import {
-    ArgCategory,
-    ClassNode,
-    DictionaryNode,
-    ExpressionNode,
-    IndexNode,
-    ParamCategory,
-    ParseNodeType,
-} from '../parser/parseNodes.ts';
-import { KeywordType } from '../parser/tokenizerTypes.ts';
-import { appendArray } from '../utils/collectionUtils.ts';
-import { assert } from '../utils/debug.ts';
-import { ConstraintTracker } from './constraintTracker.ts';
+import { DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.js';
+import { Symbol, SymbolFlags, SymbolTable } from 'typeserver/binder/symbol.js';
+import { getLastTypedDeclarationForSymbol } from 'typeserver/binder/symbolUtils.js';
+import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { DiagnosticAddendum } from 'typeserver/common/diagnostic.js';
+import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
+import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetsToRange } from 'typeserver/common/positionUtils.js';
+import { TextRange } from 'typeserver/common/textRange.js';
+import { ConstraintTracker } from 'typeserver/evaluator/constraintTracker.js';
 import {
     Arg,
     AssignTypeFlags,
@@ -38,7 +25,7 @@ import {
     TypeEvaluator,
     TypeResult,
     TypeResultWithNode,
-} from './typeEvaluatorTypes.ts';
+} from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     AnyType,
     ClassType,
@@ -62,7 +49,7 @@ import {
     TypeVarScopeType,
     TypeVarType,
     UnknownType,
-} from './types.ts';
+} from 'typeserver/evaluator/types.js';
 import {
     applySolvedTypeVars,
     buildSolutionFromSpecializedClass,
@@ -73,7 +60,20 @@ import {
     mapSubtypes,
     partiallySpecializeType,
     specializeTupleClass,
-} from './typeUtils.ts';
+} from 'typeserver/evaluator/typeUtils.js';
+import { LocAddendum, LocMessage } from 'typeserver/localization/localize.js';
+import {
+    ArgCategory,
+    ClassNode,
+    DictionaryNode,
+    ExpressionNode,
+    IndexNode,
+    ParamCategory,
+    ParseNodeType,
+} from 'typeserver/parser/parseNodes.js';
+import { KeywordType } from 'typeserver/parser/tokenizerTypes.js';
+import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 // Creates a new custom TypedDict "alternate syntax" factory class.
 export function createTypedDictType(
