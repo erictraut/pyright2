@@ -12,8 +12,8 @@
     "scripts": {
         "build": "tsc",
         "clean": "shx rm -rf ./dist ./out",
-        "webpack:testserver": "webpack --config ./src/tests/lsp/webpack.testserver.config.js --mode=development",
-        "test": "npm run webpack:testserver && jest --forceExit"
+        "esbuild:testserver": "esbuild src/tests/lsp/languageServer.ts --bundle --platform=node --format=cjs --outfile=dist/testserver.cjs --external:node:* --external:jsonc-parser",
+        "test": "npm run esbuild:testserver && node --experimental-vm-modules $(which jest) --forceExit"
     },
     "dependencies": {
         "@yarnpkg/fslib": "2.10.4",
@@ -32,15 +32,13 @@
         "@types/jest": "^29.5.14",
         "@types/node": "^24.0.1",
         "@types/tmp": "^0.2.6",
-        "copy-webpack-plugin": "^13.0.0",
+        "esbuild": "^0.25.5",
         "esbuild-loader": "^4.3.0",
         "jest": "^30.0.0",
         "jest-junit": "^16.0.0",
         "shx": "^0.4.0",
         "ts-jest": "^29.4.0",
         "ts-loader": "^9.5.2",
-        "typescript": "~5.8.3",
-        "webpack": "^5.99.9",
-        "webpack-cli": "^6.0.1"
+        "typescript": "~5.8.3"
     }
 }

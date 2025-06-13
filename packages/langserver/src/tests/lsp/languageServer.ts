@@ -6,6 +6,8 @@
  * Test language server wrapper that lets us run the language server during a test.
  */
 
+import path from 'path';
+import { fileURLToPath } from 'url';
 import {
     CancellationToken,
     Connection,
@@ -61,32 +63,42 @@ function getCommonRoot(files: Uri[]) {
 
 class TestPyrightHost implements PyrightTestHost.TestHost {
     constructor(private _host: PyrightTestHost.TestHost) {}
+
     useCaseSensitiveFileNames(): boolean {
         return this._host.useCaseSensitiveFileNames();
     }
+
     getAccessibleFileSystemEntries(dirname: string): FileSystemEntries {
         return this._host.getAccessibleFileSystemEntries(dirname);
     }
+
     directoryExists(path: string): boolean {
         return this._host.directoryExists(path);
     }
+
     fileExists(fileName: string): boolean {
         return this._host.fileExists(fileName);
     }
+
     getFileSize(path: string): number {
         return this._host.getFileSize(path);
     }
+
     readFile(path: string): string | undefined {
         return this._host.readFile(path);
     }
+
     getWorkspaceRoot(): string {
         // The default workspace root is wrong. It should be based on where the bundle is running.
         // That's where the typeshed fallback and other bundled files are located.
-        return resolvePaths(__dirname);
+        const currentDir = path.dirname(fileURLToPath(import.meta.url));
+        return resolvePaths(currentDir);
     }
+
     writeFile(path: string, contents: string): void {
         this._host.writeFile(path, contents);
     }
+
     listFiles(
         path: string,
         filter?: RegExp | undefined,
@@ -94,6 +106,7 @@ class TestPyrightHost implements PyrightTestHost.TestHost {
     ): string[] {
         return this._host.listFiles(path, filter, options);
     }
+
     log(text: string): void {
         this._host.log(text);
     }

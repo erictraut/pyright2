@@ -9,12 +9,15 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
 
+const currentDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
+
 describe('Diagnostic overrides', () => {
     test('Compare DiagnosticRule to pyrightconfig.schema.json', () => {
-        const schemasFolder = path.resolve(__dirname, '..', '..', '..', 'vscode-extension', 'schemas');
+        const schemasFolder = path.resolve(currentDir, '..', '..', '..', 'vscode-extension', 'schemas');
         const schemaJson = path.join(schemasFolder, 'pyrightconfig.schema.json');
         const jsonString = fs.readFileSync(schemaJson, { encoding: 'utf-8' });
         const json = JSON.parse(jsonString);
@@ -63,7 +66,7 @@ describe('Diagnostic overrides', () => {
     });
 
     test('Compare DiagnosticRule to package.json', () => {
-        const extensionRoot = path.resolve(__dirname, '..', '..', '..', 'vscode-extension');
+        const extensionRoot = path.resolve(currentDir, '..', '..', '..', 'vscode-extension');
         const packageJson = path.join(extensionRoot, 'package.json');
         const jsonString = fs.readFileSync(packageJson, { encoding: 'utf-8' });
         const json = JSON.parse(jsonString);

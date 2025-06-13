@@ -22,6 +22,7 @@ import { LanguageServerBase } from 'langserver/server/languageServerBase.js';
 import { ServerSettings } from 'langserver/server/languageServerInterface.js';
 import { ProgressReporter } from 'langserver/server/progressReporter.js';
 import { WellKnownWorkspaceKinds, Workspace } from 'langserver/server/workspaceFactory.js';
+import path from 'path';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.js';
 import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils.js';
@@ -44,6 +45,7 @@ import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
 import { isDefined, isString } from 'typeserver/utils/core.js';
+import { fileURLToPath } from 'url';
 
 const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };
 
@@ -75,9 +77,9 @@ export class PyrightServer extends LanguageServerBase {
         );
 
         // When executed from CLI command (pyright-langserver), __rootDirectory is
-        // already defined. When executed from VSCode extension, rootDirectory should
-        // be __dirname.
-        const rootDirectory: Uri = getRootUri(serviceProvider) || Uri.file(__dirname, serviceProvider);
+        // already defined.
+        const currentDir = path.dirname(fileURLToPath(import.meta.url));
+        const rootDirectory: Uri = getRootUri(serviceProvider) || Uri.file(currentDir, serviceProvider);
         const realPathRoot = pyrightFs.realCasePath(rootDirectory);
 
         super(

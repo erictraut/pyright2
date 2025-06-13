@@ -18,8 +18,8 @@ import { normalizeSlashes } from 'typeserver/files/pathUtils.js';
 describe('fourslash tests', () => {
     const testFiles: string[] = [];
 
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const basePath = path.resolve(__dirname, 'fourslash/');
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const basePath = path.resolve(currentDir, 'fourslash/');
     for (const file of host.HOST.listFiles(basePath, /.*\.fourslash\.ts$/i, { recursive: true })) {
         testFiles.push(file);
     }

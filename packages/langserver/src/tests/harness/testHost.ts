@@ -1,11 +1,12 @@
 /*
- * io.ts
+ * testHost.ts
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  */
 
 import os from 'os';
 import * as pathModule from 'path';
+import { fileURLToPath } from 'url';
 
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
@@ -75,7 +76,9 @@ function createHost(): TestHost {
             return false;
         }
         // If this file exists under a different case, we must be case-insensitive.
-        return !vfs.existsSync(UriEx.file(swapCase(__filename)));
+        // Use import.meta.url for ESM compatibility
+        const currentFile = fileURLToPath(import.meta.url);
+        return !vfs.existsSync(UriEx.file(swapCase(currentFile)));
 
         /** Convert all lowercase chars to uppercase, and vice-versa */
         function swapCase(s: string): string {
@@ -176,6 +179,8 @@ function createHost(): TestHost {
         vfs.writeFileSync(Uri.file(fileName, caseDetector), data, 'utf8');
     }
 
+    const currentDir = fileURLToPath(import.meta.url);
+
     return {
         useCaseSensitiveFileNames: () => useCaseSensitiveFileNames,
         getFileSize: (path: string) => getFileSize(vfs, Uri.file(path, caseDetector)),
@@ -189,7 +194,7 @@ function createHost(): TestHost {
         log: (s) => {
             console.log(s);
         },
-        getWorkspaceRoot: () => resolvePaths(__dirname, 'typeserver/../../../typeserver'),
+        getWorkspaceRoot: () => resolvePaths(pathModule.dirname(currentDir), 'typeserver/../../../typeserver'),
         getAccessibleFileSystemEntries,
     };
 }

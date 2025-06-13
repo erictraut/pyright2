@@ -13,8 +13,8 @@
         "typeRoots": ["./node_modules/@types", "./typings"]
     },
     "include": [
+        "../typeserver/src/**/*",
         "src/**/*",
-        "src/localization/*.json",
         "**/*.js",
         "package.json", "typings/promise.d.ts",
     ],

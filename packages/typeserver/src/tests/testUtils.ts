@@ -46,8 +46,8 @@ export interface FileAnalysisResult {
 }
 
 export function resolveSampleFilePath(fileName: string): string {
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    return path.resolve(__dirname, `./samples/${fileName}`);
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    return path.resolve(currentDir, `./samples/${fileName}`);
 }
 
 export function readSampleFile(fileName: string): string {

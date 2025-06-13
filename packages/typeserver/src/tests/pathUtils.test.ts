@@ -32,7 +32,7 @@ import {
     resolvePaths,
     stripFileExtension,
     stripTrailingDirectorySeparator,
-} from '../files/pathUtils.ts';
+} from 'typeserver/files/pathUtils.js';
 
 test('getPathComponents1', () => {
     const components = getPathComponents('');

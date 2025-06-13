@@ -7,6 +7,8 @@
  */
 
 import assert from 'assert';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { runFourSlashTestContent } from 'langserver/tests/harness/fourslash/runner.js';
@@ -15,6 +17,8 @@ import * as factory from 'langserver/tests/harness/vfs/factory.js';
 import { combinePaths, getFileName, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 test('Create', () => {
     const code = `
@@ -180,7 +184,7 @@ test('CustomTypeshedFolder', () => {
     // those virtual folders will mount to.
     const code = `
 // global options
-// @typeshed: ${__dirname}
+// @typeshed: ${currentDir}
     `;
 
     // mount the folder this file is in as typeshed folder and check whether

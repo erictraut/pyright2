@@ -13,8 +13,8 @@ import { fileURLToPath } from 'url';
 
 function runTests(p: string): void {
     const tempFile = new RealTempFile();
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const zipRoot = Uri.file(path.resolve(__dirname, p), tempFile);
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const zipRoot = Uri.file(path.resolve(currentDir, p), tempFile);
     const fs = createFromRealFileSystem(tempFile);
 
     test('stat root', () => {
@@ -103,8 +103,8 @@ describe('jar', () => runTests('samples/zipfs/basic.jar'));
 
 function runBadTests(p: string): void {
     const tempFile = new RealTempFile();
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const zipRoot = Uri.file(path.resolve(__dirname, p), tempFile);
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const zipRoot = Uri.file(path.resolve(currentDir, p), tempFile);
     const fs = createFromRealFileSystem(tempFile);
 
     test('stat root', () => {

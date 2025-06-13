@@ -10,6 +10,7 @@ import assert from 'assert';
 import fs from 'fs-extra';
 import { isMainThread, threadId, Worker } from 'node:worker_threads';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import { FourSlashData, GlobalMetadataOptionNames } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
@@ -85,8 +86,9 @@ import {
 const bundledStubsFolder = combinePaths(vfs.MODULE_PATH, 'bundled', 'stubs');
 
 // bundled file path on real file system.
-const bundledStubsFolderPath = resolvePaths(__dirname, 'typeserver/../bundled/stubs');
-const bundledStubsFolderPathTestServer = resolvePaths(__dirname, 'typeserver/bundled/stubs');
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const bundledStubsFolderPath = resolvePaths(currentDir, 'typeserver/../bundled/stubs');
+const bundledStubsFolderPathTestServer = resolvePaths(currentDir, 'typeserver/bundled/stubs');
 
 // project root on test virtual file system.
 export const DEFAULT_WORKSPACE_ROOT = combinePaths('/', 'src');
@@ -259,7 +261,7 @@ export function getParseResults(fileContents: string, isStubFile = false, useNot
 
 function createServerConnection(testServerData: CustomLSP.TestServerStartOptions, disposables: Disposable[]) {
     // Start a worker with the server running in it.
-    const serverPath = path.join(__dirname, '..', '..', '..', 'out', 'testServer.bundle.ts');
+    const serverPath = path.join(currentDir, '..', '..', '..', 'out', 'testServer.bundle.ts');
     assert(
         fs.existsSync(serverPath),
         `Server bundle does not exist: ${serverPath}. Make sure you ran the build script for test bundle (npm run webpack:testserver).`
@@ -437,7 +439,7 @@ export async function runPyrightServer(
         projectRoots: projectRootsArray.map((p) => (p.includes(':') ? UriEx.parse(p) : UriEx.file(p))),
         pythonVersion: PythonVersion.toString(pythonVersion),
         backgroundAnalysis,
-        logFile: UriEx.file(path.join(__dirname, `log${process.pid}.txt`)),
+        logFile: UriEx.file(path.join(currentDir, `log${process.pid}.txt`)),
         pid: process.pid.toString(),
     };
 
