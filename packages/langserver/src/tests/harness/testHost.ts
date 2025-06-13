@@ -75,10 +75,10 @@ function createHost(): TestHost {
         if (platform === 'win32') {
             return false;
         }
+
         // If this file exists under a different case, we must be case-insensitive.
-        // Use import.meta.url for ESM compatibility
-        const currentFile = fileURLToPath(import.meta.url);
-        return !vfs.existsSync(UriEx.file(swapCase(currentFile)));
+        const modulePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
+        return !vfs.existsSync(UriEx.file(swapCase(modulePath)));
 
         /** Convert all lowercase chars to uppercase, and vice-versa */
         function swapCase(s: string): string {
@@ -179,7 +179,8 @@ function createHost(): TestHost {
         vfs.writeFileSync(Uri.file(fileName, caseDetector), data, 'utf8');
     }
 
-    const currentDir = fileURLToPath(import.meta.url);
+    const currentDir =
+        typeof __dirname !== 'undefined' ? __dirname : pathModule.dirname(fileURLToPath(import.meta.url));
 
     return {
         useCaseSensitiveFileNames: () => useCaseSensitiveFileNames,
@@ -194,7 +195,7 @@ function createHost(): TestHost {
         log: (s) => {
             console.log(s);
         },
-        getWorkspaceRoot: () => resolvePaths(pathModule.dirname(currentDir), 'typeserver/../../../typeserver'),
+        getWorkspaceRoot: () => resolvePaths(pathModule.dirname(currentDir), '../../../typeserver'),
         getAccessibleFileSystemEntries,
     };
 }

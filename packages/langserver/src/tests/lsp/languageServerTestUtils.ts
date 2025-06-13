@@ -10,7 +10,6 @@ import assert from 'assert';
 import fs from 'fs-extra';
 import { isMainThread, threadId, Worker } from 'node:worker_threads';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import { FourSlashData, GlobalMetadataOptionNames } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
@@ -19,6 +18,7 @@ import * as host from 'langserver/tests/harness/testHost.js';
 import { createFromFileSystem, distlibFolder, libFolder } from 'langserver/tests/harness/vfs/factory.js';
 import * as vfs from 'langserver/tests/harness/vfs/filesystem.js';
 import { CustomLSP } from 'langserver/tests/lsp/customLsp.js';
+import { fileURLToPath } from 'node:url';
 import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
 import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.js';
@@ -26,7 +26,7 @@ import { PythonPlatform } from 'typeserver/config/configOptions.js';
 import { LimitedAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { HostKind, ScriptOutput } from 'typeserver/extensibility/host.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { combinePaths, resolvePaths } from 'typeserver/files/pathUtils.js';
+import { combinePaths } from 'typeserver/files/pathUtils.js';
 import { FileUri } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
@@ -82,13 +82,7 @@ import {
     WorkDoneProgressCreateRequest,
 } from 'vscode-languageserver/node';
 
-// bundled root on test virtual file system.
-const bundledStubsFolder = combinePaths(vfs.MODULE_PATH, 'bundled', 'stubs');
-
-// bundled file path on real file system.
-const currentDir = path.dirname(fileURLToPath(import.meta.url));
-const bundledStubsFolderPath = resolvePaths(currentDir, 'typeserver/../bundled/stubs');
-const bundledStubsFolderPathTestServer = resolvePaths(currentDir, 'typeserver/bundled/stubs');
+const currentDir = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 // project root on test virtual file system.
 export const DEFAULT_WORKSPACE_ROOT = combinePaths('/', 'src');
@@ -216,11 +210,6 @@ export function getFileLikePath(uri: Uri): string {
 
 export function createFileSystem(projectRoot: string, testData: FourSlashData, optionalHost?: host.TestHost) {
     const mountedPaths = new Map<string, string>();
-    if (fs.existsSync(bundledStubsFolderPath)) {
-        mountedPaths.set(bundledStubsFolder, bundledStubsFolderPath);
-    } else if (fs.existsSync(bundledStubsFolderPathTestServer)) {
-        mountedPaths.set(bundledStubsFolder, bundledStubsFolderPathTestServer);
-    }
 
     const vfsInfo = createVfsInfoFromFourSlashData(projectRoot, testData);
     return createFromFileSystem(

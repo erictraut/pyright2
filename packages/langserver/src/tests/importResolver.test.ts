@@ -27,7 +27,6 @@ import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
-import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 
@@ -355,7 +354,7 @@ describe('Import tests with fake venv', () => {
             ];
 
             const sp = createServiceProviderFromFiles(files);
-            const configOptions = new ConfigOptions(UriEx.file('/'), getTypeshedFallbackLoc());
+            const configOptions = new ConfigOptions(UriEx.file('/'), UriEx.file('/'));
             const fs = getFs(sp);
             const importResolver = new ImportResolver(
                 sp,
@@ -503,7 +502,7 @@ describe('Import tests with fake venv', () => {
 
         test('no empty import roots', () => {
             const sp = createServiceProviderFromFiles([]);
-            const configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackLoc()); // Empty, like open-file mode.
+            const configOptions = new ConfigOptions(Uri.empty(), UriEx.file('/')); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
@@ -525,7 +524,7 @@ describe('Import tests with fake venv', () => {
             ];
 
             const sp = createServiceProviderFromFiles(files);
-            const configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackLoc()); // Empty, like open-file mode.
+            const configOptions = new ConfigOptions(Uri.empty(), UriEx.file('/')); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
@@ -872,7 +871,7 @@ describe('Import tests with fake venv', () => {
         }
 
         const sp = spFactory(files);
-        const configOptions = new ConfigOptions(UriEx.file('/'), getTypeshedFallbackLoc());
+        const configOptions = new ConfigOptions(UriEx.file('/'), UriEx.file('/'));
         configModifier(configOptions);
 
         const file = files.length > 0 ? files[files.length - 1].path : combinePaths('src', 'file.py');

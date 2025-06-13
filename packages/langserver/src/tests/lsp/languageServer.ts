@@ -91,7 +91,7 @@ class TestPyrightHost implements PyrightTestHost.TestHost {
     getWorkspaceRoot(): string {
         // The default workspace root is wrong. It should be based on where the bundle is running.
         // That's where the typeshed fallback and other bundled files are located.
-        const currentDir = path.dirname(fileURLToPath(import.meta.url));
+        const currentDir = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
         return resolvePaths(currentDir);
     }
 

@@ -87,10 +87,12 @@ export function parseSampleFile(
 }
 
 export function getTypeshedFallbackLoc(): Uri {
-    const currentDir = path.dirname(fileURLToPath(import.meta.url));
-    // Assume the typeshed-fallback path is relative to the current directory.
-    const typeshedPath = path.resolve(currentDir, `../../${typeshedFallback}`);
-    return UriEx.file(typeshedPath);
+    // const currentDir = path.dirname(fileURLToPath(import.meta.url));
+
+    // // Assume the typeshed-fallback path is relative to the current directory.
+    // const typeshedPath = path.resolve(currentDir, `../../${typeshedFallback}`);
+    // return UriEx.file(typeshedPath);
+    return UriEx.file(`/${typeshedFallback}`);
 }
 
 export function typeAnalyzeSampleFiles(

@@ -75,9 +75,9 @@ export class PyrightServer extends LanguageServerBase {
             new FileBasedCancellationProvider('bg')
         );
 
-        const currentDir = path.dirname(fileURLToPath(import.meta.url));
-        const rootDirectory = Uri.file(currentDir, serviceProvider);
-        const typeshedFallbackLoc = rootDirectory.addPath(typeshedFallback);
+        const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+        const rootDirectory = Uri.file(dirPath, serviceProvider);
+        const typeshedFallbackLoc = rootDirectory.combinePaths(typeshedFallback);
 
         super(
             {
