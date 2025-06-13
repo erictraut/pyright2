@@ -59,7 +59,7 @@ export interface WorkspaceServices {
 
 export interface ServerOptions {
     productName: string;
-    rootDirectory: Uri;
+    typeshedFallbackLoc: Uri;
     version: string;
     serviceProvider: ServiceProvider;
     fileWatcherHandler: FileWatcherHandler;

@@ -8,8 +8,6 @@
 
 import type { Dirent } from 'fs';
 
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
 import { FileSystem, ReadOnlyFileSystem, Stats } from 'typeserver/files/fileSystem.js';
 import {
@@ -373,18 +371,6 @@ export function deduplicateFolders(listOfFolders: Uri[][], excludes: Uri[] = [])
     });
 
     return [...foldersToWatch.values()];
-}
-
-export function getRootUri(serviceProvider: ServiceProvider): Uri | undefined;
-export function getRootUri(caseDetector: CaseSensitivityDetector): Uri | undefined;
-export function getRootUri(csdOrSp: CaseSensitivityDetector | ServiceProvider): Uri | undefined {
-    csdOrSp = CaseSensitivityDetector.is(csdOrSp) ? csdOrSp : csdOrSp.get(ServiceKeys.caseSensitivityDetector);
-
-    if ((global as any).__rootDirectory) {
-        return Uri.file((global as any).__rootDirectory, csdOrSp);
-    }
-
-    return undefined;
 }
 
 export function convertUriToLspUriString(fs: ReadOnlyFileSystem, uri: Uri): string {

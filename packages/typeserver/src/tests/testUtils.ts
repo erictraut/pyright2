@@ -14,6 +14,7 @@ import { fileURLToPath } from 'url';
 
 import { Diagnostic, DiagnosticCategory } from 'typeserver/common/diagnostic.js';
 import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
+import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
@@ -27,12 +28,6 @@ import { ParseFileResults, ParseOptions, Parser, ParserOutput } from 'typeserver
 import { NameTypeWalker } from 'typeserver/parser/testWalker.js';
 import { Program } from 'typeserver/program/program.js';
 import { fail } from 'typeserver/utils/debug.js';
-
-// This is a bit gross, but it's necessary to allow the fallback typeshed
-// directory to be located when running within the jest environment. This
-// assumes that the working directory has been set appropriately before
-// running the tests.
-(global as any).__rootDirectory = path.resolve();
 
 export interface FileAnalysisResult {
     fileUri: Uri;
@@ -91,13 +86,23 @@ export function parseSampleFile(
     return parseText(text, diagSink, parseOptions);
 }
 
+export function getTypeshedFallbackLoc(): Uri {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    // Assume the typeshed-fallback path is relative to the current directory.
+    const typeshedPath = path.resolve(currentDir, `../../${typeshedFallback}`);
+    return UriEx.file(typeshedPath);
+}
+
 export function typeAnalyzeSampleFiles(
     fileNames: string[],
-    configOptions = new ConfigOptions(Uri.empty()),
+    configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackLoc()),
     console?: ConsoleWithLogLevel
 ): FileAnalysisResult[] {
     // Always enable "test mode".
     configOptions.internalTestMode = true;
+    if (!configOptions.typeshedFallbackPath) {
+        configOptions.typeshedFallbackPath = getTypeshedFallbackLoc();
+    }
 
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
@@ -127,7 +132,7 @@ export function typeAnalyzeSampleFiles(
 export function getAnalysisResults(
     program: Program,
     fileUris: Uri[],
-    configOptions = new ConfigOptions(Uri.empty())
+    configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackLoc())
 ): FileAnalysisResult[] {
     // Always enable "test mode".
     configOptions.internalTestMode = true;

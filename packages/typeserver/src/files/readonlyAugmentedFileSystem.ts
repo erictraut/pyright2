@@ -134,10 +134,6 @@ export class ReadOnlyAugmentedFileSystem implements FileSystem {
         return this.realFS.realpathSync(uri);
     }
 
-    getModulePath(): Uri {
-        return this.realFS.getModulePath();
-    }
-
     createFileSystemWatcher(paths: Uri[], listener: FileWatcherEventHandler): FileWatcher {
         return this.realFS.createFileSystemWatcher(paths, listener);
     }

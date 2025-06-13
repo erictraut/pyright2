@@ -66,6 +66,7 @@ const _userActivityBackoffTimeInMs = 250;
 const _gitDirectory = normalizeSlashes('/.git/');
 
 export interface TypeServiceOptions {
+    typeshedFallbackLoc: Uri;
     console?: ConsoleInterface;
     hostFactory?: HostFactory;
     importResolverFactory?: ImportResolverFactory;
@@ -129,7 +130,8 @@ export class TypeService {
         this.options.hostFactory = options.hostFactory ?? (() => new NoAccessHost());
 
         this.options.configOptions =
-            options.configOptions ?? new ConfigOptions(Uri.file(process.cwd(), this._serviceProvider));
+            options.configOptions ??
+            new ConfigOptions(Uri.file(process.cwd(), this._serviceProvider), this.options.typeshedFallbackLoc);
         const importResolver = this.options.importResolverFactory(
             this._serviceProvider,
             this.options.configOptions,
@@ -650,7 +652,7 @@ export class TypeService {
             }
         }
 
-        const configOptions = new ConfigOptions(projectRoot);
+        const configOptions = new ConfigOptions(projectRoot, this.options.typeshedFallbackLoc);
 
         // If we found a config file, load it and apply its settings.
         const configs = this._getExtendedConfigurations(configFilePath ?? pyprojectFilePath);
@@ -768,6 +770,7 @@ export class TypeService {
         ) {
             const excludeList = this.getImportResolver().getTypeshedStdlibExcludeList(
                 configOptions.typeshedPath,
+                configOptions.typeshedFallbackPath,
                 configOptions.defaultPythonVersion,
                 configOptions.defaultPythonPlatform
             );

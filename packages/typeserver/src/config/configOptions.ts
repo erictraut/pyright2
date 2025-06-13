@@ -967,6 +967,9 @@ export class ConfigOptions {
     // Path to use for typeshed definitions.
     typeshedPath?: Uri | undefined;
 
+    // Path to use for typeshed definitions if the typeshedPath isn't set.
+    typeshedFallbackPath?: Uri | undefined;
+
     // Path to custom typings (stub) modules.
     stubPath?: Uri | undefined;
 
@@ -1087,8 +1090,9 @@ export class ConfigOptions {
     // Determines the effective default type checking mode.
     effectiveTypeCheckingMode: 'strict' | 'basic' | 'off' | 'standard' = 'standard';
 
-    constructor(projectRoot: Uri) {
+    constructor(projectRoot: Uri, typeshedFallbackLoc?: Uri | undefined) {
         this.projectRoot = projectRoot;
+        this.typeshedFallbackPath = typeshedFallbackLoc;
         this.diagnosticRuleSet = ConfigOptions.getDiagnosticRuleSet();
         this.functionSignatureDisplay = SignatureDisplayType.formatted;
     }

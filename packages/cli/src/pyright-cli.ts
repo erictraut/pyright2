@@ -20,6 +20,7 @@ import os from 'os';
 
 import { Diagnostic, DiagnosticCategory, compareDiagnostics } from 'typeserver/common/diagnostic.js';
 import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
+import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { Range, isEmptyRange } from 'typeserver/common/textRange.js';
 import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/config/commandLineOptions.js';
@@ -416,6 +417,7 @@ async function processArgs(): Promise<ExitStatus> {
     options.languageServerSettings.watchForConfigChanges = watch;
 
     const service = new TypeService('<default>', serviceProvider, {
+        typeshedFallbackLoc: getTypeshedFallbackLoc(serviceProvider),
         console: output,
         hostFactory: () => new FullAccessHost(serviceProvider),
     });
@@ -439,6 +441,11 @@ async function processArgs(): Promise<ExitStatus> {
     }
 
     return runSingleThreaded(args, options, service, minSeverityLevel, output);
+}
+
+function getTypeshedFallbackLoc(serviceProvider: ServiceProvider): Uri {
+    const rootDirectory = Uri.file(__dirname, serviceProvider);
+    return rootDirectory.combinePaths(typeshedFallback);
 }
 
 async function runSingleThreaded(
@@ -783,6 +790,7 @@ function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
 
                 serviceProvider = createServiceProvider(fileSystem, output, tempFile);
                 service = new TypeService('<default>', serviceProvider, {
+                    typeshedFallbackLoc: getTypeshedFallbackLoc(serviceProvider),
                     console: output,
                     hostFactory: () => new FullAccessHost(serviceProvider!),
                 });

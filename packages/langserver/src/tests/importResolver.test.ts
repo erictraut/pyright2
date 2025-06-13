@@ -9,7 +9,7 @@ import { Disposable } from 'vscode-jsonrpc';
 
 import { Dirent, ReadStream, WriteStream } from 'fs';
 import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
-import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
+import { MODULE_PATH, TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { lib, sitePackages, typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
@@ -27,11 +27,16 @@ import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
+import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 
 function usingTrueVenv() {
     return process.env.CI_IMPORT_TEST_VENVPATH !== undefined || process.env.CI_IMPORT_TEST_PYTHONPATH !== undefined;
+}
+
+function getModulePath(): Uri {
+    return Uri.file(MODULE_PATH, { isCaseSensitive: () => true });
 }
 
 describe('Import tests with fake venv', () => {
@@ -350,12 +355,12 @@ describe('Import tests with fake venv', () => {
             ];
 
             const sp = createServiceProviderFromFiles(files);
-            const configOptions = new ConfigOptions(UriEx.file('/'));
+            const configOptions = new ConfigOptions(UriEx.file('/'), getTypeshedFallbackLoc());
             const fs = getFs(sp);
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
-                new TestAccessHost(fs.getModulePath(), [UriEx.file(libraryRoot)])
+                new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)])
             );
 
             // Stub package wins over original package (per PEP 561 rules).
@@ -498,12 +503,11 @@ describe('Import tests with fake venv', () => {
 
         test('no empty import roots', () => {
             const sp = createServiceProviderFromFiles([]);
-            const fs = getFs(sp);
-            const configOptions = new ConfigOptions(Uri.empty()); // Empty, like open-file mode.
+            const configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackLoc()); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
-                new TestAccessHost(fs.getModulePath(), [UriEx.file(libraryRoot)])
+                new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)])
             );
             importResolver.getImportRoots(configOptions.getDefaultExecEnvironment()).forEach((path) => assert(path));
         });
@@ -521,12 +525,11 @@ describe('Import tests with fake venv', () => {
             ];
 
             const sp = createServiceProviderFromFiles(files);
-            const fs = getFs(sp);
-            const configOptions = new ConfigOptions(Uri.empty()); // Empty, like open-file mode.
+            const configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackLoc()); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
-                new TestAccessHost(fs.getModulePath(), [UriEx.file(libraryRoot)])
+                new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)])
             );
             const importRoots = importResolver.getImportRoots(configOptions.getDefaultExecEnvironment());
 
@@ -827,10 +830,8 @@ describe('Import tests with fake venv', () => {
     }
 
     function setupImportResolver(files: { path: string; content: string }[], setup?: (c: ConfigOptions) => void) {
-        const defaultHostFactory = (sp: ServiceProvider) => {
-            const fs = getFs(sp);
-            return new TestAccessHost(fs.getModulePath(), [UriEx.file(libraryRoot)]);
-        };
+        const defaultHostFactory = (sp: ServiceProvider) =>
+            new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)]);
         const defaultSetup =
             setup ??
             ((c) => {
@@ -871,7 +872,7 @@ describe('Import tests with fake venv', () => {
         }
 
         const sp = spFactory(files);
-        const configOptions = new ConfigOptions(UriEx.file('/'));
+        const configOptions = new ConfigOptions(UriEx.file('/'), getTypeshedFallbackLoc());
         configModifier(configOptions);
 
         const file = files.length > 0 ? files[files.length - 1].path : combinePaths('src', 'file.py');
@@ -1009,10 +1010,6 @@ class CombinedFileSystem implements FileSystem {
             return this._testFS.realpathSync(path);
         }
         return this._realFS.realpathSync(path);
-    }
-
-    getModulePath(): Uri {
-        return this._testFS.getModulePath();
     }
 
     readFile(path: Uri): Promise<Buffer> {

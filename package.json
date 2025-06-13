@@ -8,8 +8,8 @@
         "install:all": "npm install",
         "install:others": "cross-env SKIP_LERNA_BOOTSTRAP=yes lerna exec --no-bail npm install",
         "update:all": "node ./build/updateDeps.js",
-        "build:extension:dev": "cd packages/vscode-ext && npm run webpack",
-        "build:cli:dev": "cd packages/cli && npm run webpack"
+        "build:extension:dev": "cd packages/vscode-ext && npm run build",
+        "build:cli:dev": "cd packages/cli && npm run build"
     },
     "devDependencies": {
         "@types/glob": "^7.2.0",

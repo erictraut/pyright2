@@ -191,17 +191,11 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     protected readonly dynamicFeatures = new DynamicFeatures();
 
     constructor(protected serverOptions: ServerOptions, protected connection: Connection) {
-        // Stash the base directory into a global variable.
-        // This must happen before fs.getModulePath().
-        (global as any).__rootDirectory = serverOptions.rootDirectory.getFilePath();
-
         this.console.info(
             `${serverOptions.productName} language server ${
                 serverOptions.version && serverOptions.version + ' '
             }starting`
         );
-
-        this.console.info(`Server root directory: ${serverOptions.rootDirectory}`);
 
         this.fs = getFs(this.serverOptions.serviceProvider);
         this.caseSensitiveDetector = this.serverOptions.serviceProvider.get(ServiceKeys.caseSensitivityDetector);
@@ -217,10 +211,11 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         // Set the working directory to a known location within
         // the extension directory. Otherwise the execution of
         // python can have unintended and surprising results.
-        const moduleDirectory = this.fs.getModulePath();
-        if (moduleDirectory && this.fs.existsSync(moduleDirectory)) {
-            this.fs.chdir(moduleDirectory);
-        }
+        // TODO - need to add this back
+        // const moduleDirectory = this.fs.getModulePath();
+        // if (moduleDirectory && this.fs.existsSync(moduleDirectory)) {
+        //     this.fs.chdir(moduleDirectory);
+        // }
 
         // Set up callbacks.
         this.setupConnection(serverOptions.supportedCommands ?? [], serverOptions.supportedCodeActions ?? []);
@@ -263,6 +258,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         this.console.info(`Starting service instance "${name}"`);
 
         const service = new TypeService(name, this.serverOptions.serviceProvider, {
+            typeshedFallbackLoc: this.serverOptions.typeshedFallbackLoc,
             console: this.console,
             hostFactory: this.createHost.bind(this),
             importResolverFactory: this.createImportResolver.bind(this),

@@ -5,11 +5,9 @@
             "name": "Pyright CLI",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/packages/pyright/index.js",
+            "program": "${workspaceRoot}/packages/cli/index.cjs",
             "preLaunchTask": "npm: build:cli:dev",
             "args": [
-                "--verifytypes",
-                "pandas.core.reshape.concat",
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "outFiles": [

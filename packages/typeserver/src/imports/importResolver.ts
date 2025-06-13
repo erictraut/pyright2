@@ -34,7 +34,6 @@ import { PyTypedInfo, getPyTypedInfoForPyTypedFile } from 'typeserver/imports/py
 import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 import {
     findPythonSearchPaths,
-    getTypeShedFallbackPath,
     getTypeshedSubdirectory,
     stdLibFolderName,
     thirdPartyFolderName,
@@ -337,6 +336,7 @@ export class ImportResolver {
         const unused: string[] = [];
         return this._getStdlibTypeshedPath(
             this._configOptions.typeshedPath,
+            this._configOptions.typeshedFallbackPath,
             execEnv.pythonVersion,
             execEnv.pythonPlatform,
             unused
@@ -344,8 +344,10 @@ export class ImportResolver {
     }
 
     getTypeshedThirdPartyPath(execEnv: ExecutionEnvironment) {
-        const unused: string[] = [];
-        return this._getThirdPartyTypeshedPath(this._configOptions.typeshedPath, unused);
+        return this._getThirdPartyTypeshedPath(
+            this._configOptions.typeshedPath,
+            this._configOptions.typeshedFallbackPath
+        );
     }
 
     isStdlibModule(module: ImportedModuleDescriptor, execEnv: ExecutionEnvironment): boolean {
@@ -362,6 +364,7 @@ export class ImportResolver {
 
         const stdTypeshed = this._getStdlibTypeshedPath(
             this._configOptions.typeshedPath,
+            this._configOptions.typeshedFallbackPath,
             execEnv.pythonVersion,
             execEnv.pythonPlatform,
             importFailureInfo
@@ -385,7 +388,10 @@ export class ImportResolver {
             // There's one path for each third party package, which blows up logging.
             // Just get the root directly and show it with `...` to indicate that this
             // is where the third party folder is in the roots.
-            const thirdPartyRoot = this._getThirdPartyTypeshedPath(this._configOptions.typeshedPath, importFailureInfo);
+            const thirdPartyRoot = this._getThirdPartyTypeshedPath(
+                this._configOptions.typeshedPath,
+                this._configOptions.typeshedFallbackPath
+            );
             if (thirdPartyRoot) {
                 roots.push(thirdPartyRoot.resolvePaths('...'));
             }
@@ -460,13 +466,15 @@ export class ImportResolver {
     }
 
     getTypeshedStdlibExcludeList(
-        customTypeshedPath: Uri | undefined,
+        customTypeshedLoc: Uri | undefined,
+        typeshedFallbackLoc: Uri | undefined,
         pythonVersion: PythonVersion,
         pythonPlatform: string | undefined
     ): Uri[] {
         const unused: string[] = [];
         const typeshedStdlibPath = this._getStdlibTypeshedPath(
-            customTypeshedPath,
+            customTypeshedLoc,
+            typeshedFallbackLoc,
             pythonVersion,
             pythonPlatform,
             unused
@@ -478,7 +486,11 @@ export class ImportResolver {
         }
 
         if (!this._cachedTypeshedStdLibModuleVersionInfo) {
-            this._cachedTypeshedStdLibModuleVersionInfo = this._readTypeshedStdLibVersions(customTypeshedPath, []);
+            this._cachedTypeshedStdLibModuleVersionInfo = this._readTypeshedStdLibVersions(
+                customTypeshedLoc,
+                typeshedFallbackLoc,
+                []
+            );
         }
 
         this._cachedTypeshedStdLibModuleVersionInfo.forEach((versionInfo, moduleName) => {
@@ -1129,6 +1141,7 @@ export class ImportResolver {
         // Is this a stdlib typeshed path?
         const stdLibTypeshedPath = this._getStdlibTypeshedPath(
             this._configOptions.typeshedPath,
+            this._configOptions.typeshedFallbackPath,
             execEnv.pythonVersion,
             execEnv.pythonPlatform,
             importFailureInfo
@@ -1147,6 +1160,7 @@ export class ImportResolver {
                     this._isStdlibTypeshedStubValidForVersion(
                         moduleDescriptor,
                         this._configOptions.typeshedPath,
+                        this._configOptions.typeshedFallbackPath,
                         execEnv.pythonVersion,
                         execEnv.pythonPlatform,
                         []
@@ -1221,7 +1235,7 @@ export class ImportResolver {
         // Check for a typeshed file.
         const thirdPartyTypeshedPath = this._getThirdPartyTypeshedPath(
             this._configOptions.typeshedPath,
-            importFailureInfo
+            this._configOptions.typeshedFallbackPath
         );
 
         if (thirdPartyTypeshedPath) {
@@ -1701,7 +1715,10 @@ export class ImportResolver {
         // If a library is fully py.typed, then we have found the best match,
         // unless the execution environment is typeshed itself, in which case
         // we don't want to favor py.typed libraries. Use the typeshed lookup below.
-        if (execEnv.root !== this._getTypeshedRoot(this._configOptions.typeshedPath, importFailureInfo)) {
+        if (
+            execEnv.root !==
+            this._getTypeshedRoot(this._configOptions.typeshedPath, this._configOptions.typeshedFallbackPath)
+        ) {
             if (bestResultSoFar?.pyTypedInfo && !bestResultSoFar.isPartlyResolved) {
                 return bestResultSoFar;
             }
@@ -1844,6 +1861,7 @@ export class ImportResolver {
         if (isStdLib) {
             const path = this._getStdlibTypeshedPath(
                 this._configOptions.typeshedPath,
+                this._configOptions.typeshedFallbackPath,
                 execEnv.pythonVersion,
                 execEnv.pythonPlatform,
                 importFailureInfo,
@@ -1854,7 +1872,7 @@ export class ImportResolver {
                 typeshedPaths = [path];
             }
         } else {
-            typeshedPaths = this._getThirdPartyTypeshedPackagePaths(moduleDescriptor, importFailureInfo);
+            typeshedPaths = this._getThirdPartyTypeshedPackagePaths(moduleDescriptor);
         }
 
         if (typeshedPaths) {
@@ -1906,6 +1924,7 @@ export class ImportResolver {
                             if (
                                 this._isStdlibTypeshedStubValidForVersion(
                                     createImportedModuleDescriptor(stripped),
+                                    root,
                                     root,
                                     executionEnvironment.pythonVersion,
                                     executionEnvironment.pythonPlatform,
@@ -1982,6 +2001,7 @@ export class ImportResolver {
         if (isStdLib) {
             const path = this._getStdlibTypeshedPath(
                 this._configOptions.typeshedPath,
+                this._configOptions.typeshedFallbackPath,
                 execEnv.pythonVersion,
                 execEnv.pythonPlatform,
                 importFailureInfo,
@@ -1991,11 +2011,7 @@ export class ImportResolver {
                 typeshedPaths = [path];
             }
         } else {
-            typeshedPaths = this._getThirdPartyTypeshedPackagePaths(
-                moduleDescriptor,
-                importFailureInfo,
-                /* includeMatchOnly */ false
-            );
+            typeshedPaths = this._getThirdPartyTypeshedPackagePaths(moduleDescriptor, /* includeMatchOnly */ false);
 
             const typeshedPathEx = this.getTypeshedPathEx(execEnv, importFailureInfo);
             if (typeshedPathEx) {
@@ -2025,19 +2041,21 @@ export class ImportResolver {
     // If moduleDescriptor is provided, it is filtered based on the VERSIONS
     // file in the typeshed stubs.
     private _getStdlibTypeshedPath(
-        customTypeshedPath: Uri | undefined,
+        customTypeshedLoc: Uri | undefined,
+        typeshedFallbackLoc: Uri | undefined,
         pythonVersion: PythonVersion,
         pythonPlatform: string | undefined,
         importFailureInfo: string[],
         moduleDescriptor?: ImportedModuleDescriptor
     ) {
-        const subdirectory = this._getTypeshedSubdirectory(/* isStdLib */ true, customTypeshedPath, importFailureInfo);
+        const subdirectory = this._getTypeshedSubdirectory(/* isStdLib */ true, customTypeshedLoc, typeshedFallbackLoc);
         if (
             subdirectory &&
             moduleDescriptor &&
             !this._isStdlibTypeshedStubValidForVersion(
                 moduleDescriptor,
-                customTypeshedPath,
+                customTypeshedLoc,
+                typeshedFallbackLoc,
                 pythonVersion,
                 pythonPlatform,
                 importFailureInfo
@@ -2049,20 +2067,22 @@ export class ImportResolver {
         return subdirectory;
     }
 
-    private _getThirdPartyTypeshedPath(customTypeshedPath: Uri | undefined, importFailureInfo: string[]) {
-        return this._getTypeshedSubdirectory(/* isStdLib */ false, customTypeshedPath, importFailureInfo);
+    private _getThirdPartyTypeshedPath(customTypeshedLoc: Uri | undefined, typeshedFallbackLoc: Uri | undefined) {
+        return this._getTypeshedSubdirectory(/* isStdLib */ false, customTypeshedLoc, typeshedFallbackLoc);
     }
 
     private _isStdlibTypeshedStubValidForVersion(
         moduleDescriptor: ImportedModuleDescriptor,
-        customTypeshedPath: Uri | undefined,
+        customTypeshedLoc: Uri | undefined,
+        typeshedFallbackLoc: Uri | undefined,
         pythonVersion: PythonVersion,
         pythonPlatform: string | undefined,
         importFailureInfo: string[]
     ) {
         if (!this._cachedTypeshedStdLibModuleVersionInfo) {
             this._cachedTypeshedStdLibModuleVersionInfo = this._readTypeshedStdLibVersions(
-                customTypeshedPath,
+                customTypeshedLoc,
+                typeshedFallbackLoc,
                 importFailureInfo
             );
         }
@@ -2104,7 +2124,8 @@ export class ImportResolver {
     }
 
     private _readTypeshedStdLibVersions(
-        customTypeshedPath: Uri | undefined,
+        customTypeshedLoc: Uri | undefined,
+        typeshedFallbackLoc: Uri | undefined,
         importFailureInfo: string[]
     ): Map<string, SupportedVersionInfo> {
         const versionRangeMap = new Map<string, SupportedVersionInfo>();
@@ -2112,8 +2133,8 @@ export class ImportResolver {
         // Read the VERSIONS file from typeshed.
         const typeshedStdLibPath = this._getTypeshedSubdirectory(
             /* isStdLib */ true,
-            customTypeshedPath,
-            importFailureInfo
+            customTypeshedLoc,
+            typeshedFallbackLoc
         );
 
         if (typeshedStdLibPath) {
@@ -2210,10 +2231,12 @@ export class ImportResolver {
 
     private _getThirdPartyTypeshedPackagePaths(
         moduleDescriptor: ImportedModuleDescriptor,
-        importFailureInfo: string[],
         includeMatchOnly = true
     ): Uri[] | undefined {
-        const typeshedPath = this._getThirdPartyTypeshedPath(this._configOptions.typeshedPath, importFailureInfo);
+        const typeshedPath = this._getThirdPartyTypeshedPath(
+            this._configOptions.typeshedPath,
+            this._configOptions.typeshedFallbackPath
+        );
 
         if (!this._cachedTypeshedThirdPartyPackagePaths) {
             this._buildTypeshedThirdPartyPackageMap(typeshedPath);
@@ -2234,7 +2257,10 @@ export class ImportResolver {
     }
 
     private _getThirdPartyTypeshedPackageRoots(importFailureInfo: string[]) {
-        const typeshedPath = this._getThirdPartyTypeshedPath(this._configOptions.typeshedPath, importFailureInfo);
+        const typeshedPath = this._getThirdPartyTypeshedPath(
+            this._configOptions.typeshedPath,
+            this._configOptions.typeshedFallbackPath
+        );
 
         if (!this._cachedTypeshedThirdPartyPackagePaths) {
             this._buildTypeshedThirdPartyPackageMap(typeshedPath);
@@ -2243,21 +2269,21 @@ export class ImportResolver {
         return this._cachedTypeshedThirdPartyPackageRoots!;
     }
 
-    private _getTypeshedRoot(customTypeshedPath: Uri | undefined, importFailureInfo: string[]) {
+    private _getTypeshedRoot(customTypeshedLoc: Uri | undefined, typeshedFallbackLoc: Uri | undefined) {
         if (this._cachedTypeshedRoot === undefined) {
             let typeshedPath = undefined;
 
             // Did the user specify a typeshed path? If not, we'll look in the
             // python search paths, then in the typeshed-fallback directory.
-            if (customTypeshedPath) {
-                if (this.dirExistsCached(customTypeshedPath)) {
-                    typeshedPath = customTypeshedPath;
+            if (customTypeshedLoc) {
+                if (this.dirExistsCached(customTypeshedLoc)) {
+                    typeshedPath = customTypeshedLoc;
                 }
             }
 
             // If typeshed directory wasn't found in other locations, use the fallback.
             if (!typeshedPath) {
-                typeshedPath = getTypeShedFallbackPath(this.fileSystem) ?? Uri.empty();
+                typeshedPath = typeshedFallbackLoc ?? Uri.empty();
             }
 
             this._cachedTypeshedRoot = typeshedPath;
@@ -2268,8 +2294,8 @@ export class ImportResolver {
 
     private _getTypeshedSubdirectory(
         isStdLib: boolean,
-        customTypeshedPath: Uri | undefined,
-        importFailureInfo: string[]
+        customTypeshedLoc: Uri | undefined,
+        typeshedFallbackLoc: Uri | undefined
     ) {
         // See if we have it cached.
         if (isStdLib) {
@@ -2282,7 +2308,7 @@ export class ImportResolver {
             }
         }
 
-        let typeshedPath = this._getTypeshedRoot(customTypeshedPath, importFailureInfo);
+        let typeshedPath = this._getTypeshedRoot(customTypeshedLoc, typeshedFallbackLoc);
         if (typeshedPath === undefined) {
             return undefined;
         }

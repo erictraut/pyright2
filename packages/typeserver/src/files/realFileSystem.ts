@@ -24,7 +24,6 @@ import {
 import { combinePaths, getRootLength } from 'typeserver/files/pathUtils.js';
 import { FileUri, FileUriSchema } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { getRootUri } from 'typeserver/files/uri/uriUtils.js';
 import { randomBytesHex } from 'typeserver/utils/crypto.js';
 import { Disposable } from 'vscode-jsonrpc';
 
@@ -364,13 +363,6 @@ export class RealFileSystem implements FileSystem {
         } catch (e: any) {
             return uri;
         }
-    }
-
-    getModulePath(): Uri {
-        // The entry point to the tool should have set the __rootDirectory
-        // global variable to point to the directory that contains the
-        // typeshed-fallback directory.
-        return getRootUri(this._caseSensitiveDetector) || Uri.empty();
     }
 
     createFileSystemWatcher(paths: Uri[], listener: FileWatcherEventHandler): FileWatcher {

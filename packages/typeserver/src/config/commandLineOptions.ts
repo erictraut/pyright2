@@ -73,8 +73,12 @@ export class CommandLineConfigOptions {
     // Path of typeshed stubs.
     typeshedPath?: string | undefined;
 
+    // Path of typeshed fallback stubs.
+    typeshedFallbackPath?: string | undefined;
+
     // Path of typing folder
     stubPath?: string | undefined;
+
     // In the absence of type stubs, use library implementations
     // to extract type information?
     useLibraryCodeForTypes?: boolean | undefined;

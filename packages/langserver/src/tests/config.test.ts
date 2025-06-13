@@ -21,6 +21,7 @@ import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFil
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
 
 describe(`config test'}`, () => {
     const tempFile = new RealTempFile();
@@ -582,6 +583,10 @@ describe(`config test'}`, () => {
         const serviceProvider = createServiceProvider(fs, cons, tempFile);
         const host = new TestAccessHost();
         host.getPythonVersion = () => pythonVersion3_13;
-        return new TypeService('<default>', serviceProvider, { console: cons, hostFactory: () => host });
+        return new TypeService('<default>', serviceProvider, {
+            typeshedFallbackLoc: getTypeshedFallbackLoc(),
+            console: cons,
+            hostFactory: () => host,
+        });
     }
 });

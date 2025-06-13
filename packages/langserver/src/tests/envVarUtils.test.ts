@@ -20,6 +20,7 @@ import { createServiceProvider } from 'typeserver/extensibility/serviceProviderE
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
 
 jest.mock('os', () => ({ __esModule: true, ...jest.requireActual('os') }));
 
@@ -212,6 +213,7 @@ function createWorkspace(rootUri: Uri | undefined) {
         rootUri,
         kinds: [WellKnownWorkspaceKinds.Test],
         service: new TypeService('test service', createServiceProvider(fs), {
+            typeshedFallbackLoc: getTypeshedFallbackLoc(),
             console: new NullConsole(),
             hostFactory: () => new TestAccessHost(),
             importResolverFactory: TypeService.createImportResolver,

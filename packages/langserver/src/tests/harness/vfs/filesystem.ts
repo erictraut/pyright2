@@ -350,10 +350,6 @@ export class TestFileSystem implements FileSystem, TempFile, CaseSensitivityDete
         }
     }
 
-    getModulePath(): Uri {
-        return Uri.file(MODULE_PATH, this);
-    }
-
     isCaseSensitive(uri: string) {
         if (uri.startsWith(FileUriSchema)) {
             return !this.ignoreCase;

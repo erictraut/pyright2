@@ -106,6 +106,7 @@ import { Program } from 'typeserver/program/program.js';
 import { PackageTypeReport } from 'typeserver/service/packageTypeReport.js';
 import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
 import { Comparison, isNumber, isString } from 'typeserver/utils/core.js';
 import { assertNever } from 'typeserver/utils/debug.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
@@ -156,6 +157,7 @@ export class TestState {
 
     constructor(
         projectRoot: string,
+        typeshedFallbackLoc: Uri,
         public testData: FourSlashData,
         mountPaths?: Map<string, string>,
         hostSpecificFeatures?: HostSpecificFeatures,
@@ -188,7 +190,11 @@ export class TestState {
         this.files = vfsInfo.sourceFileNames;
 
         this.rawConfigJson = vfsInfo.rawConfigJson;
-        const configOptions = this._convertGlobalOptionsToConfigOptions(vfsInfo.projectRoot, mountPaths);
+        const configOptions = this._convertGlobalOptionsToConfigOptions(
+            vfsInfo.projectRoot,
+            typeshedFallbackLoc,
+            mountPaths
+        );
 
         if (this.rawConfigJson) {
             const configDirUri = Uri.file(projectRoot, this.serviceProvider);
@@ -1731,8 +1737,9 @@ export class TestState {
         configOptions: ConfigOptions,
         host: Host
     ) {
-        // we do not initiate automatic analysis or file watcher in test.
+        // Do not initiate automatic analysis or file watcher in test.
         const service = new TypeService('test service', this.serviceProvider, {
+            typeshedFallbackLoc: getTypeshedFallbackLoc(),
             console: nullConsole,
             hostFactory: () => host,
             importResolverFactory,
@@ -1740,7 +1747,7 @@ export class TestState {
             fileSystem: this.fs,
         });
 
-        // directly set files to track rather than using fileSpec from config
+        // Directly set files to track rather than using fileSpec from config
         // to discover those files from file system
         service.program.setTrackedFiles(
             this.files
@@ -1755,8 +1762,12 @@ export class TestState {
         return service;
     }
 
-    private _convertGlobalOptionsToConfigOptions(projectRoot: string, mountPaths?: Map<string, string>): ConfigOptions {
-        const configOptions = new ConfigOptions(Uri.file(projectRoot, this.serviceProvider));
+    private _convertGlobalOptionsToConfigOptions(
+        projectRoot: string,
+        typeshedFallbackLoc: Uri,
+        mountPaths?: Map<string, string>
+    ): ConfigOptions {
+        const configOptions = new ConfigOptions(Uri.file(projectRoot, this.serviceProvider), typeshedFallbackLoc);
 
         // add more global options as we need them
         const newConfigOptions = this._applyTestConfigOptions(configOptions, mountPaths);
@@ -2119,6 +2130,7 @@ export function parseAndGetTestState(
     const data = parseTestData(normalizeSlashes(projectRoot), code, anonymousFileName);
     const state = new TestState(
         normalizeSlashes('/'),
+        getTypeshedFallbackLoc(),
         data,
         /* mountPath */ undefined,
         /* hostSpecificFeatures */ undefined,

@@ -24,6 +24,7 @@ import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
 
 test('check chained files', () => {
     const code = `
@@ -257,6 +258,7 @@ test('re ordering cells', async () => {
 function createServiceWithChainedSourceFiles(basePath: Uri, code: string) {
     const fs = createFromFileSystem(host.HOST, /*ignoreCase*/ false, { cwd: basePath.getFilePath() });
     const service = new TypeService('test service', new ServiceProvider(), {
+        typeshedFallbackLoc: getTypeshedFallbackLoc(),
         console: new NullConsole(),
         importResolverFactory: TypeService.createImportResolver,
         configOptions: new ConfigOptions(basePath),

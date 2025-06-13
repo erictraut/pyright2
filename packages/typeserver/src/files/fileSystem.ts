@@ -46,7 +46,6 @@ export interface ReadOnlyFileSystem {
 
     statSync(uri: Uri): Stats;
     realpathSync(uri: Uri): Uri;
-    getModulePath(): Uri;
     // Async I/O
     readFile(uri: Uri): Promise<Buffer>;
     readFileText(uri: Uri, encoding?: BufferEncoding): Promise<string>;

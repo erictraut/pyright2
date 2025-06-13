@@ -23,6 +23,7 @@ import { ServerSettings } from 'langserver/server/languageServerInterface.js';
 import { ProgressReporter } from 'langserver/server/progressReporter.js';
 import { WellKnownWorkspaceKinds, Workspace } from 'langserver/server/workspaceFactory.js';
 import path from 'path';
+import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.js';
 import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils.js';
@@ -39,7 +40,6 @@ import {
     createFromRealFileSystem,
 } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { getRootUri } from 'typeserver/files/uri/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';
@@ -55,7 +55,6 @@ export class PyrightServer extends LanguageServerBase {
     constructor(connection: Connection, maxWorkers: number, realFileSystem?: FileSystem) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         //const version = require('typeserver/package.json').version || '';
-
         // TODO - fix the version retrieval logic
         const version = 'Unknown Version';
 
@@ -76,16 +75,14 @@ export class PyrightServer extends LanguageServerBase {
             new FileBasedCancellationProvider('bg')
         );
 
-        // When executed from CLI command (pyright-langserver), __rootDirectory is
-        // already defined.
         const currentDir = path.dirname(fileURLToPath(import.meta.url));
-        const rootDirectory: Uri = getRootUri(serviceProvider) || Uri.file(currentDir, serviceProvider);
-        const realPathRoot = pyrightFs.realCasePath(rootDirectory);
+        const rootDirectory = Uri.file(currentDir, serviceProvider);
+        const typeshedFallbackLoc = rootDirectory.addPath(typeshedFallback);
 
         super(
             {
                 productName: 'Pyright',
-                rootDirectory: realPathRoot,
+                typeshedFallbackLoc,
                 version,
                 serviceProvider,
                 fileWatcherHandler: fileWatcherProvider,

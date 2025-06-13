@@ -24,27 +24,6 @@ export interface PythonPathResult {
 export const stdLibFolderName = 'stdlib';
 export const thirdPartyFolderName = 'stubs';
 
-export function getTypeShedFallbackPath(fs: FileSystem) {
-    const moduleDirectory = fs.getModulePath();
-    if (!moduleDirectory || moduleDirectory.isEmpty()) {
-        return undefined;
-    }
-
-    const typeshedPath = moduleDirectory.combinePaths(pathConsts.typeshedFallback);
-    if (fs.existsSync(typeshedPath)) {
-        return fs.realCasePath(typeshedPath);
-    }
-
-    // In the debug version of Pyright, the code is one level
-    // deeper, so we need to look one level up for the typeshed fallback.
-    const debugTypeshedPath = moduleDirectory.getDirectory().combinePaths(pathConsts.typeshedFallback);
-    if (fs.existsSync(debugTypeshedPath)) {
-        return fs.realCasePath(debugTypeshedPath);
-    }
-
-    return undefined;
-}
-
 export function getTypeshedSubdirectory(typeshedPath: Uri, isStdLib: boolean) {
     return typeshedPath.combinePaths(isStdLib ? stdLibFolderName : thirdPartyFolderName);
 }

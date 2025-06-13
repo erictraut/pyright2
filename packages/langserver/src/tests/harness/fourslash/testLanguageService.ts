@@ -22,6 +22,7 @@ import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolverFactory } from 'typeserver/imports/importResolver.js';
 import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService.js';
+import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
 
 export class TestFeatures implements HostSpecificFeatures {
     importResolverFactory: ImportResolverFactory = TypeService.createImportResolver;
@@ -64,6 +65,7 @@ export class TestLanguageService implements LanguageServerInterface {
                 'test service',
                 new ServiceProvider(),
                 options ?? {
+                    typeshedFallbackLoc: getTypeshedFallbackLoc(),
                     console: this.console,
                     hostFactory: () => new TestAccessHost(),
                     importResolverFactory: TypeService.createImportResolver,
