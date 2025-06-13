@@ -16,7 +16,7 @@ import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { createServiceProvider, getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
@@ -351,10 +351,11 @@ describe('Import tests with fake venv', () => {
 
             const sp = createServiceProviderFromFiles(files);
             const configOptions = new ConfigOptions(UriEx.file('/'));
+            const fs = getFs(sp);
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
-                new TestAccessHost(sp.fs().getModulePath(), [UriEx.file(libraryRoot)])
+                new TestAccessHost(fs.getModulePath(), [UriEx.file(libraryRoot)])
             );
 
             // Stub package wins over original package (per PEP 561 rules).
@@ -370,7 +371,7 @@ describe('Import tests with fake venv', () => {
 
             const sideBySideStubFile = UriEx.file(combinePaths(libraryRoot, 'myLib', 'partialStub.pyi'));
             assert.strictEqual(1, sideBySideResult.resolvedUris.filter((f) => f.key === sideBySideStubFile.key).length);
-            assert.strictEqual('def test(): ...', sp.fs().readFileSync(sideBySideStubFile, 'utf8'));
+            assert.strictEqual('def test(): ...', fs.readFileSync(sideBySideStubFile, 'utf8'));
 
             // Side by side stub doesn't completely disable partial stub.
             const partialStubResult = importResolver.resolveImport(myUri, configOptions.findExecEnvironment(myUri), {
@@ -497,11 +498,12 @@ describe('Import tests with fake venv', () => {
 
         test('no empty import roots', () => {
             const sp = createServiceProviderFromFiles([]);
+            const fs = getFs(sp);
             const configOptions = new ConfigOptions(Uri.empty()); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
-                new TestAccessHost(sp.fs().getModulePath(), [UriEx.file(libraryRoot)])
+                new TestAccessHost(fs.getModulePath(), [UriEx.file(libraryRoot)])
             );
             importResolver.getImportRoots(configOptions.getDefaultExecEnvironment()).forEach((path) => assert(path));
         });
@@ -519,11 +521,12 @@ describe('Import tests with fake venv', () => {
             ];
 
             const sp = createServiceProviderFromFiles(files);
+            const fs = getFs(sp);
             const configOptions = new ConfigOptions(Uri.empty()); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
-                new TestAccessHost(sp.fs().getModulePath(), [UriEx.file(libraryRoot)])
+                new TestAccessHost(fs.getModulePath(), [UriEx.file(libraryRoot)])
             );
             const importRoots = importResolver.getImportRoots(configOptions.getDefaultExecEnvironment());
 
@@ -824,8 +827,10 @@ describe('Import tests with fake venv', () => {
     }
 
     function setupImportResolver(files: { path: string; content: string }[], setup?: (c: ConfigOptions) => void) {
-        const defaultHostFactory = (sp: ServiceProvider) =>
-            new TestAccessHost(sp.fs().getModulePath(), [UriEx.file(libraryRoot)]);
+        const defaultHostFactory = (sp: ServiceProvider) => {
+            const fs = getFs(sp);
+            return new TestAccessHost(fs.getModulePath(), [UriEx.file(libraryRoot)]);
+        };
         const defaultSetup =
             setup ??
             ((c) => {

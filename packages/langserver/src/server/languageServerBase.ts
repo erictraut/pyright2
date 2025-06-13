@@ -121,6 +121,7 @@ import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/exte
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { getCancellationProvider, getConsole, getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
@@ -202,7 +203,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
         this.console.info(`Server root directory: ${serverOptions.rootDirectory}`);
 
-        this.fs = this.serverOptions.serviceProvider.fs();
+        this.fs = getFs(this.serverOptions.serviceProvider);
         this.caseSensitiveDetector = this.serverOptions.serviceProvider.get(ServiceKeys.caseSensitivityDetector);
 
         this.workspaceFactory = new WorkspaceFactory(
@@ -231,7 +232,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     }
 
     get console(): ConsoleInterface {
-        return this.serverOptions.serviceProvider.console();
+        return getConsole(this.serverOptions.serviceProvider);
     }
 
     // Provides access to the client's window.
@@ -266,7 +267,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
             hostFactory: this.createHost.bind(this),
             importResolverFactory: this.createImportResolver.bind(this),
             maxAnalysisTime: this.serverOptions.maxAnalysisTimeInForeground,
-            fileSystem: services?.fs ?? this.serverOptions.serviceProvider.fs(),
+            fileSystem: services?.fs ?? getFs(this.serverOptions.serviceProvider),
             usingPullDiagnostics: this.client.usingPullDiagnostics,
         });
 
@@ -1373,12 +1374,13 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     }
 
     protected async getProgressReporter(reporter: WorkDoneProgressReporter, title: string, token: CancellationToken) {
+        const cp = getCancellationProvider(this.serviceProvider);
         // This is a bit ugly, but we need to determine whether the provided reporter
         // is an actual client-side progress reporter or a dummy (null) progress reporter
         // created by the LSP library. If it's the latter, we'll create a server-initiated
         // progress reporter.
         if (!isNullProgressReporter(reporter)) {
-            return { reporter: reporter, source: CancelAfter(this.serviceProvider.cancellationProvider(), token) };
+            return { reporter: reporter, source: CancelAfter(cp, token) };
         }
 
         const serverInitiatedReporter = await this.connection.window.createWorkDoneProgress();
@@ -1391,7 +1393,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
         return {
             reporter: serverInitiatedReporter,
-            source: CancelAfter(this.serviceProvider.cancellationProvider(), token, serverInitiatedReporter.token),
+            source: CancelAfter(cp, token, serverInitiatedReporter.token),
         };
     }
 

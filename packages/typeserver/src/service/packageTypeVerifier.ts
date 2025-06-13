@@ -47,6 +47,7 @@ import { NullConsole } from 'typeserver/extensibility/console.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { getFileExtension, stripFileExtension } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { tryStat } from 'typeserver/files/uri/uriUtils.js';
@@ -248,7 +249,8 @@ export class PackageTypeVerifier {
         // Find the deepest py.typed file that corresponds to the requested submodule.
         while (subNameParts.length >= 1) {
             const packageSubdir = rootDirectory.combinePaths(...subNameParts.slice(1));
-            const pyTypedInfo = getPyTypedInfo(this._serviceProvider.fs(), packageSubdir);
+            const fs = getFs(this._serviceProvider);
+            const pyTypedInfo = getPyTypedInfo(fs, packageSubdir);
             if (pyTypedInfo) {
                 return pyTypedInfo;
             }
@@ -445,13 +447,14 @@ export class PackageTypeVerifier {
         modulePath: string,
         publicModules: string[]
     ) {
-        const dirEntries = this._serviceProvider.fs().readdirEntriesSync(dirPath);
+        const fs = getFs(this._serviceProvider);
+        const dirEntries = fs.readdirEntriesSync(dirPath);
 
         dirEntries.forEach((entry) => {
             let isFile = entry.isFile();
             let isDirectory = entry.isDirectory();
             if (entry.isSymbolicLink()) {
-                const stat = tryStat(this._serviceProvider.fs(), dirPath.combinePaths(entry.name));
+                const stat = tryStat(fs, dirPath.combinePaths(entry.name));
                 if (stat) {
                     isFile = stat.isFile();
                     isDirectory = stat.isDirectory();

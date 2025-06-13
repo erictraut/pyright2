@@ -13,6 +13,7 @@ import { PythonPlatform } from 'typeserver/config/configOptions.js';
 import { HostKind, NoAccessHost } from 'typeserver/extensibility/host.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { getAnyExtensionFromPath, normalizePath } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { isDirectory } from 'typeserver/files/uri/uriUtils.js';
@@ -219,11 +220,10 @@ export class FullAccessHost extends LimitedAccessHost {
                     if (execSplitEntry) {
                         const normalizedPath = normalizePath(execSplitEntry);
                         const normalizedUri = Uri.file(normalizedPath, caseDetector);
+                        const fs = getFs(this.serviceProvider);
+
                         // Skip non-existent paths and broken zips/eggs.
-                        if (
-                            this.serviceProvider.fs().existsSync(normalizedUri) &&
-                            isDirectory(this.serviceProvider.fs(), normalizedUri)
-                        ) {
+                        if (fs.existsSync(normalizedUri) && isDirectory(fs, normalizedUri)) {
                             result.paths.push(normalizedUri);
                         } else {
                             importFailureInfo.push(`Skipping '${normalizedPath}' because it is not a valid directory`);

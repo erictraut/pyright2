@@ -29,6 +29,7 @@ import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensi
 import { Host, HostFactory, NoAccessHost } from 'typeserver/extensibility/host.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { getCancellationProvider, getConsole } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from 'typeserver/files/fileWatcher.js';
 import { getFileName, isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
@@ -154,7 +155,7 @@ export class TypeService {
     }
 
     get cancellationProvider() {
-        return this.serviceProvider.cancellationProvider();
+        return getCancellationProvider(this.serviceProvider);
     }
 
     get librarySearchUrisToWatch() {
@@ -705,7 +706,7 @@ export class TypeService {
                 configOptions.setupExecutionEnvironments(
                     config.configFileJsonObj,
                     config.configFileDirUri,
-                    this.serviceProvider.console()
+                    getConsole(this.serviceProvider)
                 );
             }
         }

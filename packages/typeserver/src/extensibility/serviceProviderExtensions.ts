@@ -15,17 +15,6 @@ import { FileSystem, TempFile } from 'typeserver/files/fileSystem.js';
 import { PartialStubService, SupportPartialStubs } from 'typeserver/files/partialStubService.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';
 
-declare module 'typeserver/extensibility/serviceProvider.js' {
-    interface ServiceProvider {
-        fs(): FileSystem;
-        console(): ConsoleInterface;
-        cancellationProvider(): CancellationProvider;
-        tmp(): TempFile | undefined;
-        partialStubs(): SupportPartialStubs;
-        cacheManager(): CacheManager | undefined;
-    }
-}
-
 export function createServiceProvider(...services: any): ServiceProvider {
     const sp = new ServiceProvider();
 
@@ -57,31 +46,30 @@ export function createServiceProvider(...services: any): ServiceProvider {
     return sp;
 }
 
-ServiceProvider.prototype.fs = function () {
-    return this.get(ServiceKeys.fs);
-};
+export function getFs(sp: ServiceProvider): FileSystem {
+    return sp.get(ServiceKeys.fs);
+}
 
-ServiceProvider.prototype.console = function () {
-    return this.get(ServiceKeys.console);
-};
+export function getConsole(sp: ServiceProvider): ConsoleInterface {
+    return sp.get(ServiceKeys.console);
+}
 
-ServiceProvider.prototype.partialStubs = function () {
-    const result = this.tryGet(ServiceKeys.partialStubs);
+export function getPartialStubs(sp: ServiceProvider): SupportPartialStubs {
+    const result = sp.tryGet(ServiceKeys.partialStubs);
     if (!result) {
-        this.add(ServiceKeys.partialStubs, new PartialStubService(this.fs()));
+        sp.add(ServiceKeys.partialStubs, new PartialStubService(getFs(sp)));
     }
-    return this.get(ServiceKeys.partialStubs);
-};
+    return sp.get(ServiceKeys.partialStubs);
+}
 
-ServiceProvider.prototype.tmp = function () {
-    return this.tryGet(ServiceKeys.tempFile);
-};
+export function getTmp(sp: ServiceProvider): TempFile | undefined {
+    return sp.tryGet(ServiceKeys.tempFile);
+}
 
-ServiceProvider.prototype.cancellationProvider = function () {
-    return this.tryGet(ServiceKeys.cancellationProvider) ?? new DefaultCancellationProvider();
-};
+export function getCancellationProvider(sp: ServiceProvider): CancellationProvider {
+    return sp.tryGet(ServiceKeys.cancellationProvider) ?? new DefaultCancellationProvider();
+}
 
-ServiceProvider.prototype.cacheManager = function () {
-    const result = this.tryGet(ServiceKeys.cacheManager);
-    return result;
-};
+export function getCacheManager(sp: ServiceProvider): CacheManager | undefined {
+    return sp.tryGet(ServiceKeys.cacheManager);
+}

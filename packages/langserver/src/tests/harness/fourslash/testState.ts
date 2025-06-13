@@ -90,7 +90,7 @@ import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOpt
 import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { createServiceProvider, getConsole } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { getFileExtension, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
@@ -194,7 +194,11 @@ export class TestState {
             const configDirUri = Uri.file(projectRoot, this.serviceProvider);
             configOptions.initializeTypeCheckingMode('standard');
             configOptions.initializeFromJson(this.rawConfigJson, configDirUri, this.serviceProvider, testAccessHost);
-            configOptions.setupExecutionEnvironments(this.rawConfigJson, configDirUri, this.serviceProvider.console());
+            configOptions.setupExecutionEnvironments(
+                this.rawConfigJson,
+                configDirUri,
+                getConsole(this.serviceProvider)
+            );
             this._applyTestConfigOptions(configOptions);
         }
 

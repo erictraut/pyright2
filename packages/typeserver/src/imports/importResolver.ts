@@ -17,6 +17,7 @@ import { PythonVersion, pythonVersion3_0 } from 'typeserver/common/pythonVersion
 import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/config/configOptions.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { getConsole, getFs, getPartialStubs, getTmp } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { stripFileExtension } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import {
@@ -127,15 +128,15 @@ export class ImportResolver {
     }
 
     get fileSystem() {
-        return this.serviceProvider.fs();
+        return getFs(this.serviceProvider);
     }
 
     get tmp() {
-        return this.serviceProvider.tmp();
+        return getTmp(this.serviceProvider);
     }
 
     get partialStubs() {
-        return this.serviceProvider.partialStubs();
+        return getPartialStubs(this.serviceProvider);
     }
 
     static isSupportedImportSourceFile(uri: Uri) {
@@ -624,7 +625,7 @@ export class ImportResolver {
         }
 
         if (this._configOptions.verboseOutput) {
-            const console = this.serviceProvider.console();
+            const console = getConsole(this.serviceProvider);
             localImportFailureInfo.forEach((diag) => console.log(diag));
         }
 
