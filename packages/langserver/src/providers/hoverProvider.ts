@@ -46,7 +46,7 @@ import {
 import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
@@ -95,7 +95,7 @@ export function convertHoverResults(hoverResults: HoverResults | null, format: M
 }
 
 export function addParameterResultsPart(
-    serviceProvider: ServiceProvider,
+    extensionManager: ExtensionManager,
     paramNameNode: NameNode,
     resolvedDecl: Declaration | undefined,
     format: MarkupKind,
@@ -122,7 +122,7 @@ export function addParameterResultsPart(
 }
 
 export function addDocumentationResultsPart(
-    serviceProvider: ServiceProvider,
+    extensionManager: ExtensionManager,
     docString: string | undefined,
     format: MarkupKind,
     parts: HoverTextPart[],
@@ -412,7 +412,7 @@ export class HoverProvider {
 
             case DeclarationType.Param: {
                 this._addResultsPart(parts, '(parameter) ' + node.d.value + this._getTypeText(node), /* python */ true);
-                addParameterResultsPart(this._program.serviceProvider, node, resolvedDecl, this._format, parts);
+                addParameterResultsPart(this._program.extensionManager, node, resolvedDecl, this._format, parts);
                 this._addDocumentationPart(parts, node, resolvedDecl);
                 break;
             }
@@ -596,7 +596,7 @@ export class HoverProvider {
             name,
         });
 
-        addDocumentationResultsPart(this._program.serviceProvider, docString, this._format, parts, resolvedDecl);
+        addDocumentationResultsPart(this._program.extensionManager, docString, this._format, parts, resolvedDecl);
         return !!docString;
     }
 

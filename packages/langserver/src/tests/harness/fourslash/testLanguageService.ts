@@ -19,7 +19,7 @@ import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { Range } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
@@ -46,7 +46,7 @@ export class TestFeatures implements HostSpecificFeatures {
 
 export class TestLanguageService implements LanguageServerInterface {
     readonly supportAdvancedEdits = true;
-    readonly serviceProvider: ServiceProvider;
+    readonly extensionManager: ExtensionManager;
 
     private readonly _workspace: Workspace;
     private readonly _defaultWorkspace: Workspace;
@@ -58,7 +58,7 @@ export class TestLanguageService implements LanguageServerInterface {
         options?: TypeServiceOptions
     ) {
         this._workspace = workspace;
-        this.serviceProvider = this._workspace.service.serviceProvider;
+        this.extensionManager = this._workspace.service.extensionManager;
 
         // Determine the of the typeshed-fallback in the real file system.
         // Assume the typeshed-fallback path is relative to the current directory.
@@ -72,7 +72,7 @@ export class TestLanguageService implements LanguageServerInterface {
             kinds: [WellKnownWorkspaceKinds.Test],
             service: new TypeService(
                 'test service',
-                new ServiceProvider(),
+                this.extensionManager,
                 options ?? {
                     typeshedFallbackLoc,
                     console: this.console,

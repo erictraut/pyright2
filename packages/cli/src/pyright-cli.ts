@@ -25,10 +25,8 @@ import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { Range, isEmptyRange } from 'typeserver/common/textRange.js';
 import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ChokidarFileWatcherProvider } from 'typeserver/files/chokidarFileWatcher.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
@@ -41,7 +39,7 @@ import { initializeDependencies } from 'typeserver/service/asyncInitialization.j
 import { PackageTypeReport, TypeKnownStatus } from 'typeserver/service/packageTypeReport.js';
 import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { fail } from 'typeserver/utils/debug.js';
+import { assert, fail } from 'typeserver/utils/debug.js';
 import { createDeferred } from 'typeserver/utils/deferred.js';
 import { combinePaths, normalizePath } from 'typeserver/utils/pathUtils.js';
 import { getStdin } from 'typeserver/utils/streamUtils.js';
@@ -395,12 +393,13 @@ async function processArgs(): Promise<ExitStatus> {
         createFromRealFileSystem(tempFile, output, new ChokidarFileWatcherProvider(output))
     );
 
-    const serviceProvider = createServiceProvider(fileSystem, output, tempFile);
+    const extensionManager = new ExtensionManager(fileSystem, output, tempFile);
+    extensionManager.tempFile = tempFile;
 
     // The package type verification uses a different path.
     if (args['verifytypes'] !== undefined) {
         return verifyPackageTypes(
-            serviceProvider,
+            extensionManager,
             args['verifytypes'] || '',
             options,
             !!args.outputjson,
@@ -416,10 +415,10 @@ async function processArgs(): Promise<ExitStatus> {
     options.languageServerSettings.watchForSourceChanges = watch;
     options.languageServerSettings.watchForConfigChanges = watch;
 
-    const service = new TypeService('<default>', serviceProvider, {
-        typeshedFallbackLoc: getTypeshedFallbackLoc(serviceProvider),
+    const service = new TypeService('<default>', extensionManager, {
+        typeshedFallbackLoc: getTypeshedFallbackLoc(extensionManager),
         console: output,
-        hostFactory: () => new FullAccessHost(serviceProvider),
+        hostFactory: () => new FullAccessHost(extensionManager),
     });
 
     if ('threads' in args) {
@@ -443,8 +442,8 @@ async function processArgs(): Promise<ExitStatus> {
     return runSingleThreaded(args, options, service, minSeverityLevel, output);
 }
 
-function getTypeshedFallbackLoc(serviceProvider: ServiceProvider): Uri {
-    const rootDirectory = Uri.file(__dirname, serviceProvider);
+function getTypeshedFallbackLoc(extensionManager: ExtensionManager): Uri {
+    const rootDirectory = Uri.file(__dirname, extensionManager.caseSensitivity);
     return rootDirectory.combinePaths(typeshedFallback);
 }
 
@@ -672,17 +671,16 @@ async function runMultiThreaded(
         }
     };
 
+    const tempFileProvider = service.extensionManager.tempFile;
+    assert(tempFileProvider !== undefined);
+
     // Launch worker processes.
     for (let i = 0; i < workerCount; i++) {
         const mainModulePath = process.mainModule!.filename;
 
         // Ensure forked processes use the temp folder owned by the main process.
         // This allows for automatic deletion when the main process exits.
-        const worker = fork(mainModulePath, [
-            'worker',
-            i.toString(),
-            service.serviceProvider.get(ServiceKeys.tempFile).tmpdir().getFilePath(),
-        ]);
+        const worker = fork(mainModulePath, ['worker', i.toString(), tempFileProvider.tmpdir().getFilePath()]);
 
         worker.on('message', (message) => {
             let messageObj: any;
@@ -750,7 +748,7 @@ async function runMultiThreaded(
 // This is the message loop for a worker process used used for
 // multi-threaded analysis.
 function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
-    let serviceProvider: ServiceProvider | undefined;
+    let extensionManager: ExtensionManager | undefined;
     let service: TypeService | undefined;
     let fileSystem: PyrightFileSystem | undefined;
     let lastOpenFileUri: Uri | undefined;
@@ -788,11 +786,11 @@ function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
                     createFromRealFileSystem(tempFile, output, new ChokidarFileWatcherProvider(output))
                 );
 
-                serviceProvider = createServiceProvider(fileSystem, output, tempFile);
-                service = new TypeService('<default>', serviceProvider, {
-                    typeshedFallbackLoc: getTypeshedFallbackLoc(serviceProvider),
+                extensionManager = new ExtensionManager(fileSystem, output, tempFile);
+                service = new TypeService('<default>', extensionManager, {
+                    typeshedFallbackLoc: getTypeshedFallbackLoc(extensionManager),
                     console: output,
-                    hostFactory: () => new FullAccessHost(serviceProvider!),
+                    hostFactory: () => new FullAccessHost(extensionManager!),
                 });
 
                 service.setCompletionCallback((results) => {
@@ -815,8 +813,8 @@ function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
             }
 
             case 'analyzeFile': {
-                if (serviceProvider && fileSystem && service) {
-                    const uri = Uri.parse(messageObj.data as string, serviceProvider);
+                if (extensionManager && fileSystem && service) {
+                    const uri = Uri.parse(messageObj.data as string, extensionManager.caseSensitivity);
 
                     // Check the file's length before attempting to read its full contents.
                     const fileStat = fileSystem.statSync(uri);
@@ -840,7 +838,7 @@ function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
 }
 
 function verifyPackageTypes(
-    serviceProvider: ServiceProvider,
+    extensionManager: ExtensionManager,
     packageName: string,
     options: PyrightCommandLineOptions,
     outputJson: boolean,
@@ -848,9 +846,9 @@ function verifyPackageTypes(
     ignoreUnknownTypesFromImports: boolean
 ): ExitStatus {
     try {
-        const host = new FullAccessHost(serviceProvider);
+        const host = new FullAccessHost(extensionManager);
         const verifier = new PackageTypeVerifier(
-            serviceProvider,
+            extensionManager,
             host,
             options,
             packageName,

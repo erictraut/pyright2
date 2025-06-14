@@ -39,7 +39,6 @@ import {
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
-import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
@@ -104,7 +103,7 @@ export class CallHierarchyProvider {
         if (
             !canNavigateToFile(
                 this._program.fileSystem,
-                Uri.parse(callItem.uri, getCaseDetector(this._program.serviceProvider))
+                Uri.parse(callItem.uri, this._program.extensionManager.caseSensitivity)
             )
         ) {
             return null;
@@ -153,7 +152,7 @@ export class CallHierarchyProvider {
         return items.filter((item) =>
             canNavigateToFile(
                 this._program.fileSystem,
-                Uri.parse(item.from.uri, getCaseDetector(this._program.serviceProvider))
+                Uri.parse(item.from.uri, this._program.extensionManager.caseSensitivity)
             )
         );
     }
@@ -228,7 +227,7 @@ export class CallHierarchyProvider {
         return outgoingCalls.filter((item) =>
             canNavigateToFile(
                 this._program.fileSystem,
-                Uri.parse(item.to.uri, getCaseDetector(this._program.serviceProvider))
+                Uri.parse(item.to.uri, this._program.extensionManager.caseSensitivity)
             )
         );
     }

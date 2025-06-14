@@ -35,9 +35,7 @@ import {
 } from 'typeserver/extensibility/cancellationUtils.js';
 import { ConsoleInterface, StandardConsole } from 'typeserver/extensibility/console.js';
 import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { getConsole } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { makeDirectories } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -149,17 +147,17 @@ export class Program {
     constructor(
         initialImportResolver: ImportResolver,
         initialConfigOptions: ConfigOptions,
-        readonly serviceProvider: ServiceProvider,
+        readonly extensionManager: ExtensionManager,
         logTracker?: LogTracker,
         private _disableChecker?: boolean,
         private readonly _maxAnalysisTime?: MaxAnalysisTime | undefined
     ) {
-        this._console = serviceProvider.tryGet(ServiceKeys.console) || new StandardConsole();
+        this._console = extensionManager.console ?? new StandardConsole();
         this._logTracker = logTracker ?? new LogTracker(this._console);
         this._importResolver = initialImportResolver;
         this._configOptions = initialConfigOptions;
 
-        this._cacheManager = serviceProvider.tryGet(ServiceKeys.cacheManager) ?? new CacheManager();
+        this._cacheManager = extensionManager.cacheManager ?? new CacheManager();
         this._cacheManager.registerCacheOwner(this);
         this._createNewEvaluator();
 
@@ -266,7 +264,7 @@ export class Program {
             this._maxAnalysisTime,
             this._configOptions,
             this._onAnalysisCompletion,
-            getConsole(this.serviceProvider),
+            this.extensionManager.console,
             token
         );
     }
@@ -358,7 +356,7 @@ export class Program {
         }
 
         const sourceFile = new SourceFile(
-            this.serviceProvider,
+            this.extensionManager,
             fileUri,
             importName,
             isThirdPartyImport,
@@ -390,7 +388,7 @@ export class Program {
             const moduleImportInfo = this._getModuleImportInfoForFile(fileUri);
 
             const sourceFile = new SourceFile(
-                this.serviceProvider,
+                this.extensionManager,
                 fileUri,
                 moduleImportInfo.moduleName,
                 /* isThirdPartyImport */ false,
@@ -1026,7 +1024,7 @@ export class Program {
         const program = new Program(
             this._importResolver,
             this._configOptions,
-            this.serviceProvider,
+            this.extensionManager,
             new LogTracker(this._console),
             this._disableChecker
         );
@@ -1071,7 +1069,7 @@ export class Program {
         this._discardCachedParseResults();
         this._parsedFileCount = 0;
 
-        // this.serviceProvider.tryGet(ServiceKeys.stateMutationListeners)?.forEach((l) => l.onClearCache?.());
+        // this.extensionManager.stateMutationListeners?.forEach((l) => l.onClearCache?.());
     }
 
     private _handleMemoryHighUsage() {
@@ -1538,7 +1536,7 @@ export class Program {
                     const moduleImportInfo = this._getModuleImportInfoForFile(importInfo.path);
 
                     const sourceFile = new SourceFile(
-                        this.serviceProvider,
+                        this.extensionManager,
                         importInfo.path,
                         moduleImportInfo.moduleName,
                         importInfo.isThirdPartyImport,
@@ -1656,7 +1654,7 @@ export class Program {
         const moduleImportInfo = this._getModuleImportInfoForFile(fileUri);
 
         const sourceFile = new SourceFile(
-            this.serviceProvider,
+            this.extensionManager,
             fileUri,
             moduleImportInfo.moduleName,
             /* isThirdPartyImport */ false,

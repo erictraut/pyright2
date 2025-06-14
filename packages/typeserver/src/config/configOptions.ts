@@ -20,9 +20,8 @@ import {
     getDiagnosticSeverityOverrides,
 } from 'typeserver/config/commandLineOptions.js';
 import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Host } from 'typeserver/extensibility/host.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { FileSpec, getFileSpec, isDirectory } from 'typeserver/files/uriUtils.js';
@@ -1159,9 +1158,9 @@ export class ConfigOptions {
     }
 
     // Initialize the structure from a JSON object.
-    initializeFromJson(configObj: any, configDirUri: Uri, serviceProvider: ServiceProvider, host: Host) {
+    initializeFromJson(configObj: any, configDirUri: Uri, extensionManager: ExtensionManager, host: Host) {
         this.initializedFromJson = true;
-        const console = serviceProvider.tryGet(ServiceKeys.console) ?? new NullConsole();
+        const console = extensionManager.console ?? new NullConsole();
 
         // Read the "include" entry.
         if (configObj.include !== undefined) {

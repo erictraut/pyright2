@@ -15,9 +15,8 @@ import { isDunderName } from 'typeserver/binder/symbolNameUtils.js';
 import { stubsSuffix } from 'typeserver/common/pathConsts.js';
 import { PythonVersion, pythonVersion3_0 } from 'typeserver/common/pythonVersion.js';
 import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/config/configOptions.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Host } from 'typeserver/extensibility/host.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { getConsole, getFs, getPartialStubs, getTmp } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     getFileSystemEntriesFromDirEntries,
@@ -122,20 +121,24 @@ export class ImportResolver {
 
     protected readonly cachedParentImportResults: ParentDirectoryCache;
 
-    constructor(readonly serviceProvider: ServiceProvider, private _configOptions: ConfigOptions, readonly host: Host) {
+    constructor(
+        readonly extensionManager: ExtensionManager,
+        private _configOptions: ConfigOptions,
+        readonly host: Host
+    ) {
         this.cachedParentImportResults = new ParentDirectoryCache(() => this.getPythonSearchPaths([]));
     }
 
     get fileSystem() {
-        return getFs(this.serviceProvider);
+        return this.extensionManager.fs;
     }
 
     get tmp() {
-        return getTmp(this.serviceProvider);
+        return this.extensionManager.tempFile;
     }
 
     get partialStubs() {
-        return getPartialStubs(this.serviceProvider);
+        return this.extensionManager.partialStubs;
     }
 
     static isSupportedImportSourceFile(uri: Uri) {
@@ -637,7 +640,7 @@ export class ImportResolver {
         }
 
         if (this._configOptions.verboseOutput) {
-            const console = getConsole(this.serviceProvider);
+            const console = this.extensionManager.console;
             localImportFailureInfo.forEach((diag) => console.log(diag));
         }
 
@@ -2753,7 +2756,7 @@ export class ImportResolver {
 }
 
 export type ImportResolverFactory = (
-    serviceProvider: ServiceProvider,
+    extensionManager: ExtensionManager,
     options: ConfigOptions,
     host: Host
 ) => ImportResolver;

@@ -22,8 +22,7 @@ import { AnalyzerFileInfo, ImportLookup } from 'typeserver/evaluator/analyzerFil
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { OperationCanceledException } from 'typeserver/extensibility/cancellationUtils.js';
 import { ConsoleInterface, StandardConsole } from 'typeserver/extensibility/console.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -247,7 +246,7 @@ export class SourceFile {
     readonly fileSystem: FileSystem;
 
     constructor(
-        readonly serviceProvider: ServiceProvider,
+        readonly extensionManager: ExtensionManager,
         uri: Uri,
         moduleName: string,
         isThirdPartyImport: boolean,
@@ -257,7 +256,7 @@ export class SourceFile {
         logTracker?: LogTracker,
         ipythonMode?: IPythonMode
     ) {
-        this.fileSystem = serviceProvider.get(ServiceKeys.fs);
+        this.fileSystem = extensionManager.fs;
         this._console = console || new StandardConsole();
         this._writableData = new WriteableData();
 
@@ -1485,11 +1484,11 @@ export class SourceFile {
     }
 
     // private _fireFileDirtyEvent() {
-    //     this.serviceProvider.tryGet(ServiceKeys.stateMutationListeners)?.forEach((l) => {
+    //     this.extensionManager.stateMutationListeners?.forEach((l) => {
     //         try {
     //             l.onFileDirty?.(this._uri);
     //         } catch (ex: any) {
-    //             const console = this.serviceProvider.tryGet(ServiceKeys.console);
+    //             const console = this.extensionManager.console;
     //             if (console) {
     //                 console.error(`State mutation listener exception: ${ex.message}`);
     //             }

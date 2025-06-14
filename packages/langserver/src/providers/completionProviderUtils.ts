@@ -26,7 +26,7 @@ import {
     isModule,
 } from 'typeserver/evaluator/types.js';
 import { isProperty } from 'typeserver/evaluator/typeUtils.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 
 export interface Edits {
@@ -151,7 +151,7 @@ export function getTypeDetail(
 }
 
 export function getCompletionItemDocumentation(
-    serviceProvider: ServiceProvider,
+    extensionManager: ExtensionManager,
     typeDetail: string | undefined,
     documentation: string | undefined,
     markupKind: MarkupKind,

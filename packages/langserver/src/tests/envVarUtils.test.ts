@@ -17,7 +17,7 @@ import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility//console.js';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
@@ -206,11 +206,13 @@ describe('expandPathVariables', () => {
 
 function createWorkspace(rootUri: Uri | undefined) {
     const fs = new TestFileSystem(false);
+    const em = new ExtensionManager(fs, new NullConsole(), fs);
+
     return {
         workspaceName: '',
         rootUri,
         kinds: [WellKnownWorkspaceKinds.Test],
-        service: new TypeService('test service', createServiceProvider(fs), {
+        service: new TypeService('test service', em, {
             typeshedFallbackLoc: typeshedFolder,
             console: new NullConsole(),
             hostFactory: () => new TestAccessHost(),

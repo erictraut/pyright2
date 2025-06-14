@@ -13,7 +13,6 @@ import { LanguageServerBaseInterface, LanguageServerInterface } from 'langserver
 import { TypeServerExecutor } from 'langserver/server/typeServerExecutor.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { OperationCanceledException } from 'typeserver/extensibility/cancellationUtils.js';
-import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 
 export class CreateTypeStubCommand implements ServerCommand {
@@ -25,9 +24,9 @@ export class CreateTypeStubCommand implements ServerCommand {
         if (!cmdParams.arguments || cmdParams.arguments.length < 2) {
             return undefined;
         }
-        const workspaceRoot = Uri.parse(cmdParams.arguments[0] as string, getCaseDetector(this._ls.serviceProvider));
+        const workspaceRoot = Uri.parse(cmdParams.arguments[0] as string, this._ls.extensionManager.caseSensitivity);
         const importName = cmdParams.arguments[1] as string;
-        const callingFile = Uri.parse(cmdParams.arguments[2] as string, getCaseDetector(this._ls.serviceProvider));
+        const callingFile = Uri.parse(cmdParams.arguments[2] as string, this._ls.extensionManager.caseSensitivity);
         const workspace = await this._ls.getWorkspaceForFile(callingFile ?? workspaceRoot);
         return await new TypeStubCreator(this._ls).create(workspace, importName, token);
     }

@@ -10,10 +10,8 @@ import child_process from 'child_process';
 
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { PythonPlatform } from 'typeserver/config/configOptions.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { HostKind, NoAccessHost } from 'typeserver/extensibility/host.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { isDirectory } from 'typeserver/files/uriUtils.js';
 import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
@@ -62,7 +60,7 @@ export class LimitedAccessHost extends NoAccessHost {
 }
 
 export class FullAccessHost extends LimitedAccessHost {
-    constructor(protected serviceProvider: ServiceProvider) {
+    constructor(protected extensionManager: ExtensionManager) {
         super();
     }
 
@@ -70,14 +68,14 @@ export class FullAccessHost extends LimitedAccessHost {
         return HostKind.FullAccess;
     }
 
-    static createHost(kind: HostKind, serviceProvider: ServiceProvider) {
+    static createHost(kind: HostKind, extensionManager: ExtensionManager) {
         switch (kind) {
             case HostKind.NoAccess:
                 return new NoAccessHost();
             case HostKind.LimitedAccess:
                 return new LimitedAccessHost();
             case HostKind.FullAccess:
-                return new FullAccessHost(serviceProvider);
+                return new FullAccessHost(extensionManager);
             default:
                 assertNever(kind);
         }
@@ -210,7 +208,7 @@ export class FullAccessHost extends LimitedAccessHost {
         try {
             importFailureInfo.push(`Executing interpreter: '${interpreterPath}'`);
             const execOutput = this._executeCodeInInterpreter(interpreterPath, [], extractSys);
-            const caseDetector = this.serviceProvider.get(ServiceKeys.caseSensitivityDetector);
+            const caseDetector = this.extensionManager.caseSensitivity;
 
             // Parse the execOutput. It should be a JSON-encoded array of paths.
             try {
@@ -220,7 +218,7 @@ export class FullAccessHost extends LimitedAccessHost {
                     if (execSplitEntry) {
                         const normalizedPath = normalizePath(execSplitEntry);
                         const normalizedUri = Uri.file(normalizedPath, caseDetector);
-                        const fs = getFs(this.serviceProvider);
+                        const fs = this.extensionManager.fs;
 
                         // Skip non-existent paths and broken zips/eggs.
                         if (fs.existsSync(normalizedUri) && isDirectory(fs, normalizedUri)) {

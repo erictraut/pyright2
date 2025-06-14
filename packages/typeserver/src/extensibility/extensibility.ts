@@ -14,7 +14,7 @@ import { Range } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -78,7 +78,7 @@ export interface IProgramView {
     readonly configOptions: ConfigOptions;
     readonly importResolver: ImportResolver;
     readonly fileSystem: ReadOnlyFileSystem;
-    readonly serviceProvider: ServiceProvider;
+    readonly extensionManager: ExtensionManager;
 
     owns(uri: Uri): boolean;
     getSourceFileInfoList(): readonly ISourceFileInfo[];

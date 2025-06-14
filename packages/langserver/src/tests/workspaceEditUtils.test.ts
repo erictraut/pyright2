@@ -17,7 +17,6 @@ import { createInitStatus, WellKnownWorkspaceKinds, Workspace } from 'langserver
 import { TestLanguageService } from 'langserver/tests/harness/fourslash/testLanguageService.js';
 import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { verifyWorkspaceEdit } from 'langserver/tests/harness/fourslash/workspaceEditTestUtils.js';
-import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeService } from 'typeserver/service/typeService.js';
@@ -63,7 +62,7 @@ test('test edit mode for workspace', async () => {
     const range = state.getRangeByMarkerName('marker')!;
     const addedFileUri = Uri.file(
         combinePaths(getDirectoryPath(range.fileName), 'test2.py'),
-        getCaseDetector(state.serviceProvider)
+        state.extensionManager.caseSensitivity
     );
     const edits = state.workspace.service.runEditMode((program) => {
         const fileChanged = new Map<string, Uri>();

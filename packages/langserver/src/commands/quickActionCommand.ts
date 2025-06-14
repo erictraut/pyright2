@@ -12,7 +12,6 @@ import { ServerCommand } from 'langserver/commands/commandController.js';
 import { performQuickAction } from 'langserver/providers/quickActions.js';
 import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
 import { convertToFileTextEdits, convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
-import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 
 export class QuickActionCommand implements ServerCommand {
@@ -20,7 +19,7 @@ export class QuickActionCommand implements ServerCommand {
 
     async execute(params: ExecuteCommandParams, token: CancellationToken): Promise<any> {
         if (params.arguments && params.arguments.length >= 1) {
-            const docUri = Uri.parse(params.arguments[0] as string, getCaseDetector(this._ls.serviceProvider));
+            const docUri = Uri.parse(params.arguments[0] as string, this._ls.extensionManager.caseSensitivity);
             const otherArgs = params.arguments.slice(1);
             const workspace = await this._ls.getWorkspaceForFile(docUri);
 

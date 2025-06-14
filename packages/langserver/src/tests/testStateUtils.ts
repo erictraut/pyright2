@@ -16,7 +16,6 @@ import { FileEditAction, FileEditActions } from 'typeserver/common/editAction.js
 import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.js';
 import { TextRange, rangesAreEqual } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { isFile } from 'typeserver/files/uriUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
@@ -71,7 +70,7 @@ export function applyFileEditActions(state: TestState, fileEditActions: FileEdit
 
     for (const [editFileName, editsPerFile] of editsPerFileMap) {
         const result = _applyEdits(state, editFileName, editsPerFile);
-        state.testFS.writeFileSync(Uri.file(editFileName, getCaseDetector(state.serviceProvider)), result.text, 'utf8');
+        state.testFS.writeFileSync(Uri.file(editFileName, state.extensionManager.caseSensitivity), result.text, 'utf8');
 
         // Update open file content if the file is in opened state.
         if (result.version) {
@@ -85,7 +84,7 @@ export function applyFileEditActions(state: TestState, fileEditActions: FileEdit
             }
 
             state.program.setFileOpened(
-                Uri.file(openedFilePath, getCaseDetector(state.serviceProvider)),
+                Uri.file(openedFilePath, state.extensionManager.caseSensitivity),
                 result.version + 1,
                 result.text
             );
@@ -133,7 +132,7 @@ export function applyFileEditActions(state: TestState, fileEditActions: FileEdit
 }
 
 function _applyEdits(state: TestState, filePath: string, edits: FileEditAction[]) {
-    const sourceFile = state.program.getBoundSourceFile(Uri.file(filePath, getCaseDetector(state.serviceProvider)))!;
+    const sourceFile = state.program.getBoundSourceFile(Uri.file(filePath, state.extensionManager.caseSensitivity))!;
     const parseResults = sourceFile.getParseResults()!;
 
     const current = applyTextEditsToString(
@@ -153,7 +152,7 @@ export function verifyReferencesAtPosition(
     position: number,
     ranges: Range[]
 ) {
-    const sourceFile = program.getBoundSourceFile(Uri.file(fileName, getCaseDetector(program.serviceProvider)));
+    const sourceFile = program.getBoundSourceFile(Uri.file(fileName, program.extensionManager.caseSensitivity));
     assert(sourceFile);
 
     const node = findNodeByOffset(sourceFile.getParseResults()!.parserOutput.parseTree, position);
@@ -171,7 +170,7 @@ export function verifyReferencesAtPosition(
             isArray(symbolNames) ? symbolNames : [symbolNames],
             decls,
             program
-                .getBoundSourceFile(Uri.file(rangeFileName, getCaseDetector(program.serviceProvider)))!
+                .getBoundSourceFile(Uri.file(rangeFileName, program.extensionManager.caseSensitivity))!
                 .getParseResults()!.parserOutput.parseTree,
             CancellationToken.None,
             {

@@ -29,7 +29,7 @@ import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator
 import { doForEachSubtype } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
@@ -147,7 +147,7 @@ class DefinitionProviderBase {
     protected constructor(
         protected readonly sourceMapper: SourceMapper,
         protected readonly evaluator: TypeEvaluator,
-        private readonly _serviceProvider: ServiceProvider | undefined,
+        private readonly _extensionManager: ExtensionManager | undefined,
         protected readonly node: ParseNode | undefined,
         protected readonly offset: number,
         private readonly _filter: DefinitionFilter,
@@ -217,7 +217,7 @@ export class DefinitionProvider extends DefinitionProviderBase {
         const parseResults = program.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
-        super(sourceMapper, program.evaluator!, program.serviceProvider, node, offset, filter, token);
+        super(sourceMapper, program.evaluator!, program.extensionManager, node, offset, filter, token);
     }
 
     static getDefinitionsForNode(
@@ -256,7 +256,7 @@ export class TypeDefinitionProvider extends DefinitionProviderBase {
         const parseResults = program.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
-        super(sourceMapper, program.evaluator!, program.serviceProvider, node, offset, DefinitionFilter.All, token);
+        super(sourceMapper, program.evaluator!, program.extensionManager, node, offset, DefinitionFilter.All, token);
         this._fileUri = fileUri;
     }
 

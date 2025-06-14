@@ -193,9 +193,7 @@ export function getCancellationTokenFromId(cancellationId: string) {
 
 let cancellationSourceId = 0;
 export class FileBasedCancellationProvider implements CancellationProvider {
-    constructor(private _prefix: string) {
-        // empty
-    }
+    constructor() {}
 
     createCancellationTokenSource(): AbstractCancellationTokenSource {
         const folderName = getCancellationFolderName();
@@ -206,7 +204,7 @@ export class FileBasedCancellationProvider implements CancellationProvider {
         }
 
         return new FileBasedCancellationTokenSource(
-            getCancellationFileUri(folderName, `${this._prefix}-${String(cancellationSourceId++)}`),
+            getCancellationFileUri(folderName, String(cancellationSourceId++)),
             /* ownFile */ true
         );
     }

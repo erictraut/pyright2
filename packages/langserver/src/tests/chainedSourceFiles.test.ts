@@ -17,7 +17,7 @@ import { createFromFileSystem, typeshedFolder } from 'langserver/tests/harness/v
 import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { Program } from 'typeserver/program/program.js';
@@ -257,7 +257,10 @@ test('re ordering cells', async () => {
 function createServiceWithChainedSourceFiles(basePath: Uri, code: string) {
     const fs = createFromFileSystem(host.HOST, /* ignoreCase */ false, { cwd: basePath.getFilePath() });
     const typeshedFallbackLoc = typeshedFolder;
-    const service = new TypeService('test service', new ServiceProvider(), {
+    const console = new NullConsole();
+    const extensionManager = new ExtensionManager(fs, console, fs);
+
+    const service = new TypeService('test service', extensionManager, {
         typeshedFallbackLoc,
         console: new NullConsole(),
         importResolverFactory: TypeService.createImportResolver,

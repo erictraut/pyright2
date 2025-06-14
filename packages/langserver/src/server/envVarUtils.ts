@@ -9,7 +9,6 @@
 import os from 'os';
 
 import { Workspace, WorkspaceFolder } from 'langserver/server/workspaceFactory.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { escapeRegExp } from 'typeserver/utils/stringUtils.js';
@@ -22,7 +21,7 @@ export function resolvePathWithEnvVariables(
     const rootUri = workspace.rootUri;
 
     const expanded = expandPathVariables(path, rootUri ?? Uri.empty(), workspaces);
-    const caseDetector = workspace.service.serviceProvider.get(ServiceKeys.caseSensitivityDetector);
+    const caseDetector = workspace.service.extensionManager.caseSensitivity;
     if (Uri.maybeUri(expanded)) {
         // If path is expanded to uri, no need to resolve it against the workspace root.
         return Uri.parse(normalizeSlashes(expanded, '/'), caseDetector);

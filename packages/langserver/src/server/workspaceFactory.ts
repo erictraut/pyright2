@@ -11,8 +11,7 @@ import {
 } from 'vscode-languageserver';
 
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { createDeferred } from 'typeserver/utils/deferred.js';
@@ -110,7 +109,7 @@ export class WorkspaceFactory {
         private readonly _createService: CreateServiceFunction,
         private readonly _onWorkspaceCreated: (workspace: AllWorkspace) => void,
         private readonly _onWorkspaceRemoved: (workspace: AllWorkspace) => void,
-        private readonly _serviceProvider: ServiceProvider
+        private readonly _extensionManager: ExtensionManager
     ) {
         this._console.log(`WorkspaceFactory ${this._id} created`);
     }
@@ -119,12 +118,12 @@ export class WorkspaceFactory {
         // Create a service instance for each of the workspace folders.
         if (params.workspaceFolders) {
             params.workspaceFolders.forEach((folder) => {
-                this._add(Uri.parse(folder.uri, getCaseDetector(this._serviceProvider)), folder.name, [
+                this._add(Uri.parse(folder.uri, this._extensionManager.caseSensitivity), folder.name, [
                     WellKnownWorkspaceKinds.Regular,
                 ]);
             });
         } else if (params.rootPath) {
-            this._add(Uri.file(params.rootPath, getCaseDetector(this._serviceProvider)), '', [
+            this._add(Uri.file(params.rootPath, this._extensionManager.caseSensitivity), '', [
                 WellKnownWorkspaceKinds.Regular,
             ]);
         }
@@ -132,7 +131,7 @@ export class WorkspaceFactory {
 
     handleWorkspaceFoldersChanged(params: WorkspaceFoldersChangeEvent, workspaces: lspWorkspaceFolder[] | null) {
         params.removed.forEach((workspaceInfo) => {
-            const uri = Uri.parse(workspaceInfo.uri, getCaseDetector(this._serviceProvider));
+            const uri = Uri.parse(workspaceInfo.uri, this._extensionManager.caseSensitivity);
             // Delete all workspaces for this folder. Even the ones generated for notebook kernels.
             const workspaces = this.getNonDefaultWorkspaces().filter((w) => w.rootUri.equals(uri));
             workspaces.forEach((w) => {
@@ -141,7 +140,7 @@ export class WorkspaceFactory {
         });
 
         params.added.forEach((workspaceInfo) => {
-            const uri = Uri.parse(workspaceInfo.uri, getCaseDetector(this._serviceProvider));
+            const uri = Uri.parse(workspaceInfo.uri, this._extensionManager.caseSensitivity);
 
             // Add the new workspace.
             this._add(uri, workspaceInfo.name, [WellKnownWorkspaceKinds.Regular]);
@@ -153,7 +152,7 @@ export class WorkspaceFactory {
                 (w) => !params.added.some((a) => a.uri === w.uri) && !params.removed.some((a) => a.uri === w.uri)
             ) ?? [];
         foldersToCheck.forEach((workspaceInfo) => {
-            const uri = Uri.parse(workspaceInfo.uri, getCaseDetector(this._serviceProvider));
+            const uri = Uri.parse(workspaceInfo.uri, this._extensionManager.caseSensitivity);
 
             const workspaces = this.getNonDefaultWorkspaces().filter(
                 (w) => w.rootUri.equals(uri) && w.workspaceName !== workspaceInfo.name

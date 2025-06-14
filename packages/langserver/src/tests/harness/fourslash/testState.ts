@@ -88,13 +88,8 @@ import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Host } from 'typeserver/extensibility/host.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import {
-    createServiceProvider,
-    getCaseDetector,
-    getConsole,
-} from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
@@ -147,7 +142,7 @@ export class TestState {
     readonly workspace: NormalWorkspace;
     readonly console: ConsoleInterface;
     readonly rawConfigJson: any | undefined;
-    readonly serviceProvider: ServiceProvider;
+    readonly extensionManager: ExtensionManager;
 
     // The current caret position in the active file
     currentCaretPosition = 0;
@@ -186,7 +181,9 @@ export class TestState {
         this.fs = new PyrightFileSystem(this.testFS);
         this.console = new ConsoleWithLogLevel(new NullConsole(), 'test');
         const ps = new PartialStubService(this.fs);
-        this.serviceProvider = createServiceProvider(this.testFS, this.fs, this.console, ps);
+        const em = new ExtensionManager(this.testFS, this.console, this.testFS);
+        em.partialStubs = ps;
+        this.extensionManager = em;
 
         this._cancellationToken = new TestCancellationToken();
         this._hostSpecificFeatures = hostSpecificFeatures ?? new TestFeatures();
@@ -201,14 +198,10 @@ export class TestState {
         );
 
         if (this.rawConfigJson) {
-            const configDirUri = Uri.file(projectRoot, getCaseDetector(this.serviceProvider));
+            const configDirUri = Uri.file(projectRoot, this.extensionManager.caseSensitivity);
             configOptions.initializeTypeCheckingMode('standard');
-            configOptions.initializeFromJson(this.rawConfigJson, configDirUri, this.serviceProvider, testAccessHost);
-            configOptions.setupExecutionEnvironments(
-                this.rawConfigJson,
-                configDirUri,
-                getConsole(this.serviceProvider)
-            );
+            configOptions.initializeFromJson(this.rawConfigJson, configDirUri, this.extensionManager, testAccessHost);
+            configOptions.setupExecutionEnvironments(this.rawConfigJson, configDirUri, this.extensionManager.console);
             this._applyTestConfigOptions(configOptions);
         }
 
@@ -221,7 +214,7 @@ export class TestState {
 
         this.workspace = {
             workspaceName: 'test workspace',
-            rootUri: Uri.file(vfsInfo.projectRoot, getCaseDetector(this.serviceProvider)),
+            rootUri: Uri.file(vfsInfo.projectRoot, this.extensionManager.caseSensitivity),
             kinds: [WellKnownWorkspaceKinds.Test],
             service: service,
             disableLanguageServices: false,
@@ -268,15 +261,15 @@ export class TestState {
             const file = this._vfsFiles[filePath] as vfs.File;
             if (file.meta?.[MetadataOptionNames.ipythonMode]) {
                 this.program
-                    .getSourceFile(Uri.file(filePath, getCaseDetector(this.serviceProvider)))
+                    .getSourceFile(Uri.file(filePath, this.extensionManager.caseSensitivity))
                     ?.test_enableIPythonMode(true);
             }
             if (file.meta?.[MetadataOptionNames.chainedTo]) {
                 const chainedTo = file.meta[MetadataOptionNames.chainedTo] as string;
-                const to = this.program.getSourceFile(Uri.file(chainedTo, getCaseDetector(this.serviceProvider)));
+                const to = this.program.getSourceFile(Uri.file(chainedTo, this.extensionManager.caseSensitivity));
                 if (to) {
                     this.program.updateChainedUri(
-                        Uri.file(filePath, getCaseDetector(this.serviceProvider)),
+                        Uri.file(filePath, this.extensionManager.caseSensitivity),
                         to.getUri()
                     );
                 }
@@ -318,7 +311,7 @@ export class TestState {
     }
 
     getMappedFilePath(path: string): string {
-        const uri = Uri.file(path, getCaseDetector(this.serviceProvider));
+        const uri = Uri.file(path, this.extensionManager.caseSensitivity);
         this.importResolver.ensurePartialStubPackages(this.configOptions.findExecEnvironment(uri));
         return this.fs.getMappedUri(uri).getFilePath();
     }
@@ -735,14 +728,14 @@ export class TestState {
         }
 
         // Local copy to use in capture.
-        const serviceProvider = this.serviceProvider;
+        const extensionManager = this.extensionManager;
         for (const range of this.getRanges()) {
             const name = this.getMarkerName(range.marker!);
             if (!map[name]) {
                 continue;
             }
 
-            const uri = Uri.file(range.fileName, getCaseDetector(this.serviceProvider));
+            const uri = Uri.file(range.fileName, this.extensionManager.caseSensitivity);
             const sourceFile = this.program.getSourceFile(uri);
             if (!sourceFile) {
                 this.raiseError(`source file not found: ${range.fileName}`);
@@ -790,7 +783,7 @@ export class TestState {
                 if (verifyMode === 'excluded' && matches.length > 0) {
                     this.raiseError(`unexpected result: ${stringify(map[name])}`);
                 } else if (verifyMode !== 'excluded' && matches.length !== 1) {
-                    const uri = Uri.file('test2.py', getCaseDetector(this.serviceProvider));
+                    const uri = Uri.file('test2.py', this.extensionManager.caseSensitivity);
                     const sourceFile = this.program.getSourceFile(uri);
                     const symbolsInTest2 = sourceFile
                         ? ', symbols in test2.py: ' +
@@ -823,7 +816,7 @@ export class TestState {
                     // Might be a URI. For comparison purposes in a test, convert it into a
                     // file path.
                     if (a.startsWith('file://')) {
-                        return normalizeSlashes(Uri.parse(a, getCaseDetector(serviceProvider)).getFilePath());
+                        return normalizeSlashes(Uri.parse(a, extensionManager.caseSensitivity).getFilePath());
                     }
                     return normalizeSlashes(a);
                 }
@@ -839,7 +832,7 @@ export class TestState {
         // Convert command arguments to file Uri strings. That's the expected input for command arguments.
         const convertedArgs = command.arguments?.map((arg) => {
             if (typeof arg === 'string' && (arg.endsWith('.py') || arg.endsWith('.pyi'))) {
-                return Uri.file(arg, getCaseDetector(this.serviceProvider)).toString();
+                return Uri.file(arg, this.extensionManager.caseSensitivity).toString();
             }
             return arg;
         });
@@ -1156,7 +1149,7 @@ export class TestState {
 
             const actual = new SignatureHelpProvider(
                 this.program,
-                Uri.file(fileName, getCaseDetector(this.serviceProvider)),
+                Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 docFormat,
                 /* hasSignatureLabelOffsetCapability */ true,
@@ -1236,7 +1229,7 @@ export class TestState {
             expected = expected.map((c) => {
                 return {
                     ...c,
-                    uri: c.uri ?? Uri.file((c as any).path, getCaseDetector(this.serviceProvider)),
+                    uri: c.uri ?? Uri.file((c as any).path, this.extensionManager.caseSensitivity),
                 };
             });
 
@@ -1248,7 +1241,7 @@ export class TestState {
                 createDocumentRange,
                 convertToLocation
             ).reportReferences(
-                Uri.file(fileName, getCaseDetector(this.serviceProvider)),
+                Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 /* includeDeclaration */ true
             );
@@ -1282,7 +1275,7 @@ export class TestState {
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new CallHierarchyProvider(
                 this.program,
-                Uri.file(fileName, getCaseDetector(this.serviceProvider)),
+                Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
             ).getIncomingCalls();
@@ -1297,7 +1290,7 @@ export class TestState {
                     assert.strictEqual(expectedName?.filter((e) => this._deepEqual(a.from.name, e)).length, 1);
                     assert.ok(
                         expectedFilePath?.filter((e) =>
-                            this._deepEqual(a.from.uri, Uri.file(e, getCaseDetector(this.serviceProvider)).toString())
+                            this._deepEqual(a.from.uri, Uri.file(e, this.extensionManager.caseSensitivity).toString())
                         ).length >= 1
                     );
                 }
@@ -1327,7 +1320,7 @@ export class TestState {
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new CallHierarchyProvider(
                 this.program,
-                Uri.file(fileName, getCaseDetector(this.serviceProvider)),
+                Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
             ).getOutgoingCalls();
@@ -1341,7 +1334,7 @@ export class TestState {
                     assert.strictEqual(expectedName?.filter((e) => this._deepEqual(a.to.name, e)).length, 1);
                     assert.ok(
                         expectedFilePath?.filter((e) =>
-                            this._deepEqual(a.to.uri, Uri.file(e, getCaseDetector(this.serviceProvider)).toString())
+                            this._deepEqual(a.to.uri, Uri.file(e, this.extensionManager.caseSensitivity).toString())
                         ).length >= 1
                     );
                 }
@@ -1379,7 +1372,7 @@ export class TestState {
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new DocumentHighlightProvider(
                 this.program,
-                Uri.file(fileName, getCaseDetector(this.serviceProvider)),
+                Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
             ).getDocumentHighlight();
@@ -1426,7 +1419,7 @@ export class TestState {
             }
 
             const expected = map[name].definitions;
-            const uri = Uri.file(fileName, getCaseDetector(this.serviceProvider));
+            const uri = Uri.file(fileName, this.extensionManager.caseSensitivity);
             // If we're going to def from a file, act like it's open.
             if (!this.program.getSourceFileInfo(uri)) {
                 const file = this.testData.files.find((v) => v.fileName === fileName);
@@ -1477,7 +1470,7 @@ export class TestState {
             const position = this.convertOffsetToPosition(fileName, marker.position);
             let actual = new TypeDefinitionProvider(
                 this.program,
-                Uri.file(fileName, getCaseDetector(this.serviceProvider)),
+                Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
             ).getDefinitions();
@@ -1514,7 +1507,7 @@ export class TestState {
             expected.changes = expected.changes.map((c) => {
                 return {
                     ...c,
-                    fileUri: c.fileUri ?? Uri.file((c as any).filePath, getCaseDetector(this.serviceProvider)),
+                    fileUri: c.fileUri ?? Uri.file((c as any).filePath, this.extensionManager.caseSensitivity),
                 };
             });
 
@@ -1522,8 +1515,8 @@ export class TestState {
             const actual = new RenameProvider(
                 this.program,
                 isUntitled
-                    ? Uri.parse(`untitled:${fileName.replace(/\\/g, '/')}`, getCaseDetector(this.serviceProvider))
-                    : Uri.file(fileName, getCaseDetector(this.serviceProvider)),
+                    ? Uri.parse(`untitled:${fileName.replace(/\\/g, '/')}`, this.extensionManager.caseSensitivity)
+                    : Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
             ).renameSymbol(expected.newName, /* isDefaultWorkspace */ false, isUntitled);
@@ -1548,7 +1541,7 @@ export class TestState {
         commandLineOptions.configSettings.typeshedFallbackPath = typeshedFolder.toString();
         commandLineOptions.configSettings.verboseOutput = verboseOutput;
         const verifier = new PackageTypeVerifier(
-            this.serviceProvider,
+            this.extensionManager,
             testAccessHost,
             commandLineOptions,
             packageName,
@@ -1636,7 +1629,7 @@ export class TestState {
 
         const provider = new CompletionProvider(
             this.program,
-            Uri.file(filePath, getCaseDetector(this.serviceProvider)),
+            Uri.file(filePath, this.extensionManager.caseSensitivity),
             completionPosition,
             options,
             CancellationToken.None
@@ -1737,7 +1730,7 @@ export class TestState {
         host: Host
     ) {
         // Do not initiate automatic analysis or file watcher in test.
-        const service = new TypeService('test service', this.serviceProvider, {
+        const service = new TypeService('test service', this.extensionManager, {
             typeshedFallbackLoc: typeshedFolder,
             console: nullConsole,
             hostFactory: () => host,
@@ -1754,7 +1747,7 @@ export class TestState {
                     const fileExtension = getFileExtension(path).toLowerCase();
                     return fileExtension === '.py' || fileExtension === '.pyi';
                 })
-                .map((path) => Uri.file(path, getCaseDetector(this.serviceProvider)))
+                .map((path) => Uri.file(path, this.extensionManager.caseSensitivity))
                 .filter((path) => service.isTracked(path))
         );
 
@@ -1767,7 +1760,7 @@ export class TestState {
         mountPaths?: Map<string, string>
     ): ConfigOptions {
         const configOptions = new ConfigOptions(
-            Uri.file(projectRoot, getCaseDetector(this.serviceProvider)),
+            Uri.file(projectRoot, this.extensionManager.caseSensitivity),
             typeshedFallbackLoc
         );
 
@@ -1789,7 +1782,7 @@ export class TestState {
 
         // make sure we set typing path
         if (configOptions.stubPath === undefined) {
-            configOptions.stubPath = Uri.file(vfs.MODULE_PATH, getCaseDetector(this.serviceProvider)).combinePaths(
+            configOptions.stubPath = Uri.file(vfs.MODULE_PATH, this.extensionManager.caseSensitivity).combinePaths(
                 'typings'
             );
         }
@@ -1813,7 +1806,7 @@ export class TestState {
     }
 
     private _getParserOutput(fileName: string) {
-        const file = this.program.getBoundSourceFile(Uri.file(fileName, getCaseDetector(this.serviceProvider)))!;
+        const file = this.program.getBoundSourceFile(Uri.file(fileName, this.extensionManager.caseSensitivity))!;
         return file?.getParseResults();
     }
 
@@ -1826,7 +1819,7 @@ export class TestState {
         }
 
         // slow path
-        const fileContents = this.fs.readFileSync(Uri.file(fileName, getCaseDetector(this.serviceProvider)), 'utf8');
+        const fileContents = this.fs.readFileSync(Uri.file(fileName, this.extensionManager.caseSensitivity), 'utf8');
         const tokenizer = new Tokenizer();
         return tokenizer.tokenize(fileContents).lines;
     }
@@ -1845,7 +1838,7 @@ export class TestState {
     private _editScriptAndUpdateMarkers(fileName: string, editStart: number, editEnd: number, newText: string) {
         let fileContent = this.getFileContent(fileName);
         fileContent = fileContent.slice(0, editStart) + newText + fileContent.slice(editEnd);
-        const uri = Uri.file(fileName, getCaseDetector(this.serviceProvider));
+        const uri = Uri.file(fileName, this.extensionManager.caseSensitivity);
 
         this.testFS.writeFileSync(uri, fileContent, 'utf8');
         const newVersion = (this.program.getSourceFile(uri)?.getClientVersion() ?? -1) + 1;
@@ -2001,7 +1994,7 @@ export class TestState {
 
     private _getDiagnosticsPerFile() {
         const sourceFiles = this.files.map((f) =>
-            this.program.getSourceFile(Uri.file(f, getCaseDetector(this.serviceProvider)))
+            this.program.getSourceFile(Uri.file(f, this.extensionManager.caseSensitivity))
         );
         const results = sourceFiles.map((sourceFile, index) => {
             if (sourceFile) {
@@ -2046,7 +2039,7 @@ export class TestState {
     }
 
     private async _waitForFile(filePath: string) {
-        const uri = Uri.file(filePath, getCaseDetector(this.serviceProvider));
+        const uri = Uri.file(filePath, this.extensionManager.caseSensitivity);
         while (!this.fs.existsSync(uri)) {
             await new Promise<void>((res) =>
                 setTimeout(() => {
@@ -2080,7 +2073,7 @@ export class TestState {
             await this._waitForFile(normalizedFilePath);
 
             const actual = this.fs.readFileSync(
-                Uri.file(normalizedFilePath, getCaseDetector(this.serviceProvider)),
+                Uri.file(normalizedFilePath, this.extensionManager.caseSensitivity),
                 'utf8'
             );
             if (actual !== expected) {

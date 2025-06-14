@@ -44,10 +44,9 @@ import {
     specializeForBaseClass,
 } from 'typeserver/evaluator/typeUtils.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { getCaseDetector, getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { tryStat, UriEx } from 'typeserver/files/uriUtils.js';
 import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -79,13 +78,13 @@ export class PackageTypeVerifier {
     private _program: Program;
 
     constructor(
-        private _serviceProvider: ServiceProvider,
+        private _extensionManager: ExtensionManager,
         private _host: Host,
         commandLineOptions: CommandLineOptions,
         private _packageName: string,
         private _ignoreExternal = false
     ) {
-        const host = new FullAccessHost(_serviceProvider);
+        const host = new FullAccessHost(_extensionManager);
         const typeshedFallbackUri = commandLineOptions.configSettings.typeshedFallbackPath
             ? UriEx.file(commandLineOptions.configSettings.typeshedFallbackPath)
             : undefined;
@@ -110,9 +109,9 @@ export class PackageTypeVerifier {
             this._configOptions.evaluateUnknownImportsAsAny = true;
         }
 
-        this._execEnv = this._configOptions.findExecEnvironment(Uri.file('.', getCaseDetector(_serviceProvider)));
-        this._importResolver = new ImportResolver(this._serviceProvider, this._configOptions, this._host);
-        this._program = new Program(this._importResolver, this._configOptions, this._serviceProvider);
+        this._execEnv = this._configOptions.findExecEnvironment(Uri.file('.', _extensionManager.caseSensitivity));
+        this._importResolver = new ImportResolver(this._extensionManager, this._configOptions, this._host);
+        this._program = new Program(this._importResolver, this._configOptions, this._extensionManager);
     }
 
     verify(): PackageTypeReport {
@@ -252,7 +251,7 @@ export class PackageTypeVerifier {
         // Find the deepest py.typed file that corresponds to the requested submodule.
         while (subNameParts.length >= 1) {
             const packageSubdir = rootDirectory.combinePaths(...subNameParts.slice(1));
-            const fs = getFs(this._serviceProvider);
+            const fs = this._extensionManager.fs;
             const pyTypedInfo = getPyTypedInfo(fs, packageSubdir);
             if (pyTypedInfo) {
                 return pyTypedInfo;
@@ -450,7 +449,7 @@ export class PackageTypeVerifier {
         modulePath: string,
         publicModules: string[]
     ) {
-        const fs = getFs(this._serviceProvider);
+        const fs = this._extensionManager.fs;
         const dirEntries = fs.readdirEntriesSync(dirPath);
 
         dirEntries.forEach((entry) => {

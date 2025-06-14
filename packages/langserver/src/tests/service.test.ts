@@ -10,7 +10,6 @@ import { typeshedFolder } from 'langserver/tests//harness/vfs/factory.js';
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
-import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
@@ -22,8 +21,8 @@ test('random library file changed', () => {
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleLibraryFileWatchChanges(
-            Uri.file('/site-packages/test.py', getCaseDetector(state.serviceProvider)),
-            [Uri.file('/site-packages', getCaseDetector(state.serviceProvider))]
+            Uri.file('/site-packages/test.py', state.extensionManager.caseSensitivity),
+            [Uri.file('/site-packages', state.extensionManager.caseSensitivity)]
         ),
         true
     );
@@ -34,8 +33,8 @@ test('random library file starting with . changed', () => {
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleLibraryFileWatchChanges(
-            Uri.file('/site-packages/.test.py', getCaseDetector(state.serviceProvider)),
-            [Uri.file('/site-packages', getCaseDetector(state.serviceProvider))]
+            Uri.file('/site-packages/.test.py', state.extensionManager.caseSensitivity),
+            [Uri.file('/site-packages', state.extensionManager.caseSensitivity)]
         ),
         false
     );
@@ -46,10 +45,10 @@ test('random library file changed, nested search paths', () => {
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleLibraryFileWatchChanges(
-            Uri.file('/lib/.venv/site-packages/myFile.py', getCaseDetector(state.serviceProvider)),
+            Uri.file('/lib/.venv/site-packages/myFile.py', state.extensionManager.caseSensitivity),
             [
-                Uri.file('/lib', getCaseDetector(state.serviceProvider)),
-                Uri.file('/lib/.venv/site-packages', getCaseDetector(state.serviceProvider)),
+                Uri.file('/lib', state.extensionManager.caseSensitivity),
+                Uri.file('/lib/.venv/site-packages', state.extensionManager.caseSensitivity),
             ]
         ),
         true
@@ -65,10 +64,10 @@ test('random library file changed, nested search paths, fs is not case sensitive
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleLibraryFileWatchChanges(
-            Uri.file('/lib/.venv/site-packages/myFile.py', getCaseDetector(state.serviceProvider)),
+            Uri.file('/lib/.venv/site-packages/myFile.py', state.extensionManager.caseSensitivity),
             [
-                Uri.file('/lib', getCaseDetector(state.serviceProvider)),
-                Uri.file('/LIB/.venv/site-packages', getCaseDetector(state.serviceProvider)),
+                Uri.file('/lib', state.extensionManager.caseSensitivity),
+                Uri.file('/LIB/.venv/site-packages', state.extensionManager.caseSensitivity),
             ]
         ),
         true
@@ -84,10 +83,10 @@ test('random library file changed, nested search paths, fs is case sensitive', (
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleLibraryFileWatchChanges(
-            Uri.file('/lib/.venv/site-packages/myFile.py', getCaseDetector(state.serviceProvider)),
+            Uri.file('/lib/.venv/site-packages/myFile.py', state.extensionManager.caseSensitivity),
             [
-                Uri.file('/lib', getCaseDetector(state.serviceProvider)),
-                Uri.file('/LIB/.venv/site-packages', getCaseDetector(state.serviceProvider)),
+                Uri.file('/lib', state.extensionManager.caseSensitivity),
+                Uri.file('/LIB/.venv/site-packages', state.extensionManager.caseSensitivity),
             ]
         ),
         false
@@ -103,10 +102,10 @@ test('random library file starting with . changed, fs is not case sensitive', ()
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleLibraryFileWatchChanges(
-            Uri.file('/lib/.test.py', getCaseDetector(state.serviceProvider)),
+            Uri.file('/lib/.test.py', state.extensionManager.caseSensitivity),
             [
-                Uri.file('/LIB', getCaseDetector(state.serviceProvider)),
-                Uri.file('/lib/site-packages', getCaseDetector(state.serviceProvider)),
+                Uri.file('/LIB', state.extensionManager.caseSensitivity),
+                Uri.file('/lib/site-packages', state.extensionManager.caseSensitivity),
             ]
         ),
         false
@@ -122,10 +121,10 @@ test('random library file starting with . changed, fs is case sensitive', () => 
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleLibraryFileWatchChanges(
-            Uri.file('/lib/.test.py', getCaseDetector(state.serviceProvider)),
+            Uri.file('/lib/.test.py', state.extensionManager.caseSensitivity),
             [
-                Uri.file('/LIB', getCaseDetector(state.serviceProvider)),
-                Uri.file('/lib/site-packages', getCaseDetector(state.serviceProvider)),
+                Uri.file('/LIB', state.extensionManager.caseSensitivity),
+                Uri.file('/lib/site-packages', state.extensionManager.caseSensitivity),
             ]
         ),
         true
@@ -137,8 +136,8 @@ test('random library file under a folder starting with . changed', () => {
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleLibraryFileWatchChanges(
-            Uri.file('/site-packages/.testFolder/test.py', getCaseDetector(state.serviceProvider)),
-            [Uri.file('/site-packages', getCaseDetector(state.serviceProvider))]
+            Uri.file('/site-packages/.testFolder/test.py', state.extensionManager.caseSensitivity),
+            [Uri.file('/site-packages', state.extensionManager.caseSensitivity)]
         ),
         false
     );
@@ -223,7 +222,7 @@ test('random folder changed', () => {
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleSourceFileWatchChanges(
-            Uri.file('/randomFolder', getCaseDetector(state.serviceProvider)),
+            Uri.file('/randomFolder', state.extensionManager.caseSensitivity),
             /* isFile */ false
         ),
         false
@@ -368,7 +367,7 @@ test('service runEditMode', () => {
 
     const newFileUri = Uri.file(
         combinePaths(getDirectoryPath(open.fileName), 'interimFile.py'),
-        getCaseDetector(state.serviceProvider)
+        state.extensionManager.caseSensitivity
     );
     state.testFS.writeFileSync(newFileUri, '# empty', 'utf8');
 
@@ -429,7 +428,7 @@ function testSourceFileWatchChange(code: string, expected = true, isFile = true)
 
     assert.strictEqual(
         state.workspace.service.test_shouldHandleSourceFileWatchChanges(
-            Uri.file(path, getCaseDetector(state.serviceProvider)),
+            Uri.file(path, state.extensionManager.caseSensitivity),
             isFile
         ),
         expected

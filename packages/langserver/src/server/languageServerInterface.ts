@@ -11,7 +11,7 @@ import { TaskListToken } from 'typeserver/common/diagnostic.js';
 import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.js';
 import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
@@ -59,7 +59,7 @@ export interface ServerOptions {
     productName: string;
     typeshedFallbackLoc: Uri;
     version: string;
-    serviceProvider: ServiceProvider;
+    extensionManager: ExtensionManager;
     fileWatcherHandler: FileWatcherHandler;
     maxAnalysisTimeInForeground?: MaxAnalysisTime;
     disableChecker?: boolean;
@@ -71,7 +71,7 @@ export interface ServerOptions {
 export interface LanguageServerBaseInterface {
     readonly console: ConsoleInterface;
     readonly supportAdvancedEdits: boolean;
-    readonly serviceProvider: ServiceProvider;
+    readonly extensionManager: ExtensionManager;
 
     reanalyze(): void;
     restart(): void;

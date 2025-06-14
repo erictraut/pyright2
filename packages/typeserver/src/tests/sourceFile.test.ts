@@ -8,8 +8,9 @@
  */
 
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { NullConsole } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
-import { createServiceProvider, getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -20,10 +21,12 @@ test('Empty', () => {
     const filePath = combinePaths(process.cwd(), 'tests/samples/test_file1.py');
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
-    const serviceProvider = createServiceProvider(tempFile, fs);
+    const extensionManager = new ExtensionManager(fs, new NullConsole(), tempFile);
+    extensionManager.tempFile = tempFile;
+
     const sourceFile = new SourceFile(
-        serviceProvider,
-        Uri.file(filePath, getCaseDetector(serviceProvider)),
+        extensionManager,
+        Uri.file(filePath, extensionManager.caseSensitivity),
         '',
         false,
         false,
@@ -31,12 +34,10 @@ test('Empty', () => {
             isEditMode: false,
         }
     );
-    const configOptions = new ConfigOptions(Uri.file(process.cwd(), getCaseDetector(serviceProvider)));
-    const sp = createServiceProvider(fs);
-    const importResolver = new ImportResolver(sp, configOptions, new FullAccessHost(sp));
+    const configOptions = new ConfigOptions(Uri.file(process.cwd(), extensionManager.caseSensitivity));
+    const importResolver = new ImportResolver(extensionManager, configOptions, new FullAccessHost(extensionManager));
 
     sourceFile.parse(configOptions, importResolver);
-    serviceProvider.dispose();
 });
 
 // test('Empty Open file', () => {

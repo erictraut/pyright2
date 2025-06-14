@@ -18,8 +18,8 @@ import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
@@ -105,10 +105,11 @@ export function typeAnalyzeSampleFiles(
 
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
-    const serviceProvider = createServiceProvider(fs, console ?? new NullConsole(), tempFile);
-    const importResolver = new ImportResolver(serviceProvider, configOptions, new FullAccessHost(serviceProvider));
+    const em = new ExtensionManager(fs, console ?? new NullConsole(), tempFile);
+    em.tempFile = tempFile;
+    const importResolver = new ImportResolver(em, configOptions, new FullAccessHost(em));
 
-    const program = new Program(importResolver, configOptions, serviceProvider);
+    const program = new Program(importResolver, configOptions, em);
     const fileUris = fileNames.map((name) => UriEx.file(resolveSampleFilePath(name)));
     program.setTrackedFiles(fileUris);
 
@@ -123,7 +124,6 @@ export function typeAnalyzeSampleFiles(
     const results = getAnalysisResults(program, fileUris, configOptions);
 
     program.dispose();
-    serviceProvider.dispose();
 
     return results;
 }

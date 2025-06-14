@@ -13,11 +13,10 @@ import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { MODULE_PATH, TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { lib, sitePackages, typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
+import { NullConsole } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { createServiceProvider, getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
@@ -66,10 +65,10 @@ describe('Import tests with fake venv', () => {
                 assert(importResult.isImportFound);
                 assert(importResult.isStubFile);
                 assert.strictEqual(
-                    1,
                     importResult.resolvedUris.filter(
                         (f) => !f.isEmpty() && f.getFilePath() === combinePaths(libraryRoot, 'myLib', 'partialStub.pyi')
-                    ).length
+                    ).length,
+                    1
                 );
             });
 
@@ -93,10 +92,10 @@ describe('Import tests with fake venv', () => {
                 assert(importResult.isImportFound);
                 assert(importResult.isStubFile);
                 assert.strictEqual(
-                    1,
                     importResult.resolvedUris.filter(
                         (f) => f.getFilePath() === combinePaths(libraryRoot, 'myLib', '__init__.pyi')
-                    ).length
+                    ).length,
+                    1
                 );
             });
 
@@ -142,10 +141,10 @@ describe('Import tests with fake venv', () => {
                 assert(importResult.isImportFound);
                 assert(importResult.isStubFile);
                 assert.strictEqual(
-                    1,
                     importResult.resolvedUris.filter(
                         (f) => f.getFilePath() === combinePaths(libraryRoot, 'myLib', '__init__.pyi')
-                    ).length
+                    ).length,
+                    1
                 );
             });
 
@@ -179,10 +178,10 @@ describe('Import tests with fake venv', () => {
                 assert(importResult.isImportFound);
                 assert(importResult.isStubFile);
                 assert.strictEqual(
-                    1,
                     importResult.resolvedUris.filter(
                         (f) => f.getFilePath() === combinePaths(libraryRoot, 'myLib', '__init__.pyi')
-                    ).length
+                    ).length,
+                    1
                 );
             });
 
@@ -211,10 +210,10 @@ describe('Import tests with fake venv', () => {
                 assert(importResult.isImportFound);
                 assert(importResult.isStubFile);
                 assert.strictEqual(
-                    1,
                     importResult.resolvedUris.filter(
                         (f) => f.getFilePath() === combinePaths(libraryRoot, 'myLib', '__init__.pyi')
-                    ).length
+                    ).length,
+                    1
                 );
             });
 
@@ -263,8 +262,8 @@ describe('Import tests with fake venv', () => {
                 const importResult = getImportResult(files, ['os']);
                 assert(importResult.isImportFound);
                 assert.strictEqual(
-                    files[0].path,
-                    importResult.resolvedUris[importResult.resolvedUris.length - 1].getFilePath()
+                    importResult.resolvedUris[importResult.resolvedUris.length - 1].getFilePath(),
+                    files[0].path
                 );
             });
 
@@ -354,11 +353,11 @@ describe('Import tests with fake venv', () => {
                 },
             ];
 
-            const sp = createServiceProviderFromFiles(files);
+            const em = createExtensionManagerFromFiles(files);
             const configOptions = new ConfigOptions(UriEx.file('/'), typeshedFolder);
-            const fs = getFs(sp);
+            const fs = em.fs;
             const importResolver = new ImportResolver(
-                sp,
+                em,
                 configOptions,
                 new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)])
             );
@@ -375,7 +374,7 @@ describe('Import tests with fake venv', () => {
             assert(sideBySideResult.isStubFile);
 
             const sideBySideStubFile = UriEx.file(combinePaths(libraryRoot, 'myLib', 'partialStub.pyi'));
-            assert.strictEqual(1, sideBySideResult.resolvedUris.filter((f) => f.key === sideBySideStubFile.key).length);
+            assert.strictEqual(sideBySideResult.resolvedUris.filter((f) => f.key === sideBySideStubFile.key).length, 1);
             assert.strictEqual('def test(): ...', fs.readFileSync(sideBySideStubFile, 'utf8'));
 
             // Side by side stub doesn't completely disable partial stub.
@@ -389,7 +388,7 @@ describe('Import tests with fake venv', () => {
             assert(partialStubResult.isStubFile);
 
             const partialStubFile = UriEx.file(combinePaths(libraryRoot, 'myLib', 'partialStub2.pyi'));
-            assert.strictEqual(1, partialStubResult.resolvedUris.filter((f) => f.key === partialStubFile.key).length);
+            assert.strictEqual(partialStubResult.resolvedUris.filter((f) => f.key === partialStubFile.key).length, 1);
         });
 
         test('stub namespace package', () => {
@@ -409,10 +408,10 @@ describe('Import tests with fake venv', () => {
             assert(importResult.isImportFound);
             assert(!importResult.isStubFile);
             assert.strictEqual(
-                1,
                 importResult.resolvedUris.filter(
                     (f) => !f.isEmpty() && f.getFilePath() === combinePaths(libraryRoot, 'myLib', 'partialStub.py')
-                ).length
+                ).length,
+                1
             );
         });
 
@@ -441,10 +440,10 @@ describe('Import tests with fake venv', () => {
             assert(importResult.isImportFound);
             assert(importResult.isStubFile);
             assert.strictEqual(
-                1,
                 importResult.resolvedUris.filter(
                     (f) => !f.isEmpty() && f.getFilePath() === combinePaths(libraryRoot, 'myLib', '__init__.pyi')
-                ).length
+                ).length,
+                1
             );
         });
 
@@ -474,10 +473,10 @@ describe('Import tests with fake venv', () => {
             assert(importResult.isImportFound);
             assert(importResult.isStubFile);
             assert.strictEqual(
-                0,
                 importResult.resolvedUris.filter(
                     (f) => f.getFilePath() === combinePaths(libraryRoot, 'myLib', '__init__.pyi')
-                ).length
+                ).length,
+                0
             );
         });
 
@@ -496,13 +495,13 @@ describe('Import tests with fake venv', () => {
             const importResult = getImportResult(files, ['os']);
             assert(importResult.isImportFound);
             assert.strictEqual(
-                files[1].path,
-                importResult.resolvedUris[importResult.resolvedUris.length - 1].getFilePath()
+                importResult.resolvedUris[importResult.resolvedUris.length - 1].getFilePath(),
+                files[1].path
             );
         });
 
         test('no empty import roots', () => {
-            const sp = createServiceProviderFromFiles([]);
+            const sp = createExtensionManagerFromFiles([]);
             const configOptions = new ConfigOptions(Uri.empty(), typeshedFolder); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
@@ -524,7 +523,7 @@ describe('Import tests with fake venv', () => {
                 },
             ];
 
-            const sp = createServiceProviderFromFiles(files);
+            const sp = createExtensionManagerFromFiles(files);
             const configOptions = new ConfigOptions(Uri.empty(), typeshedFolder); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
@@ -534,16 +533,16 @@ describe('Import tests with fake venv', () => {
             const importRoots = importResolver.getImportRoots(configOptions.getDefaultExecEnvironment());
 
             assert.strictEqual(
-                1,
                 importRoots.filter(
                     (f) => !f.isEmpty() && f.getFilePath() === combinePaths('/', typeshedFallback, 'stubs', 'aLib')
-                ).length
+                ).length,
+                1
             );
             assert.strictEqual(
-                1,
                 importRoots.filter(
                     (f) => !f.isEmpty() && f.getFilePath() === combinePaths('/', typeshedFallback, 'stubs', 'bLib')
-                ).length
+                ).length,
+                1
             );
         });
 
@@ -562,8 +561,8 @@ describe('Import tests with fake venv', () => {
             const importResult = getImportResult(files, ['file1']);
             assert(importResult.isImportFound);
             assert.strictEqual(
-                1,
-                importResult.resolvedUris.filter((f) => f.getFilePath() === combinePaths('/', 'file1.py')).length
+                importResult.resolvedUris.filter((f) => f.getFilePath() === combinePaths('/', 'file1.py')).length,
+                1
             );
         });
 
@@ -582,8 +581,8 @@ describe('Import tests with fake venv', () => {
             const importResult = getImportResult(files, ['file1']);
             assert(importResult.isImportFound);
             assert.strictEqual(
-                1,
-                importResult.resolvedUris.filter((f) => f.getFilePath() === combinePaths('/test', 'file1.py')).length
+                importResult.resolvedUris.filter((f) => f.getFilePath() === combinePaths('/test', 'file1.py')).length,
+                1
             );
         });
 
@@ -602,9 +601,9 @@ describe('Import tests with fake venv', () => {
             const importResult = getImportResult(files, ['file1']);
             assert(importResult.isImportFound);
             assert.strictEqual(
-                1,
                 importResult.resolvedUris.filter((f) => f.getFilePath() === combinePaths('/src/nested', 'file1.py'))
-                    .length
+                    .length,
+                1
             );
         });
 
@@ -623,9 +622,9 @@ describe('Import tests with fake venv', () => {
             const importResult = getImportResult(files, ['file1']);
             assert(importResult.isImportFound);
             assert.strictEqual(
-                1,
                 importResult.resolvedUris.filter((f) => f.getFilePath() === combinePaths('/src/nested', 'file1.py'))
-                    .length
+                    .length,
+                1
             );
         });
 
@@ -803,7 +802,7 @@ describe('Import tests with fake venv', () => {
 
         const importResult = importResolver.resolveImport(uri, configOptions.findExecEnvironment(uri), {
             leadingDots: 0,
-            nameParts: nameParts,
+            nameParts,
             importedSymbols: new Set<string>(),
         });
 
@@ -830,20 +829,20 @@ describe('Import tests with fake venv', () => {
     }
 
     function setupImportResolver(files: { path: string; content: string }[], setup?: (c: ConfigOptions) => void) {
-        const defaultHostFactory = (sp: ServiceProvider) =>
+        const defaultHostFactory = (em: ExtensionManager) =>
             new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)]);
         const defaultSetup =
             setup ??
             ((c) => {
                 /* empty */
             });
-        const defaultSpFactory = (files: { path: string; content: string }[]) => createServiceProviderFromFiles(files);
+        const defaultEmFactory = (files: { path: string; content: string }[]) => createExtensionManagerFromFiles(files);
 
         // Use environment variables to determine how to create a host and how to modify the config options.
         // These are set in the CI to test imports with different options.
-        let hostFactory: (sp: ServiceProvider) => Host = defaultHostFactory;
+        let hostFactory: (em: ExtensionManager) => Host = defaultHostFactory;
         let configModifier = defaultSetup;
-        let spFactory = defaultSpFactory;
+        let emFactory = defaultEmFactory;
 
         if (process.env.CI_IMPORT_TEST_VENVPATH) {
             configModifier = (c: ConfigOptions) => {
@@ -855,7 +854,7 @@ describe('Import tests with fake venv', () => {
                 );
                 c.venv = process.env.CI_IMPORT_TEST_VENV;
             };
-            spFactory = (files: { path: string; content: string }[]) => createServiceProviderWithCombinedFs(files);
+            emFactory = (files: { path: string; content: string }[]) => createExtensionManagerWithCombinedFs(files);
         } else if (process.env.CI_IMPORT_TEST_PYTHONPATH) {
             configModifier = (c: ConfigOptions) => {
                 defaultSetup(c);
@@ -865,13 +864,13 @@ describe('Import tests with fake venv', () => {
                     /* checkRelative */ true
                 );
             };
-            hostFactory = (sp: ServiceProvider) => {
-                return new TruePythonTestAccessHost(sp, tempFile);
+            hostFactory = (em: ExtensionManager) => {
+                return new TruePythonTestAccessHost(em, tempFile);
             };
-            spFactory = (files: { path: string; content: string }[]) => createServiceProviderWithCombinedFs(files);
+            emFactory = (files: { path: string; content: string }[]) => createExtensionManagerWithCombinedFs(files);
         }
 
-        const sp = spFactory(files);
+        const em = emFactory(files);
         const configOptions = new ConfigOptions(UriEx.file('/'), typeshedFolder);
         configModifier(configOptions);
 
@@ -884,7 +883,7 @@ describe('Import tests with fake venv', () => {
         }
 
         const uri = UriEx.file(file);
-        const importResolver = new ImportResolver(sp, configOptions, hostFactory(sp));
+        const importResolver = new ImportResolver(em, configOptions, hostFactory(em));
 
         return { importResolver, uri, configOptions };
     }
@@ -904,27 +903,34 @@ function createTestFileSystem(files: { path: string; content: string }[]): TestF
     return fs;
 }
 
-function createServiceProviderFromFiles(files: { path: string; content: string }[]): ServiceProvider {
+function createExtensionManagerFromFiles(files: { path: string; content: string }[]): ExtensionManager {
     const testFS = createTestFileSystem(files);
     const fs = new PyrightFileSystem(testFS);
-    const partialStubService = new PartialStubService(fs);
-    return createServiceProvider(testFS, fs, partialStubService);
+    return createExtensionManagerWithFs(testFS, fs);
 }
 
-function createServiceProviderWithCombinedFs(files: { path: string; content: string }[]): ServiceProvider {
+function createExtensionManagerWithCombinedFs(files: { path: string; content: string }[]): ExtensionManager {
     const testFS = createTestFileSystem(files);
     const fs = new PyrightFileSystem(new CombinedFileSystem(testFS));
+    return createExtensionManagerWithFs(testFS, fs);
+}
+
+function createExtensionManagerWithFs(testFS: TestFileSystem, fs: FileSystem): ExtensionManager {
     const partialStubService = new PartialStubService(fs);
-    return createServiceProvider(testFS, fs, partialStubService);
+    const consoleProvider = new NullConsole();
+    const em = new ExtensionManager(fs, consoleProvider, testFS);
+    em.tempFile = testFS;
+    em.partialStubs = partialStubService;
+    return em;
 }
 
 class TruePythonTestAccessHost extends FullAccessHost {
-    constructor(sp: ServiceProvider, tempFile: RealTempFile) {
-        const clone = sp.clone();
+    constructor(em: ExtensionManager, tempFile: RealTempFile) {
+        const clone = em.clone();
 
-        // Make sure the service provide in use is using a real file system and real temporary file provider.
-        clone.add(ServiceKeys.tempFile, tempFile);
-        clone.add(ServiceKeys.fs, createFromRealFileSystem(tempFile));
+        // Make sure the extension manager uses a real file system and real temporary file provider.
+        clone.tempFile = tempFile;
+        clone.fs = createFromRealFileSystem(tempFile);
         super(clone);
     }
 }

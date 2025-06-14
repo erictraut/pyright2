@@ -118,15 +118,8 @@ import { DiagnosticSeverityOverrides, getDiagnosticSeverityOverrides } from 'typ
 import { ConfigOptions, getDiagLevelDiagnosticRules, parseDiagLevel } from 'typeserver/config/configOptions.js';
 import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
 import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Host } from 'typeserver/extensibility/host.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import {
-    getCancellationProvider,
-    getCaseDetector,
-    getConsole,
-    getFs,
-} from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
@@ -139,6 +132,7 @@ import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { getNestedProperty } from 'typeserver/utils/collectionUtils.js';
+import { assert } from 'typeserver/utils/debug.js';
 
 const DiagnosticsVersionNone = -1;
 
@@ -202,15 +196,15 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
             }starting`
         );
 
-        this.fs = getFs(this.serverOptions.serviceProvider);
-        this.caseSensitiveDetector = this.serverOptions.serviceProvider.get(ServiceKeys.caseSensitivityDetector);
+        this.fs = this.serverOptions.extensionManager.fs;
+        this.caseSensitiveDetector = this.serverOptions.extensionManager.caseSensitivity;
 
         this.workspaceFactory = new WorkspaceFactory(
             this.console,
             this.createTypeServiceForWorkspace.bind(this),
             this.onWorkspaceCreated.bind(this),
             this.onWorkspaceRemoved.bind(this),
-            this.serviceProvider
+            this.extensionManager
         );
 
         // Set the working directory to a known location within
@@ -232,7 +226,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     }
 
     get console(): ConsoleInterface {
-        return getConsole(this.serverOptions.serviceProvider);
+        return this.serverOptions.extensionManager.console;
     }
 
     // Provides access to the client's window.
@@ -244,8 +238,8 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         return this.client.hasDocumentChangeCapability && this.client.hasDocumentAnnotationCapability;
     }
 
-    get serviceProvider() {
-        return this.serverOptions.serviceProvider;
+    get extensionManager() {
+        return this.serverOptions.extensionManager;
     }
 
     dispose() {
@@ -262,13 +256,13 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     createTypeService(name: string, workspaceRoot: Uri, services?: WorkspaceServices): TypeService {
         this.console.info(`Starting service instance "${name}"`);
 
-        const service = new TypeService(name, this.serverOptions.serviceProvider, {
+        const service = new TypeService(name, this.serverOptions.extensionManager, {
             typeshedFallbackLoc: this.serverOptions.typeshedFallbackLoc,
             console: this.console,
             hostFactory: this.createHost.bind(this),
             importResolverFactory: this.createImportResolver.bind(this),
             maxAnalysisTime: this.serverOptions.maxAnalysisTimeInForeground,
-            fileSystem: services?.fs ?? getFs(this.serverOptions.serviceProvider),
+            fileSystem: services?.fs ?? this.serverOptions.extensionManager.fs,
             usingPullDiagnostics: this.client.usingPullDiagnostics,
         });
 
@@ -423,7 +417,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
     protected abstract createHost(): Host;
     protected abstract createImportResolver(
-        serviceProvider: ServiceProvider,
+        extensionManager: ExtensionManager,
         options: ConfigOptions,
         host: Host
     ): ImportResolver;
@@ -1228,7 +1222,6 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
         // Stop tracking all open files.
         this.openFileMap.clear();
-        this.serviceProvider.dispose();
 
         return Promise.resolve();
     }
@@ -1374,7 +1367,9 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     }
 
     protected async getProgressReporter(reporter: WorkDoneProgressReporter, title: string, token: CancellationToken) {
-        const cp = getCancellationProvider(this.serviceProvider);
+        const cp = this.extensionManager.cancellation;
+        assert(cp !== undefined);
+
         // This is a bit ugly, but we need to determine whether the provided reporter
         // is an actual client-side progress reporter or a dummy (null) progress reporter
         // created by the LSP library. If it's the latter, we'll create a server-initiated
@@ -1409,7 +1404,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     }
 
     protected convertLspUriStringToUri(uri: string) {
-        return Uri.parse(uri, getCaseDetector(this.serverOptions.serviceProvider));
+        return Uri.parse(uri, this.serverOptions.extensionManager.caseSensitivity);
     }
 
     protected addDynamicFeature(feature: DynamicFeature) {

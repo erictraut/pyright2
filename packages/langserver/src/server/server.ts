@@ -26,11 +26,10 @@ import { WellKnownWorkspaceKinds, Workspace } from 'langserver/server/workspaceF
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { createServiceProvider, getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
@@ -66,18 +65,15 @@ export class PyrightServer extends LanguageServerBase {
         const cacheManager = new CacheManager();
         const partialStubService = new PartialStubService(pyrightFs);
 
-        const serviceProvider = createServiceProvider(
-            pyrightFs,
-            tempFile,
-            console,
-            cacheManager,
-            partialStubService,
-            new FileBasedCancellationProvider('bg')
-        );
+        const extensionManager = new ExtensionManager(pyrightFs, console, tempFile);
+        extensionManager.cacheManager = cacheManager;
+        extensionManager.partialStubs = partialStubService;
+        extensionManager.tempFile = tempFile;
+        extensionManager.cancellation = new FileBasedCancellationProvider();
 
         if (!typeshedFallbackLoc) {
             const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-            const rootDirectory = Uri.file(dirPath, getCaseDetector(serviceProvider));
+            const rootDirectory = Uri.file(dirPath, extensionManager.caseSensitivity);
             typeshedFallbackLoc = rootDirectory.combinePaths(typeshedFallback);
         }
 
@@ -86,7 +82,7 @@ export class PyrightServer extends LanguageServerBase {
                 productName: 'Pyright',
                 typeshedFallbackLoc,
                 version,
-                serviceProvider,
+                extensionManager: extensionManager,
                 fileWatcherHandler: fileWatcherProvider,
                 maxAnalysisTimeInForeground,
                 supportedCodeActions: [CodeActionKind.QuickFix],
@@ -227,15 +223,15 @@ export class PyrightServer extends LanguageServerBase {
     }
 
     protected override createHost(): Host {
-        return new FullAccessHost(this.serverOptions.serviceProvider);
+        return new FullAccessHost(this.serverOptions.extensionManager);
     }
 
     protected override createImportResolver(
-        serviceProvider: ServiceProvider,
+        extensionManager: ExtensionManager,
         options: ConfigOptions,
         host: Host
     ): ImportResolver {
-        const importResolver = new ImportResolver(serviceProvider, options, host);
+        const importResolver = new ImportResolver(extensionManager, options, host);
 
         // In case there was cached information in the file system related to
         // import resolution, invalidate it now.
@@ -262,7 +258,7 @@ export class PyrightServer extends LanguageServerBase {
     ): Promise<(Command | CodeAction)[] | undefined | null> {
         this.recordUserInteractionTime();
 
-        const uri = Uri.parse(params.textDocument.uri, getCaseDetector(this.serverOptions.serviceProvider));
+        const uri = Uri.parse(params.textDocument.uri, this.serverOptions.extensionManager.caseSensitivity);
         const workspace = await this.getWorkspaceForFile(uri);
         return CodeActionProvider.getCodeActionsForPosition(workspace, uri, params.range, params.context.only, token);
     }

@@ -26,14 +26,8 @@ import {
 import { ConfigOptions, matchFileSpecs } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface, LogLevel, StandardConsole, log } from 'typeserver/extensibility/console.js';
 import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Host, HostFactory, NoAccessHost } from 'typeserver/extensibility/host.js';
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import {
-    getCancellationProvider,
-    getCaseDetector,
-    getConsole,
-} from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
@@ -89,7 +83,7 @@ interface ConfigFileContents {
 export class TypeService {
     protected readonly options: TypeServiceOptions;
     private readonly _program: Program;
-    private readonly _serviceProvider: ServiceProvider;
+    private readonly _extensionManager: ExtensionManager;
 
     private _instanceName: string;
     private _executionRootUri: Uri;
@@ -108,10 +102,10 @@ export class TypeService {
     private _analyzeTimer: any;
     private _requireTrackedFileUpdate = true;
     private _lastUserInteractionTime = 0;
-    private _backgroundAnalysisCancellationSource: AbstractCancellationTokenSource | undefined;
+    private _analysisCancellationSource: AbstractCancellationTokenSource | undefined;
     private _disposed = false;
 
-    constructor(instanceName: string, serviceProvider: ServiceProvider, options: TypeServiceOptions) {
+    constructor(instanceName: string, extensionManager: ExtensionManager, options: TypeServiceOptions) {
         this._instanceName = instanceName;
 
         this._executionRootUri = Uri.empty();
@@ -119,15 +113,15 @@ export class TypeService {
         this.options.console = options.console ?? new StandardConsole();
 
         // Create local copy of the given service provider.
-        this._serviceProvider = serviceProvider.clone();
+        this._extensionManager = extensionManager.clone();
 
         // Override the console and the file system if they were explicitly provided.
         if (this.options.console) {
-            this._serviceProvider.add(ServiceKeys.console, this.options.console);
+            this._extensionManager.console = this.options.console;
         }
 
         if (this.options.fileSystem) {
-            this._serviceProvider.add(ServiceKeys.fs, this.options.fileSystem);
+            this._extensionManager.fs = this.options.fileSystem;
         }
 
         this.options.importResolverFactory = options.importResolverFactory ?? TypeService.createImportResolver;
@@ -136,11 +130,11 @@ export class TypeService {
         this.options.configOptions =
             options.configOptions ??
             new ConfigOptions(
-                Uri.file(process.cwd(), getCaseDetector(this._serviceProvider)),
+                Uri.file(process.cwd(), this._extensionManager.caseSensitivity),
                 this.options.typeshedFallbackLoc
             );
         const importResolver = this.options.importResolverFactory(
-            this._serviceProvider,
+            this._extensionManager,
             this.options.configOptions,
             this.options.hostFactory()
         );
@@ -148,7 +142,7 @@ export class TypeService {
         this._program = new Program(
             importResolver,
             this.options.configOptions,
-            this._serviceProvider,
+            this._extensionManager,
             /* logProvider */ undefined,
             /* _disableChecker */ undefined,
             this.options.maxAnalysisTime
@@ -159,12 +153,12 @@ export class TypeService {
         return this._program.importResolver.fileSystem;
     }
 
-    get serviceProvider() {
-        return this._serviceProvider;
+    get extensionManager() {
+        return this._extensionManager;
     }
 
     get cancellationProvider() {
-        return getCancellationProvider(this.serviceProvider);
+        return this.extensionManager.cancellation;
     }
 
     get librarySearchUrisToWatch() {
@@ -180,7 +174,7 @@ export class TypeService {
     }
 
     clone(instanceName: string, fileSystem?: FileSystem): TypeService {
-        const service = new TypeService(instanceName, this._serviceProvider, {
+        const service = new TypeService(instanceName, this._extensionManager, {
             ...this.options,
             skipScanningUserFiles: true,
             fileSystem,
@@ -237,8 +231,12 @@ export class TypeService {
         this._clearLibraryReanalysisTimer();
     }
 
-    static createImportResolver(serviceProvider: ServiceProvider, options: ConfigOptions, host: Host): ImportResolver {
-        return new ImportResolver(serviceProvider, options, host);
+    static createImportResolver(
+        extensionManager: ExtensionManager,
+        options: ConfigOptions,
+        host: Host
+    ): ImportResolver {
+        return new ImportResolver(extensionManager, options, host);
     }
 
     setCompletionCallback(callback: AnalysisCompleteCallback | undefined): void {
@@ -465,7 +463,7 @@ export class TypeService {
             this._requireTrackedFileUpdate = true;
         }
 
-        this._backgroundAnalysisCancellationSource?.cancel();
+        this._analysisCancellationSource?.cancel();
 
         // Remove any existing analysis timer.
         this._clearReanalysisTimer();
@@ -495,11 +493,13 @@ export class TypeService {
             }
 
             // Recreate the cancellation token every time we start analysis.
-            this._backgroundAnalysisCancellationSource = this.cancellationProvider.createCancellationTokenSource();
+            if (this.cancellationProvider) {
+                this._analysisCancellationSource = this.cancellationProvider.createCancellationTokenSource();
+            }
 
             // Now that the timer has fired, actually send the message to the BG thread to
             // start the analysis.
-            this.runAnalysis(this._backgroundAnalysisCancellationSource.token);
+            this.runAnalysis(this._analysisCancellationSource?.token ?? CancellationToken.None);
         }, timeUntilNextAnalysisInMs);
     }
 
@@ -511,7 +511,7 @@ export class TypeService {
 
         // Allocate a new import resolver because the old one has information
         // cached based on the previous config options.
-        const importResolver = this._importResolverFactory(this._serviceProvider, this._program.configOptions, host);
+        const importResolver = this._importResolverFactory(this._extensionManager, this._program.configOptions, host);
 
         this._program.setImportResolver(importResolver);
 
@@ -591,8 +591,8 @@ export class TypeService {
         const executionRootUri = Uri.is(optionRoot)
             ? optionRoot
             : isString(optionRoot) && optionRoot.length > 0
-            ? Uri.file(optionRoot, getCaseDetector(this.serviceProvider), /* checkRelative */ true)
-            : Uri.defaultWorkspace(getCaseDetector(this.serviceProvider));
+            ? Uri.file(optionRoot, this.extensionManager.caseSensitivity, /* checkRelative */ true)
+            : Uri.defaultWorkspace(this.extensionManager.caseSensitivity);
 
         const executionRoot = this.fs.realCasePath(executionRootUri);
         let projectRoot = executionRoot;
@@ -607,7 +607,7 @@ export class TypeService {
                 isRootedDiskPath(commandLineOptions.configFilePath)
                     ? Uri.file(
                           commandLineOptions.configFilePath,
-                          getCaseDetector(this.serviceProvider),
+                          this.extensionManager.caseSensitivity,
                           /* checkRelative */ true
                       )
                     : projectRoot.resolvePaths(commandLineOptions.configFilePath)
@@ -679,7 +679,7 @@ export class TypeService {
                 configOptions.initializeFromJson(
                     config.configFileJsonObj,
                     config.configFileDirUri,
-                    this.serviceProvider,
+                    this.extensionManager,
                     host
                 );
             }
@@ -719,7 +719,7 @@ export class TypeService {
                 configOptions.setupExecutionEnvironments(
                     config.configFileJsonObj,
                     config.configFileDirUri,
-                    getConsole(this.serviceProvider)
+                    this.extensionManager.console
                 );
             }
         }
@@ -904,7 +904,7 @@ export class TypeService {
             configOptions.pythonPath = this.fs.realCasePath(
                 Uri.file(
                     languageServerOptions.pythonPath,
-                    getCaseDetector(this.serviceProvider),
+                    this.extensionManager.caseSensitivity,
                     /* checkRelative */ true
                 )
             );
@@ -945,7 +945,7 @@ export class TypeService {
                 `Setting pythonPath for service "${this._instanceName}": ` + `"${commandLineOptions.pythonPath}"`
             );
             configOptions.pythonPath = this.fs.realCasePath(
-                Uri.file(commandLineOptions.pythonPath, getCaseDetector(this.serviceProvider), /* checkRelative */ true)
+                Uri.file(commandLineOptions.pythonPath, this.extensionManager.caseSensitivity, /* checkRelative */ true)
             );
         }
 
@@ -983,7 +983,7 @@ export class TypeService {
             configOptions.include = [];
             commandLineOptions.includeFileSpecsOverride.forEach((include) => {
                 configOptions.include.push(
-                    getFileSpec(Uri.file(include, getCaseDetector(this.serviceProvider), /* checkRelative */ true), '.')
+                    getFileSpec(Uri.file(include, this.extensionManager.caseSensitivity, /* checkRelative */ true), '.')
                 );
             });
         }
@@ -1477,7 +1477,7 @@ export class TypeService {
                         return;
                     }
 
-                    let uri = Uri.file(path, getCaseDetector(this.serviceProvider), /* checkRelative */ true);
+                    let uri = Uri.file(path, this.extensionManager.caseSensitivity, /* checkRelative */ true);
 
                     // Make sure path is the true case.
                     uri = this.fs.realCasePath(uri);
@@ -1667,7 +1667,7 @@ export class TypeService {
                         return;
                     }
 
-                    const uri = Uri.file(path, getCaseDetector(this.serviceProvider), /* checkRelative */ true);
+                    const uri = Uri.file(path, this.extensionManager.caseSensitivity, /* checkRelative */ true);
 
                     if (!this._shouldHandleLibraryFileWatchChanges(uri, watchList)) {
                         return;
