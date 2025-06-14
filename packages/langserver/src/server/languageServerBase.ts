@@ -100,9 +100,9 @@ import {
     ServerSettings,
     WorkspaceServices,
 } from 'langserver/server/languageServerInterface.js';
+import { ClientCapabilities, InitializationOptions } from 'langserver/server/lspTypes.js';
 import { fromLSPAny, isNullProgressReporter } from 'langserver/server/lspUtils.js';
 import { ProgressReportTracker, ProgressReporter } from 'langserver/server/progressReporter.js';
-import { ClientCapabilities, InitializationOptions } from 'langserver/server/types.js';
 import {
     InitStatus,
     WellKnownWorkspaceKinds,

@@ -8,8 +8,12 @@
         "install:all": "npm install",
         "install:others": "cross-env SKIP_LERNA_BOOTSTRAP=yes lerna exec --no-bail npm install",
         "update:all": "node ./build/updateDeps.js",
-        "build:extension": "cd packages/vscode-extension && npm run build",
-        "build:cli": "cd packages/cli && npm run build"
+        "test": "npm run test:typeserver && npm run test:langserver",
+        "test:typeserver": "cd packages/typeserver && npm run test && cd ../..",
+        "test:langserver": "cd packages/langserver && npm run test && cd ../..",
+        "build": "npm run build:cli && npm run build:extension",
+        "build:extension": "cd packages/vscode-extension && npm run build && cd ../..",
+        "build:cli": "cd packages/cli && npm run build && cd ../.."
     },
     "devDependencies": {
         "@types/glob": "^7.2.0",
