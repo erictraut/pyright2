@@ -9,6 +9,7 @@
         "install:others": "cross-env SKIP_LERNA_BOOTSTRAP=yes lerna exec --no-bail npm install",
         "update:all": "node ./build/updateDeps.js",
         "build": "lerna run build",
+        "build:extension": "cd packages/vscode-extension && npm run build && cd ../..",
         "lint": "lerna run lint",
         "test": "lerna run test"
     },
