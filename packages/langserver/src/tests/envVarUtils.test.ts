@@ -19,7 +19,7 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility//console.js';
 import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 
 const defaultWorkspace = createWorkspace(undefined);

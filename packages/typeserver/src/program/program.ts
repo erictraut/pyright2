@@ -39,7 +39,7 @@ import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { getConsole } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { makeDirectories } from 'typeserver/files/uri/uriUtils.js';
+import { makeDirectories } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
 import { ParseFileResults, ParserOutput } from 'typeserver/parser/parser.js';

@@ -49,7 +49,7 @@ import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { getCaseDetector, getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { tryStat, UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { tryStat, UriEx } from 'typeserver/files/uriUtils.js';
 import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
 import { getPyTypedInfo, PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
 import { Program } from 'typeserver/program/program.js';

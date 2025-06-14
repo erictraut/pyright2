@@ -26,7 +26,7 @@ import { IEditableProgram, ISourceFileInfo } from 'typeserver/extensibility/exte
 import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
+import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';
 import { assertNever } from 'typeserver/utils/debug.js';

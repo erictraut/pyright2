@@ -49,7 +49,7 @@ import {
     makeDirectories,
     tryRealpath,
     tryStat,
-} from 'typeserver/files/uri/uriUtils.js';
+} from 'typeserver/files/uriUtils.js';
 import {
     ImportResolver,
     ImportResolverFactory,

@@ -11,7 +11,7 @@ import { lib, sitePackages } from 'typeserver/common/pathConsts.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);

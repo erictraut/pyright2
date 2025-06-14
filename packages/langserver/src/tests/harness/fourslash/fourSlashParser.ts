@@ -16,7 +16,7 @@ import {
     fileMetadataNames,
 } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { distlibFolder, libFolder } from 'langserver/tests/harness/vfs/factory.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { contains } from 'typeserver/utils/collectionUtils.js';
 import {
     combinePaths,

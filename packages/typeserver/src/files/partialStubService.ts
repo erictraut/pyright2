@@ -12,7 +12,7 @@ import { stubsSuffix } from 'typeserver/common/pathConsts.js';
 import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { isDirectory, tryStat } from 'typeserver/files/uri/uriUtils.js';
+import { isDirectory, tryStat } from 'typeserver/files/uriUtils.js';
 import { getPyTypedInfo, PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
 import { Disposable } from 'vscode-jsonrpc';
 

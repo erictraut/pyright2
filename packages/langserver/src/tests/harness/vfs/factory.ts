@@ -20,7 +20,7 @@ import {
     TestFileSystem,
 } from 'langserver/tests/harness/vfs/filesystem.js';
 import * as pathConsts from 'typeserver/common/pathConsts.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from 'typeserver/utils/pathUtils.js';
 
 export class TextDocument {

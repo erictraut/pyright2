@@ -22,7 +22,7 @@ import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ImportResolverFactory } from 'typeserver/imports/importResolver.js';
 import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService.js';
 import { fileURLToPath } from 'url';

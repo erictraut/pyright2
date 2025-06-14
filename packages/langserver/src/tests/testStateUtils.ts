@@ -18,7 +18,7 @@ import { TextRange, rangesAreEqual } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { isFile } from 'typeserver/files/uri/uriUtils.js';
+import { isFile } from 'typeserver/files/uriUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
 import { Program } from 'typeserver/program/program.js';
 import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';

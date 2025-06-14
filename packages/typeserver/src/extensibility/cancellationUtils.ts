@@ -10,7 +10,7 @@ import { AbstractCancellationTokenSource, CancellationTokenSource, Emitter, Even
 import { CancellationToken, Disposable, LSPErrorCodes, ResponseError } from 'vscode-languageserver';
 
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { isDebugMode } from 'typeserver/service/debugMode.js';
 
 export interface CancellationProvider {

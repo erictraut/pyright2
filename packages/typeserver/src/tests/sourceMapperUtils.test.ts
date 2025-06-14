@@ -8,7 +8,7 @@
 import assert from 'assert';
 import { CancellationToken, CancellationTokenSource } from 'vscode-jsonrpc';
 
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { buildImportTree as buildImportTreeImpl } from 'typeserver/program/sourceMapperUtils.js';
 
 function buildImportTree(

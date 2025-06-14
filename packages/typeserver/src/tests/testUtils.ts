@@ -22,7 +22,7 @@ import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ParseFileResults, ParseOptions, Parser, ParserOutput } from 'typeserver/parser/parser.js';
 import { NameTypeWalker } from 'typeserver/parser/testWalker.js';

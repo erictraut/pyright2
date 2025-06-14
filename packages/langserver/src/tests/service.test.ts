@@ -12,7 +12,7 @@ import { parseAndGetTestState, TestState } from 'langserver/tests/harness/foursl
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { CancellationToken } from 'vscode-jsonrpc';

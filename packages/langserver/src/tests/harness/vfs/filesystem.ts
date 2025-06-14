@@ -14,7 +14,7 @@ import { Disposable } from 'vscode-jsonrpc';
 import { Metadata, SortedMap, closeIterator, getIterator, nextResult } from 'langserver/tests/harness//utils.js';
 import { bufferFrom, createIOError } from 'langserver/tests/harness/utils.js';
 import { ValidationFlags, validate } from 'langserver/tests/harness/vfs/pathValidation.js';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler, FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
 import { FileUriSchema } from 'typeserver/files/uri/fileUri.js';

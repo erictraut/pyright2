@@ -16,7 +16,7 @@ import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellat
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
+import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 
 export function convertToFlatSymbols(

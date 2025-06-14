@@ -14,7 +14,7 @@ import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
 import { findNodeByOffset, getFirstAncestorOrSelfOfKind } from 'typeserver/common/parseTreeUtils.js';
 import { pythonVersion3_13, pythonVersion3_14 } from 'typeserver/common/pythonVersion.js';
 import { ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ParseNodeType, StatementListNode } from 'typeserver/parser/parseNodes.js';
 import { parseSampleFile, parseText } from 'typeserver/tests/testUtils.js';
 

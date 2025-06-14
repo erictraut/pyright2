@@ -20,7 +20,7 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { isFile } from 'typeserver/files/uri/uriUtils.js';
+import { isFile } from 'typeserver/files/uriUtils.js';
 import { ModuleNameAndType } from 'typeserver/imports/importResolver.js';
 import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
 import {

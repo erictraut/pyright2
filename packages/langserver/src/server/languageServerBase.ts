@@ -127,11 +127,11 @@ import {
     getConsole,
     getFs,
 } from 'typeserver/extensibility/serviceProviderExtensions.js';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
+import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { Localizer, setLocaleOverride } from 'typeserver/localization/localize.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';

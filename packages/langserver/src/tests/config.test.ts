@@ -19,7 +19,7 @@ import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.
 import { createServiceProvider, getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 

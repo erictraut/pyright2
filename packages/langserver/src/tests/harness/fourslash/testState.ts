@@ -99,7 +99,7 @@ import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx, getFileSpec } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx, getFileSpec } from 'typeserver/files/uriUtils.js';
 import { ImportResolver, ImportResolverFactory } from 'typeserver/imports//importResolver.js';
 import { Char } from 'typeserver/parser/charCodes.js';
 import { ParseNode } from 'typeserver/parser/parseNodes.js';

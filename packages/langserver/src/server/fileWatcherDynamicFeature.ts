@@ -10,7 +10,7 @@ import { DynamicFeature } from 'langserver/server/dynamicFeature.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { configFileName } from 'typeserver/common/pathConsts.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { deduplicateFolders, isFile } from 'typeserver/files/uri/uriUtils.js';
+import { deduplicateFolders, isFile } from 'typeserver/files/uriUtils.js';
 import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 import {
     Connection,

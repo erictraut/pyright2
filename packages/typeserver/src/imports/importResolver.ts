@@ -25,7 +25,7 @@ import {
     isFile,
     tryRealpath,
     tryStat,
-} from 'typeserver/files/uri/uriUtils.js';
+} from 'typeserver/files/uriUtils.js';
 import { ImplicitImport, ImportResult, ImportType } from 'typeserver/imports/importResult.js';
 import { getDirectoryLeadingDotsPointsTo } from 'typeserver/imports/importStatementUtils.js';
 import { ImportPath, ParentDirectoryCache } from 'typeserver/imports/parentDirectoryCache.js';

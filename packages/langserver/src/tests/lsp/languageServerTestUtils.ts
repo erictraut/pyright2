@@ -28,7 +28,7 @@ import { HostKind, ScriptOutput } from 'typeserver/extensibility/host.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileUri } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ParseOptions, Parser } from 'typeserver/parser/parser.js';
 import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
 import { createDeferred, Deferred } from 'typeserver/utils/deferred.js';
