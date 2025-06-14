@@ -42,7 +42,7 @@ import {
     getPropertyDocStringInherited,
     getVariableDocString,
 } from 'typeserver/service/typeDocStringUtils.js';
-import { isDefined } from 'typeserver/utils/core.js';
+import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 
 // The number of spaces to indent each parameter, after moving to a newline in tooltips.
 const functionParamIndentOffset = 4;

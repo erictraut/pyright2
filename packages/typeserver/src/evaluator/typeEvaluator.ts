@@ -397,8 +397,8 @@ import {
 import { ParseOptions, Parser, ParseTextMode } from 'typeserver/parser/parser.js';
 import { KeywordType, OperatorType, StringTokenFlags } from 'typeserver/parser/tokenizerTypes.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { isThenable } from 'typeserver/utils/core.js';
 import { assert, assertNever, fail } from 'typeserver/utils/debug.js';
+import { isThenable } from 'typeserver/utils/valueTypeUtils.js';
 
 interface GetTypeArgsOptions {
     isAnnotatedClass?: boolean;

@@ -15,7 +15,7 @@ import { ConstantUri } from 'typeserver/files/uri/constantUri.js';
 import { EmptyUri } from 'typeserver/files/uri/emptyUri.js';
 import { FileUri, FileUriSchema } from 'typeserver/files/uri/fileUri.js';
 import { WebUri } from 'typeserver/files/uri/webUri.js';
-import { isArray } from 'typeserver/utils/core.js';
+import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 import { URI, Utils } from 'vscode-uri';
 
 export const enum UriKinds {

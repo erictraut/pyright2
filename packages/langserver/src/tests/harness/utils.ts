@@ -5,7 +5,7 @@
  */
 
 import { binarySearch, insertAt } from 'typeserver/utils/collectionUtils.js';
-import { identity } from 'typeserver/utils/core.js';
+import { identity } from 'typeserver/utils/valueTypeUtils.js';
 
 export interface SortOptions<T> {
     comparer: (a: T, b: T) => number;

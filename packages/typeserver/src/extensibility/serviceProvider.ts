@@ -7,11 +7,16 @@
  */
 
 import { addIfUnique, removeArrayElements } from 'typeserver/utils/collectionUtils.js';
-import { Disposable } from 'typeserver/utils/core.js';
 import { assertNever } from 'typeserver/utils/debug.js';
 
 abstract class InternalKey {
     abstract readonly kind: 'singleton' | 'group';
+}
+
+namespace Disposable {
+    export function is(value: any): value is { dispose(): void } {
+        return value && typeof value.dispose === 'function';
+    }
 }
 
 /**

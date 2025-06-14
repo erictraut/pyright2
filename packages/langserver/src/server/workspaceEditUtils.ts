@@ -28,8 +28,8 @@ import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';
-import { isArray } from 'typeserver/utils/core.js';
 import { assertNever } from 'typeserver/utils/debug.js';
+import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 export function convertToTextEdits(editActions: TextEditAction[]): TextEdit[] {
     return editActions.map((editAction) => ({

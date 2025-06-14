@@ -57,8 +57,8 @@ import { CacheManager } from 'typeserver/service/cacheManager.js';
 import { CircularDependency } from 'typeserver/service/circularDependency.js';
 import { Duration, timingStats } from 'typeserver/service/timing.js';
 import { TypeStubWriter } from 'typeserver/service/typeStubWriter.js';
-import { isThenable } from 'typeserver/utils/core.js';
 import { assert, fail } from 'typeserver/utils/debug.js';
+import { isThenable } from 'typeserver/utils/valueTypeUtils.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 const _maxImportDepth = 256;

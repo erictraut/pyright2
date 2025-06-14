@@ -7,7 +7,8 @@
 import assert from 'assert';
 
 import * as utils from 'typeserver/utils/collectionUtils.js';
-import { compareValues, isArray } from 'typeserver/utils/core.js';
+import { compareValues } from 'typeserver/utils/comparisonUtils.js';
+import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 test('UtilsContainsDefault', () => {
     const data = [1, 2, 3, 4, 5];

@@ -11,9 +11,9 @@ import path from 'path';
 
 import { Char } from 'typeserver/parser/charCodes.js';
 import { some } from 'typeserver/utils/collectionUtils.js';
-import { identity } from 'typeserver/utils/core.js';
 import * as debug from 'typeserver/utils/debug.js';
 import { equateStringsCaseInsensitive, equateStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
+import { identity } from 'typeserver/utils/valueTypeUtils.js';
 
 export type GetCanonicalFileName = (fileName: string) => string;
 

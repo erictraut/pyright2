@@ -44,7 +44,7 @@ import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
-import { isDefined, isString } from 'typeserver/utils/core.js';
+import { isDefined, isString } from 'typeserver/utils/valueTypeUtils.js';
 import { fileURLToPath } from 'url';
 
 const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };

@@ -25,7 +25,7 @@ import {
 } from 'typeserver/files/pathUtils.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { contains } from 'typeserver/utils/collectionUtils.js';
-import { toBoolean } from 'typeserver/utils/core.js';
+import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 
 /**
  * Parse given fourslash markup code and return content with markup/range data

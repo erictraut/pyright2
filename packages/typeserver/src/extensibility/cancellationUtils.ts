@@ -11,7 +11,7 @@ import { CancellationToken, Disposable, LSPErrorCodes, ResponseError } from 'vsc
 
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
-import { isDebugMode } from 'typeserver/utils/core.js';
+import { isDebugMode } from 'typeserver/service/debugMode.js';
 
 export interface CancellationProvider {
     createCancellationTokenSource(): AbstractCancellationTokenSource;

@@ -56,8 +56,8 @@ import {
     Token,
     TokenType,
 } from 'typeserver/parser/tokenizerTypes.js';
-import { containsOnlyWhitespace } from 'typeserver/utils/core.js';
 import { assert, assertNever, fail } from 'typeserver/utils/debug.js';
+import { containsOnlyWhitespace } from 'typeserver/utils/stringUtils.js';
 
 export const enum PrintExpressionFlags {
     None = 0,

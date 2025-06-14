@@ -43,8 +43,8 @@ import { SourceFileInfo } from 'typeserver/program/sourceFileInfo.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { buildImportTree } from 'typeserver/program/sourceMapperUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { isDefined } from 'typeserver/utils/core.js';
 import { assert, assertNever } from 'typeserver/utils/debug.js';
+import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 
 type ClassOrFunctionOrVariableDeclaration =
     | ClassDeclaration

@@ -22,7 +22,7 @@ import {
 import { BaseUri, JsonObjType } from 'typeserver/files/uri/baseUri.js';
 import { cacheMethodWithNoArgs, cacheProperty, cacheStaticFunc } from 'typeserver/files/uri/memoization.js';
 import { SerializedType, Uri, UriKinds } from 'typeserver/files/uri/uri.js';
-import { isArray } from 'typeserver/utils/core.js';
+import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 import { URI } from 'vscode-uri';
 
 type FileUriSerializedType = [0, string, string, string, string | undefined, 1 | 0];

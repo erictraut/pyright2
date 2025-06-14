@@ -35,7 +35,7 @@ import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { isDefined } from 'typeserver/utils/core.js';
+import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 
 export enum DefinitionFilter {
     All = 'all',

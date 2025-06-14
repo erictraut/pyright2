@@ -7,7 +7,10 @@
  */
 
 import { stableSort } from 'typeserver/utils/collectionUtils.js';
-import { AnyFunction, compareValues, hasProperty, isString } from 'typeserver/utils/core.js';
+import { compareValues } from 'typeserver/utils/comparisonUtils.js';
+import { hasProperty, isString } from 'typeserver/utils/valueTypeUtils.js';
+
+type AnyFunction = (...args: never[]) => void;
 
 export function assert(
     expression: any,

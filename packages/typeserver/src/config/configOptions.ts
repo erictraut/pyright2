@@ -28,7 +28,7 @@ import { Uri } from 'typeserver/files/uri/uri.js';
 import { FileSpec, getFileSpec, isDirectory } from 'typeserver/files/uri/uriUtils.js';
 import { getPathsFromPthFiles } from 'typeserver/service/pythonPathUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { isBoolean } from 'typeserver/utils/core.js';
+import { isBoolean } from 'typeserver/utils/valueTypeUtils.js';
 
 export enum PythonPlatform {
     Darwin = 'Darwin',

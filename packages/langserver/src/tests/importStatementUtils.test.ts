@@ -25,7 +25,7 @@ import {
     ImportNameWithModuleInfo,
 } from 'typeserver/imports/importStatementUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
-import { isArray } from 'typeserver/utils/core.js';
+import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 test('getTextEditsForAutoImportInsertion - import empty', () => {
     const code = `

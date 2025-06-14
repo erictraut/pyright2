@@ -11,6 +11,7 @@ import { CancellationToken, CompletionItem, CompletionItemKind, SymbolKind } fro
 import { CompletionItemData, CompletionMap } from 'langserver/providers/completionProvider.js';
 import { IndexAliasData } from 'langserver/providers/symbolIndexer.js';
 import { fromLSPAny } from 'langserver/server/lspUtils.js';
+
 import { DeclarationType } from 'typeserver/binder/declaration.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
 import { isPrivateOrProtectedName, isPublicConstantOrTypeAlias } from 'typeserver/binder/symbolNameUtils.js';

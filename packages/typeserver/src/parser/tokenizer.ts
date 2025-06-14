@@ -45,7 +45,7 @@ import {
     Token,
     TokenType,
 } from 'typeserver/parser/tokenizerTypes.js';
-import { cloneStr } from 'typeserver/utils/core.js';
+import { cloneStr } from 'typeserver/utils/stringUtils.js';
 
 // This must be a Map, as operations like {}["constructor"] succeed.
 const _keywords: Map<string, KeywordType> = new Map([

@@ -14,7 +14,7 @@ import { Host } from 'typeserver/extensibility/host.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { getFileSystemEntries, isDirectory, tryStat } from 'typeserver/files/uri/uriUtils.js';
-import { compareComparableValues } from 'typeserver/utils/core.js';
+import { compareComparableValues } from 'typeserver/utils/comparisonUtils.js';
 
 export interface PythonPathResult {
     paths: Uri[];

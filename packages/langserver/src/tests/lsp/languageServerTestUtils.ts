@@ -32,8 +32,8 @@ import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { ParseOptions, Parser } from 'typeserver/parser/parser.js';
 import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
-import { toBoolean } from 'typeserver/utils/core.js';
 import { createDeferred, Deferred } from 'typeserver/utils/deferred.js';
+import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 import {
     ApplyWorkspaceEditParams,
     ApplyWorkspaceEditRequest,

@@ -7,7 +7,7 @@
  * Utility methods for manipulating and comparing strings.
  */
 
-import { compareComparableValues, Comparison } from 'typeserver/utils/core.js';
+import { compareComparableValues, Comparison } from 'typeserver/utils/comparisonUtils.js';
 
 // Determines if typed string matches a symbol
 // name. Characters must appear in order.
@@ -36,6 +36,24 @@ export function hashString(contents: string) {
         hash = ((hash << 5) - hash + contents.charCodeAt(i)) | 0;
     }
     return hash;
+}
+
+export function containsOnlyWhitespace(text: string, start?: number, end?: number) {
+    if (start !== undefined) {
+        text = text.substring(start, end);
+    }
+
+    return /^\s*$/.test(text);
+}
+
+export function cloneStr(str: string): string {
+    // Ensure we get a copy of the string that is not shared with the original string.
+    // Node.js has an internal optimization where it uses sliced strings for `substring`, `slice`, `substr`
+    // when it deems appropriate. Most of the time, this optimization is beneficial, but in this case, we want
+    // to ensure we get a copy of the string to prevent the original string from being retained in memory.
+    // For example, the import resolution cache in importResolver might hold onto the full original file content
+    // because seemingly innocent the import name  (e.g., `foo` in `import foo`) is in the cache.
+    return Buffer.from(str, 'utf8').toString('utf8');
 }
 
 /**

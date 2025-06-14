@@ -6,10 +6,22 @@
  * Helper functions relating to collections and arrays.
  */
 
-import { compareValues, Comparison, equateValues, isArray, MapLike } from 'typeserver/utils/core.js';
+import { compareValues, Comparison } from 'typeserver/utils/comparisonUtils.js';
+import { isArray } from 'typeserver/utils/valueTypeUtils.js';
+
+export interface MapLike<K, V> {
+    readonly [Symbol.toStringTag]: string;
+    get(key: K): V | undefined;
+    has(key: K): boolean;
+    set(key: K, value: V): this;
+}
 
 export const emptyArray: never[] = [] as never[];
 export type EqualityComparer<T> = (a: T, b: T) => boolean;
+
+export function equateValues<T>(a: T, b: T) {
+    return a === b;
+}
 
 export function contains<T>(
     array: readonly T[] | undefined,

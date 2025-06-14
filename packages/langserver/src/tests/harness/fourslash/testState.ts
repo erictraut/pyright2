@@ -106,9 +106,10 @@ import { Program } from 'typeserver/program/program.js';
 import { PackageTypeReport } from 'typeserver/service/packageTypeReport.js';
 import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { Comparison, isNumber, isString } from 'typeserver/utils/core.js';
+import { Comparison } from 'typeserver/utils/comparisonUtils.js';
 import { assertNever } from 'typeserver/utils/debug.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
+import { isNumber, isString } from 'typeserver/utils/valueTypeUtils.js';
 
 export interface TextChange {
     span: TextRange;

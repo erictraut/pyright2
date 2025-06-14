@@ -21,8 +21,8 @@ import { isFile } from 'typeserver/files/uri/uriUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
 import { Program } from 'typeserver/program/program.js';
 import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';
-import { isArray } from 'typeserver/utils/core.js';
 import { assertNever } from 'typeserver/utils/debug.js';
+import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 import { CancellationToken } from 'vscode-languageserver';
 
 export function convertFileEditActionToString(edit: FileEditAction): string {

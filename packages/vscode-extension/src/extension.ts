@@ -33,7 +33,7 @@ import {
 } from 'vscode-languageclient/node';
 
 import { Commands } from 'typeserver/service/commands.js';
-import { isThenable } from 'typeserver/utils/core.js';
+import { isThenable } from 'typeserver/utils/valueTypeUtils.js';
 
 // eslint-disable-next-line no-restricted-imports
 import { FileBasedCancellationStrategy } from './cancellationUtils.js';

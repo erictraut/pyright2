@@ -19,8 +19,9 @@ import {
 import * as vfs from 'langserver/tests/harness/vfs/filesystem.js';
 import { configFileName } from 'typeserver/common/pathConsts.js';
 import { combinePaths, getBaseFileName } from 'typeserver/files/pathUtils.js';
-import { Comparison, toBoolean } from 'typeserver/utils/core.js';
+import { Comparison } from 'typeserver/utils/comparisonUtils.js';
 import { getStringComparer } from 'typeserver/utils/stringUtils.js';
+import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 
 export function createVfsInfoFromFourSlashData(projectRoot: string, testData: FourSlashData) {
     const metaProjectRoot = testData.globalOptions[GlobalMetadataOptionNames.projectRoot];

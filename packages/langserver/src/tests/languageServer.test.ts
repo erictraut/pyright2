@@ -32,7 +32,7 @@ import {
     waitForDiagnostics,
 } from 'langserver/tests/lsp/languageServerTestUtils.js';
 import { normalizeSlashes } from 'typeserver/files/pathUtils.js';
-import { isArray } from 'typeserver/utils/core.js';
+import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 describe(`Basic language server tests`, () => {
     let serverInfo: PyrightServerInfo | undefined;

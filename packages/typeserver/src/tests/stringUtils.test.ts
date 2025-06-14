@@ -5,7 +5,8 @@
  */
 
 import assert from 'assert';
-import { Comparison } from 'typeserver/utils/core.js';
+
+import { Comparison } from 'typeserver/utils/comparisonUtils.js';
 import {
     compareStringsCaseInsensitive,
     compareStringsCaseSensitive,
