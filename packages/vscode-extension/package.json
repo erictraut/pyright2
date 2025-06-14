@@ -1518,6 +1518,7 @@
     },
     "scripts": {
         "build": "npm run clean && npm run esbuild:extension && npm run esbuild:server && shx cp -r ../typeserver/typeshed-fallback ./dist/typeshed-fallback",
+        "lint": "eslint 'src/**/*.{js,ts}'",
         "clean": "shx rm -rf ./dist ./out",
         "esbuild:extension": "esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=dist/extension.cjs --banner:js=\"#!/usr/bin/env node\" --external:node:* --external:vscode --sourcemap",
         "esbuild:server": "esbuild src/server.ts --bundle --platform=node --format=cjs --outfile=dist/server.cjs --banner:js=\"#!/usr/bin/env node\" --external:fsevents --external:node:* --external:jsonc-parser --sourcemap",

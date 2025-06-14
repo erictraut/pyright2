@@ -11,7 +11,7 @@
 import { CancellationToken, DocumentHighlight, DocumentHighlightKind } from 'vscode-languageserver';
 
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { findNodeByOffset, isWriteAccess } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, TextRange } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
@@ -43,7 +43,7 @@ export class DocumentHighlightProvider {
             return undefined;
         }
 
-        const node = ParseTreeUtils.findNodeByOffset(this._parseResults.parserOutput.parseTree, offset);
+        const node = findNodeByOffset(this._parseResults.parserOutput.parseTree, offset);
         if (node === undefined) {
             return undefined;
         }
@@ -66,7 +66,7 @@ export class DocumentHighlightProvider {
         const lines = this._parseResults.tokenizerOutput.lines;
         return results.map((r) => ({
             kind:
-                r.node.nodeType === ParseNodeType.Name && ParseTreeUtils.isWriteAccess(r.node)
+                r.node.nodeType === ParseNodeType.Name && isWriteAccess(r.node)
                     ? DocumentHighlightKind.Write
                     : DocumentHighlightKind.Read,
             range: convertOffsetsToRange(r.range.start, TextRange.getEnd(r.range), lines),

@@ -10,8 +10,8 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-languageserver';
 import { TextDocumentEdit, WorkspaceEdit } from 'vscode-languageserver-types';
 
-import { CloneOptions, getEffectiveCommandLineOptions } from 'langserver/server/analyzerServiceExecutor.js';
 import { LanguageServerBaseInterface } from 'langserver/server/languageServerInterface.js';
+import { CloneOptions, getEffectiveCommandLineOptions } from 'langserver/server/typeServerExecutor.js';
 import { applyWorkspaceEdit, generateWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
 import { createInitStatus, WellKnownWorkspaceKinds, Workspace } from 'langserver/server/workspaceFactory.js';
 import { TestLanguageService } from 'langserver/tests/harness/fourslash/testLanguageService.js';

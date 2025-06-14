@@ -13,7 +13,7 @@ import { IndexAliasData } from 'langserver/providers/symbolIndexer.js';
 import { fromLSPAny } from 'langserver/server/lspUtils.js';
 import { DeclarationType } from 'typeserver/binder/declaration.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
-import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.js';
+import { isPrivateOrProtectedName, isPublicConstantOrTypeAlias } from 'typeserver/binder/symbolNameUtils.js';
 import { isVisibleExternally } from 'typeserver/binder/symbolUtils.js';
 import { TextEditAction } from 'typeserver/common/editAction.js';
 import { Position } from 'typeserver/common/textRange.js';
@@ -39,7 +39,7 @@ import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import * as StringUtils from 'typeserver/utils/stringUtils.js';
+import { getCharacterCount, getStringComparer, isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
 
 export interface AutoImportSymbol {
     readonly name: string;
@@ -137,7 +137,7 @@ export function buildModuleSymbolsMap(program: IProgramView, files: readonly ISo
         // Don't offer imports from files that are named with private
         // naming semantics like "_ast.py" unless they're in the current
         // user file list.
-        if (SymbolNameUtils.isPrivateOrProtectedName(fileName) && !isUserCode(file)) {
+        if (isPrivateOrProtectedName(fileName) && !isUserCode(file)) {
             return;
         }
 
@@ -362,7 +362,7 @@ export class AutoImporter {
             return;
         }
 
-        const dotCount = StringUtils.getCharacterCount(importSource, '.');
+        const dotCount = getCharacterCount(importSource, '.');
         for (const autoSymbol of topLevelSymbols.getSymbols()) {
             if (!this.shouldIncludeVariable(autoSymbol, fileProperties.isStub)) {
                 continue;
@@ -507,7 +507,7 @@ export class AutoImporter {
             return 1;
         }
 
-        return StringUtils.getStringComparer()(left.importParts.importName, right.importParts.importName);
+        return getStringComparer()(left.importParts.importName, right.importParts.importName);
     }
 
     protected shouldIncludeVariable(autoSymbol: AutoImportSymbol, isStub: boolean) {
@@ -517,7 +517,7 @@ export class AutoImporter {
             return true;
         }
 
-        return SymbolNameUtils.isPublicConstantOrTypeAlias(autoSymbol.name);
+        return isPublicConstantOrTypeAlias(autoSymbol.name);
     }
 
     private _addToImportAliasMap(
@@ -598,7 +598,7 @@ export class AutoImporter {
                 importName: importNamePart ?? moduleName,
                 importFrom,
                 fileUri: uri,
-                dotCount: StringUtils.getCharacterCount(moduleName, '.'),
+                dotCount: getCharacterCount(moduleName, '.'),
                 moduleNameAndType: module,
             };
         }
@@ -619,7 +619,7 @@ export class AutoImporter {
                 return false;
             }
 
-            return StringUtils.isPatternInSymbol(word, name);
+            return isPatternInSymbol(word, name);
         }
 
         return this.options.patternMatcher(word, name);

@@ -4,6 +4,7 @@
  * Implements pyright language server.
  */
 
+import path from 'path';
 import {
     CancellationToken,
     CodeAction,
@@ -17,12 +18,11 @@ import {
 
 import { CommandController } from 'langserver/commands/commandController.js';
 import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
-import { resolvePathWithEnvVariables } from 'langserver/providers/envVarUtils.js';
+import { resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
 import { LanguageServerBase } from 'langserver/server/languageServerBase.js';
 import { ServerSettings } from 'langserver/server/languageServerInterface.js';
 import { ProgressReporter } from 'langserver/server/progressReporter.js';
 import { WellKnownWorkspaceKinds, Workspace } from 'langserver/server/workspaceFactory.js';
-import path from 'path';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.js';

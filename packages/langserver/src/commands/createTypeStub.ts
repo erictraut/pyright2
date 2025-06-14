@@ -9,8 +9,8 @@
 import { CancellationToken, ExecuteCommandParams } from 'vscode-languageserver';
 
 import { ServerCommand } from 'langserver/commands/commandController.js';
-import { TypeServerExecutor } from 'langserver/server/analyzerServiceExecutor.js';
 import { LanguageServerBaseInterface, LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
+import { TypeServerExecutor } from 'langserver/server/typeServerExecutor.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { OperationCanceledException } from 'typeserver/extensibility/cancellationUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';

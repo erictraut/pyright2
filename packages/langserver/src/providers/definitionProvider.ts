@@ -21,7 +21,7 @@ import {
 import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
 import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { DocumentRange } from 'typeserver/common/docRange.js';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, rangesAreEqual } from 'typeserver/common/textRange.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
@@ -314,7 +314,7 @@ function _tryGetNode(parseResults: ParseFileResults | undefined, position: Posit
         return { node: undefined, offset: 0 };
     }
 
-    return { node: ParseTreeUtils.findNodeByOffset(parseResults.parserOutput.parseTree, offset), offset };
+    return { node: findNodeByOffset(parseResults.parserOutput.parseTree, offset), offset };
 }
 
 function _createModuleEntry(uri: Uri): DocumentRange {

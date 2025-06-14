@@ -10,7 +10,7 @@
 
 import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { getCallForName, getEnclosingClass } from 'typeserver/common/parseTreeUtils.js';
 import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { getBoundCallMethod } from 'typeserver/evaluator/constructors.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
@@ -195,7 +195,7 @@ function formatSignature(
 
 export function getFunctionDocStringFromType(type: FunctionType, sourceMapper: SourceMapper, evaluator: TypeEvaluator) {
     const decl = type.shared.declaration;
-    const enclosingClass = decl ? ParseTreeUtils.getEnclosingClass(decl.node) : undefined;
+    const enclosingClass = decl ? getEnclosingClass(decl.node) : undefined;
     const classResults = enclosingClass ? evaluator.getTypeOfClass(enclosingClass) : undefined;
 
     return getFunctionDocStringInherited(type, decl, sourceMapper, classResults?.classType);
@@ -212,7 +212,7 @@ export function getOverloadedDocStringsFromType(
     }
 
     const decl = overloads[0].shared.declaration;
-    const enclosingClass = decl ? ParseTreeUtils.getEnclosingClass(decl.node) : undefined;
+    const enclosingClass = decl ? getEnclosingClass(decl.node) : undefined;
     const classResults = enclosingClass ? evaluator.getTypeOfClass(enclosingClass) : undefined;
 
     return getOverloadedDocStringsInherited(
@@ -508,7 +508,7 @@ export function limitOverloadBasedOnCall<T extends Type>(
         return type;
     }
 
-    const callNode = ParseTreeUtils.getCallForName(node);
+    const callNode = getCallForName(node);
     if (!callNode) {
         return type;
     }

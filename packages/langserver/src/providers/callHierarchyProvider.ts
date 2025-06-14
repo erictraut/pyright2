@@ -17,12 +17,16 @@ import {
 } from 'vscode-languageserver-types';
 
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
-import { canNavigateToFile } from 'langserver/providers/navigationUtils.js';
 import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
 import { getSymbolKind } from 'langserver/server/lspUtils.js';
+import { canNavigateToFile } from 'langserver/server/navigationUtils.js';
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
-import * as DeclarationUtils from 'typeserver/binder/declarationUtils.js';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import {
+    areDeclarationsSame,
+    getNameFromDeclaration,
+    hasTypeForDeclaration,
+} from 'typeserver/binder/declarationUtils.js';
+import { getExecutionScopeNode } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetsToRange } from 'typeserver/common/positionUtils.js';
 import { Position, rangesAreEqual } from 'typeserver/common/textRange.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
@@ -233,7 +237,7 @@ export class CallHierarchyProvider {
         const node = referencesResult.nodeAtOffset;
         let targetDecl = declarations[0];
         for (const decl of declarations) {
-            if (DeclarationUtils.hasTypeForDeclaration(decl) || !DeclarationUtils.hasTypeForDeclaration(targetDecl)) {
+            if (hasTypeForDeclaration(decl) || !hasTypeForDeclaration(targetDecl)) {
                 if (decl.type === DeclarationType.Function || decl.type === DeclarationType.Class) {
                     targetDecl = decl;
 
@@ -256,7 +260,7 @@ export class CallHierarchyProvider {
             symbolName = (referencesResult.nodeAtOffset as NameNode).d.value;
             callItemUri = this._fileUri;
         } else {
-            symbolName = DeclarationUtils.getNameFromDeclaration(targetDecl) || referencesResult.symbolNames[0];
+            symbolName = getNameFromDeclaration(targetDecl) || referencesResult.symbolNames[0];
             callItemUri = targetDecl.uri;
         }
 
@@ -409,7 +413,7 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
         if (outgoingCall && outgoingCall.to.name !== nameNode.d.value) {
             // If both the function and its alias are called in the same function,
             // the name of the call item will be the resolved declaration name, not the alias.
-            outgoingCall.to.name = DeclarationUtils.getNameFromDeclaration(resolvedDecl) ?? nameNode.d.value;
+            outgoingCall.to.name = getNameFromDeclaration(resolvedDecl) ?? nameNode.d.value;
         }
 
         const fromRange: Range = convertOffsetsToRange(
@@ -464,17 +468,10 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
                         this._targetDeclaration,
                         /* resolveLocalNames */ true
                     );
-                    if (
-                        resolvedCurDecls &&
-                        declarations.some((decl) => DeclarationUtils.areDeclarationsSame(decl!, resolvedCurDecls))
-                    ) {
+                    if (resolvedCurDecls && declarations.some((decl) => areDeclarationsSame(decl!, resolvedCurDecls))) {
                         this._addIncomingCallForDeclaration(nameNode!);
                     }
-                } else if (
-                    declarations.some((decl) =>
-                        this._declarations.some((t) => DeclarationUtils.areDeclarationsSame(decl, t))
-                    )
-                ) {
+                } else if (declarations.some((decl) => this._declarations.some((t) => areDeclarationsSame(decl, t)))) {
                     this._addIncomingCallForDeclaration(nameNode!);
                 }
             }
@@ -514,11 +511,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
                         return;
                     }
 
-                    if (
-                        propertyDecls.some((decl) =>
-                            DeclarationUtils.areDeclarationsSame(decl!, this._targetDeclaration)
-                        )
-                    ) {
+                    if (propertyDecls.some((decl) => areDeclarationsSame(decl!, this._targetDeclaration))) {
                         this._addIncomingCallForDeclaration(node.d.member);
                     }
                 });
@@ -545,9 +538,9 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
     }
 
     private _addIncomingCallForDeclaration(nameNode: NameNode) {
-        let executionNode = ParseTreeUtils.getExecutionScopeNode(nameNode);
+        let executionNode = getExecutionScopeNode(nameNode);
         while (executionNode && executionNode.nodeType === ParseNodeType.TypeParameterList) {
-            executionNode = ParseTreeUtils.getExecutionScopeNode(executionNode);
+            executionNode = getExecutionScopeNode(executionNode);
         }
 
         if (!executionNode) {

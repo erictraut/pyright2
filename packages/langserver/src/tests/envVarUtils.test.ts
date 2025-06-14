@@ -10,7 +10,7 @@ import { jest } from '@jest/globals';
 import assert from 'assert';
 import os from 'os';
 
-import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/providers/envVarUtils.js';
+import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
 import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';

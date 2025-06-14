@@ -11,13 +11,13 @@
 import { CancellationToken, Location, ResultProgressReporter } from 'vscode-languageserver';
 
 import { CollectionResult, DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
-import { convertDocumentRangesToLocation } from 'langserver/providers/navigationUtils.js';
+import { convertDocumentRangesToLocation } from 'langserver/server/navigationUtils.js';
 import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
 import { getNameFromDeclaration } from 'typeserver/binder/declarationUtils.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
 import { isVisibleExternally } from 'typeserver/binder/symbolUtils.js';
 import { DocumentRange } from 'typeserver/common/docRange.js';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import { findNodeByOffset, getEvaluationScopeNode } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/textRange.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
@@ -380,7 +380,7 @@ export class ReferencesProvider {
             return undefined;
         }
 
-        const node = ParseTreeUtils.findNodeByOffset(parseResults.parserOutput.parseTree, offset);
+        const node = findNodeByOffset(parseResults.parserOutput.parseTree, offset);
         if (node === undefined) {
             return undefined;
         }
@@ -411,7 +411,7 @@ function isVisibleOutside(evaluator: TypeEvaluator, currentUri: Uri, node: NameN
             return true;
         }
 
-        const evalScope = ParseTreeUtils.getEvaluationScopeNode(decl.node).node;
+        const evalScope = getEvaluationScopeNode(decl.node).node;
 
         // If the declaration is at the module level or a class level, it can be seen
         // outside of the current module, so a global search is needed.
@@ -479,13 +479,13 @@ function isVisibleOutside(evaluator: TypeEvaluator, currentUri: Uri, node: NameN
     // Return true if the scope that contains the specified node is visible
     // outside of the current module, false if not.
     function isContainerExternallyVisible(node: NameNode, recursionCount: number) {
-        let scopingNodeInfo = ParseTreeUtils.getEvaluationScopeNode(node);
+        let scopingNodeInfo = getEvaluationScopeNode(node);
         let scopingNode = scopingNodeInfo.node;
 
         // If this is a type parameter scope, it acts as a proxy for
         // its outer (parent) scope.
         while (scopingNodeInfo.useProxyScope && scopingNodeInfo.node.parent) {
-            scopingNodeInfo = ParseTreeUtils.getEvaluationScopeNode(scopingNodeInfo.node.parent);
+            scopingNodeInfo = getEvaluationScopeNode(scopingNodeInfo.node.parent);
             scopingNode = scopingNodeInfo.node;
         }
 

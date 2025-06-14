@@ -37,11 +37,11 @@ import {
 import { DocumentHighlightProvider } from 'langserver/providers/documentHighlightProvider.js';
 import { CollectionResult } from 'langserver/providers/documentSymbolCollector.js';
 import { HoverProvider } from 'langserver/providers/hoverProvider.js';
-import { convertDocumentRangesToLocation } from 'langserver/providers/navigationUtils.js';
 import { ReferencesProvider } from 'langserver/providers/referencesProvider.js';
 import { RenameProvider } from 'langserver/providers/renameProvider.js';
 import { SignatureHelpProvider } from 'langserver/providers/signatureHelpProvider.js';
 import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
+import { convertDocumentRangesToLocation } from 'langserver/server/navigationUtils.js';
 import { convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
 import {
     NormalWorkspace,

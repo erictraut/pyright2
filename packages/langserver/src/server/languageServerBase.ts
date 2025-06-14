@@ -85,15 +85,13 @@ import {
 import { DocumentHighlightProvider } from 'langserver/providers/documentHighlightProvider.js';
 import { CollectionResult } from 'langserver/providers/documentSymbolCollector.js';
 import { DocumentSymbolProvider } from 'langserver/providers/documentSymbolProvider.js';
-import { DynamicFeature, DynamicFeatures } from 'langserver/providers/dynamicFeature.js';
-import { FileWatcherDynamicFeature } from 'langserver/providers/fileWatcherDynamicFeature.js';
 import { HoverProvider } from 'langserver/providers/hoverProvider.js';
-import { canNavigateToFile } from 'langserver/providers/navigationUtils.js';
 import { ReferencesProvider } from 'langserver/providers/referencesProvider.js';
 import { RenameProvider } from 'langserver/providers/renameProvider.js';
 import { SignatureHelpProvider } from 'langserver/providers/signatureHelpProvider.js';
 import { WorkspaceSymbolProvider } from 'langserver/providers/workspaceSymbolProvider.js';
-import { getEffectiveCommandLineOptions } from 'langserver/server/analyzerServiceExecutor.js';
+import { DynamicFeature, DynamicFeatures } from 'langserver/server/dynamicFeature.js';
+import { FileWatcherDynamicFeature } from 'langserver/server/fileWatcherDynamicFeature.js';
 import {
     LanguageServerInterface,
     ServerOptions,
@@ -102,7 +100,9 @@ import {
 } from 'langserver/server/languageServerInterface.js';
 import { ClientCapabilities, InitializationOptions } from 'langserver/server/lspTypes.js';
 import { fromLSPAny, isNullProgressReporter } from 'langserver/server/lspUtils.js';
+import { canNavigateToFile } from 'langserver/server/navigationUtils.js';
 import { ProgressReportTracker, ProgressReporter } from 'langserver/server/progressReporter.js';
+import { getEffectiveCommandLineOptions } from 'langserver/server/typeServerExecutor.js';
 import {
     InitStatus,
     WellKnownWorkspaceKinds,

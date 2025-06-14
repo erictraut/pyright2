@@ -17,7 +17,7 @@ import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import * as StringUtils from 'typeserver/utils/stringUtils.js';
+import { isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
 
@@ -99,7 +99,7 @@ export class WorkspaceSymbolProvider {
                 continue;
             }
 
-            if (StringUtils.isPatternInSymbol(this._query, symbolData.name)) {
+            if (isPatternInSymbol(this._query, symbolData.name)) {
                 const location: Location = {
                     uri: convertUriToLspUriString(program.fileSystem, fileUri),
                     range: symbolData.selectionRange!,

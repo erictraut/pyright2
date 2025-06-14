@@ -17,9 +17,9 @@ import {
     synthesizeAliasDeclaration,
 } from 'typeserver/binder/declarationUtils.js';
 import { ScopeType } from 'typeserver/binder/scope.js';
-import * as ScopeUtils from 'typeserver/binder/scopeUtils.js';
+import { getScopeForNode } from 'typeserver/binder/scopeUtils.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
-import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
+import { getDunderAllInfo, getFileInfo, getScope, isCodeUnreachable } from 'typeserver/common/analyzerNodeInfo.js';
 import { getModuleNode, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
@@ -162,7 +162,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         }
 
         const declarations = getDeclarationsForNameNode(evaluator, node, /* skipUnreachableCode */ false);
-        const fileInfo = AnalyzerNodeInfo.getFileInfo(node);
+        const fileInfo = getFileInfo(node);
         const fileUri = fileInfo.fileUri;
 
         const resolvedDeclarations: Declaration[] = [];
@@ -197,7 +197,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             implicitlyImportedBy.forEach((implicitImport) => {
                 const parseTree = program.getParseResults(implicitImport.uri)?.parserOutput.parseTree;
                 if (parseTree) {
-                    const scope = AnalyzerNodeInfo.getScope(parseTree);
+                    const scope = getScope(parseTree);
                     const symbol = scope?.lookUpSymbol(node.d.value);
                     appendSymbolDeclarations(symbol, resolvedDeclarations);
                 }
@@ -225,7 +225,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     }
 
     override walk(node: ParseNode) {
-        if (!this._skipUnreachableCode || !AnalyzerNodeInfo.isCodeUnreachable(node)) {
+        if (!this._skipUnreachableCode || !isCodeUnreachable(node)) {
             super.walk(node);
         }
     }
@@ -353,12 +353,12 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             return;
         }
 
-        const dunderAllInfo = AnalyzerNodeInfo.getDunderAllInfo(node);
+        const dunderAllInfo = getDunderAllInfo(node);
         if (!dunderAllInfo) {
             return;
         }
 
-        const moduleScope = ScopeUtils.getScopeForNode(node);
+        const moduleScope = getScopeForNode(node);
         if (!moduleScope) {
             return;
         }
@@ -501,7 +501,7 @@ function _getDeclarationsForModuleNameNode(evaluator: TypeEvaluator, node: NameN
             // And we also need to re-use "decls for X" binder has created
             // so that it matches with decls type evaluator returns for "references for X".
             // ex) import X or from .X import ... in init file and etc.
-            const symbolWithScope = ScopeUtils.getScopeForNode(node)?.lookUpSymbolRecursive(importName);
+            const symbolWithScope = getScopeForNode(node)?.lookUpSymbolRecursive(importName);
             if (symbolWithScope && moduleName.d.nameParts.length === 1) {
                 let declsFromSymbol: Declaration[] = [];
 

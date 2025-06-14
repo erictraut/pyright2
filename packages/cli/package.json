@@ -19,6 +19,7 @@
     },
     "scripts": {
         "build": "npm run esbuild && shx cp -r ../typeserver/typeshed-fallback ./dist/typeshed-fallback",
+        "lint": "eslint 'src/**/*.{js,ts}'",
         "clean": "shx rm -rf ./dist ./out README.md LICENSE.txt",
         "prepack": "npm run clean && shx cp ../../README.md . && shx cp ../../LICENSE.txt . && npm run build",
         "esbuild": "esbuild src/pyright-cli.ts --bundle --platform=node --format=cjs --outfile=dist/pyright-cli.cjs --banner:js=\"#!/usr/bin/env node\" --external:fsevents --external:node:* --external:jsonc-parser"

@@ -53,7 +53,6 @@ export interface MessageAction {
 
 export interface WorkspaceServices {
     fs: FileSystem | undefined;
-    //backgroundAnalysis: IBackgroundAnalysis | undefined;
 }
 
 export interface ServerOptions {

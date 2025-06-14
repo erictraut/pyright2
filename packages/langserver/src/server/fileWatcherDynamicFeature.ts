@@ -5,7 +5,8 @@
  *
  * implementation of file watcher feature dynamic registration
  */
-import { DynamicFeature } from 'langserver/providers/dynamicFeature.js';
+
+import { DynamicFeature } from 'langserver/server/dynamicFeature.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { configFileName } from 'typeserver/common/pathConsts.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';

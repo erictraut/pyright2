@@ -42,11 +42,31 @@ import {
 import { isDefinedInFile } from 'typeserver/binder/declarationUtils.js';
 import { getScopeForNode } from 'typeserver/binder/scopeUtils.js';
 import { Symbol, SymbolTable } from 'typeserver/binder/symbol.js';
-import * as SymbolNameUtils from 'typeserver/binder/symbolNameUtils.js';
+import { isDunderName, isPrivateName, isPrivateOrProtectedName } from 'typeserver/binder/symbolNameUtils.js';
 import { getLastTypedDeclarationForSymbol, isVisibleExternally } from 'typeserver/binder/symbolUtils.js';
-import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
-import { getCallNodeAndActiveParamIndex } from 'typeserver/common/parseTreeUtils.js';
+import { getImportInfo, getScope } from 'typeserver/common/analyzerNodeInfo.js';
+import {
+    checkDecorator,
+    findNodeByOffset,
+    getCallNodeAndActiveParamIndex,
+    getEnclosingClass,
+    getEnclosingFunction,
+    getEnclosingModule,
+    getEvaluationScopeNode,
+    getFileInfoFromNode,
+    getFirstAncestorOrSelfOfKind,
+    getNodeDepth,
+    getParentNodeOfType,
+    getTokenAtIndex,
+    getTokenIndexAtLeft,
+    getTokenOverlapping,
+    getTypeAnnotationForParam,
+    isSimpleDefault,
+    isWithinAnnotationComment,
+    isWithinTypeAnnotation,
+    printExpression,
+    PrintExpressionFlags,
+} from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { PythonVersion, pythonVersion3_10, pythonVersion3_5 } from 'typeserver/common/pythonVersion.js';
 import { comparePositions, Position, TextRange } from 'typeserver/common/textRange.js';
@@ -127,9 +147,8 @@ import {
 import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import * as debug from 'typeserver/utils/debug.js';
-import { fail } from 'typeserver/utils/debug.js';
-import * as StringUtils from 'typeserver/utils/stringUtils.js';
+import { assert, fail } from 'typeserver/utils/debug.js';
+import { isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
 
 namespace Keywords {
     const base: string[] = [
@@ -415,7 +434,7 @@ export class CompletionProvider {
         partialName: NameNode,
         decorators?: DecoratorNode[]
     ): CompletionMap | undefined {
-        const enclosingClass = ParseTreeUtils.getEnclosingClass(partialName, /* stopAtFunction */ true);
+        const enclosingClass = getEnclosingClass(partialName, /* stopAtFunction */ true);
         if (!enclosingClass) {
             return undefined;
         }
@@ -433,15 +452,15 @@ export class CompletionProvider {
             }
         }
 
-        const staticmethod = decorators?.some((d) => ParseTreeUtils.checkDecorator(d, 'staticmethod')) ?? false;
-        const classmethod = decorators?.some((d) => ParseTreeUtils.checkDecorator(d, 'classmethod')) ?? false;
+        const staticmethod = decorators?.some((d) => checkDecorator(d, 'staticmethod')) ?? false;
+        const classmethod = decorators?.some((d) => checkDecorator(d, 'classmethod')) ?? false;
 
         const completionMap = new CompletionMap();
 
         symbolTable.forEach((symbol, name) => {
             let decl = getLastTypedDeclarationForSymbol(symbol);
             if (decl && decl.type === DeclarationType.Function) {
-                if (StringUtils.isPatternInSymbol(partialName.d.value, name)) {
+                if (isPatternInSymbol(partialName.d.value, name)) {
                     const declaredType = this.evaluator.getTypeForDeclaration(decl)?.type;
                     if (!declaredType) {
                         return;
@@ -449,7 +468,7 @@ export class CompletionProvider {
 
                     let isProperty = isClassInstance(declaredType) && ClassType.isPropertyClass(declaredType);
 
-                    if (SymbolNameUtils.isDunderName(name)) {
+                    if (isDunderName(name)) {
                         // Don't offer suggestions for built-in properties like "__class__", etc.
                         isProperty = false;
                     }
@@ -892,7 +911,7 @@ export class CompletionProvider {
         detail?: CompletionDetail
     ) {
         // Auto importer already filtered out unnecessary ones. No need to do it again.
-        const similarity = detail?.autoImportText ? true : StringUtils.isPatternInSymbol(filter, name);
+        const similarity = detail?.autoImportText ? true : isPatternInSymbol(filter, name);
         if (!similarity) {
             return;
         }
@@ -951,10 +970,10 @@ export class CompletionProvider {
         } else if (itemKind === CompletionItemKind.EnumMember) {
             // Handle enum members separately so they are sorted above other symbols.
             completionItem.sortText = this._makeSortText(SortCategory.EnumMember, name);
-        } else if (SymbolNameUtils.isDunderName(name)) {
+        } else if (isDunderName(name)) {
             // Force dunder-named symbols to appear after all other symbols.
             completionItem.sortText = this._makeSortText(SortCategory.DunderSymbol, name);
-        } else if (filter === '' && SymbolNameUtils.isPrivateOrProtectedName(name)) {
+        } else if (filter === '' && isPrivateOrProtectedName(name)) {
             // Distinguish between normal and private symbols only if there is
             // currently no filter text. Once we get a single character to filter
             // upon, we'll no longer differentiate.
@@ -1075,10 +1094,10 @@ export class CompletionProvider {
             return undefined;
         }
 
-        let node = ParseTreeUtils.findNodeByOffset(this.parseResults.parserOutput.parseTree, offset);
+        let node = findNodeByOffset(this.parseResults.parserOutput.parseTree, offset);
 
         // See if we're inside a string literal or an f-string statement.
-        const token = ParseTreeUtils.getTokenOverlapping(this.parseResults.tokenizerOutput.tokens, offset);
+        const token = getTokenOverlapping(this.parseResults.tokenizerOutput.tokens, offset);
         if (token?.type === TokenType.String) {
             const stringToken = token as StringToken;
             this._stringLiteralContainer = TextRange.contains(stringToken, offset)
@@ -1087,10 +1106,7 @@ export class CompletionProvider {
                 ? stringToken
                 : undefined;
         } else if (node) {
-            const fStringContainer = ParseTreeUtils.getParentNodeOfType<FormatStringNode>(
-                node,
-                ParseNodeType.FormatString
-            );
+            const fStringContainer = getParentNodeOfType<FormatStringNode>(node, ParseNodeType.FormatString);
             if (fStringContainer) {
                 this._stringLiteralContainer = fStringContainer.d.token;
             }
@@ -1100,7 +1116,7 @@ export class CompletionProvider {
         // A "better" node is defined as one that's deeper than the current
         // node.
         const initialNode = node;
-        const initialDepth = node ? ParseTreeUtils.getNodeDepth(node) : 0;
+        const initialDepth = node ? getNodeDepth(node) : 0;
 
         if (!initialNode || initialNode.nodeType !== ParseNodeType.Name) {
             let curOffset = offset;
@@ -1118,9 +1134,9 @@ export class CompletionProvider {
                     sawComma = true;
                 }
 
-                const curNode = ParseTreeUtils.findNodeByOffset(this.parseResults.parserOutput.parseTree, curOffset);
+                const curNode = findNodeByOffset(this.parseResults.parserOutput.parseTree, curOffset);
                 if (curNode && curNode !== initialNode) {
-                    if (ParseTreeUtils.getNodeDepth(curNode) > initialDepth) {
+                    if (getNodeDepth(curNode) > initialDepth) {
                         node = curNode;
 
                         // If we're at the end of a list with a hanging comma, handle the
@@ -1204,10 +1220,7 @@ export class CompletionProvider {
                 }
             }
 
-            const dictionaryEntry = ParseTreeUtils.getFirstAncestorOrSelfOfKind(
-                curNode,
-                ParseNodeType.DictionaryKeyEntry
-            );
+            const dictionaryEntry = getFirstAncestorOrSelfOfKind(curNode, ParseNodeType.DictionaryKeyEntry);
             if (dictionaryEntry) {
                 if (dictionaryEntry.parent?.nodeType === ParseNodeType.Dictionary) {
                     const dictionaryNode = dictionaryEntry.parent;
@@ -1482,7 +1495,7 @@ export class CompletionProvider {
 
             // If offset > token.start, tokenIndex + 1 < tokens.length
             // should be always true.
-            debug.assert(tokenIndex + 1 < tokens.length);
+            assert(tokenIndex + 1 < tokens.length);
             return tokens.getItemAt(tokenIndex + 1);
         }
     }
@@ -1511,9 +1524,9 @@ export class CompletionProvider {
                 // Don't show completion after random dots.
                 const tokenizerOutput = this.parseResults.tokenizerOutput;
                 const offset = convertPositionToOffset(this.position, tokenizerOutput.lines);
-                const index = ParseTreeUtils.getTokenIndexAtLeft(tokenizerOutput.tokens, offset!);
-                const token = ParseTreeUtils.getTokenAtIndex(tokenizerOutput.tokens, index);
-                const prevToken = ParseTreeUtils.getTokenAtIndex(tokenizerOutput.tokens, index - 1);
+                const index = getTokenIndexAtLeft(tokenizerOutput.tokens, offset!);
+                const token = getTokenAtIndex(tokenizerOutput.tokens, index);
+                const prevToken = getTokenAtIndex(tokenizerOutput.tokens, index - 1);
 
                 if (node.d.category === ErrorExpressionCategory.MissingExpression) {
                     // Skip dots on expressions.
@@ -1539,10 +1552,7 @@ export class CompletionProvider {
                     }
 
                     const previousOffset = TextRange.getEnd(prevToken);
-                    const previousNode = ParseTreeUtils.findNodeByOffset(
-                        this.parseResults.parserOutput.parseTree,
-                        previousOffset
-                    );
+                    const previousNode = findNodeByOffset(this.parseResults.parserOutput.parseTree, previousOffset);
                     if (
                         previousNode?.nodeType !== ParseNodeType.Error ||
                         previousNode.d.category !== ErrorExpressionCategory.MissingMemberAccessName
@@ -1610,7 +1620,7 @@ export class CompletionProvider {
     }
 
     private _isOverload(node: DecoratorNode): boolean {
-        return ParseTreeUtils.checkDecorator(node, 'overload');
+        return checkDecorator(node, 'overload');
     }
 
     private _createSingleKeywordCompletion(keyword: string): CompletionMap {
@@ -1641,7 +1651,7 @@ export class CompletionProvider {
             return;
         }
 
-        const enclosingClass = ParseTreeUtils.getEnclosingClass(parseNode, false);
+        const enclosingClass = getEnclosingClass(parseNode, false);
         if (!enclosingClass) {
             return;
         }
@@ -1696,10 +1706,7 @@ export class CompletionProvider {
             .filter((d) => isVariableDeclaration(d) && d.moduleName !== 'builtins') as VariableDeclaration[];
 
         // Skip any symbols invalid such as defined in the same class.
-        if (
-            decls.length === 0 ||
-            decls.some((d) => d.node && ParseTreeUtils.getEnclosingClass(d.node, false) === enclosingClass)
-        ) {
+        if (decls.length === 0 || decls.some((d) => d.node && getEnclosingClass(d.node, false) === enclosingClass)) {
             return;
         }
 
@@ -1709,11 +1716,10 @@ export class CompletionProvider {
         }
 
         const printFlags = isStubFile(this.fileUri)
-            ? ParseTreeUtils.PrintExpressionFlags.ForwardDeclarations |
-              ParseTreeUtils.PrintExpressionFlags.DoNotLimitStringLength
-            : ParseTreeUtils.PrintExpressionFlags.DoNotLimitStringLength;
+            ? PrintExpressionFlags.ForwardDeclarations | PrintExpressionFlags.DoNotLimitStringLength
+            : PrintExpressionFlags.DoNotLimitStringLength;
 
-        const text = `${ParseTreeUtils.printExpression(
+        const text = `${printExpression(
             declWithTypeAnnotations[declWithTypeAnnotations.length - 1].typeAnnotationNode!,
             printFlags
         )}`;
@@ -1724,7 +1730,7 @@ export class CompletionProvider {
     }
 
     private _getClassVariableCompletions(partialName: NameNode): CompletionMap | undefined {
-        const enclosingClass = ParseTreeUtils.getEnclosingClass(partialName, false);
+        const enclosingClass = getEnclosingClass(partialName, false);
         if (!enclosingClass) {
             return undefined;
         }
@@ -1744,10 +1750,10 @@ export class CompletionProvider {
         const completionMap = new CompletionMap();
         symbolTable.forEach((symbol, name) => {
             if (
-                SymbolNameUtils.isPrivateName(name) ||
+                isPrivateName(name) ||
                 symbol.isPrivateMember() ||
                 symbol.isExternallyHidden() ||
-                !StringUtils.isPatternInSymbol(partialName.d.value, name)
+                !isPatternInSymbol(partialName.d.value, name)
             ) {
                 return;
             }
@@ -1759,7 +1765,7 @@ export class CompletionProvider {
             // Skip any symbols invalid such as defined in the same class.
             if (
                 decls.length === 0 ||
-                decls.some((d) => d.node && ParseTreeUtils.getEnclosingClass(d.node, false) === enclosingClass)
+                decls.some((d) => d.node && getEnclosingClass(d.node, false) === enclosingClass)
             ) {
                 return;
             }
@@ -1779,7 +1785,7 @@ export class CompletionProvider {
         const funcParensDisabled = partialName.parent?.nodeType === ParseNodeType.Function ? true : undefined;
         const completionMap = new CompletionMap();
 
-        const enclosingFunc = ParseTreeUtils.getEnclosingFunction(partialName);
+        const enclosingFunc = getEnclosingFunction(partialName);
         symbolTable.forEach((symbol, name) => {
             const decl = getLastTypedDeclarationForSymbol(symbol);
             if (!decl || decl.type !== DeclarationType.Function) {
@@ -1797,7 +1803,7 @@ export class CompletionProvider {
                 return;
             }
 
-            if (StringUtils.isPatternInSymbol(partialName.d.value, name)) {
+            if (isPatternInSymbol(partialName.d.value, name)) {
                 const textEdit = this.createReplaceEdits(priorWord, partialName, decl.node.d.name.d.value);
                 this.addSymbol(name, symbol, partialName.d.value, completionMap, {
                     funcParensDisabled,
@@ -1809,7 +1815,7 @@ export class CompletionProvider {
         return completionMap;
 
         function getSymbolTable(evaluator: TypeEvaluator, partialName: NameNode) {
-            const enclosingClass = ParseTreeUtils.getEnclosingClass(partialName, false);
+            const enclosingClass = getEnclosingClass(partialName, false);
             if (enclosingClass) {
                 const classResults = evaluator.getTypeOfClass(enclosingClass);
                 if (!classResults) {
@@ -1827,9 +1833,9 @@ export class CompletionProvider {
             }
 
             // For function overload, we only care about top level functions
-            const moduleNode = ParseTreeUtils.getEnclosingModule(partialName);
+            const moduleNode = getEnclosingModule(partialName);
             if (moduleNode) {
-                const moduleScope = AnalyzerNodeInfo.getScope(moduleNode);
+                const moduleScope = getScope(moduleNode);
                 return moduleScope?.symbolTable;
             }
 
@@ -1850,9 +1856,8 @@ export class CompletionProvider {
         }
 
         const printFlags = isStubFile(this.fileUri)
-            ? ParseTreeUtils.PrintExpressionFlags.ForwardDeclarations |
-              ParseTreeUtils.PrintExpressionFlags.DoNotLimitStringLength
-            : ParseTreeUtils.PrintExpressionFlags.DoNotLimitStringLength;
+            ? PrintExpressionFlags.ForwardDeclarations | PrintExpressionFlags.DoNotLimitStringLength
+            : PrintExpressionFlags.DoNotLimitStringLength;
 
         const paramList = node.d.params
             .map((param, index) => {
@@ -1869,18 +1874,16 @@ export class CompletionProvider {
 
                 // Currently, we don't automatically add import if the type used in the annotation is not imported
                 // in current file.
-                const paramTypeAnnotation = ParseTreeUtils.getTypeAnnotationForParam(node, index);
+                const paramTypeAnnotation = getTypeAnnotationForParam(node, index);
                 if (paramTypeAnnotation) {
-                    paramString += ': ' + ParseTreeUtils.printExpression(paramTypeAnnotation, printFlags);
+                    paramString += ': ' + printExpression(paramTypeAnnotation, printFlags);
                 }
 
                 if (param.d.defaultValue) {
                     paramString += paramTypeAnnotation ? ' = ' : '=';
 
-                    const useEllipsis = ellipsisForDefault ?? !ParseTreeUtils.isSimpleDefault(param.d.defaultValue);
-                    paramString += useEllipsis
-                        ? '...'
-                        : ParseTreeUtils.printExpression(param.d.defaultValue, printFlags);
+                    const useEllipsis = ellipsisForDefault ?? !isSimpleDefault(param.d.defaultValue);
+                    paramString += useEllipsis ? '...' : printExpression(param.d.defaultValue, printFlags);
                 }
 
                 if (!paramString && !param.d.name && param.d.category === ParamCategory.Simple) {
@@ -1894,10 +1897,9 @@ export class CompletionProvider {
         let methodSignature = node.d.name.d.value + '(' + paramList + ')';
 
         if (node.d.returnAnnotation) {
-            methodSignature += ' -> ' + ParseTreeUtils.printExpression(node.d.returnAnnotation, printFlags);
+            methodSignature += ' -> ' + printExpression(node.d.returnAnnotation, printFlags);
         } else if (node.d.funcAnnotationComment) {
-            methodSignature +=
-                ' -> ' + ParseTreeUtils.printExpression(node.d.funcAnnotationComment.d.returnAnnotation, printFlags);
+            methodSignature += ' -> ' + printExpression(node.d.funcAnnotationComment.d.returnAnnotation, printFlags);
         }
 
         return methodSignature;
@@ -2219,14 +2221,10 @@ export class CompletionProvider {
 
         let startingNode: ParseNode = indexNode.d.leftExpr;
         if (declaration.node) {
-            const scopeRoot = ParseTreeUtils.getEvaluationScopeNode(declaration.node).node;
+            const scopeRoot = getEvaluationScopeNode(declaration.node).node;
 
             // Find the lowest tree to search the symbol.
-            if (
-                ParseTreeUtils.getFileInfoFromNode(startingNode)?.fileUri.equals(
-                    ParseTreeUtils.getFileInfoFromNode(scopeRoot)?.fileUri
-                )
-            ) {
+            if (getFileInfoFromNode(startingNode)?.fileUri.equals(getFileInfoFromNode(scopeRoot)?.fileUri)) {
                 startingNode = scopeRoot;
             }
         }
@@ -2594,7 +2592,7 @@ export class CompletionProvider {
 
         // If the expected type result is associated with a node above the
         // dictionaryNode in the parse tree, there are no typed dict keys to add.
-        if (ParseTreeUtils.getNodeDepth(expectedTypeResult.node) < ParseTreeUtils.getNodeDepth(dictionaryNode)) {
+        if (getNodeDepth(expectedTypeResult.node) < getNodeDepth(dictionaryNode)) {
             return false;
         }
 
@@ -2704,7 +2702,7 @@ export class CompletionProvider {
         completionMap: CompletionMap,
         detail?: string
     ) {
-        if (!StringUtils.isPatternInSymbol(quoteInfo.filterText || '', value)) {
+        if (!isPatternInSymbol(quoteInfo.filterText || '', value)) {
             return;
         }
 
@@ -2755,7 +2753,7 @@ export class CompletionProvider {
 
         // Access the imported module information, which is hanging
         // off the ImportFromNode.
-        const importInfo = AnalyzerNodeInfo.getImportInfo(importFromNode.d.module);
+        const importInfo = getImportInfo(importFromNode.d.module);
         if (!importInfo) {
             return undefined;
         }
@@ -2773,7 +2771,7 @@ export class CompletionProvider {
             return completionMap;
         }
 
-        const symbolTable = AnalyzerNodeInfo.getScope(parseResults.parserOutput.parseTree)?.symbolTable;
+        const symbolTable = getScope(parseResults.parserOutput.parseTree)?.symbolTable;
         if (!symbolTable) {
             return completionMap;
         }
@@ -2823,7 +2821,7 @@ export class CompletionProvider {
     private _findMatchingKeywords(keywordList: string[], partialMatch: string): string[] {
         return keywordList.filter((keyword) => {
             if (partialMatch) {
-                return StringUtils.isPatternInSymbol(partialMatch, keyword);
+                return isPatternInSymbol(partialMatch, keyword);
             } else {
                 return true;
             }
@@ -2856,7 +2854,7 @@ export class CompletionProvider {
 
         // Add the remaining unique parameter names to the completion list.
         argNameSet.forEach((argName) => {
-            if (StringUtils.isPatternInSymbol(priorWord, argName)) {
+            if (isPatternInSymbol(priorWord, argName)) {
                 const label = argName + '=';
                 if (completionMap.has(label)) {
                     return;
@@ -2888,7 +2886,7 @@ export class CompletionProvider {
                 paramInfo.kind !== ParamKind.ExpandedArgs
             ) {
                 if (
-                    !SymbolNameUtils.isPrivateOrProtectedName(paramInfo.param.name) &&
+                    !isPrivateOrProtectedName(paramInfo.param.name) &&
                     Tokenizer.isPythonIdentifier(paramInfo.param.name)
                 ) {
                     names.add(paramInfo.param.name);
@@ -2962,8 +2960,7 @@ export class CompletionProvider {
         completionMap: CompletionMap
     ) {
         const insideTypeAnnotation =
-            ParseTreeUtils.isWithinAnnotationComment(node) ||
-            ParseTreeUtils.isWithinTypeAnnotation(node, /* requireQuotedAnnotation */ false);
+            isWithinAnnotationComment(node) || isWithinTypeAnnotation(node, /* requireQuotedAnnotation */ false);
         symbolTable.forEach((symbol, name) => {
             // If there are no declarations or the symbol is not
             // exported from this scope, don't include it in the
@@ -2999,8 +2996,8 @@ export class CompletionProvider {
         }
 
         // Otherwise only show when the class is being assigned to a variable.
-        const nodeIndex = ParseTreeUtils.getTokenIndexAtLeft(this.parseResults.tokenizerOutput.tokens, node.start);
-        const prevToken = ParseTreeUtils.getTokenAtIndex(this.parseResults.tokenizerOutput.tokens, nodeIndex);
+        const nodeIndex = getTokenIndexAtLeft(this.parseResults.tokenizerOutput.tokens, node.start);
+        const prevToken = getTokenAtIndex(this.parseResults.tokenizerOutput.tokens, nodeIndex);
         return (
             prevToken &&
             prevToken.type === TokenType.Operator &&
