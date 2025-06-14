@@ -46,6 +46,7 @@ import {
 } from 'langserver/tests/lsp/languageServerTestUtils.js';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
+import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { initializeDependencies } from 'typeserver/service/asyncInitialization.js';
 
@@ -207,7 +208,7 @@ async function runServer(
         // are how the test code queries the state of the server.
         disposables.push(
             CustomLSP.onRequest(connection, CustomLSP.Requests.GetDiagnostics, async (params, token) => {
-                const filePath = Uri.parse(params.uri, server.serviceProvider);
+                const filePath = Uri.parse(params.uri, getCaseDetector(server.serviceProvider));
                 const workspace = await server.getWorkspaceForFile(filePath);
                 workspace.service.program.analyze(undefined, token);
                 const file = workspace.service.program.getBoundSourceFile(filePath);
@@ -216,7 +217,9 @@ async function runServer(
             }),
 
             CustomLSP.onRequest(connection, CustomLSP.Requests.GetOpenFiles, async (params) => {
-                const workspace = await server.getWorkspaceForFile(Uri.parse(params.uri, server.serviceProvider));
+                const workspace = await server.getWorkspaceForFile(
+                    Uri.parse(params.uri, getCaseDetector(server.serviceProvider))
+                );
                 const files = serialize(workspace.service.program.getOpened().map((f) => f.uri));
                 return { files: files };
             })

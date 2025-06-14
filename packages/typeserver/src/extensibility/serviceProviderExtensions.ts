@@ -10,7 +10,7 @@ import { CancellationProvider, DefaultCancellationProvider } from 'typeserver/ex
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, TempFile } from 'typeserver/files/fileSystem.js';
 import { PartialStubService, SupportPartialStubs } from 'typeserver/files/partialStubService.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';
@@ -72,4 +72,8 @@ export function getCancellationProvider(sp: ServiceProvider): CancellationProvid
 
 export function getCacheManager(sp: ServiceProvider): CacheManager | undefined {
     return sp.tryGet(ServiceKeys.cacheManager);
+}
+
+export function getCaseDetector(sp: ServiceProvider): CaseSensitivityDetector {
+    return sp.get(ServiceKeys.caseSensitivityDetector);
 }

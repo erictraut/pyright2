@@ -30,7 +30,7 @@ import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBase
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { createServiceProvider, getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
@@ -77,7 +77,7 @@ export class PyrightServer extends LanguageServerBase {
 
         if (!typeshedFallbackLoc) {
             const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-            const rootDirectory = Uri.file(dirPath, serviceProvider);
+            const rootDirectory = Uri.file(dirPath, getCaseDetector(serviceProvider));
             typeshedFallbackLoc = rootDirectory.combinePaths(typeshedFallback);
         }
 
@@ -262,7 +262,7 @@ export class PyrightServer extends LanguageServerBase {
     ): Promise<(Command | CodeAction)[] | undefined | null> {
         this.recordUserInteractionTime();
 
-        const uri = Uri.parse(params.textDocument.uri, this.serverOptions.serviceProvider);
+        const uri = Uri.parse(params.textDocument.uri, getCaseDetector(this.serverOptions.serviceProvider));
         const workspace = await this.getWorkspaceForFile(uri);
         return CodeActionProvider.getCodeActionsForPosition(workspace, uri, params.range, params.context.only, token);
     }

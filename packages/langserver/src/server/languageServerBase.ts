@@ -121,7 +121,12 @@ import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/exte
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { getCancellationProvider, getConsole, getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import {
+    getCancellationProvider,
+    getCaseDetector,
+    getConsole,
+    getFs,
+} from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
@@ -1404,7 +1409,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     }
 
     protected convertLspUriStringToUri(uri: string) {
-        return Uri.parse(uri, this.serverOptions.serviceProvider);
+        return Uri.parse(uri, getCaseDetector(this.serverOptions.serviceProvider));
     }
 
     protected addDynamicFeature(feature: DynamicFeature) {

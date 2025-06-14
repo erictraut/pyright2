@@ -10,6 +10,7 @@ import { CompletionItemKind, MarkupKind } from 'vscode-languageserver-types';
 
 import { CompletionOptions, CompletionProvider } from 'langserver/providers/completionProvider.js';
 import { parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
+import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 
 test('completion import statement tooltip', async () => {
@@ -799,7 +800,7 @@ test('completion quote trigger', async () => {
     const state = parseAndGetTestState(code).state;
     const marker = state.getMarkerByName('marker');
     const filePath = marker.fileName;
-    const uri = Uri.file(filePath, state.serviceProvider);
+    const uri = Uri.file(filePath, getCaseDetector(state.serviceProvider));
     const position = state.convertOffsetToPosition(filePath, marker.position);
 
     const options: CompletionOptions = {
@@ -837,7 +838,7 @@ test('completion quote trigger - middle', async () => {
     const state = parseAndGetTestState(code).state;
     const marker = state.getMarkerByName('marker');
     const filePath = marker.fileName;
-    const uri = Uri.file(filePath, state.serviceProvider);
+    const uri = Uri.file(filePath, getCaseDetector(state.serviceProvider));
     const position = state.convertOffsetToPosition(filePath, marker.position);
 
     const options: CompletionOptions = {
@@ -883,7 +884,7 @@ test('auto import sort text', async () => {
     while (state.workspace.service.program.analyze());
 
     const filePath = marker.fileName;
-    const uri = Uri.file(filePath, state.serviceProvider);
+    const uri = Uri.file(filePath, getCaseDetector(state.serviceProvider));
     const position = state.convertOffsetToPosition(filePath, marker.position);
 
     const options: CompletionOptions = {

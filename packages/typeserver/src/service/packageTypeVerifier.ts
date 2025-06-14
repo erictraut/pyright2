@@ -47,7 +47,7 @@ import { NullConsole } from 'typeserver/extensibility/console.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { getCaseDetector, getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { tryStat, UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -110,7 +110,7 @@ export class PackageTypeVerifier {
             this._configOptions.evaluateUnknownImportsAsAny = true;
         }
 
-        this._execEnv = this._configOptions.findExecEnvironment(Uri.file('.', _serviceProvider));
+        this._execEnv = this._configOptions.findExecEnvironment(Uri.file('.', getCaseDetector(_serviceProvider)));
         this._importResolver = new ImportResolver(this._serviceProvider, this._configOptions, this._host);
         this._program = new Program(this._importResolver, this._configOptions, this._serviceProvider);
     }

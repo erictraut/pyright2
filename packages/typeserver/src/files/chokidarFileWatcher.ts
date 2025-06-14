@@ -1,5 +1,5 @@
 /*
- * chokidarFileWatcherProvider.ts
+ * chokidarFileWatcher.ts
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *

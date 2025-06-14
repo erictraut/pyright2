@@ -16,7 +16,7 @@ import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVer
 import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { createServiceProvider, getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
@@ -42,7 +42,7 @@ describe(`config test'}`, () => {
         assert.strictEqual(
             configOptions.projectRoot.key,
             service.fs.realCasePath(
-                Uri.file(combinePaths(cwd, commandLineOptions.configFilePath), service.serviceProvider)
+                Uri.file(combinePaths(cwd, commandLineOptions.configFilePath), getCaseDetector(service.serviceProvider))
             ).key
         );
 
@@ -135,7 +135,12 @@ describe(`config test'}`, () => {
         assert.strictEqual(
             configOptions.projectRoot.getFilePath(),
             service.fs
-                .realCasePath(Uri.file(combinePaths(cwd, commandLineOptions.configFilePath), service.serviceProvider))
+                .realCasePath(
+                    Uri.file(
+                        combinePaths(cwd, commandLineOptions.configFilePath),
+                        getCaseDetector(service.serviceProvider)
+                    )
+                )
                 .getFilePath()
         );
 
@@ -202,7 +207,7 @@ describe(`config test'}`, () => {
         const service = createAnalyzer(nullConsole);
         const cwd = Uri.file(
             normalizePath(combinePaths(process.cwd(), 'src/tests/samples/project_with_pyproject_toml_platform')),
-            service.serviceProvider
+            getCaseDetector(service.serviceProvider)
         );
         const commandLineOptions = new CommandLineOptions(cwd.getFilePath(), /* fromLanguageServer */ false);
         service.setOptions(commandLineOptions);
@@ -217,7 +222,7 @@ describe(`config test'}`, () => {
         const service = createAnalyzer(nullConsole);
         const cwd = Uri.file(
             normalizePath(combinePaths(process.cwd(), 'src/tests/samples/project_src')),
-            service.serviceProvider
+            getCaseDetector(service.serviceProvider)
         );
         const commandLineOptions = new CommandLineOptions(cwd.getFilePath(), /* fromLanguageServer */ false);
         commandLineOptions.configSettings.autoSearchPaths = true;
@@ -278,7 +283,7 @@ describe(`config test'}`, () => {
         const service = createAnalyzer(nullConsole);
         const cwd = Uri.file(
             normalizePath(combinePaths(process.cwd(), 'src/tests/samples/project_src_with_config_no_extra_paths')),
-            service.serviceProvider
+            getCaseDetector(service.serviceProvider)
         );
         const commandLineOptions = new CommandLineOptions(cwd.getFilePath(), /* fromLanguageServer */ false);
         commandLineOptions.configSettings.autoSearchPaths = true;
@@ -317,7 +322,7 @@ describe(`config test'}`, () => {
         service.setOptions(commandLineOptions);
 
         // Open a file that is not backed by the file system.
-        const untitled = Uri.parse('untitled:Untitled-1.py', service.serviceProvider);
+        const untitled = Uri.parse('untitled:Untitled-1.py', getCaseDetector(service.serviceProvider));
         service.setFileOpened(untitled, 1, '# empty');
 
         const fileList = service.test_getFileNamesFromFileSpecs();
@@ -333,7 +338,7 @@ describe(`config test'}`, () => {
         service.setOptions(commandLineOptions);
         const configOptions = service.test_getConfigOptions(commandLineOptions);
 
-        const expectedExtraPaths = [Uri.file('/extraPaths', service.serviceProvider)];
+        const expectedExtraPaths = [Uri.file('/extraPaths', getCaseDetector(service.serviceProvider))];
         assert.deepStrictEqual(
             configOptions.defaultExtraPaths?.map((u) => u.getFilePath()),
             expectedExtraPaths.map((u) => u.getFilePath())

@@ -8,10 +8,7 @@
 
 import { URI, Utils } from 'vscode-uri';
 
-import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { ServiceKey } from 'typeserver/extensibility/serviceProvider.js';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
-
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { JsonObjType } from 'typeserver/files/uri/baseUri.js';
 import { ConstantUri } from 'typeserver/files/uri/constantUri.js';
 import { EmptyUri } from 'typeserver/files/uri/emptyUri.js';
@@ -173,35 +170,19 @@ const windowsUriRegEx = /^[a-zA-Z]:\\?/;
 const uriRegEx = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/?\/?/;
 
 export namespace Uri {
-    export interface IServiceProvider {
-        get<T>(key: ServiceKey<T>): T;
-    }
-
     export function maybeUri(value: string) {
         return uriRegEx.test(value) && !windowsUriRegEx.test(value);
     }
 
-    export function create(value: string, serviceProvider: IServiceProvider, checkRelative?: boolean): Uri;
-    export function create(
-        value: string,
-        caseSensitivityDetector: CaseSensitivityDetector,
-        checkRelative?: boolean
-    ): Uri;
-    export function create(value: string, arg: IServiceProvider | CaseSensitivityDetector, checkRelative = false): Uri {
-        arg = CaseSensitivityDetector.is(arg) ? arg : arg.get(ServiceKeys.caseSensitivityDetector);
-
+    export function create(value: string, detector: CaseSensitivityDetector, checkRelative = false): Uri {
         if (maybeUri(value)) {
-            return parse(value, arg);
+            return parse(value, detector);
         }
 
-        return file(value, arg, checkRelative);
+        return file(value, detector, checkRelative);
     }
 
-    export function file(path: string, serviceProvider: IServiceProvider, checkRelative?: boolean): Uri;
-    export function file(path: string, caseSensitivityDetector: CaseSensitivityDetector, checkRelative?: boolean): Uri;
-    export function file(path: string, arg: IServiceProvider | CaseSensitivityDetector, checkRelative = false): Uri {
-        arg = CaseSensitivityDetector.is(arg) ? arg : arg.get(ServiceKeys.caseSensitivityDetector);
-
+    export function file(path: string, detector: CaseSensitivityDetector, checkRelative = false): Uri {
         // Fix path if we're checking for relative paths and this is not a rooted path.
         path = checkRelative && !isRootedDiskPath(path) ? combinePaths(process.cwd(), path) : path;
 
@@ -217,18 +198,14 @@ export namespace Uri {
             normalized.uri.query,
             normalized.uri.fragment,
             normalized.str,
-            arg.isCaseSensitive(normalized.str)
+            detector.isCaseSensitive(normalized.str)
         );
     }
 
-    export function parse(uriStr: string | undefined, serviceProvider: IServiceProvider): Uri;
-    export function parse(uriStr: string | undefined, caseSensitivityDetector: CaseSensitivityDetector): Uri;
-    export function parse(uriStr: string | undefined, arg: IServiceProvider | CaseSensitivityDetector): Uri {
+    export function parse(uriStr: string | undefined, detector: CaseSensitivityDetector): Uri {
         if (!uriStr) {
             return Uri.empty();
         }
-
-        arg = CaseSensitivityDetector.is(arg) ? arg : arg.get(ServiceKeys.caseSensitivityDetector);
 
         // Normalize the value here. This gets rid of '..' and '.' in the path. It also removes any
         // '/' on the end of the path.
@@ -239,7 +216,7 @@ export namespace Uri {
                 normalized.uri.query,
                 normalized.uri.fragment,
                 normalized.str,
-                arg.isCaseSensitive(normalized.str)
+                detector.isCaseSensitive(normalized.str)
             );
         }
 
@@ -267,11 +244,8 @@ export namespace Uri {
     export const DefaultWorkspaceRootComponent = '<default workspace root>';
     export const DefaultWorkspaceRootPath = `/${DefaultWorkspaceRootComponent}`;
 
-    export function defaultWorkspace(serviceProvider: IServiceProvider): Uri;
-    export function defaultWorkspace(caseSensitivityDetector: CaseSensitivityDetector): Uri;
-    export function defaultWorkspace(arg: IServiceProvider | CaseSensitivityDetector): Uri {
-        arg = CaseSensitivityDetector.is(arg) ? arg : arg.get(ServiceKeys.caseSensitivityDetector);
-        return Uri.file(DefaultWorkspaceRootPath, arg);
+    export function defaultWorkspace(detector: CaseSensitivityDetector): Uri {
+        return Uri.file(DefaultWorkspaceRootPath, detector);
     }
 
     export function fromJsonObj(jsonObj: JsonObjType) {

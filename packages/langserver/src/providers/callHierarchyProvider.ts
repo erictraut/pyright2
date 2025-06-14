@@ -39,6 +39,7 @@ import {
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
+import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
@@ -100,7 +101,12 @@ export class CallHierarchyProvider {
             selectionRange: targetDecl.range,
         };
 
-        if (!canNavigateToFile(this._program.fileSystem, Uri.parse(callItem.uri, this._program.serviceProvider))) {
+        if (
+            !canNavigateToFile(
+                this._program.fileSystem,
+                Uri.parse(callItem.uri, getCaseDetector(this._program.serviceProvider))
+            )
+        ) {
             return null;
         }
 
@@ -145,7 +151,10 @@ export class CallHierarchyProvider {
         }
 
         return items.filter((item) =>
-            canNavigateToFile(this._program.fileSystem, Uri.parse(item.from.uri, this._program.serviceProvider))
+            canNavigateToFile(
+                this._program.fileSystem,
+                Uri.parse(item.from.uri, getCaseDetector(this._program.serviceProvider))
+            )
         );
     }
 
@@ -217,7 +226,10 @@ export class CallHierarchyProvider {
         }
 
         return outgoingCalls.filter((item) =>
-            canNavigateToFile(this._program.fileSystem, Uri.parse(item.to.uri, this._program.serviceProvider))
+            canNavigateToFile(
+                this._program.fileSystem,
+                Uri.parse(item.to.uri, getCaseDetector(this._program.serviceProvider))
+            )
         );
     }
 

@@ -9,7 +9,7 @@
 import { CancellationProvider } from 'typeserver/extensibility/cancellationUtils.js';
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ServiceKey } from 'typeserver/extensibility/serviceProvider.js';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, TempFile } from 'typeserver/files/fileSystem.js';
 import { SupportPartialStubs } from 'typeserver/files/partialStubService.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';

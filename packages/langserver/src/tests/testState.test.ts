@@ -14,6 +14,7 @@ import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { runFourSlashTestContent } from 'langserver/tests/harness/fourslash/runner.js';
 import { parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
 import * as factory from 'langserver/tests/harness/vfs/factory.js';
+import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { combinePaths, getFileName, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
@@ -51,7 +52,10 @@ test('Multiple files', () => {
     assert.equal(state.cwd(), normalizeSlashes('/'));
     assert(
         state.fs.existsSync(
-            Uri.file(normalizeSlashes(combinePaths(factory.srcFolder, 'file1.py')), state.serviceProvider)
+            Uri.file(
+                normalizeSlashes(combinePaths(factory.srcFolder, 'file1.py')),
+                getCaseDetector(state.serviceProvider)
+            )
         )
     );
 });
@@ -125,7 +129,10 @@ test('Configuration', () => {
     assert.equal(state.cwd(), normalizeSlashes('/'));
     assert(
         state.fs.existsSync(
-            Uri.file(normalizeSlashes(combinePaths(factory.srcFolder, 'file1.py')), state.serviceProvider)
+            Uri.file(
+                normalizeSlashes(combinePaths(factory.srcFolder, 'file1.py')),
+                getCaseDetector(state.serviceProvider)
+            )
         )
     );
 
@@ -172,7 +179,7 @@ test('ProjectRoot', () => {
     const state = parseAndGetTestState(code).state;
 
     assert.equal(state.cwd(), normalizeSlashes('/root'));
-    assert(state.fs.existsSync(Uri.file(normalizeSlashes('/root/file1.py'), state.serviceProvider)));
+    assert(state.fs.existsSync(Uri.file(normalizeSlashes('/root/file1.py'), getCaseDetector(state.serviceProvider))));
 
     assert.equal(state.configOptions.projectRoot.getFilePath(), normalizeSlashes('/root'));
 });
@@ -208,7 +215,10 @@ test('IgnoreCase', () => {
 
     assert(
         state.fs.existsSync(
-            Uri.file(normalizeSlashes(combinePaths(factory.srcFolder, 'FILE1.py')), state.serviceProvider)
+            Uri.file(
+                normalizeSlashes(combinePaths(factory.srcFolder, 'FILE1.py')),
+                getCaseDetector(state.serviceProvider)
+            )
         )
     );
 });

@@ -107,6 +107,7 @@ import {
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportResult } from 'typeserver/imports/importResult.js';
@@ -370,10 +371,10 @@ export class CompletionProvider {
         if (
             completionItemData.moduleUri &&
             ImportResolver.isSupportedImportSourceFile(
-                Uri.parse(completionItemData.moduleUri, this.program.serviceProvider)
+                Uri.parse(completionItemData.moduleUri, getCaseDetector(this.program.serviceProvider))
             )
         ) {
-            const moduleUri = Uri.parse(completionItemData.moduleUri, this.program.serviceProvider);
+            const moduleUri = Uri.parse(completionItemData.moduleUri, getCaseDetector(this.program.serviceProvider));
             const documentation = getModuleDocStringFromUris([moduleUri], this.sourceMapper);
             if (!documentation) {
                 return;

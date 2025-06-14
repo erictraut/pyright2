@@ -11,7 +11,7 @@ import tmp from 'tmp';
 import { isMainThread } from 'worker_threads';
 
 import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import {
     FileWatcher,

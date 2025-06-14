@@ -23,6 +23,7 @@ import { convertRangeToTextRange, convertTextRangeToRange } from 'typeserver/com
 import { TextRange } from 'typeserver/common/textRange.js';
 import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { IEditableProgram, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
+import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uri/uriUtils.js';
@@ -106,7 +107,7 @@ export function applyTextEditsToString(
 export function applyWorkspaceEdit(program: IEditableProgram, edits: WorkspaceEdit, filesChanged: Map<string, Uri>) {
     if (edits.changes) {
         for (const kv of Object.entries(edits.changes)) {
-            const fileUri = Uri.parse(kv[0], program.serviceProvider);
+            const fileUri = Uri.parse(kv[0], getCaseDetector(program.serviceProvider));
             const fileInfo = program.getSourceFileInfo(fileUri);
             if (!fileInfo || !fileInfo.isTracked) {
                 // We don't allow non user file being modified.
@@ -122,7 +123,7 @@ export function applyWorkspaceEdit(program: IEditableProgram, edits: WorkspaceEd
     if (edits.documentChanges) {
         for (const change of edits.documentChanges) {
             if (TextDocumentEdit.is(change)) {
-                const fileUri = Uri.parse(change.textDocument.uri, program.serviceProvider);
+                const fileUri = Uri.parse(change.textDocument.uri, getCaseDetector(program.serviceProvider));
                 const fileInfo = program.getSourceFileInfo(fileUri);
                 if (!fileInfo || !fileInfo.isTracked) {
                     // We don't allow non user file being modified.

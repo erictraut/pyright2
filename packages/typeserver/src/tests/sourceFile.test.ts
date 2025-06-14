@@ -9,7 +9,7 @@
 
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
-import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import { createServiceProvider, getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -21,10 +21,17 @@ test('Empty', () => {
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
     const serviceProvider = createServiceProvider(tempFile, fs);
-    const sourceFile = new SourceFile(serviceProvider, Uri.file(filePath, serviceProvider), '', false, false, {
-        isEditMode: false,
-    });
-    const configOptions = new ConfigOptions(Uri.file(process.cwd(), serviceProvider));
+    const sourceFile = new SourceFile(
+        serviceProvider,
+        Uri.file(filePath, getCaseDetector(serviceProvider)),
+        '',
+        false,
+        false,
+        {
+            isEditMode: false,
+        }
+    );
+    const configOptions = new ConfigOptions(Uri.file(process.cwd(), getCaseDetector(serviceProvider)));
     const sp = createServiceProvider(fs);
     const importResolver = new ImportResolver(sp, configOptions, new FullAccessHost(sp));
 

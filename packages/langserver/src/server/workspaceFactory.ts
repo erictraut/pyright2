@@ -12,6 +12,7 @@ import {
 
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
+import { getCaseDetector } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { createDeferred } from 'typeserver/utils/deferred.js';
@@ -118,16 +119,20 @@ export class WorkspaceFactory {
         // Create a service instance for each of the workspace folders.
         if (params.workspaceFolders) {
             params.workspaceFolders.forEach((folder) => {
-                this._add(Uri.parse(folder.uri, this._serviceProvider), folder.name, [WellKnownWorkspaceKinds.Regular]);
+                this._add(Uri.parse(folder.uri, getCaseDetector(this._serviceProvider)), folder.name, [
+                    WellKnownWorkspaceKinds.Regular,
+                ]);
             });
         } else if (params.rootPath) {
-            this._add(Uri.file(params.rootPath, this._serviceProvider), '', [WellKnownWorkspaceKinds.Regular]);
+            this._add(Uri.file(params.rootPath, getCaseDetector(this._serviceProvider)), '', [
+                WellKnownWorkspaceKinds.Regular,
+            ]);
         }
     }
 
     handleWorkspaceFoldersChanged(params: WorkspaceFoldersChangeEvent, workspaces: lspWorkspaceFolder[] | null) {
         params.removed.forEach((workspaceInfo) => {
-            const uri = Uri.parse(workspaceInfo.uri, this._serviceProvider);
+            const uri = Uri.parse(workspaceInfo.uri, getCaseDetector(this._serviceProvider));
             // Delete all workspaces for this folder. Even the ones generated for notebook kernels.
             const workspaces = this.getNonDefaultWorkspaces().filter((w) => w.rootUri.equals(uri));
             workspaces.forEach((w) => {
@@ -136,7 +141,7 @@ export class WorkspaceFactory {
         });
 
         params.added.forEach((workspaceInfo) => {
-            const uri = Uri.parse(workspaceInfo.uri, this._serviceProvider);
+            const uri = Uri.parse(workspaceInfo.uri, getCaseDetector(this._serviceProvider));
 
             // Add the new workspace.
             this._add(uri, workspaceInfo.name, [WellKnownWorkspaceKinds.Regular]);
@@ -148,7 +153,7 @@ export class WorkspaceFactory {
                 (w) => !params.added.some((a) => a.uri === w.uri) && !params.removed.some((a) => a.uri === w.uri)
             ) ?? [];
         foldersToCheck.forEach((workspaceInfo) => {
-            const uri = Uri.parse(workspaceInfo.uri, this._serviceProvider);
+            const uri = Uri.parse(workspaceInfo.uri, getCaseDetector(this._serviceProvider));
 
             const workspaces = this.getNonDefaultWorkspaces().filter(
                 (w) => w.rootUri.equals(uri) && w.workspaceName !== workspaceInfo.name

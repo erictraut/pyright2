@@ -29,7 +29,11 @@ import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensi
 import { Host, HostFactory, NoAccessHost } from 'typeserver/extensibility/host.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { getCancellationProvider, getConsole } from 'typeserver/extensibility/serviceProviderExtensions.js';
+import {
+    getCancellationProvider,
+    getCaseDetector,
+    getConsole,
+} from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
@@ -131,7 +135,10 @@ export class TypeService {
 
         this.options.configOptions =
             options.configOptions ??
-            new ConfigOptions(Uri.file(process.cwd(), this._serviceProvider), this.options.typeshedFallbackLoc);
+            new ConfigOptions(
+                Uri.file(process.cwd(), getCaseDetector(this._serviceProvider)),
+                this.options.typeshedFallbackLoc
+            );
         const importResolver = this.options.importResolverFactory(
             this._serviceProvider,
             this.options.configOptions,
@@ -584,8 +591,8 @@ export class TypeService {
         const executionRootUri = Uri.is(optionRoot)
             ? optionRoot
             : isString(optionRoot) && optionRoot.length > 0
-            ? Uri.file(optionRoot, this.serviceProvider, /* checkRelative */ true)
-            : Uri.defaultWorkspace(this.serviceProvider);
+            ? Uri.file(optionRoot, getCaseDetector(this.serviceProvider), /* checkRelative */ true)
+            : Uri.defaultWorkspace(getCaseDetector(this.serviceProvider));
 
         const executionRoot = this.fs.realCasePath(executionRootUri);
         let projectRoot = executionRoot;
@@ -598,7 +605,11 @@ export class TypeService {
             // or a file.
             configFilePath = this.fs.realCasePath(
                 isRootedDiskPath(commandLineOptions.configFilePath)
-                    ? Uri.file(commandLineOptions.configFilePath, this.serviceProvider, /* checkRelative */ true)
+                    ? Uri.file(
+                          commandLineOptions.configFilePath,
+                          getCaseDetector(this.serviceProvider),
+                          /* checkRelative */ true
+                      )
                     : projectRoot.resolvePaths(commandLineOptions.configFilePath)
             );
 
@@ -891,7 +902,11 @@ export class TypeService {
                 `Setting pythonPath for service "${this._instanceName}": ` + `"${languageServerOptions.pythonPath}"`
             );
             configOptions.pythonPath = this.fs.realCasePath(
-                Uri.file(languageServerOptions.pythonPath, this.serviceProvider, /* checkRelative */ true)
+                Uri.file(
+                    languageServerOptions.pythonPath,
+                    getCaseDetector(this.serviceProvider),
+                    /* checkRelative */ true
+                )
             );
         }
         if (languageServerOptions.venvPath) {
@@ -930,7 +945,7 @@ export class TypeService {
                 `Setting pythonPath for service "${this._instanceName}": ` + `"${commandLineOptions.pythonPath}"`
             );
             configOptions.pythonPath = this.fs.realCasePath(
-                Uri.file(commandLineOptions.pythonPath, this.serviceProvider, /* checkRelative */ true)
+                Uri.file(commandLineOptions.pythonPath, getCaseDetector(this.serviceProvider), /* checkRelative */ true)
             );
         }
 
@@ -968,7 +983,7 @@ export class TypeService {
             configOptions.include = [];
             commandLineOptions.includeFileSpecsOverride.forEach((include) => {
                 configOptions.include.push(
-                    getFileSpec(Uri.file(include, this.serviceProvider, /* checkRelative */ true), '.')
+                    getFileSpec(Uri.file(include, getCaseDetector(this.serviceProvider), /* checkRelative */ true), '.')
                 );
             });
         }
@@ -1462,7 +1477,7 @@ export class TypeService {
                         return;
                     }
 
-                    let uri = Uri.file(path, this.serviceProvider, /* checkRelative */ true);
+                    let uri = Uri.file(path, getCaseDetector(this.serviceProvider), /* checkRelative */ true);
 
                     // Make sure path is the true case.
                     uri = this.fs.realCasePath(uri);
@@ -1652,7 +1667,7 @@ export class TypeService {
                         return;
                     }
 
-                    const uri = Uri.file(path, this.serviceProvider, /* checkRelative */ true);
+                    const uri = Uri.file(path, getCaseDetector(this.serviceProvider), /* checkRelative */ true);
 
                     if (!this._shouldHandleLibraryFileWatchChanges(uri, watchList)) {
                         return;

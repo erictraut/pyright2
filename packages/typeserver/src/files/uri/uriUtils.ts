@@ -8,9 +8,9 @@
 
 import type { Dirent } from 'fs';
 
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
 import { FileSystem, ReadOnlyFileSystem, Stats } from 'typeserver/files/fileSystem.js';
 
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     getRegexEscapedSeparator,

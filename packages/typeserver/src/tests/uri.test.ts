@@ -10,7 +10,7 @@ import assert from 'assert';
 import nodefs from 'fs-extra';
 import path from 'path';
 
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
+import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { FileUriSchema } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
