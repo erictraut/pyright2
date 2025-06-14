@@ -21,13 +21,13 @@ import { createServiceProvider, getFs } from 'typeserver/extensibility/servicePr
 import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { createFromRealFileSystem, RealTempFile } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 

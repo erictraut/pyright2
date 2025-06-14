@@ -8,8 +8,8 @@
  * for testing.
  */
 
-// * NOTE * except tests, this should be only file that import "fs"
-import type * as fs from 'fs';
+import fs from 'fs';
+
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { Disposable } from 'vscode-jsonrpc';
@@ -109,11 +109,7 @@ export class VirtualDirent implements fs.Dirent {
         this.parentPath = parentPath;
     }
 
-    /**
-     * Alias for `dirent.parentPath`.
-     * @since v20.1.0
-     * @deprecated Since v20.12.0
-     */
+    // Alias for `dirent.parentPath`
     get path(): string {
         return this.parentPath;
     }

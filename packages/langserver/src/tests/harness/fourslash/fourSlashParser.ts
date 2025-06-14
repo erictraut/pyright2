@@ -16,15 +16,15 @@ import {
     fileMetadataNames,
 } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { distlibFolder, libFolder } from 'langserver/tests/harness/vfs/factory.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { contains } from 'typeserver/utils/collectionUtils.js';
 import {
     combinePaths,
     getRelativePath,
     isRootedDiskPath,
     normalizePath,
     normalizeSlashes,
-} from 'typeserver/files/pathUtils.js';
-import { UriEx } from 'typeserver/files/uri/uriUtils.js';
-import { contains } from 'typeserver/utils/collectionUtils.js';
+} from 'typeserver/utils/pathUtils.js';
 import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 
 /**

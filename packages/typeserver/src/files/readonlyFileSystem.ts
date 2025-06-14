@@ -1,19 +1,19 @@
 /*
- * readonlyAugmentedFileSystem.ts
+ * readonlyFileSystem.ts
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
- * A file system that lets one to augment backing file system but not allow
- * modifying the backing file system.
+ * An interface that allows read access to the underlying file system
+ * but prevents write operations.
  */
 
-import type * as fs from 'fs';
+import fs from 'fs';
+import { Disposable } from 'vscode-jsonrpc';
 
 import { FileSystem, MkDirOptions, Stats, VirtualDirent } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriMap } from 'typeserver/files/uri/uriMap.js';
-import { Disposable } from 'vscode-jsonrpc';
 
 interface MappedEntry {
     mappedUri: Uri;
@@ -21,7 +21,7 @@ interface MappedEntry {
     filter: (uri: Uri, fs: FileSystem) => boolean;
 }
 
-export class ReadOnlyAugmentedFileSystem implements FileSystem {
+export class ReadOnlyFileSystem implements FileSystem {
     // Mapped (fake location) directory to original directory map
     private readonly _entryMap = new UriMap<MappedEntry>();
 

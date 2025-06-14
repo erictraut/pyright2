@@ -18,7 +18,6 @@ import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { getConsole, getFs, getPartialStubs, getTmp } from 'typeserver/extensibility/serviceProviderExtensions.js';
-import { stripFileExtension } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     getFileSystemEntriesFromDirEntries,
@@ -39,6 +38,7 @@ import {
     thirdPartyFolderName,
 } from 'typeserver/service/pythonPathUtils.js';
 import { appendArray, flatten, getMapValues, getOrAdd } from 'typeserver/utils/collectionUtils.js';
+import { stripFileExtension } from 'typeserver/utils/pathUtils.js';
 import { equateStringsCaseInsensitive, isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
 
 export interface ImportedModuleDescriptor {

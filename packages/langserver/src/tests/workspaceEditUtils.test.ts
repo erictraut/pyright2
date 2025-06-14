@@ -17,10 +17,10 @@ import { createInitStatus, WellKnownWorkspaceKinds, Workspace } from 'langserver
 import { TestLanguageService } from 'langserver/tests/harness/fourslash/testLanguageService.js';
 import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { verifyWorkspaceEdit } from 'langserver/tests/harness/fourslash/workspaceEditTestUtils.js';
-import { combinePaths, getDirectoryPath } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { combinePaths, getDirectoryPath } from 'typeserver/utils/pathUtils.js';
 
 test('test applyWorkspaceEdits changes', async () => {
     const code = `

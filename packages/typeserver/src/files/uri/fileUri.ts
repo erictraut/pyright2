@@ -6,6 +6,9 @@
  * URI class that represents a file path. These URIs are always 'file' schemed.
  */
 
+import { BaseUri, JsonObjType } from 'typeserver/files/uri/baseUri.js';
+import { cacheMethodWithNoArgs, cacheProperty, cacheStaticFunc } from 'typeserver/files/uri/memoization.js';
+import { SerializedType, Uri, UriKinds } from 'typeserver/files/uri/uri.js';
 import {
     ensureTrailingDirectorySeparator,
     getDirectoryPath,
@@ -18,10 +21,7 @@ import {
     isDiskPathRoot,
     resolvePaths,
     stripFileExtension,
-} from 'typeserver/files/pathUtils.js';
-import { BaseUri, JsonObjType } from 'typeserver/files/uri/baseUri.js';
-import { cacheMethodWithNoArgs, cacheProperty, cacheStaticFunc } from 'typeserver/files/uri/memoization.js';
-import { SerializedType, Uri, UriKinds } from 'typeserver/files/uri/uri.js';
+} from 'typeserver/utils/pathUtils.js';
 import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 import { URI } from 'vscode-uri';
 

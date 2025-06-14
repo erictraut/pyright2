@@ -76,7 +76,6 @@ import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { TextRange, getEmptyRange } from 'typeserver/common/textRange.js';
 import { DiagnosticLevel } from 'typeserver/config/configOptions.js';
 import { AnalyzerFileInfo, ImportLookupResult } from 'typeserver/evaluator/analyzerFileInfo.js';
-import { stripFileExtension } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImplicitImport, ImportResult, ImportType } from 'typeserver/imports/importResult.js';
 import { LocMessage } from 'typeserver/localization/localize.js';
@@ -138,6 +137,7 @@ import { KeywordType, OperatorType } from 'typeserver/parser/tokenizerTypes.js';
 import { Commands } from 'typeserver/service/commands.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { assert, assertNever, fail } from 'typeserver/utils/debug.js';
+import { stripFileExtension } from 'typeserver/utils/pathUtils.js';
 
 interface MemberAccessInfo {
     classNode: ClassNode;

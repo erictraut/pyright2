@@ -9,10 +9,10 @@ import assert from 'assert';
 import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { lib, sitePackages } from 'typeserver/common/pathConsts.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 const libraryRootUri = UriEx.file(libraryRoot);

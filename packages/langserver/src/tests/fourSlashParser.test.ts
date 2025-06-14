@@ -13,8 +13,8 @@ import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParse
 import { CompilerSettings } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import * as host from 'langserver/tests/harness/testHost.js';
 import * as factory from 'langserver/tests/harness/vfs/factory.js';
-import { getBaseFileName, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { getBaseFileName, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 
 test('GlobalOptions', () => {

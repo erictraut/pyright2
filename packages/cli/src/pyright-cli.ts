@@ -30,7 +30,6 @@ import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ChokidarFileWatcherProvider } from 'typeserver/files/chokidarFileWatcherProvider.js';
-import { combinePaths, normalizePath } from 'typeserver/files/pathUtils.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
@@ -44,6 +43,7 @@ import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { fail } from 'typeserver/utils/debug.js';
 import { createDeferred } from 'typeserver/utils/deferred.js';
+import { combinePaths, normalizePath } from 'typeserver/utils/pathUtils.js';
 import { getStdin } from 'typeserver/utils/streamUtils.js';
 
 const toolName = 'pyright';

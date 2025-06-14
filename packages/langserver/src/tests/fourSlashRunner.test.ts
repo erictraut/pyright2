@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 import { runFourSlashTest } from 'langserver/tests/harness/fourslash/runner.js';
 import * as host from 'langserver/tests/harness/testHost.js';
 import { MODULE_PATH } from 'langserver/tests/harness/vfs/filesystem.js';
-import { normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 
 describe('fourslash tests', () => {
     const testFiles: string[] = [];

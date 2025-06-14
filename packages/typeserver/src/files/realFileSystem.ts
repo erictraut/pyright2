@@ -21,10 +21,10 @@ import {
     FileWatcherProvider,
     nullFileWatcherProvider,
 } from 'typeserver/files/fileWatcher.js';
-import { combinePaths, getRootLength } from 'typeserver/files/pathUtils.js';
 import { FileUri, FileUriSchema } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { randomBytesHex } from 'typeserver/utils/crypto.js';
+import { combinePaths, getRootLength } from 'typeserver/utils/pathUtils.js';
 import { Disposable } from 'vscode-jsonrpc';
 
 // Automatically remove files created by tmp at process exit.

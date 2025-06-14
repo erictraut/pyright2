@@ -14,11 +14,11 @@ import { HostKind, NoAccessHost } from 'typeserver/extensibility/host.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
-import { getAnyExtensionFromPath, normalizePath } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { isDirectory } from 'typeserver/files/uri/uriUtils.js';
 import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
 import { assertNever } from 'typeserver/utils/debug.js';
+import { getAnyExtensionFromPath, normalizePath } from 'typeserver/utils/pathUtils.js';
 
 // preventLocalImports removes the working directory from sys.path.
 // The -c flag adds it automatically, which can allow some stdlib

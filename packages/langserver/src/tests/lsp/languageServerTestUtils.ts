@@ -26,13 +26,13 @@ import { PythonPlatform } from 'typeserver/config/configOptions.js';
 import { LimitedAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { HostKind, ScriptOutput } from 'typeserver/extensibility/host.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { combinePaths } from 'typeserver/files/pathUtils.js';
 import { FileUri } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { ParseOptions, Parser } from 'typeserver/parser/parser.js';
 import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
 import { createDeferred, Deferred } from 'typeserver/utils/deferred.js';
+import { combinePaths } from 'typeserver/utils/pathUtils.js';
 import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 import {
     ApplyWorkspaceEditParams,

@@ -10,10 +10,10 @@ import { typeshedFolder } from 'langserver/tests//harness/vfs/factory.js';
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { CancellationToken } from 'vscode-jsonrpc';
 
 test('random library file changed', () => {

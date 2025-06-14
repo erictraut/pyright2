@@ -20,8 +20,8 @@ import {
     TestFileSystem,
 } from 'langserver/tests/harness/vfs/filesystem.js';
 import * as pathConsts from 'typeserver/common/pathConsts.js';
-import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from 'typeserver/files/pathUtils.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from 'typeserver/utils/pathUtils.js';
 
 export class TextDocument {
     readonly meta: Map<string, string>;

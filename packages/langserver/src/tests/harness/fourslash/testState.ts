@@ -93,7 +93,6 @@ import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { createServiceProvider, getConsole } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
-import { getFileExtension, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx, getFileSpec } from 'typeserver/files/uri/uriUtils.js';
@@ -108,6 +107,7 @@ import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { Comparison } from 'typeserver/utils/comparisonUtils.js';
 import { assertNever } from 'typeserver/utils/debug.js';
+import { getFileExtension, normalizePath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 import { isNumber, isString } from 'typeserver/utils/valueTypeUtils.js';
 

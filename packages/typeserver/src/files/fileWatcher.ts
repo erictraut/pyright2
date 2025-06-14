@@ -3,8 +3,9 @@
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
- * file watcher related functionality.
+ * File watcher related functionality.
  */
+
 import { Stats } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 

@@ -6,7 +6,7 @@
  * A service that maps partial stub packages into the original directory of the installed library.
  */
 
-import type * as fs from 'fs';
+import fs from 'fs';
 
 import { stubsSuffix } from 'typeserver/common/pathConsts.js';
 import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';

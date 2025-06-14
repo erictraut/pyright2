@@ -13,10 +13,10 @@
 
 import { URI } from 'vscode-uri';
 
-import { getRootLength, hasTrailingDirectorySeparator, resolvePaths } from 'typeserver/files/pathUtils.js';
 import { BaseUri, JsonObjType } from 'typeserver/files/uri/baseUri.js';
 import { cacheMethodWithNoArgs, cacheProperty, cacheStaticFunc } from 'typeserver/files/uri/memoization.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
+import { getRootLength, hasTrailingDirectorySeparator, resolvePaths } from 'typeserver/utils/pathUtils.js';
 
 export class WebUri extends BaseUri {
     private constructor(

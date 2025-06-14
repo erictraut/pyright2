@@ -18,8 +18,8 @@ import {
 } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import * as vfs from 'langserver/tests/harness/vfs/filesystem.js';
 import { configFileName } from 'typeserver/common/pathConsts.js';
-import { combinePaths, getBaseFileName } from 'typeserver/files/pathUtils.js';
 import { Comparison } from 'typeserver/utils/comparisonUtils.js';
+import { combinePaths, getBaseFileName } from 'typeserver/utils/pathUtils.js';
 import { getStringComparer } from 'typeserver/utils/stringUtils.js';
 import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 

@@ -31,7 +31,7 @@ import {
     runPyrightServer,
     waitForDiagnostics,
 } from 'langserver/tests/lsp/languageServerTestUtils.js';
-import { normalizeSlashes } from 'typeserver/files/pathUtils.js';
+import { normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 describe(`Basic language server tests`, () => {

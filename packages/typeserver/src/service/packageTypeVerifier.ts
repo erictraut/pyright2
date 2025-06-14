@@ -48,7 +48,6 @@ import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
-import { getFileExtension, stripFileExtension } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { tryStat, UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -64,6 +63,7 @@ import {
     TypeKnownStatus,
 } from 'typeserver/service/packageTypeReport.js';
 import { assert } from 'typeserver/utils/debug.js';
+import { getFileExtension, stripFileExtension } from 'typeserver/utils/pathUtils.js';
 
 type PublicSymbolSet = Set<string>;
 

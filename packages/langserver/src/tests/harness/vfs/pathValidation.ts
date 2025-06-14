@@ -7,8 +7,8 @@
 import { sep } from 'path';
 
 import { createIOError } from 'langserver/tests/harness/utils.js';
-import * as pu from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
+import * as pu from 'typeserver/utils/pathUtils.js';
 
 const invalidRootComponentRegExp = getInvalidRootComponentRegExp();
 const invalidNavigableComponentRegExp = /[:*?"<>|]/;

@@ -17,11 +17,11 @@ import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/conf
 import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
 import { createServiceProvider } from 'typeserver/extensibility/serviceProviderExtensions.js';
-import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 
 describe(`config test'}`, () => {
     const tempFile = new RealTempFile();

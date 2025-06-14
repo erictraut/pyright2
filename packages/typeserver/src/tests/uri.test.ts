@@ -11,11 +11,11 @@ import nodefs from 'fs-extra';
 import path from 'path';
 
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
-import { isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { FileUriSchema } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx, deduplicateFolders, getWildcardRegexPattern, getWildcardRoot } from 'typeserver/files/uri/uriUtils.js';
+import { isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 
 export class TestCaseSensitivityDetector implements CaseSensitivityDetector {
     constructor(private _isCaseSensitive = true) {

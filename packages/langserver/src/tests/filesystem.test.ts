@@ -11,8 +11,8 @@ import assert from 'assert';
 import * as host from 'langserver/tests/harness/testHost.js';
 import * as factory from 'langserver/tests/harness/vfs/factory.js';
 import * as vfs from 'langserver/tests/harness/vfs/filesystem.js';
-import { combinePaths, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
+import { combinePaths, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 
 test('CreateVFS', () => {
     const cwd = normalizeSlashes('/');

@@ -10,8 +10,8 @@ import os from 'os';
 
 import { Workspace, WorkspaceFolder } from 'langserver/server/workspaceFactory.js';
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
-import { isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
+import { isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { escapeRegExp } from 'typeserver/utils/stringUtils.js';
 
 export function resolvePathWithEnvVariables(

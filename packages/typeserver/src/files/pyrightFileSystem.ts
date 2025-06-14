@@ -6,15 +6,13 @@
  * A file system that knows how to deal with remapping files from one folder to another.
  */
 
-import type * as fs from 'fs';
+import fs from 'fs';
 
 import { FileSystem, MkDirOptions } from 'typeserver/files/fileSystem.js';
-import { ReadOnlyAugmentedFileSystem } from 'typeserver/files/readonlyAugmentedFileSystem.js';
+import { ReadOnlyFileSystem } from 'typeserver/files/readonlyFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 
-export interface IPyrightFileSystem extends FileSystem {}
-
-export class PyrightFileSystem extends ReadOnlyAugmentedFileSystem implements IPyrightFileSystem {
+export class PyrightFileSystem extends ReadOnlyFileSystem implements FileSystem {
     constructor(realFS: FileSystem) {
         super(realFS);
     }

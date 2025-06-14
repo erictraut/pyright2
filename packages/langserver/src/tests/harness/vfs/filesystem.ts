@@ -17,9 +17,9 @@ import { ValidationFlags, validate } from 'langserver/tests/harness/vfs/pathVali
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
 import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler, FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
-import * as pathUtil from 'typeserver/files/pathUtils.js';
 import { FileUriSchema } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
+import * as pathUtil from 'typeserver/utils/pathUtils.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 
 export const MODULE_PATH = pathUtil.normalizeSlashes('/');

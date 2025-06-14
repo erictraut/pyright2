@@ -25,7 +25,6 @@ import { ConsoleInterface, StandardConsole } from 'typeserver/extensibility/cons
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { stripFileExtension } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportResult } from 'typeserver/imports/importResult.js';
@@ -44,6 +43,7 @@ import { CircularDependency } from 'typeserver/service/circularDependency.js';
 import { Duration, timingStats } from 'typeserver/service/timing.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { assert } from 'typeserver/utils/debug.js';
+import { stripFileExtension } from 'typeserver/utils/pathUtils.js';
 import * as StringUtils from 'typeserver/utils/stringUtils.js';
 
 // Limit the number of import cycles tracked per source file.

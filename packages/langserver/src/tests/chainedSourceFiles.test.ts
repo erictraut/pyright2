@@ -18,12 +18,12 @@ import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/commo
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
-import { normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 
 test('check chained files', () => {
     const code = `

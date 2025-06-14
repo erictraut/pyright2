@@ -6,17 +6,19 @@
  * URI namespace for storing and manipulating URIs.
  */
 
+import { URI, Utils } from 'vscode-uri';
+
 import { ServiceKeys } from 'typeserver/extensibility/serviceKeys.js';
 import { ServiceKey } from 'typeserver/extensibility/serviceProvider.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivityDetector.js';
-import { combinePaths, isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
+
 import { JsonObjType } from 'typeserver/files/uri/baseUri.js';
 import { ConstantUri } from 'typeserver/files/uri/constantUri.js';
 import { EmptyUri } from 'typeserver/files/uri/emptyUri.js';
 import { FileUri, FileUriSchema } from 'typeserver/files/uri/fileUri.js';
 import { WebUri } from 'typeserver/files/uri/webUri.js';
+import { combinePaths, isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { isArray } from 'typeserver/utils/valueTypeUtils.js';
-import { URI, Utils } from 'vscode-uri';
 
 export const enum UriKinds {
     file,

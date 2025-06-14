@@ -32,7 +32,6 @@ import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { getCancellationProvider, getConsole } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from 'typeserver/files/fileWatcher.js';
-import { getFileName, isRootedDiskPath, normalizeSlashes } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     FileSpec,
@@ -57,6 +56,7 @@ import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { AnalysisCompleteCallback } from 'typeserver/service/analysis.js';
 import { findPythonSearchPaths } from 'typeserver/service/pythonPathUtils.js';
 import { timingStats } from 'typeserver/service/timing.js';
+import { getFileName, isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { isString } from 'typeserver/utils/valueTypeUtils.js';
 
 // How long since the last user activity should we wait until running
