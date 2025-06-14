@@ -86,7 +86,7 @@ export function parseSampleFile(
     return parseText(text, diagSink, parseOptions);
 }
 
-export function getTypeshedFallbackVirtualLoc(): Uri {
+function getTypeshedFallbackVirtualLoc(): Uri {
     // Returns the location where typeshed-fallback is remapped
     // when running tests with a virtual file system.
     return UriEx.file(`/${typeshedFallback}`);
@@ -105,7 +105,7 @@ export function typeAnalyzeSampleFiles(
 
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
-    const serviceProvider = createServiceProvider(fs, console || new NullConsole(), tempFile);
+    const serviceProvider = createServiceProvider(fs, console ?? new NullConsole(), tempFile);
     const importResolver = new ImportResolver(serviceProvider, configOptions, new FullAccessHost(serviceProvider));
 
     const program = new Program(importResolver, configOptions, serviceProvider);

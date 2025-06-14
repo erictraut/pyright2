@@ -14,7 +14,7 @@ import { initializeDependencies } from 'typeserver/service/asyncInitialization.j
 
 import { PyrightServer } from 'langserver/server/server.js';
 
-export async function main(maxWorkers: number) {
+export async function main() {
     await initializeDependencies();
 
     const connectionOptions: ConnectionOptions = {
@@ -23,5 +23,5 @@ export async function main(maxWorkers: number) {
 
     const conn = createConnection(connectionOptions);
 
-    new PyrightServer(conn, maxWorkers);
+    new PyrightServer(conn);
 }

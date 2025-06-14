@@ -14,15 +14,18 @@ import { LanguageServerInterface, ServerSettings } from 'langserver/server/langu
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { HostSpecificFeatures } from 'langserver/tests/harness/fourslash/testState.js';
 import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import path from 'path';
+import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { Range } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
+import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { ImportResolverFactory } from 'typeserver/imports/importResolver.js';
 import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService.js';
-import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
+import { fileURLToPath } from 'url';
 
 export class TestFeatures implements HostSpecificFeatures {
     importResolverFactory: ImportResolverFactory = TypeService.createImportResolver;
@@ -57,6 +60,12 @@ export class TestLanguageService implements LanguageServerInterface {
         this._workspace = workspace;
         this.serviceProvider = this._workspace.service.serviceProvider;
 
+        // Determine the of the typeshed-fallback in the real file system.
+        // Assume the typeshed-fallback path is relative to the current directory.
+        const currentDir = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+        const typeshedPath = path.resolve(currentDir, `../../${typeshedFallback}`);
+        const typeshedFallbackLoc = UriEx.file(typeshedPath);
+
         this._defaultWorkspace = {
             workspaceName: '',
             rootUri: undefined,
@@ -65,7 +74,7 @@ export class TestLanguageService implements LanguageServerInterface {
                 'test service',
                 new ServiceProvider(),
                 options ?? {
-                    typeshedFallbackLoc: getTypeshedFallbackVirtualLoc(),
+                    typeshedFallbackLoc,
                     console: this.console,
                     hostFactory: () => new TestAccessHost(),
                     importResolverFactory: TypeService.createImportResolver,

@@ -135,7 +135,6 @@ export namespace CustomLSP {
         code: string; // Fourslash data.
         projectRoots: Uri[];
         pythonVersion: string;
-        backgroundAnalysis?: boolean;
     }
 
     export function sendRequest<P extends Params, R extends Response, M extends Requests & keyof P & keyof R & string>(

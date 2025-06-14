@@ -13,6 +13,7 @@ import os from 'os';
 import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/providers/envVarUtils.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility//console.js';
@@ -20,10 +21,9 @@ import { createServiceProvider } from 'typeserver/extensibility/serviceProviderE
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 
 const defaultWorkspace = createWorkspace(undefined);
-const normalworkspace = createWorkspace(UriEx.file('/'));
+const normalWorkspace = createWorkspace(UriEx.file('/'));
 
 test('expands ${workspaceFolder}', () => {
     const workspaceFolderUri = UriEx.parse('/src');
@@ -81,7 +81,7 @@ describe('expandPathVariables', () => {
         const path = `file://${process.env.HOME}/bar`;
 
         assert.equal(resolvePathWithEnvVariables(defaultWorkspace, test_path, [])?.toString(), path);
-        assert.equal(resolvePathWithEnvVariables(normalworkspace, test_path, [])?.toString(), path);
+        assert.equal(resolvePathWithEnvVariables(normalWorkspace, test_path, [])?.toString(), path);
     });
 
     test('expands ${env:USERNAME}', () => {
@@ -104,7 +104,7 @@ describe('expandPathVariables', () => {
         const path = `${process.env.VIRTUAL_ENV}/bar`;
 
         assert.equal(resolvePathWithEnvVariables(defaultWorkspace, test_path, [])?.toString(), path);
-        assert.equal(resolvePathWithEnvVariables(normalworkspace, test_path, [])?.toString(), path);
+        assert.equal(resolvePathWithEnvVariables(normalWorkspace, test_path, [])?.toString(), path);
     });
 
     test('expands ~ with os.homedir()', () => {
@@ -125,7 +125,7 @@ describe('expandPathVariables', () => {
         const fileUri = UriEx.file(`${os.homedir()}/bar`);
 
         const defaultResult = resolvePathWithEnvVariables(defaultWorkspace, test_path, []);
-        const normalResult = resolvePathWithEnvVariables(normalworkspace, test_path, []);
+        const normalResult = resolvePathWithEnvVariables(normalWorkspace, test_path, []);
 
         assert.equal(defaultResult?.scheme, fileUri.scheme);
         assert.equal(normalResult?.scheme, fileUri.scheme);
@@ -211,7 +211,7 @@ function createWorkspace(rootUri: Uri | undefined) {
         rootUri,
         kinds: [WellKnownWorkspaceKinds.Test],
         service: new TypeService('test service', createServiceProvider(fs), {
-            typeshedFallbackLoc: getTypeshedFallbackVirtualLoc(),
+            typeshedFallbackLoc: typeshedFolder,
             console: new NullConsole(),
             hostFactory: () => new TestAccessHost(),
             importResolverFactory: TypeService.createImportResolver,

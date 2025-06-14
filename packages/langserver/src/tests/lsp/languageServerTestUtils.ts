@@ -84,7 +84,7 @@ import {
 
 const currentDir = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
-// project root on test virtual file system.
+// Project root on test virtual file system.
 export const DEFAULT_WORKSPACE_ROOT = combinePaths('/', 'src');
 
 export const ERROR_SCRIPT_OUTPUT = 'Error: script failed to run';
@@ -149,8 +149,10 @@ export class TestHostOptions {
         this.runScript = runScript;
     }
 }
+
 // Enable this to log to disk for debugging sync issues.
 export const logToDisk = (m: string, f: Uri) => {}; // logToDiskImpl
+
 export function logToDiskImpl(message: string, fileName: Uri) {
     const thread = isMainThread ? 'main' : threadId.toString();
     fs.writeFileSync(fileName.getFilePath(), `${Date.now()} : ${thread} : ${message}\n`, {
@@ -180,20 +182,25 @@ function createServerWorker(file: string, testServerData: CustomLSP.TestServerSt
         serverWorker = new Worker(file);
         logToDisk(`Created new server worker for ${file}`, testServerData.logFile);
     }
+
     // Every time we 'create' the worker, refresh its message handlers. This
     // is essentially the same thing as creating a new worker.
     removeAllListeners(serverWorker);
+
     logToDisk(
         `Removed all worker listeners. Test ${testServerData.testName} is starting.\n  Last test was ${lastServerFinished.name} and finished: ${lastServerFinished.finished}`,
         testServerData.logFile
     );
+
     serverWorker.on('error', (e) => {
         logToDisk(`Worker error: ${e}`, testServerData.logFile);
     });
+
     serverWorker.on('exit', (code) => {
         logToDisk(`Worker exit: ${code}`, testServerData.logFile);
         serverWorker = undefined;
     });
+
     return serverWorker;
 }
 
@@ -250,10 +257,10 @@ export function getParseResults(fileContents: string, isStubFile = false, useNot
 
 function createServerConnection(testServerData: CustomLSP.TestServerStartOptions, disposables: Disposable[]) {
     // Start a worker with the server running in it.
-    const serverPath = path.join(currentDir, '..', '..', '..', 'out', 'testServer.bundle.ts');
+    const serverPath = path.join(currentDir, '..', '..', '..', 'out', 'testServer.cjs');
     assert(
         fs.existsSync(serverPath),
-        `Server bundle does not exist: ${serverPath}. Make sure you ran the build script for test bundle (npm run webpack:testserver).`
+        `Server bundle does not exist: ${serverPath}. Make sure you ran the build script for test bundle (npm run esbuild:testserver).`
     );
     const serverWorker = createServerWorker(serverPath, testServerData);
     const options = {};
@@ -263,6 +270,7 @@ function createServerConnection(testServerData: CustomLSP.TestServerStartOptions
         new PortMessageWriter(serverWorker),
         options
     );
+
     disposables.push(connection);
 
     return connection;
@@ -285,13 +293,16 @@ async function waitForPushDiagnostics(info: PyrightServerInfo, timeout = 10000) 
             deferred.resolve();
         }
     });
+
     const timer = setTimeout(() => deferred.reject('Timed out waiting for diagnostics'), timeout);
+
     try {
         await deferred.promise;
     } finally {
         clearTimeout(timer);
         disposable.dispose();
     }
+
     return info.diagnostics;
 }
 
@@ -427,7 +438,6 @@ export async function runPyrightServer(
         code,
         projectRoots: projectRootsArray.map((p) => (p.includes(':') ? UriEx.parse(p) : UriEx.file(p))),
         pythonVersion: PythonVersion.toString(pythonVersion),
-        backgroundAnalysis,
         logFile: UriEx.file(path.join(currentDir, `log${process.pid}.txt`)),
         pid: process.pid.toString(),
     };
@@ -461,7 +471,7 @@ export async function runPyrightServer(
     const workspaceEditsEmitter = new Emitter<ApplyWorkspaceEditParams>();
     const diagnosticsMode = extraSettings?.find((s) => s.item.section === 'python.analysis')?.value?.diagnosticMode;
 
-    // Setup the server info.
+    // Set up the server info.
     const info: PyrightServerInfo = {
         disposables,
         registrations: [],
@@ -495,35 +505,45 @@ export async function runPyrightServer(
             logToDisk(`Finished test ${testServerData.testName}`, testServerData.logFile);
         },
     };
+
     info.disposables.push(
         info.connection.onNotification(CustomLSP.Notifications.TestStartServerResponse, (p) => {
             serverStarted.resolve(p.testName);
         }),
+
         info.connection.onRequest(RegistrationRequest.type, (p) => {
             info.registrations.push(...p.registrations);
         }),
+
         info.connection.onNotification(CustomLSP.Notifications.TestSignal, (p: CustomLSP.TestSignal) => {
             info.signals.get(p.kind)!.resolve(true);
         }),
+
         info.connection.onNotification(LogMessageNotification.type, (p) => {
             info.logs.push(p);
         }),
+
         info.connection.onRequest(SemanticTokensRefreshRequest.type, () => {
             // Empty. Silently ignore for now.
         }),
+
         info.connection.onRequest(InlayHintRefreshRequest.type, () => {
             // Empty. Silently ignore for now.
         }),
+
         info.connection.onRequest(DiagnosticRefreshRequest.type, () => {}),
+
         info.connection.onRequest(ApplyWorkspaceEditRequest.type, (p) => {
             info.workspaceEdits.push(p);
             workspaceEditsEmitter.fire(p);
             return { applied: true };
         }),
+
         info.connection.onRequest(UnregistrationRequest.type, (p) => {
             const unregisterIds = p.unregisterations.map((u) => u.id);
             info.registrations = info.registrations.filter((r) => !unregisterIds.includes(r.id));
         }),
+
         info.connection.onRequest(WorkDoneProgressCreateRequest.type, (p) => {
             // Save the progress reporter so we can send progress updates.
             info.progressReporters.push(p.token.toString());
@@ -542,14 +562,17 @@ export async function runPyrightServer(
                 })
             );
         }),
+
         info.connection.onNotification(PublishDiagnosticsNotification.type, (p) => {
             info.diagnostics.push(p);
             diagnosticsEmitter.fire(p);
         }),
+
         info.connection.onNotification(TelemetryEventNotification.type, (p) => {
             info.telemetry.push(p);
         })
     );
+
     info.disposables.push(
         info.connection.onRequest(ConfigurationRequest.type, (p) => {
             const result = [];
@@ -581,6 +604,7 @@ export async function runPyrightServer(
             }
         }
     }
+
     settingsMap.set(info, settings);
 
     // Wait for the server to be started.

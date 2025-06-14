@@ -24,7 +24,7 @@ import { MessagePort, parentPort, setEnvironmentData } from 'worker_threads';
 
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import * as PyrightTestHost from 'langserver/tests/harness/testHost.js';
-import { clearCache } from 'langserver/tests/harness/vfs/factory.js';
+import { clearCache, typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { FileSystemEntries, resolvePaths } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { Deferred, createDeferred } from 'typeserver/utils/deferred.js';
@@ -32,6 +32,7 @@ import { Deferred, createDeferred } from 'typeserver/utils/deferred.js';
 import { ServerSettings } from 'langserver/server/languageServerInterface.js';
 import { PyrightServer } from 'langserver/server/server.js';
 import { InitStatus, Workspace } from 'langserver/server/workspaceFactory.js';
+import { GlobalMetadataOptionNames } from 'langserver/tests//harness/fourslash/fourSlashTypes.js';
 import { CustomLSP } from 'langserver/tests/lsp/customLsp.js';
 import {
     DEFAULT_WORKSPACE_ROOT,
@@ -43,6 +44,7 @@ import {
     serialize,
     sleep,
 } from 'langserver/tests/lsp/languageServerTestUtils.js';
+import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { initializeDependencies } from 'typeserver/service/asyncInitialization.js';
@@ -123,6 +125,7 @@ function createTestHost(testServerData: CustomLSP.TestServerStartOptions) {
     ) => {
         return { stdout: scriptOutput, stderr: '', exitCode: 0 };
     };
+
     const options = new TestHostOptions({ version: PythonVersion.fromString(testServerData.pythonVersion), runScript });
     const projectRootPaths = testServerData.projectRoots.map((p) => getFileLikePath(p));
     const testData = parseTestData(
@@ -130,6 +133,14 @@ function createTestHost(testServerData: CustomLSP.TestServerStartOptions) {
         testServerData.code,
         'noname.py'
     );
+
+    // Determine the of the typeshed-fallback in the real file system.
+    // Assume the typeshed-fallback path is relative to the current directory.
+    const currentDir = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+    const typeshedPath = path.resolve(currentDir, `../../typeserver/${typeshedFallback}`);
+
+    testData.globalOptions[GlobalMetadataOptionNames.typeshed] = typeshedPath;
+
     const commonRoot = getCommonRoot(testServerData.projectRoots);
 
     // Make sure global variables from previous tests are cleared.
@@ -142,12 +153,8 @@ function createTestHost(testServerData: CustomLSP.TestServerStartOptions) {
 }
 
 class TestServer extends PyrightServer {
-    constructor(
-        connection: Connection,
-        fs: FileSystem,
-        private readonly _supportsBackgroundAnalysis: boolean | undefined
-    ) {
-        super(connection, _supportsBackgroundAnalysis ? 1 : 0, fs);
+    constructor(connection: Connection, fs: FileSystem, typeshedFallbackLoc: Uri | undefined) {
+        super(connection, fs, typeshedFallbackLoc);
     }
 
     test_onDidChangeWatchedFiles(params: any) {
@@ -193,7 +200,8 @@ async function runServer(
         // Create a host so we can control the file system for the PyrightServer.
         const disposables: Disposable[] = [];
         const host = createTestHost(testServerData);
-        const server = new TestServer(connection, host.fs, testServerData.backgroundAnalysis);
+
+        const server = new TestServer(connection, host.fs, typeshedFolder);
 
         // Listen for the test messages from the client. These messages
         // are how the test code queries the state of the server.
@@ -206,6 +214,7 @@ async function runServer(
                 const diagnostics = file?.getDiagnostics(workspace.service.program.configOptions) || [];
                 return { diagnostics: serialize(diagnostics) };
             }),
+
             CustomLSP.onRequest(connection, CustomLSP.Requests.GetOpenFiles, async (params) => {
                 const workspace = await server.getWorkspaceForFile(Uri.parse(params.uri, server.serviceProvider));
                 const files = serialize(workspace.service.program.getOpened().map((f) => f.uri));
@@ -239,9 +248,7 @@ class ListeningPortMessageWriter extends PortMessageWriter {
     }
 }
 
-/**
- * Object that exists in the worker thread that starts and stops (and cleans up after) the main server.
- */
+// Object that exists in the worker thread that starts and stops (and cleans up after) the main server.
 class ServerStateManager {
     private _instances: { disposables: Disposable[]; connection: Connection }[] = [];
     private _pendingDispose: Deferred<void> | undefined;
@@ -249,6 +256,7 @@ class ServerStateManager {
     private _writer = new ListeningPortMessageWriter(parentPort!);
     private _currentOptions: CustomLSP.TestServerStartOptions | undefined;
     private _shutdownId: string | number | null = null;
+
     constructor(private readonly _connectionFactory: (reader: MessageReader, writer: MessageWriter) => Connection) {
         // Listen for shutdown response.
         this._writer.onPostMessage(async (msg: Message) => {

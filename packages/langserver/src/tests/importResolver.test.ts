@@ -9,6 +9,7 @@ import { Disposable } from 'vscode-jsonrpc';
 
 import { Dirent, ReadStream, WriteStream } from 'fs';
 import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { MODULE_PATH, TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { lib, sitePackages, typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
@@ -27,7 +28,6 @@ import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
-import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 
@@ -355,7 +355,7 @@ describe('Import tests with fake venv', () => {
             ];
 
             const sp = createServiceProviderFromFiles(files);
-            const configOptions = new ConfigOptions(UriEx.file('/'), getTypeshedFallbackVirtualLoc());
+            const configOptions = new ConfigOptions(UriEx.file('/'), typeshedFolder);
             const fs = getFs(sp);
             const importResolver = new ImportResolver(
                 sp,
@@ -503,7 +503,7 @@ describe('Import tests with fake venv', () => {
 
         test('no empty import roots', () => {
             const sp = createServiceProviderFromFiles([]);
-            const configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackVirtualLoc()); // Empty, like open-file mode.
+            const configOptions = new ConfigOptions(Uri.empty(), typeshedFolder); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
@@ -525,7 +525,7 @@ describe('Import tests with fake venv', () => {
             ];
 
             const sp = createServiceProviderFromFiles(files);
-            const configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackVirtualLoc()); // Empty, like open-file mode.
+            const configOptions = new ConfigOptions(Uri.empty(), typeshedFolder); // Empty, like open-file mode.
             const importResolver = new ImportResolver(
                 sp,
                 configOptions,
@@ -872,7 +872,7 @@ describe('Import tests with fake venv', () => {
         }
 
         const sp = spFactory(files);
-        const configOptions = new ConfigOptions(UriEx.file('/'), getTypeshedFallbackVirtualLoc());
+        const configOptions = new ConfigOptions(UriEx.file('/'), typeshedFolder);
         configModifier(configOptions);
 
         const file = files.length > 0 ? files[files.length - 1].path : combinePaths('src', 'file.py');

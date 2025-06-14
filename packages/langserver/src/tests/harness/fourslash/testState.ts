@@ -106,7 +106,6 @@ import { Program } from 'typeserver/program/program.js';
 import { PackageTypeReport } from 'typeserver/service/packageTypeReport.js';
 import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 import { Comparison, isNumber, isString } from 'typeserver/utils/core.js';
 import { assertNever } from 'typeserver/utils/debug.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
@@ -1547,7 +1546,7 @@ export class TestState {
             this.configOptions.projectRoot.getFilePath(),
             /* fromLanguageServer */ false
         );
-        commandLineOptions.configSettings.typeshedFallbackPath = getTypeshedFallbackVirtualLoc().toString();
+        commandLineOptions.configSettings.typeshedFallbackPath = typeshedFolder.toString();
         commandLineOptions.configSettings.verboseOutput = verboseOutput;
         const verifier = new PackageTypeVerifier(
             this.serviceProvider,
@@ -1740,7 +1739,7 @@ export class TestState {
     ) {
         // Do not initiate automatic analysis or file watcher in test.
         const service = new TypeService('test service', this.serviceProvider, {
-            typeshedFallbackLoc: getTypeshedFallbackVirtualLoc(),
+            typeshedFallbackLoc: typeshedFolder,
             console: nullConsole,
             hostFactory: () => host,
             importResolverFactory,
@@ -2131,7 +2130,7 @@ export function parseAndGetTestState(
     const data = parseTestData(normalizeSlashes(projectRoot), code, anonymousFileName);
     const state = new TestState(
         normalizeSlashes('/'),
-        getTypeshedFallbackVirtualLoc(),
+        typeshedFolder,
         data,
         /* mountPath */ undefined,
         /* hostSpecificFeatures */ undefined,

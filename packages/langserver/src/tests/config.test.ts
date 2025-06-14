@@ -10,6 +10,7 @@
 import assert from 'assert';
 
 import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { TaskListPriority } from 'typeserver/common/diagnostic.js';
 import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVersion.js';
 import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.js';
@@ -21,7 +22,6 @@ import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFil
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 
 describe(`config test'}`, () => {
     const tempFile = new RealTempFile();
@@ -584,7 +584,7 @@ describe(`config test'}`, () => {
         const host = new TestAccessHost();
         host.getPythonVersion = () => pythonVersion3_13;
         return new TypeService('<default>', serviceProvider, {
-            typeshedFallbackLoc: getTypeshedFallbackVirtualLoc(),
+            typeshedFallbackLoc: typeshedFolder,
             console: cons,
             hostFactory: () => host,
         });

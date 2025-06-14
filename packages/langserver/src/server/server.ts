@@ -52,7 +52,7 @@ const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs
 export class PyrightServer extends LanguageServerBase {
     private _controller: CommandController;
 
-    constructor(connection: Connection, maxWorkers: number, realFileSystem?: FileSystem) {
+    constructor(connection: Connection, realFileSystem?: FileSystem, typeshedFallbackLoc?: Uri) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         //const version = require('typeserver/package.json').version || '';
         // TODO - fix the version retrieval logic
@@ -63,7 +63,7 @@ export class PyrightServer extends LanguageServerBase {
         const fileWatcherProvider = new WorkspaceFileWatcherProvider();
         const fileSystem = realFileSystem ?? createFromRealFileSystem(tempFile, console, fileWatcherProvider);
         const pyrightFs = new PyrightFileSystem(fileSystem);
-        const cacheManager = new CacheManager(maxWorkers);
+        const cacheManager = new CacheManager();
         const partialStubService = new PartialStubService(pyrightFs);
 
         const serviceProvider = createServiceProvider(
@@ -75,9 +75,11 @@ export class PyrightServer extends LanguageServerBase {
             new FileBasedCancellationProvider('bg')
         );
 
-        const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-        const rootDirectory = Uri.file(dirPath, serviceProvider);
-        const typeshedFallbackLoc = rootDirectory.combinePaths(typeshedFallback);
+        if (!typeshedFallbackLoc) {
+            const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+            const rootDirectory = Uri.file(dirPath, serviceProvider);
+            typeshedFallbackLoc = rootDirectory.combinePaths(typeshedFallback);
+        }
 
         super(
             {

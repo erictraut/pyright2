@@ -13,7 +13,7 @@ import { MarkupKind } from 'vscode-languageserver-types';
 import { CompletionProvider } from 'langserver/providers/completionProvider.js';
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import * as host from 'langserver/tests/harness/testHost.js';
-import { createFromFileSystem } from 'langserver/tests/harness/vfs/factory.js';
+import { createFromFileSystem, typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
@@ -24,7 +24,6 @@ import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 
 test('check chained files', () => {
     const code = `
@@ -257,7 +256,7 @@ test('re ordering cells', async () => {
 
 function createServiceWithChainedSourceFiles(basePath: Uri, code: string) {
     const fs = createFromFileSystem(host.HOST, /* ignoreCase */ false, { cwd: basePath.getFilePath() });
-    const typeshedFallbackLoc = getTypeshedFallbackVirtualLoc();
+    const typeshedFallbackLoc = typeshedFolder;
     const service = new TypeService('test service', new ServiceProvider(), {
         typeshedFallbackLoc,
         console: new NullConsole(),
