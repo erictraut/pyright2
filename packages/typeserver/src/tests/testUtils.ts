@@ -87,9 +87,9 @@ export function parseSampleFile(
 }
 
 function getTypeshedFallbackVirtualLoc(): Uri {
-    // Returns the location where typeshed-fallback is remapped
-    // when running tests with a virtual file system.
-    return UriEx.file(`/${typeshedFallback}`);
+    // Assume the typeshed-fallback path is relative to the current directory.
+    const typeshedPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), `../../${typeshedFallback}`);
+    return UriEx.file(typeshedPath);
 }
 
 export function typeAnalyzeSampleFiles(
@@ -156,21 +156,9 @@ export function getAnalysisResults(
                 deprecateds: diagnostics.filter((diag) => diag.category === DiagnosticCategory.Deprecated),
             };
             return analysisResult;
-        } else {
-            fail(`Source file not found for ${fileUris[index]}`);
-
-            const analysisResult: FileAnalysisResult = {
-                fileUri: Uri.empty(),
-                parseResults: undefined,
-                errors: [],
-                warnings: [],
-                infos: [],
-                unusedCodes: [],
-                unreachableCodes: [],
-                deprecateds: [],
-            };
-            return analysisResult;
         }
+
+        fail(`Source file not found for ${fileUris[index]}`);
     });
 }
 
