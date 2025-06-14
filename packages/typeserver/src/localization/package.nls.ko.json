@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "분석할 파일 {count}개",
         "filesToAnalyzeOne": "분석할 파일 1개",
         "findingReferences": "참조 찾기",
-        "organizeImports": "가져오기 구성",
         "renameShadowedFile": "‘{oldFile}’에서 ‘{newFile}’(으)로 이름 바꾸기"
     },
     "Completion": {

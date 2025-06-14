@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "{count} файлов для анализа",
         "filesToAnalyzeOne": "1 файл для анализа",
         "findingReferences": "Производится поиск ссылок",
-        "organizeImports": "Упорядочение импорта",
         "renameShadowedFile": "Переименовать \"{oldFile}\" в \"{newFile}\""
     },
     "Completion": {

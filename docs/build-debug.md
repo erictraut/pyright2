@@ -8,7 +8,7 @@ To install the dependencies for all packages in the repo:
 
 ## Building the CLI
 
-1. cd to the `packages/pyright` directory
+1. cd to the `packages/cli` directory
 2. Execute `npm run build`
 
 Once built, you can run the command-line tool by executing the following:
@@ -17,16 +17,16 @@ Once built, you can run the command-line tool by executing the following:
 
 ## Building the VS Code extension
 
-1. cd to the `packages/vscode-pyright` directory
+1. cd to the `packages/vscode-extension` directory
 2. Execute `npm run package`
 
 The resulting package (pyright-X.Y.Z.vsix) can be found in the client directory.
 To install in VS Code, go to the extensions panel and choose “Install from VSIX...” from the menu, then select the package.
 
 
-## Running Pyright tests
+## Running Pyright type tests
 
-1. cd to the `packages/pyright-internal` directory
+1. cd to the top-level directory
 2. Execute `npm run test`
 
 

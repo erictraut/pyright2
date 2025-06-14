@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "{count} fichiers à analyser",
         "filesToAnalyzeOne": "1 fichier à analyser",
         "findingReferences": "Recherche de références",
-        "organizeImports": "Organiser les importations",
         "renameShadowedFile": "Renommez \"{oldFile}\" en \"{newFile}\""
     },
     "Completion": {

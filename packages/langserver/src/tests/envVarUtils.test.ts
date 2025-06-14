@@ -219,7 +219,6 @@ function createWorkspace(rootUri: Uri | undefined) {
         }),
         disableLanguageServices: false,
         disableTaggedHints: false,
-        disableOrganizeImports: false,
         disableWorkspaceSymbol: false,
         isInitialized: createInitStatus(),
         searchPathsToWatch: [],

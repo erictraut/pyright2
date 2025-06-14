@@ -84,7 +84,6 @@ export class TestLanguageService implements LanguageServerInterface {
             ),
             disableLanguageServices: false,
             disableTaggedHints: false,
-            disableOrganizeImports: false,
             disableWorkspaceSymbol: false,
             isInitialized: createInitStatus(),
             searchPathsToWatch: [],

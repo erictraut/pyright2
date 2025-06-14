@@ -12,7 +12,6 @@
         "filesToAnalyzeCount": "{count} files to analyze",
         "filesToAnalyzeOne": "1 file to analyze",
         "findingReferences": "Finding references",
-        "organizeImports": "Organize Imports",
         "renameShadowedFile": "Rename \"{oldFile}\" to \"{newFile}\""
     },
     "Completion": {

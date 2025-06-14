@@ -89,7 +89,7 @@ export class PyrightServer extends LanguageServerBase {
                 serviceProvider,
                 fileWatcherHandler: fileWatcherProvider,
                 maxAnalysisTimeInForeground,
-                supportedCodeActions: [CodeActionKind.QuickFix, CodeActionKind.SourceOrganizeImports],
+                supportedCodeActions: [CodeActionKind.QuickFix],
             },
             connection
         );
@@ -106,7 +106,6 @@ export class PyrightServer extends LanguageServerBase {
             useLibraryCodeForTypes: true,
             disableLanguageServices: false,
             disableTaggedHints: false,
-            disableOrganizeImports: false,
             typeCheckingMode: 'standard',
             diagnosticSeverityOverrides: {},
             logLevel: LogLevel.Info,
@@ -215,7 +214,6 @@ export class PyrightServer extends LanguageServerBase {
 
                 serverSettings.disableLanguageServices = !!pyrightSection.disableLanguageServices;
                 serverSettings.disableTaggedHints = !!pyrightSection.disableTaggedHints;
-                serverSettings.disableOrganizeImports = !!pyrightSection.disableOrganizeImports;
 
                 const typeCheckingMode = pyrightSection.typeCheckingMode;
                 if (typeCheckingMode && isString(typeCheckingMode)) {

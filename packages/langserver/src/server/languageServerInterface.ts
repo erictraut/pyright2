@@ -27,7 +27,6 @@ export interface ServerSettings {
     useLibraryCodeForTypes?: boolean | undefined;
     disableLanguageServices?: boolean | undefined;
     disableTaggedHints?: boolean | undefined;
-    disableOrganizeImports?: boolean | undefined;
     autoSearchPaths?: boolean | undefined;
     extraPaths?: Uri[] | undefined;
     watchForSourceChanges?: boolean | undefined;

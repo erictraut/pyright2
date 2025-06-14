@@ -61,7 +61,6 @@ export class TypeServerExecutor {
             service: clonedService,
             disableLanguageServices: true,
             disableTaggedHints: true,
-            disableOrganizeImports: true,
             disableWorkspaceSymbol: true,
             isInitialized: createInitStatus(),
             searchPathsToWatch: [],

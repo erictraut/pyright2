@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "Počet souborů k analýze: {count}",
         "filesToAnalyzeOne": "1 soubor k analýze",
         "findingReferences": "Hledají se odkazy",
-        "organizeImports": "Uspořádat direktivy Import",
         "renameShadowedFile": "Přejmenovat „{oldFile}“ na „{newFile}“"
     },
     "Completion": {

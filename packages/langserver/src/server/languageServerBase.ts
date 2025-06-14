@@ -336,7 +336,6 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
             workspace.disableLanguageServices = !!serverSettings.disableLanguageServices;
             workspace.disableTaggedHints = !!serverSettings.disableTaggedHints;
-            workspace.disableOrganizeImports = !!serverSettings.disableOrganizeImports;
         } finally {
             // Don't use workspace.isInitialized directly since it might have been
             // reset due to pending config change event.

@@ -9,7 +9,6 @@
 import { CancellationToken, ExecuteCommandParams } from 'vscode-languageserver';
 
 import { ServerCommand } from 'langserver/commands/commandController.js';
-import { Commands } from 'langserver/commands/commands.js';
 import { performQuickAction } from 'langserver/providers/quickActions.js';
 import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
 import { convertToFileTextEdits, convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
@@ -23,10 +22,6 @@ export class QuickActionCommand implements ServerCommand {
             const docUri = Uri.parse(params.arguments[0] as string, this._ls.serviceProvider);
             const otherArgs = params.arguments.slice(1);
             const workspace = await this._ls.getWorkspaceForFile(docUri);
-
-            if (params.command === Commands.orderImports && workspace.disableOrganizeImports) {
-                return [];
-            }
 
             const editActions = workspace.service.run((p) => {
                 return performQuickAction(p, docUri, params.command, otherArgs, token);

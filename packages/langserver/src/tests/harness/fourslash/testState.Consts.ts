@@ -22,7 +22,6 @@ export namespace Consts {
     export enum Commands {
         createTypeStub = 'pyright.createtypestub',
         restartServer = 'pyright.restartserver',
-        orderImports = 'pyright.organizeimports',
     }
 
     export import CompletionItemKind = lsp.CompletionItemKind;

@@ -221,7 +221,6 @@ export class TestState {
             service: service,
             disableLanguageServices: false,
             disableTaggedHints: false,
-            disableOrganizeImports: false,
             disableWorkspaceSymbol: false,
             isInitialized: createInitStatus(),
             searchPathsToWatch: [],
@@ -844,20 +843,6 @@ export class TestState {
 
         if (command.command === 'pyright.createtypestub') {
             await this._verifyFiles(files);
-        } else if (command.command === 'pyright.organizeimports') {
-            // Organize imports command can be used on only one file at a time,
-            // so there is no looping over "commandResult" or "files".
-            const workspaceEditResult = commandResult as WorkspaceEdit;
-            const uri = Object.keys(workspaceEditResult.changes!)[0];
-            const textEdit = workspaceEditResult.changes![uri][0];
-            const actualText = textEdit.newText;
-            const expectedText: string = Object.values(files)[0];
-
-            if (actualText !== expectedText) {
-                this.raiseError(
-                    `doesn't contain expected result: ${stringify(expectedText)}, actual: ${stringify(actualText)}`
-                );
-            }
         }
         return commandResult;
     }

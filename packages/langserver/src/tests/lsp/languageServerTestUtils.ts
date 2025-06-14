@@ -878,7 +878,6 @@ export function getInitializeParams(
                                 'refactor.inline',
                                 'refactor.rewrite',
                                 'source',
-                                'source.organizeImports',
                             ],
                         },
                     },

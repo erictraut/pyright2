@@ -3,7 +3,7 @@
     "displayName": "pyright",
     "description": "Type server for the Python language",
     "type": "module",
-    "version": "2.0.0b1",
+    "version": "2.0.0-alpha.1",
     "license": "MIT",
     "private": true,
     "files": [

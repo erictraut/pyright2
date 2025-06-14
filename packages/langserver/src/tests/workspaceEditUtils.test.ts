@@ -346,7 +346,6 @@ async function cloneService(
         service: workspace.service.clone(instanceName, options.fileSystem),
         disableLanguageServices: true,
         disableTaggedHints: true,
-        disableOrganizeImports: true,
         disableWorkspaceSymbol: true,
         isInitialized: createInitStatus(),
         searchPathsToWatch: [],

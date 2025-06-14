@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "Pliki do przeanalizowania: {count}",
         "filesToAnalyzeOne": "1 plik do analizy",
         "findingReferences": "Znajdowanie odwołań",
-        "organizeImports": "Organizuj dyrektywy Import",
         "renameShadowedFile": "Zmień nazwę „{oldFile}” na „{newFile}”"
     },
     "Completion": {

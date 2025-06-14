@@ -9,8 +9,6 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { Commands } from 'langserver/commands/commands.js';
-import { ImportSorter } from 'langserver/providers/importSorter.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 
@@ -33,11 +31,6 @@ export function performQuickAction(
     const parseResults = programView.getParseResults(uri);
     if (!parseResults) {
         return [];
-    }
-
-    if (command === Commands.orderImports) {
-        const importSorter = new ImportSorter(parseResults, token);
-        return importSorter.sort();
     }
 
     return [];

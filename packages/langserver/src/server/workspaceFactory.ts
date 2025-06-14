@@ -83,7 +83,6 @@ export interface Workspace extends WorkspaceFolder {
     service: TypeService;
     disableLanguageServices: boolean;
     disableTaggedHints: boolean;
-    disableOrganizeImports: boolean;
     disableWorkspaceSymbol: boolean;
     isInitialized: InitStatus;
     searchPathsToWatch: Uri[];
@@ -270,7 +269,6 @@ export class WorkspaceFactory {
             service: this._createService(name, uri, kinds),
             disableLanguageServices: false,
             disableTaggedHints: false,
-            disableOrganizeImports: false,
             disableWorkspaceSymbol: false,
             isInitialized: createInitStatus(),
             searchPathsToWatch: [],

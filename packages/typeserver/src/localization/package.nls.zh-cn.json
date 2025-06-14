@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "要分析的 {count} 个文件",
         "filesToAnalyzeOne": "1 个要分析的文件",
         "findingReferences": "正在查找引用",
-        "organizeImports": "整理 Import",
         "renameShadowedFile": "将“{oldFile}”重命名为“{newFile}”"
     },
     "Completion": {

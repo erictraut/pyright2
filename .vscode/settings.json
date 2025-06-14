@@ -12,8 +12,5 @@
         "source.organizeImports": "explicit"
     },
     "typescript.tsdk": "node_modules/typescript/lib",
-    "python.languageServer": "None",
-    "cSpell.words": [
-        "typeserver"
-    ],
+    "python.languageServer": "None"
 }

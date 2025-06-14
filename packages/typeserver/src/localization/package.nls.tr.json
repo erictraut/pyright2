@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "analiz edilecek {count} dosya var",
         "filesToAnalyzeOne": "Analiz edilecek 1 dosya",
         "findingReferences": "Başvurular bulunuyor",
-        "organizeImports": "İçeri Aktarmaları Düzenle",
         "renameShadowedFile": "\"{oldFile}\" dosyasını \"{newFile}\" olarak yeniden adlandır"
     },
     "Completion": {

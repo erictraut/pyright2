@@ -30,7 +30,7 @@
             "name": "VSCode Extension",
             "type": "extensionHost",
             "request": "launch",
-            "runtimeExecutable": "${workspaceRoot}/packages/vscode-pyright/dist/extension.js",
+            "runtimeExecutable": "${workspaceRoot}/packages/vscode-extension/dist/extension.cjs",
             "preLaunchTask": "npm: build:extension",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-extension",
@@ -50,7 +50,7 @@
             "smartStep": true,
             "sourceMaps": true,
             "outFiles": [
-                "${workspaceRoot}/packages/vscode-pyright/dist/**/*.js"
+                "${workspaceRoot}/packages/vscode-extension/dist/**/*.cjs"
             ]
         },
         {

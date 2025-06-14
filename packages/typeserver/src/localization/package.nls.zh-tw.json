@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "要分析的 {count} 個檔案",
         "filesToAnalyzeOne": "1 個要分析的檔案",
         "findingReferences": "尋找參考",
-        "organizeImports": "整理匯入",
         "renameShadowedFile": "將 \"{oldFile}\" 重新命名為 \"{newFile}\""
     },
     "Completion": {

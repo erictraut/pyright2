@@ -6,7 +6,6 @@
         "filesToAnalyzeCount": "分析する {count} 個のファイル",
         "filesToAnalyzeOne": "分析する 1 つのファイル",
         "findingReferences": "参照を検索しています",
-        "organizeImports": "インポートを整理",
         "renameShadowedFile": "\"{oldFile}\" の名前を \"{newFile}\" に変更します"
     },
     "Completion": {
