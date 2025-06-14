@@ -1,8 +1,9 @@
 {
-    "name": "vscode-pyright",
+    "name": "pyright-ls",
     "displayName": "Pyright",
     "description": "VS Code static type checking for Python",
-    "version": "1.1.402",
+    "type": "module",
+    "version": "2.0.0b1",
     "private": true,
     "license": "MIT",
     "author": {
@@ -27,7 +28,7 @@
         "workspaceContains:pyrightconfig.json"
     ],
     "icon": "images/pyright-icon.png",
-    "main": "./dist/extension.js",
+    "main": "./dist/extension.cjs",
     "contributes": {
         "languages": [
             {
@@ -43,44 +44,9 @@
         ],
         "commands": [
             {
-                "command": "pyright.organizeimports",
-                "title": "Organize Imports",
-                "category": "Pyright"
-            },
-            {
                 "command": "pyright.restartserver",
                 "title": "Restart Server",
                 "category": "Pyright"
-            },
-            {
-                "command": "pyright.dumpTokens",
-                "title": "Dump token streams ...",
-                "category": "Pyright",
-                "enablement": "editorLangId == python && pyright.development"
-            },
-            {
-                "command": "pyright.dumpNodes",
-                "title": "Dump parse tree ...",
-                "category": "Pyright",
-                "enablement": "editorLangId == python && pyright.development"
-            },
-            {
-                "command": "pyright.dumpTypes",
-                "title": "Dump type info ...",
-                "category": "Pyright",
-                "enablement": "editorLangId == python && pyright.development"
-            },
-            {
-                "command": "pyright.dumpCachedTypes",
-                "title": "Dump cached type info ...",
-                "category": "Pyright",
-                "enablement": "editorLangId == python && pyright.development"
-            },
-            {
-                "command": "pyright.dumpCodeFlowGraph",
-                "title": "Dump code flow graph for node ...",
-                "category": "Pyright",
-                "enablement": "editorLangId == python && pyright.development"
             }
         ],
         "menus": {
@@ -1589,13 +1555,14 @@
         ]
     },
     "scripts": {
+        "build": "npm run clean && npm run esbuild:extension && npm run esbuild:server && shx cp -r ../typeserver/typeshed-fallback ./dist/typeshed-fallback",
         "clean": "shx rm -rf ./dist ./out",
+        "esbuild:extension": "esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=dist/extension.cjs --banner:js=\"#!/usr/bin/env node\" --external:node:* --external:vscode",
+        "esbuild:server": "esbuild src/server.ts --bundle --platform=node --format=cjs --outfile=dist/server.cjs --banner:js=\"#!/usr/bin/env node\" --external:fsevents --external:node:* --external:jsonc-parser",
         "prepackage": "node ./build/renamePackage.js pyright",
         "package": "vsce package",
         "postpackage": "node ./build/renamePackage.js vscode-pyright",
-        "vscode:prepublish": "node ./build/checkPackage.js && npm run clean && webpack --mode production --progress",
-        "webpack": "webpack --mode development --progress",
-        "webpack-dev": "npm run clean && webpack --mode development --watch --progress"
+        "vscode:prepublish": "node ./build/checkPackage.js && npm run build"
     },
     "dependencies": {
         "vscode-jsonrpc": "^9.0.0-next.5",
@@ -1604,15 +1571,12 @@
         "vscode-languageserver-protocol": "^3.17.6-next.10"
     },
     "devDependencies": {
-        "@types/node": "^22.10.5",
+        "@types/node": "^24.0.1",
         "@types/vscode": "^1.99.0",
         "@vscode/vsce": "^2.32.0",
-        "copy-webpack-plugin": "^11.0.0",
-        "esbuild-loader": "^3.2.0",
-        "shx": "^0.3.4",
-        "ts-loader": "^9.5.1",
-        "typescript": "~5.5.4",
-        "webpack": "^5.97.1",
-        "webpack-cli": "^5.1.4"
+        "esbuild": "^0.25.5",
+        "shx": "^0.4.0",
+        "ts-loader": "^9.5.2",
+        "typescript": "~5.8.3"
     }
 }

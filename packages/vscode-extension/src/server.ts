@@ -1,6 +1,5 @@
-import { main } from 'pyright-internal/nodeMain';
+import { main } from 'langserver/server/nodeMain.js';
 
 Error.stackTraceLimit = 256;
 
-// VS Code version of the server has one background thread.
-main(/* maxWorkers */ 1);
+main();

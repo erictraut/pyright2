@@ -3,16 +3,20 @@
     "compilerOptions": {
         "outDir": "./out",
         "paths": {
-            "pyright-internal/*": [
-                "../pyright-internal/src/*"
-            ]
+            "typeserver/*": [
+                "../typeserver/src/*"
+            ],
+            "langserver/*": [
+                "../langserver/src/*"
+            ],
         },
         "typeRoots": ["./node_modules/@types", "../pyright-internal/typings"]
     },
     "include": [
+        "../typeserver/src/**/*",
+        "../langserver/src/**/*",
         "src/**/*",
         "**/*.js",
-        "../pyright-internal/typings/**/*.d.ts"
     ],
     "exclude": [
         "node_modules",

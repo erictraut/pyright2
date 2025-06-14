@@ -6,7 +6,7 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/packages/cli/index.cjs",
-            "preLaunchTask": "npm: build:cli:dev",
+            "preLaunchTask": "npm: build:cli",
             "args": [
             ],
             "internalConsoleOptions": "openOnSessionStart",
@@ -31,18 +31,15 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${workspaceRoot}/packages/vscode-pyright/dist/extension.js",
-            "preLaunchTask": "npm: build:extension:dev",
+            "preLaunchTask": "npm: build:extension",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-pyright",
-                // The published extension is named "ms-pyright.pyright", but in debug mode it's "ms-pyright.vscode-pyright"
-                // to allow the extension code to participate in the lerna monorepo. Make sure that the published extension
-                // isn't enabled, otherwise both are loaded and conflict.
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-extension",
                 "--disable-extension=ms-pyright.pyright"
             ],
             "smartStep": true,
             "sourceMaps": true,
             "outFiles": [
-                "${workspaceRoot}/packages/vscode-pyright/dist/**/*.js"
+                "${workspaceRoot}/packages/vscode-extension/dist/**/*.cjs"
             ]
         },
         {

@@ -9,5 +9,6 @@
 
 export const enum Commands {
     createTypeStub = 'pyright.createtypestub',
+    restartServer = 'pyright.restartserver',
     unusedImport = 'pyright.unusedImport',
 }

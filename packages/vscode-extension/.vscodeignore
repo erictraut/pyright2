@@ -10,5 +10,3 @@ src/**
 build/**
 
 tsconfig.*
-webpack.*
-.webpack_cache
