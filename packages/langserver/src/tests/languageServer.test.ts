@@ -6,6 +6,7 @@
  * Tests to verify Pyright works as the backend for a language server.
  */
 
+import { jest } from '@jest/globals';
 import assert from 'assert';
 import {
     CancellationToken,
@@ -153,7 +154,7 @@ describe(`Basic language server tests`, () => {
 
     [false, true].forEach((supportsPullDiagnostics) => {
         describe(`Diagnostics ${supportsPullDiagnostics ? 'pull' : 'push'}`, () => {
-            // Background analysis takes longer than 5 seconds sometimes, so we need to
+            // Analysis takes longer than 5 seconds sometimes, so we need to
             // increase the timeout.
             jest.setTimeout(15000);
             test('background thread diagnostics', async () => {

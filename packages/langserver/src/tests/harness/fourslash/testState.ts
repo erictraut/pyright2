@@ -106,7 +106,7 @@ import { Program } from 'typeserver/program/program.js';
 import { PackageTypeReport } from 'typeserver/service/packageTypeReport.js';
 import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
+import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 import { Comparison, isNumber, isString } from 'typeserver/utils/core.js';
 import { assertNever } from 'typeserver/utils/debug.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
@@ -1547,6 +1547,7 @@ export class TestState {
             this.configOptions.projectRoot.getFilePath(),
             /* fromLanguageServer */ false
         );
+        commandLineOptions.configSettings.typeshedFallbackPath = getTypeshedFallbackVirtualLoc().toString();
         commandLineOptions.configSettings.verboseOutput = verboseOutput;
         const verifier = new PackageTypeVerifier(
             this.serviceProvider,
@@ -1739,7 +1740,7 @@ export class TestState {
     ) {
         // Do not initiate automatic analysis or file watcher in test.
         const service = new TypeService('test service', this.serviceProvider, {
-            typeshedFallbackLoc: getTypeshedFallbackLoc(),
+            typeshedFallbackLoc: getTypeshedFallbackVirtualLoc(),
             console: nullConsole,
             hostFactory: () => host,
             importResolverFactory,
@@ -2070,7 +2071,7 @@ export class TestState {
             const expected = files[filePath];
             const normalizedFilePath = normalizeSlashes(filePath);
 
-            // wait until the file exists
+            // Wait until the file exists.
             await this._waitForFile(normalizedFilePath);
 
             const actual = this.fs.readFileSync(Uri.file(normalizedFilePath, this.serviceProvider), 'utf8');
@@ -2130,7 +2131,7 @@ export function parseAndGetTestState(
     const data = parseTestData(normalizeSlashes(projectRoot), code, anonymousFileName);
     const state = new TestState(
         normalizeSlashes('/'),
-        getTypeshedFallbackLoc(),
+        getTypeshedFallbackVirtualLoc(),
         data,
         /* mountPath */ undefined,
         /* hostSpecificFeatures */ undefined,

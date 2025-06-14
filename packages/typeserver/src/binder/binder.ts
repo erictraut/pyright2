@@ -56,7 +56,7 @@ import * as StaticExpressions from 'typeserver/binder/staticExpressions.js';
 import { Symbol, SymbolFlags, indeterminateSymbolId } from 'typeserver/binder/symbol.js';
 import { isConstantName, isPrivateName, isPrivateOrProtectedName } from 'typeserver/binder/symbolNameUtils.js';
 import * as AnalyzerNodeInfo from 'typeserver/common/analyzerNodeInfo.js';
-import { Diagnostic } from 'typeserver/common/diagnostic.js';
+import { CreateTypeStubFileAction, Diagnostic } from 'typeserver/common/diagnostic.js';
 import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
 import {
     getArgsByRuntimeOrder,
@@ -135,6 +135,7 @@ import {
 } from 'typeserver/parser/parseNodes.js';
 import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
 import { KeywordType, OperatorType } from 'typeserver/parser/tokenizerTypes.js';
+import { Commands } from 'typeserver/service/commands.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { assert, assertNever, fail } from 'typeserver/utils/debug.js';
 
@@ -422,19 +423,19 @@ export class Binder extends ParseTreeWalker {
         }
 
         if (reportStubMissing) {
-            this._addDiagnostic(
+            const diagnostic = this._addDiagnostic(
                 DiagnosticRule.reportMissingTypeStubs,
                 LocMessage.stubFileMissing().format({ importName: importResult.importName }),
                 node
             );
-            // if (diagnostic) {
-            //     // Add a diagnostic action for resolving this diagnostic.
-            //     const createTypeStubAction: CreateTypeStubFileAction = {
-            //         action: Commands.createTypeStub,
-            //         moduleName: importResult.importName,
-            //     };
-            //     diagnostic.addAction(createTypeStubAction);
-            // }
+            if (diagnostic) {
+                // Add a diagnostic action for resolving this diagnostic.
+                const createTypeStubAction: CreateTypeStubFileAction = {
+                    action: Commands.createTypeStub,
+                    moduleName: importResult.importName,
+                };
+                diagnostic.addAction(createTypeStubAction);
+            }
         }
 
         return true;

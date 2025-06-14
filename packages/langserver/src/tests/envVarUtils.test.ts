@@ -6,9 +6,9 @@
  * Unit tests for functions in envVarUtils.
  */
 
-import os from 'os';
-
+import { jest } from '@jest/globals';
 import assert from 'assert';
+import os from 'os';
 
 import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/providers/envVarUtils.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
@@ -20,9 +20,7 @@ import { createServiceProvider } from 'typeserver/extensibility/serviceProviderE
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
-
-jest.mock('os', () => ({ __esModule: true, ...jest.requireActual('os') }));
+import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 
 const defaultWorkspace = createWorkspace(undefined);
 const normalworkspace = createWorkspace(UriEx.file('/'));
@@ -213,7 +211,7 @@ function createWorkspace(rootUri: Uri | undefined) {
         rootUri,
         kinds: [WellKnownWorkspaceKinds.Test],
         service: new TypeService('test service', createServiceProvider(fs), {
-            typeshedFallbackLoc: getTypeshedFallbackLoc(),
+            typeshedFallbackLoc: getTypeshedFallbackVirtualLoc(),
             console: new NullConsole(),
             hostFactory: () => new TestAccessHost(),
             importResolverFactory: TypeService.createImportResolver,

@@ -32,7 +32,7 @@ test('GlobalOptions', () => {
 
     const data = parseTestData('.', code, 'test.py');
     assertOptions(data.globalOptions, [
-        ['libpath', 'typeserver/dist/lib'],
+        ['libpath', '../dist/lib'],
         ['pythonversion', '3.7'],
     ]);
 

@@ -86,24 +86,21 @@ export function parseSampleFile(
     return parseText(text, diagSink, parseOptions);
 }
 
-export function getTypeshedFallbackLoc(): Uri {
-    // const currentDir = path.dirname(fileURLToPath(import.meta.url));
-
-    // // Assume the typeshed-fallback path is relative to the current directory.
-    // const typeshedPath = path.resolve(currentDir, `../../${typeshedFallback}`);
-    // return UriEx.file(typeshedPath);
+export function getTypeshedFallbackVirtualLoc(): Uri {
+    // Returns the location where typeshed-fallback is remapped
+    // when running tests with a virtual file system.
     return UriEx.file(`/${typeshedFallback}`);
 }
 
 export function typeAnalyzeSampleFiles(
     fileNames: string[],
-    configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackLoc()),
+    configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackVirtualLoc()),
     console?: ConsoleWithLogLevel
 ): FileAnalysisResult[] {
     // Always enable "test mode".
     configOptions.internalTestMode = true;
     if (!configOptions.typeshedFallbackPath) {
-        configOptions.typeshedFallbackPath = getTypeshedFallbackLoc();
+        configOptions.typeshedFallbackPath = getTypeshedFallbackVirtualLoc();
     }
 
     const tempFile = new RealTempFile();
@@ -134,7 +131,7 @@ export function typeAnalyzeSampleFiles(
 export function getAnalysisResults(
     program: Program,
     fileUris: Uri[],
-    configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackLoc())
+    configOptions = new ConfigOptions(Uri.empty(), getTypeshedFallbackVirtualLoc())
 ): FileAnalysisResult[] {
     // Always enable "test mode".
     configOptions.internalTestMode = true;

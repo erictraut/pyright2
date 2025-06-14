@@ -50,7 +50,7 @@ import { ServiceProvider } from 'typeserver/extensibility/serviceProvider.js';
 import { getFs } from 'typeserver/extensibility/serviceProviderExtensions.js';
 import { getFileExtension, stripFileExtension } from 'typeserver/files/pathUtils.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { tryStat } from 'typeserver/files/uri/uriUtils.js';
+import { tryStat, UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
 import { getPyTypedInfo, PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
 import { Program } from 'typeserver/program/program.js';
@@ -86,7 +86,10 @@ export class PackageTypeVerifier {
         private _ignoreExternal = false
     ) {
         const host = new FullAccessHost(_serviceProvider);
-        this._configOptions = new ConfigOptions(Uri.empty());
+        const typeshedFallbackUri = commandLineOptions.configSettings.typeshedFallbackPath
+            ? UriEx.file(commandLineOptions.configSettings.typeshedFallbackPath)
+            : undefined;
+        this._configOptions = new ConfigOptions(Uri.empty(), typeshedFallbackUri);
         const console = new NullConsole();
 
         // Make sure we have a default python platform and version.

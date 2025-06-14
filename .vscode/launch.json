@@ -94,5 +94,22 @@
             "internalConsoleOptions": "neverOpen",
             "program": "${workspaceFolder}/packages/langserver/node_modules/jest/bin/jest"
         },
+        {
+            "name": "Pyright fourslash current file",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--experimental-vm-modules"
+            ],
+            "args": [
+                "fourSlashRunner.test.ts",
+                "-t ${fileBasenameNoExtension}",
+                "--runInBand",
+            ],
+            "cwd": "${workspaceRoot}/packages/langserver",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "program": "${workspaceFolder}/packages/langserver/node_modules/jest/bin/jest"
+        }
     ]
 }

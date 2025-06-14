@@ -14,7 +14,7 @@ import { Consts } from 'langserver/tests/harness/fourslash/testState.Consts.js';
 import { HostSpecificFeatures, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import * as host from 'langserver/tests/harness/testHost.js';
 import { combinePaths } from 'typeserver/files/pathUtils.js';
-import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
+import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 
 export type TestStateFactory = (
     basePath: string,
@@ -67,7 +67,13 @@ export function runFourSlashTestContent(
     const state =
         testStateFactory !== undefined
             ? testStateFactory(absoluteBasePath, testData, mountPaths, hostSpecificFeatures)
-            : new TestState(absoluteBasePath, getTypeshedFallbackLoc(), testData, mountPaths, hostSpecificFeatures);
+            : new TestState(
+                  absoluteBasePath,
+                  getTypeshedFallbackVirtualLoc(),
+                  testData,
+                  mountPaths,
+                  hostSpecificFeatures
+              );
     const output = ts.transpileModule(content, {
         reportDiagnostics: true,
         compilerOptions: { target: ts.ScriptTarget.ES2019 },

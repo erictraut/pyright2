@@ -187,10 +187,11 @@ test('CustomTypeshedFolder', () => {
 // @typeshed: ${currentDir}
     `;
 
-    // mount the folder this file is in as typeshed folder and check whether
-    // in typeshed folder in virtual file system, this file exists.
+    // Mount this file's folder as a typeshed folder and check whether
+    // this file exists.
     const state = parseAndGetTestState(code).state;
-    assert(state.fs.existsSync(factory.typeshedFolder.combinePaths(getFileName(__filename))));
+    const filePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
+    assert(state.fs.existsSync(factory.typeshedFolder.combinePaths(getFileName(filePath))));
 });
 
 test('IgnoreCase', () => {

@@ -13,7 +13,7 @@ import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/fil
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uri/uriUtils.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
-import { getTypeshedFallbackLoc } from 'typeserver/tests/testUtils.js';
+import { getTypeshedFallbackVirtualLoc } from 'typeserver/tests/testUtils.js';
 import { CancellationToken } from 'vscode-jsonrpc';
 
 test('random library file changed', () => {
@@ -418,7 +418,7 @@ function getRegisteredLibraryFileWatchers(root: string, extraPaths: string[], ex
     root = normalizeSlashes(root);
 
     const data = parseTestData(root, '', '');
-    const state = new TestState(root, getTypeshedFallbackLoc(), data);
+    const state = new TestState(root, getTypeshedFallbackVirtualLoc(), data);
 
     const options = new CommandLineOptions(state.workspace.rootUri, false);
     options.languageServerSettings.watchForLibraryChanges = true;
