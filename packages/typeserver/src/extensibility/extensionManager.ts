@@ -10,27 +10,23 @@ import { CancellationProvider } from 'typeserver/extensibility/cancellationUtils
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, TempFile } from 'typeserver/files/fileSystem.js';
-import { PartialStubService } from 'typeserver/files/partialStubService.js';
-import { CacheManager } from 'typeserver/service/cacheManager.js';
 
 export class ExtensionManager {
     private _fileSystemProvider: FileSystem;
     private _consoleProvider: ConsoleInterface;
-    private _caseSensitivityProvider: CaseSensitivityDetector; // TODO - remove this
+    private _caseSensitivityProvider: CaseSensitivityDetector;
 
-    private _partialStubProvider: PartialStubService | undefined; // TODO - remove this
     private _tempFileProvider: TempFile | undefined;
-    private _cacheManagerProvider: CacheManager | undefined; // TODO - remove this
     private _cancellationProvider: CancellationProvider | undefined;
 
     constructor(
         fileSystemProvider: FileSystem,
         consoleProvider: ConsoleInterface,
-        caseSensitivityDetector: CaseSensitivityDetector
+        caseSensitivityProvider: CaseSensitivityDetector
     ) {
         this._fileSystemProvider = fileSystemProvider;
         this._consoleProvider = consoleProvider;
-        this._caseSensitivityProvider = caseSensitivityDetector;
+        this._caseSensitivityProvider = caseSensitivityProvider;
     }
 
     get fs(): FileSystem {
@@ -49,14 +45,6 @@ export class ExtensionManager {
         this._consoleProvider = value;
     }
 
-    get partialStubs(): PartialStubService | undefined {
-        return this._partialStubProvider;
-    }
-
-    set partialStubs(value: PartialStubService) {
-        this._partialStubProvider = value;
-    }
-
     get tempFile(): TempFile | undefined {
         return this._tempFileProvider;
     }
@@ -71,14 +59,6 @@ export class ExtensionManager {
 
     set caseSensitivity(value: CaseSensitivityDetector) {
         this._caseSensitivityProvider = value;
-    }
-
-    get cacheManager(): CacheManager | undefined {
-        return this._cacheManagerProvider;
-    }
-
-    set cacheManager(value: CacheManager) {
-        this._cacheManagerProvider = value;
     }
 
     get cancellation(): CancellationProvider | undefined {
@@ -96,9 +76,7 @@ export class ExtensionManager {
             this._caseSensitivityProvider
         );
 
-        clone._partialStubProvider = this._partialStubProvider;
         clone._tempFileProvider = this._tempFileProvider;
-        clone._cacheManagerProvider = this._cacheManagerProvider;
         clone._cancellationProvider = this._cancellationProvider;
 
         return clone;

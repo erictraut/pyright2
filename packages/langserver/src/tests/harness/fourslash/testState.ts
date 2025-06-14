@@ -91,7 +91,6 @@ import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/e
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx, getFileSpec } from 'typeserver/files/uriUtils.js';
@@ -180,9 +179,7 @@ export class TestState {
 
         this.fs = new PyrightFileSystem(this.testFS);
         this.console = new ConsoleWithLogLevel(new NullConsole(), 'test');
-        const ps = new PartialStubService(this.fs);
         const em = new ExtensionManager(this.testFS, this.console, this.testFS);
-        em.partialStubs = ps;
         this.extensionManager = em;
 
         this._cancellationToken = new TestCancellationToken();

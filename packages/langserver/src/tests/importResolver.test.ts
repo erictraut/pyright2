@@ -19,7 +19,6 @@ import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
-import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { createFromRealFileSystem, RealTempFile } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
@@ -916,11 +915,9 @@ function createExtensionManagerWithCombinedFs(files: { path: string; content: st
 }
 
 function createExtensionManagerWithFs(testFS: TestFileSystem, fs: FileSystem): ExtensionManager {
-    const partialStubService = new PartialStubService(fs);
     const consoleProvider = new NullConsole();
     const em = new ExtensionManager(fs, consoleProvider, testFS);
     em.tempFile = testFS;
-    em.partialStubs = partialStubService;
     return em;
 }
 

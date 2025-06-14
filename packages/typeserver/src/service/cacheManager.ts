@@ -11,8 +11,6 @@
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { fail } from 'typeserver/utils/debug.js';
 import { getHeapStatistics, getSystemMemoryInfo } from 'typeserver/utils/memUtils.js';
-import type { HeapInfo } from 'v8';
-import { Worker } from 'worker_threads';
 
 export interface CacheOwner {
     // Returns a number between 0 and 1 that indicates how full
@@ -26,48 +24,10 @@ export interface CacheOwner {
 export class CacheManager {
     private _pausedCount = 0;
     private readonly _cacheOwners: CacheOwner[] = [];
-    private _sharedUsageBuffer: SharedArrayBuffer | undefined;
-    private _sharedUsagePosition = 0;
     private _lastHeapStats = Date.now();
-
-    constructor(private readonly _maxWorkers: number = 0) {
-        // Empty
-    }
 
     registerCacheOwner(provider: CacheOwner) {
         this._cacheOwners.push(provider);
-    }
-
-    addWorker(index: number, worker: Worker) {
-        // Send the sharedArrayBuffer to the worker so it can be used
-        // to keep track of heap usage on all threads.
-        const buffer = this._getSharedUsageBuffer();
-        if (buffer) {
-            // The SharedArrayBuffer needs to be separate from data in order for it
-            // to be marshalled correctly.
-            worker.postMessage({ requestType: 'cacheUsageBuffer', sharedUsageBuffer: buffer, data: index.toString() });
-            worker.on('exit', () => {
-                const view = new Float64Array(buffer);
-                view[index] = 0;
-            });
-        }
-    }
-
-    handleCachedUsageBufferMessage(msg: {
-        requestType: string;
-        data: string | null;
-        sharedUsageBuffer?: SharedArrayBuffer;
-    }) {
-        if (msg.requestType === 'cacheUsageBuffer') {
-            const index = parseInt(msg.data || '0');
-            const buffer = msg.sharedUsageBuffer;
-            // Index of zero is reserved for the main thread so if
-            // the index isn't passed, don't save the shared buffer.
-            if (buffer && index) {
-                this._sharedUsageBuffer = buffer;
-                this._sharedUsagePosition = index;
-            }
-        }
     }
 
     unregisterCacheOwner(provider: CacheOwner) {
@@ -82,6 +42,7 @@ export class CacheManager {
     pauseTracking(): { dispose(): void } {
         const local = this;
         local._pausedCount++;
+
         return {
             dispose() {
                 local._pausedCount--;
@@ -126,7 +87,7 @@ export class CacheManager {
         }
 
         const heapStats = getHeapStatistics();
-        let usage = this._getTotalHeapUsage(heapStats);
+        let usage = heapStats.used_heap_size;
 
         if (console && Date.now() - this._lastHeapStats > 1000) {
             // This can fill up the user's console, so we only do it once per second.
@@ -155,33 +116,6 @@ export class CacheManager {
 
     private _convertToMB(bytes: number) {
         return `${Math.round(bytes / (1024 * 1024))}MB`;
-    }
-
-    private _getSharedUsageBuffer() {
-        try {
-            if (!this._sharedUsageBuffer && this._maxWorkers > 0) {
-                // Allocate enough space for the workers and the main thread.
-                this._sharedUsageBuffer = new SharedArrayBuffer(8 * (this._maxWorkers + 1));
-            }
-
-            return this._sharedUsageBuffer;
-        } catch {
-            // SharedArrayBuffer is not supported.
-            return undefined;
-        }
-    }
-
-    private _getTotalHeapUsage(heapStats: HeapInfo): number {
-        // If the SharedArrayBuffer is supported, we'll use it to to get usage
-        // from other threads and add that to our own
-        const buffer = this._getSharedUsageBuffer();
-        if (buffer) {
-            const view = new Float64Array(buffer);
-            view[this._sharedUsagePosition] = heapStats.used_heap_size;
-            return view.reduce((a, b) => a + b, 0);
-        }
-
-        return heapStats.used_heap_size;
     }
 }
 

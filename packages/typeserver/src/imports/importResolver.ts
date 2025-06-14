@@ -17,6 +17,7 @@ import { PythonVersion, pythonVersion3_0 } from 'typeserver/common/pythonVersion
 import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { Host } from 'typeserver/extensibility/host.js';
+import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     getFileSystemEntriesFromDirEntries,
@@ -118,6 +119,7 @@ export class ImportResolver {
     private _cachedFilesForPath = new Map<string, Uri[]>();
     private _cachedDirExistenceForRoot = new Map<string, boolean>();
     private _stdlibModules: Set<string> | undefined;
+    private _partialStubs: PartialStubService;
 
     protected readonly cachedParentImportResults: ParentDirectoryCache;
 
@@ -127,6 +129,7 @@ export class ImportResolver {
         readonly host: Host
     ) {
         this.cachedParentImportResults = new ParentDirectoryCache(() => this.getPythonSearchPaths([]));
+        this._partialStubs = new PartialStubService(extensionManager.fs);
     }
 
     get fileSystem() {
@@ -135,10 +138,6 @@ export class ImportResolver {
 
     get tmp() {
         return this.extensionManager.tempFile;
-    }
-
-    get partialStubs() {
-        return this.extensionManager.partialStubs;
     }
 
     static isSupportedImportSourceFile(uri: Uri) {
@@ -159,7 +158,7 @@ export class ImportResolver {
 
         this._invalidateFileSystemCache();
 
-        this.partialStubs?.clearPartialStubs();
+        this._partialStubs.clearPartialStubs();
     }
 
     // Resolves the import and returns the path if it exists, otherwise
@@ -417,15 +416,11 @@ export class ImportResolver {
     }
 
     ensurePartialStubPackages(execEnv: ExecutionEnvironment) {
-        if (!this.partialStubs) {
+        if (this._partialStubs.isPartialStubPackagesScanned(execEnv)) {
             return false;
         }
 
-        if (this.partialStubs.isPartialStubPackagesScanned(execEnv)) {
-            return false;
-        }
-
-        const ps = this.partialStubs;
+        const ps = this._partialStubs;
         const ignored: string[] = [];
         const paths: Uri[] = [];
         const typeshedPathEx = this.getTypeshedPathEx(execEnv, ignored);
@@ -438,7 +433,7 @@ export class ImportResolver {
 
         this.getPythonSearchPaths(ignored).forEach((p) => addPaths(p));
 
-        this.partialStubs.processPartialStubPackages(paths, this.getImportRoots(execEnv), typeshedPathEx);
+        this._partialStubs.processPartialStubPackages(paths, this.getImportRoots(execEnv), typeshedPathEx);
         this._invalidateFileSystemCache();
         return true;
 

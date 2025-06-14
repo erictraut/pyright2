@@ -157,7 +157,7 @@ export class Program {
         this._importResolver = initialImportResolver;
         this._configOptions = initialConfigOptions;
 
-        this._cacheManager = extensionManager.cacheManager ?? new CacheManager();
+        this._cacheManager = new CacheManager();
         this._cacheManager.registerCacheOwner(this);
         this._createNewEvaluator();
 

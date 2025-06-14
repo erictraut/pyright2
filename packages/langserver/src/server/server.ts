@@ -31,7 +31,6 @@ import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBase
 import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
 import { Host } from 'typeserver/extensibility/host.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import {
     RealTempFile,
@@ -41,7 +40,6 @@ import {
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
-import { CacheManager } from 'typeserver/service/cacheManager.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
 import { isDefined, isString } from 'typeserver/utils/valueTypeUtils.js';
 import { fileURLToPath } from 'url';
@@ -62,12 +60,8 @@ export class PyrightServer extends LanguageServerBase {
         const fileWatcherProvider = new WorkspaceFileWatcherProvider();
         const fileSystem = realFileSystem ?? createFromRealFileSystem(tempFile, console, fileWatcherProvider);
         const pyrightFs = new PyrightFileSystem(fileSystem);
-        const cacheManager = new CacheManager();
-        const partialStubService = new PartialStubService(pyrightFs);
 
         const extensionManager = new ExtensionManager(pyrightFs, console, tempFile);
-        extensionManager.cacheManager = cacheManager;
-        extensionManager.partialStubs = partialStubService;
         extensionManager.tempFile = tempFile;
         extensionManager.cancellation = new FileBasedCancellationProvider();
 
