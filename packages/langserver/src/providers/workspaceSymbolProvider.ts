@@ -16,7 +16,6 @@ import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
@@ -137,7 +136,7 @@ export class WorkspaceSymbolProvider {
 
         // "Workspace symbols" searches symbols only from user code.
         for (const sourceFileInfo of typeServer.getSourceFileInfoList()) {
-            if (!isUserCode(sourceFileInfo)) {
+            if (!sourceFileInfo.inProject) {
                 continue;
             }
 

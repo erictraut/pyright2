@@ -37,8 +37,6 @@ import {
     StringNode,
 } from 'typeserver/parser/parseNodes.js';
 import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
-import { IPythonMode } from 'typeserver/program/sourceFile.js';
-import { collectImportedByCells } from 'typeserver/program/sourceFileInfoUtils.js';
 import { isStubFile } from 'typeserver/program/sourceMapper.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
@@ -189,7 +187,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         });
 
         const sourceFileInfo = typeServer.getSourceFileInfo(fileUri);
-        if (sourceFileInfo && sourceFileInfo.ipythonMode === IPythonMode.CellDocs) {
+        if (sourceFileInfo && sourceFileInfo.notebookCell) {
             // Add declarations from chained source files
             let builtinsScope = fileInfo.builtinsScope;
             while (builtinsScope && builtinsScope.type === ScopeType.Module) {
@@ -199,7 +197,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             }
 
             // Add declarations from files that implicitly import the target file.
-            const implicitlyImportedBy = collectImportedByCells(typeServer, sourceFileInfo);
+            const implicitlyImportedBy = sourceFileInfo.getImportedBy(/* recursive */ true);
             implicitlyImportedBy.forEach((implicitImport) => {
                 const parseTree = typeServer.getParseResults(implicitImport.uri)?.parserOutput.parseTree;
                 if (parseTree) {

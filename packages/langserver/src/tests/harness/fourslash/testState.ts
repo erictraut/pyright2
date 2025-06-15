@@ -102,6 +102,8 @@ import { ParseNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 import { Program } from 'typeserver/program/program.js';
+import { TypeServerProvider } from 'typeserver/program/typeServerProvider.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 import { PackageTypeReport } from 'typeserver/service/packageTypeReport.js';
 import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
@@ -228,6 +230,10 @@ export class TestState {
 
     get program(): Program {
         return this.workspace.service.program;
+    }
+
+    get typeServer(): ITypeServer {
+        return new TypeServerProvider(this.workspace.service.program);
     }
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -920,7 +926,7 @@ export class TestState {
 
             const rangePos = this.convertOffsetsToRange(range.fileName, range.pos, range.end);
             const provider = new HoverProvider(
-                this.program,
+                this.typeServer,
                 range.fileUri,
                 rangePos.start,
                 kind,
@@ -1137,7 +1143,7 @@ export class TestState {
             const position = this.convertOffsetToPosition(fileName, marker.position);
 
             const actual = new SignatureHelpProvider(
-                this.program,
+                this.typeServer,
                 Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 docFormat,
@@ -1224,7 +1230,7 @@ export class TestState {
             const position = this.convertOffsetToPosition(fileName, marker.position);
 
             const actual = new ReferencesProvider(
-                this.program,
+                this.typeServer,
                 CancellationToken.None,
                 createDocumentRange
             ).reportReferences(
@@ -1261,7 +1267,7 @@ export class TestState {
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new CallHierarchyProvider(
-                this.program,
+                this.typeServer,
                 Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
@@ -1306,7 +1312,7 @@ export class TestState {
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new CallHierarchyProvider(
-                this.program,
+                this.typeServer,
                 Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
@@ -1358,7 +1364,7 @@ export class TestState {
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new DocumentHighlightProvider(
-                this.program,
+                this.typeServer,
                 Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
@@ -1417,7 +1423,7 @@ export class TestState {
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
             let actual = new DefinitionProvider(
-                this.program,
+                this.typeServer,
                 uri,
                 position,
                 filter,
@@ -1456,7 +1462,7 @@ export class TestState {
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
             let actual = new TypeDefinitionProvider(
-                this.program,
+                this.typeServer,
                 Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
                 CancellationToken.None
@@ -1500,7 +1506,7 @@ export class TestState {
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new RenameProvider(
-                this.program,
+                this.typeServer,
                 isUntitled
                     ? Uri.parse(`untitled:${fileName.replace(/\\/g, '/')}`, this.extensionManager.caseSensitivity)
                     : Uri.file(fileName, this.extensionManager.caseSensitivity),
@@ -1614,7 +1620,7 @@ export class TestState {
         };
 
         const provider = new CompletionProvider(
-            this.program,
+            this.typeServer,
             Uri.file(filePath, this.extensionManager.caseSensitivity),
             completionPosition,
             options,

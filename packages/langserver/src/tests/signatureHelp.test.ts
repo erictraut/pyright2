@@ -81,7 +81,7 @@ function checkSignatureHelp(code: string, expects: boolean) {
     const position = convertOffsetToPosition(marker.position, parseResults.tokenizerOutput.lines);
 
     const actual = new SignatureHelpProvider(
-        state.workspace.service.program,
+        state.typeServer,
         marker.fileUri,
         position,
         MarkupKind.Markdown,

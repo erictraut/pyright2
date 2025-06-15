@@ -140,6 +140,10 @@ export class SourceFileInfo {
         this._writableData.isOpenByClient = value;
     }
 
+    get isUserCode(): boolean {
+        return this.isTracked && !this.isThirdPartyImport && !this.isTypeshedFile;
+    }
+
     mutate(callback: (s: WriteableData) => void) {
         this._cachePreEditState();
         callback(this._writableData);

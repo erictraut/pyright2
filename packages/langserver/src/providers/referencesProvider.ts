@@ -29,7 +29,6 @@ import { maxTypeRecursionCount } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export type ReferenceCallback = (locations: DocumentRange[]) => void;
@@ -214,7 +213,7 @@ export class ReferencesProvider {
             ? (range) => resultReporter.report(convertDocumentRangesToLocation(this._typeServer.fileSystem, range))
             : (range) => appendArray(locations, convertDocumentRangesToLocation(this._typeServer.fileSystem, range));
 
-        const invokedFromUserFile = isUserCode(sourceFileInfo);
+        const invokedFromUserFile = sourceFileInfo.inProject;
         const referencesResult = ReferencesProvider.getDeclarationForPosition(
             this._typeServer,
             fileUri,
@@ -237,10 +236,10 @@ export class ReferencesProvider {
 
             // "Find all references" will only include references from user code
             // unless the file is explicitly opened in the editor or it is invoked from non user files.
-            if (curSourceFileInfo.isOpenByClient || !invokedFromUserFile || isUserCode(curSourceFileInfo)) {
+            if (curSourceFileInfo.clientVersion !== undefined || !invokedFromUserFile || curSourceFileInfo.inProject) {
                 // See if the reference symbol's string is located somewhere within the file.
                 // If not, we can skip additional processing for the file.
-                const fileContents = curSourceFileInfo.contents;
+                const fileContents = curSourceFileInfo.getContents();
                 if (!fileContents || referencesResult.symbolNames.some((s) => fileContents.indexOf(s) >= 0)) {
                     this.addReferencesToResult(curSourceFileInfo.uri, includeDeclaration, referencesResult);
                 }

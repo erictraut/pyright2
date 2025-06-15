@@ -24,6 +24,7 @@ import { NoAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvPro
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { TypeServerProvider } from 'typeserver/program/typeServerProvider.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 
 test('check chained files', () => {
@@ -49,7 +50,7 @@ test('check chained files', () => {
 
     const parseResult = service.getParseResults(markerUri)!;
     const result = new CompletionProvider(
-        service.program,
+        new TypeServerProvider(service.program),
         markerUri,
         convertOffsetToPosition(marker.position, parseResult.tokenizerOutput.lines),
         {
@@ -96,7 +97,7 @@ test('modify chained files', () => {
     service.program.configOptions.autoImportCompletions = false;
 
     const result = new CompletionProvider(
-        service.program,
+        new TypeServerProvider(service.program),
         markerUri,
         convertOffsetToPosition(marker.position, parseResult.tokenizerOutput.lines),
         {

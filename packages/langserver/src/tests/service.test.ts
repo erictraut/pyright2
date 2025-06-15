@@ -13,7 +13,7 @@ import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParse
 import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
-import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { OpenFileOptions } from 'typeserver/program/program.js';
 import { CancellationToken } from 'vscode-jsonrpc';
 
 test('random library file changed', () => {
@@ -371,10 +371,10 @@ test('service runEditMode', () => {
     );
     state.testFS.writeFileSync(newFileUri, '# empty', 'utf8');
 
-    const options = {
-        isTracked: true,
-        ipythonMode: IPythonMode.None,
-        chainedFileUri: newFileUri,
+    const options: OpenFileOptions = {
+        isInProject: true,
+        isNotebookCell: true,
+        previousCellUri: newFileUri,
     };
 
     // try run edit mode

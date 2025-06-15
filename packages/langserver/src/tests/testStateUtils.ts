@@ -24,6 +24,7 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { isFile } from 'typeserver/files/uriUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
 import { Program } from 'typeserver/program/program.js';
+import { TypeServerProvider } from 'typeserver/program/typeServerProvider.js';
 
 export function convertFileEditActionToString(edit: FileEditAction): string {
     return `'${edit.replacementText.replace(/\n/g, '!n!')}'@'${edit.fileUri}:(${edit.range.start.line},${
@@ -154,10 +155,11 @@ export function verifyReferencesAtPosition(
 ) {
     const sourceFile = program.getBoundSourceFile(Uri.file(fileName, program.extensionManager.caseSensitivity));
     assert(sourceFile);
+    const typeServer = new TypeServerProvider(program);
 
     const node = findNodeByOffset(sourceFile.getParseResults()!.parserOutput.parseTree, position);
     const decls = DocumentSymbolCollector.getDeclarationsForNode(
-        program,
+        typeServer,
         node as NameNode,
         /* resolveLocalName */ true,
         CancellationToken.None
@@ -166,7 +168,7 @@ export function verifyReferencesAtPosition(
     const rangesByFile = createMapFromItems(ranges, (r) => r.fileName);
     for (const rangeFileName of rangesByFile.keys()) {
         const collector = new DocumentSymbolCollector(
-            program,
+            typeServer,
             isArray(symbolNames) ? symbolNames : [symbolNames],
             decls,
             program

@@ -41,13 +41,7 @@ import { ParseFileResults, ParserOutput } from 'typeserver/parser/parser.js';
 import { LogTracker } from 'typeserver/program/logTracker.js';
 import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
 import { SourceFileInfo } from 'typeserver/program/sourceFileInfo.js';
-import {
-    createChainedByList,
-    isUserCode,
-    verifyNoCyclesInChainedFiles,
-} from 'typeserver/program/sourceFileInfoUtils.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
-import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 import { AnalysisCompleteCallback, analyzeProgram, RequiringAnalysisCount } from 'typeserver/service/analysis.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';
 import { CircularDependency } from 'typeserver/service/circularDependency.js';
@@ -84,9 +78,9 @@ interface UpdateImportInfo {
 export type PreCheckCallback = (parserOutput: ParserOutput, evaluator: TypeEvaluator) => void;
 
 export interface OpenFileOptions {
-    isTracked: boolean;
-    ipythonMode: IPythonMode;
-    chainedFileUri: Uri | undefined;
+    isInProject: boolean;
+    isNotebookCell: boolean;
+    previousCellUri: Uri | undefined;
 }
 
 // Track edit mode related information.
@@ -392,10 +386,10 @@ export class Program {
                 this._editModeTracker,
                 this._console,
                 this._logTracker,
-                options?.ipythonMode ?? IPythonMode.None
+                options?.isNotebookCell ? IPythonMode.CellDocs : IPythonMode.None
             );
 
-            const chainedFilePath = options?.chainedFileUri;
+            const chainedFilePath = options?.previousCellUri;
 
             sourceFileInfo = new SourceFileInfo(
                 sourceFile,
@@ -404,7 +398,7 @@ export class Program {
                 /* isThirdPartyPyTypedPresent */ false,
                 this._editModeTracker,
                 {
-                    isTracked: options?.isTracked ?? false,
+                    isTracked: options?.isInProject ?? false,
                     chainedSourceFile: chainedFilePath ? this.getSourceFileInfo(chainedFilePath) : undefined,
                     isOpenByClient: true,
                 }
@@ -421,7 +415,7 @@ export class Program {
             sourceFileInfo.diagnosticsVersion = 0;
         }
 
-        verifyNoCyclesInChainedFiles(this, sourceFileInfo);
+        this._verifyNoCyclesInChainedFiles(sourceFileInfo);
         sourceFileInfo.sourceFile.setClientVersion(version, contents);
     }
 
@@ -440,7 +434,7 @@ export class Program {
         sourceFileInfo.sourceFile.markDirty();
         this._markFileDirtyRecursive(sourceFileInfo, new Set<string>());
 
-        verifyNoCyclesInChainedFiles(this, sourceFileInfo);
+        this._verifyNoCyclesInChainedFiles(sourceFileInfo);
     }
 
     setFileClosed(fileUri: Uri, isTracked?: boolean): FileDiagnostics[] {
@@ -538,7 +532,7 @@ export class Program {
 
     getFileCount(userFileOnly = true) {
         if (userFileOnly) {
-            return this._sourceFileList.filter((f) => isUserCode(f)).length;
+            return this._sourceFileList.filter((f) => f.isUserCode).length;
         }
 
         return this._sourceFileList.length;
@@ -547,11 +541,11 @@ export class Program {
     // Returns the number of files that are considered "user" files and therefore
     // are checked.
     getUserFileCount() {
-        return this._sourceFileList.filter((s) => isUserCode(s)).length;
+        return this._sourceFileList.filter((s) => s.isUserCode).length;
     }
 
     getUserFiles(): SourceFileInfo[] {
-        return this._sourceFileList.filter((s) => isUserCode(s));
+        return this._sourceFileList.filter((s) => s.isUserCode);
     }
 
     getOpened(): SourceFileInfo[] {
@@ -559,7 +553,7 @@ export class Program {
     }
 
     getOwnedFiles(): SourceFileInfo[] {
-        return this._sourceFileList.filter((s) => isUserCode(s) && this.owns(s.uri));
+        return this._sourceFileList.filter((s) => s.isUserCode && this.owns(s.uri));
     }
 
     getCheckingRequiredFiles(): SourceFileInfo[] {
@@ -707,7 +701,7 @@ export class Program {
 
                 // Now do type parsing and analysis of the remaining.
                 for (const sourceFileInfo of this._sourceFileList) {
-                    if (!isUserCode(sourceFileInfo)) {
+                    if (!sourceFileInfo.isUserCode) {
                         continue;
                     }
 
@@ -748,13 +742,13 @@ export class Program {
 
     // This will allow the callback to execute a type evaluator with an associated
     // cancellation token and provide a read-only program.
-    run<T>(callback: (ts: ITypeServer) => T, token: CancellationToken): T {
+    run<T>(callback: (ts: Program) => T, token: CancellationToken): T {
         return this._runEvaluatorWithCancellationToken(token, () => callback(this));
     }
 
     // This will allow the callback to execute a type evaluator with an associated
     // cancellation token and provide a mutable program. Should already be in edit mode when called.
-    runEditMode(callback: (v: ITypeServer) => void, token: CancellationToken): void {
+    runEditMode(callback: (v: Program) => void, token: CancellationToken): void {
         if (this._editModeTracker.isEditMode) {
             return this._runEvaluatorWithCancellationToken(token, () => callback(this));
         }
@@ -1038,9 +1032,9 @@ export class Program {
             }
 
             program.setFileOpened(fileInfo.uri, version, fileInfo.sourceFile.getOpenFileContents() ?? '', {
-                chainedFileUri: fileInfo.chainedSourceFile?.uri,
-                ipythonMode: fileInfo.ipythonMode,
-                isTracked: fileInfo.isTracked,
+                previousCellUri: fileInfo.chainedSourceFile?.uri,
+                isNotebookCell: fileInfo.ipythonMode === IPythonMode.CellDocs,
+                isInProject: fileInfo.isTracked,
             });
         }
 
@@ -1066,6 +1060,36 @@ export class Program {
         this._parsedFileCount = 0;
 
         // this.extensionManager.stateMutationListeners?.forEach((l) => l.onClearCache?.());
+    }
+
+    getImportsRecursive(fileInfo: SourceFileInfo): Set<SourceFileInfo> {
+        const imports = new Set<SourceFileInfo>();
+        this._addImportsRecursive(fileInfo, imports);
+        return imports;
+    }
+
+    getImportedByRecursive(fileInfo: SourceFileInfo): Set<SourceFileInfo> {
+        const importedBy = new Set<SourceFileInfo>();
+        this._addImportedByRecursive(fileInfo, importedBy);
+        return importedBy;
+    }
+
+    private _addImportsRecursive(fileInfo: SourceFileInfo, imports: Set<SourceFileInfo>) {
+        fileInfo.imports.forEach((dep) => {
+            if (!imports.has(dep)) {
+                imports.add(dep);
+                this._addImportsRecursive(dep, imports);
+            }
+        });
+    }
+
+    private _addImportedByRecursive(fileInfo: SourceFileInfo, importedBy: Set<SourceFileInfo>) {
+        fileInfo.importedBy.forEach((dep) => {
+            if (!importedBy.has(dep)) {
+                importedBy.add(dep);
+                this._addImportsRecursive(dep, importedBy);
+            }
+        });
     }
 
     private _handleMemoryHighUsage() {
@@ -2029,6 +2053,25 @@ export class Program {
         });
     }
 
+    private _verifyNoCyclesInChainedFiles(fileInfo: SourceFileInfo): void {
+        let nextChainedFile = fileInfo.chainedSourceFile;
+        if (!nextChainedFile) {
+            return;
+        }
+
+        const set = new Set<string>([fileInfo.uri.key]);
+        while (nextChainedFile) {
+            const path = nextChainedFile.uri.key;
+            if (set.has(path)) {
+                // We found a cycle.
+                fail(`Found a cycle in implicit imports files for ${path}`);
+            }
+
+            set.add(path);
+            nextChainedFile = nextChainedFile.chainedSourceFile;
+        }
+    }
+
     private _checkDependentFiles(
         fileToCheck: SourceFileInfo,
         chainedByList: SourceFileInfo[] | undefined,
@@ -2041,7 +2084,7 @@ export class Program {
         // If we don't have chainedByList, it means none of them are checked yet.
         const needToRunChecker = !chainedByList;
 
-        chainedByList = chainedByList ?? createChainedByList(this, fileToCheck);
+        chainedByList = chainedByList ?? this._createChainedByList(fileToCheck);
         const index = chainedByList.findIndex((v) => v === fileToCheck);
         if (index < 0) {
             return undefined;
@@ -2090,6 +2133,36 @@ export class Program {
         return dependentFiles;
     }
 
+    private _createChainedByList(fileInfo: SourceFileInfo): SourceFileInfo[] {
+        // We want to create reverse map of all chained files.
+        const map = new Map<SourceFileInfo, SourceFileInfo>();
+        for (const file of this.getSourceFileInfoList()) {
+            if (!file.chainedSourceFile) {
+                continue;
+            }
+
+            map.set(file.chainedSourceFile, file);
+        }
+
+        const visited = new Set<SourceFileInfo>();
+
+        const chainedByList: SourceFileInfo[] = [fileInfo];
+        let current: SourceFileInfo | undefined = fileInfo;
+        while (current) {
+            if (visited.has(current)) {
+                fail('Detected a cycle in chained files');
+            }
+            visited.add(current);
+
+            current = map.get(current);
+            if (current) {
+                chainedByList.push(current);
+            }
+        }
+
+        return chainedByList;
+    }
+
     // Builds a map of files that includes the specified file and all of the files
     // it imports (recursively) and ensures that all such files. If any of these files
     // have already been checked (they and their recursive imports have completed the
@@ -2120,7 +2193,7 @@ export class Program {
         // discover any files it imports. Skip this if the file is part
         // of a library. We'll assume that no cycles will be generated from
         // library code or typeshed stubs.
-        if (isUserCode(file)) {
+        if (file.isUserCode) {
             this._parseFile(file);
         }
 

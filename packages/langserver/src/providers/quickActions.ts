@@ -23,7 +23,7 @@ export function performQuickAction(
 
     // This command should be called only for open files, in which
     // case we should have the file contents already loaded.
-    if (!sourceFileInfo || !sourceFileInfo.isOpenByClient) {
+    if (!sourceFileInfo || sourceFileInfo.clientVersion === undefined) {
         return [];
     }
 

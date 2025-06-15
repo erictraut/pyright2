@@ -46,7 +46,6 @@ import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class CallHierarchyProvider {
@@ -132,7 +131,7 @@ export class CallHierarchyProvider {
                 ? [this._typeServer.getSourceFileInfo(this._fileUri)!]
                 : this._typeServer.getSourceFileInfoList();
         for (const curSourceFileInfo of sourceFiles) {
-            if (isUserCode(curSourceFileInfo) || curSourceFileInfo.isOpenByClient) {
+            if (curSourceFileInfo.inProject || curSourceFileInfo.clientVersion !== undefined) {
                 const filePath = curSourceFileInfo.uri;
                 const itemsToAdd = this._getIncomingCallsForDeclaration(filePath, symbolName, targetDecl);
 

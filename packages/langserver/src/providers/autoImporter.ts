@@ -39,7 +39,6 @@ import {
 } from 'typeserver/imports/importStatementUtils.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
 
 export interface AutoImportSymbol {
@@ -124,7 +123,7 @@ export function buildModuleSymbolsMap(
     const moduleSymbolMap = new Map<string, ModuleSymbolTable>();
 
     files.forEach((file) => {
-        if (file.shadows.length > 0) {
+        if (file.getImplementation().length > 0) {
             // There is corresponding stub file. Don't add
             // duplicated files in the map.
             return;
@@ -141,7 +140,7 @@ export function buildModuleSymbolsMap(
         // Don't offer imports from files that are named with private
         // naming semantics like "_ast.py" unless they're in the current
         // user file list.
-        if (isPrivateOrProtectedName(fileName) && !isUserCode(file)) {
+        if (isPrivateOrProtectedName(fileName) && !file.inProject) {
             return;
         }
 
@@ -163,7 +162,7 @@ export function buildModuleSymbolsMap(
                         continue;
                     }
 
-                    if (declaration.type === DeclarationType.Alias && isUserCode(file)) {
+                    if (declaration.type === DeclarationType.Alias && file.inProject) {
                         // We don't include import alias in auto import
                         // for workspace files.
                         continue;
@@ -178,7 +177,7 @@ export function buildModuleSymbolsMap(
                         name,
                         symbol,
                         kind: variableKind,
-                        library: !isUserCode(file),
+                        library: !file.inProject,
                         inDunderAll: symbol.isInDunderAll(),
                     };
                 }
@@ -487,7 +486,7 @@ export class AutoImporter {
         const isStub = uri.hasExtension('.pyi');
         const hasInit = map.has(initPathPy.key) || map.has(initPathPyi.key);
         const sourceFileInfo = this.typeServer.getSourceFileInfo(uri);
-        return { isStub, hasInit, isUserCode: isUserCode(sourceFileInfo) };
+        return { isStub, hasInit, isUserCode: !!sourceFileInfo && sourceFileInfo.inProject };
     }
 
     protected compareImportAliasData(left: ImportAliasData, right: ImportAliasData) {

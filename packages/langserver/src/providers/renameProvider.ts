@@ -20,7 +20,6 @@ import { Position, Range } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class RenameProvider {
@@ -90,9 +89,9 @@ export class RenameProvider {
                 for (const curSourceFileInfo of this._typeServer.getSourceFileInfoList()) {
                     // Make sure we only add user code to the references to prevent us
                     // from accidentally changing third party library or type stub.
-                    if (isUserCode(curSourceFileInfo)) {
+                    if (curSourceFileInfo.inProject) {
                         // Make sure searching symbol name exists in the file.
-                        const content = curSourceFileInfo.contents ?? '';
+                        const content = curSourceFileInfo.getContents();
                         if (!referencesResult.symbolNames.some((s) => content.search(s) >= 0)) {
                             continue;
                         }
@@ -168,18 +167,18 @@ export class RenameProvider {
         //
         // and Multi file mode.
         // 1. rename public symbols defined in user files on regular workspace (ex, open folder mode).
-        const userFile = isUserCode(sourceFileInfo);
+        const userFile = sourceFileInfo.inProject;
         if (
             isDefaultWorkspace ||
             (userFile && !referencesResult.requiresGlobalSearch) ||
             (!userFile &&
-                sourceFileInfo.isOpenByClient &&
-                referencesResult.declarations.every((d) => typeServer.getSourceFileInfo(d.uri) === sourceFileInfo))
+                sourceFileInfo.clientVersion !== undefined &&
+                referencesResult.declarations.every((d) => d.uri.equals(sourceFileInfo.uri)))
         ) {
             return 'singleFileMode';
         }
 
-        if (referencesResult.declarations.every((d) => isUserCode(typeServer.getSourceFileInfo(d.uri)))) {
+        if (referencesResult.declarations.every((d) => typeServer.getSourceFileInfo(d.uri)?.inProject)) {
             return 'multiFileMode';
         }
 

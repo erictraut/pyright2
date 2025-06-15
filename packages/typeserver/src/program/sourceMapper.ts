@@ -39,7 +39,6 @@ import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ClassNode, ModuleNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { SourceFile } from 'typeserver/program/sourceFile.js';
 import { SourceFileInfo } from 'typeserver/program/sourceFileInfo.js';
-import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { buildImportTree } from 'typeserver/program/sourceMapperUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { assert, assertNever } from 'typeserver/utils/debug.js';
@@ -126,7 +125,8 @@ export class SourceMapper {
     }
 
     isUserCode(uri: Uri): boolean {
-        return isUserCode(this._boundSourceGetter(uri));
+        const file = this._boundSourceGetter(uri);
+        return file !== undefined && file.isUserCode;
     }
 
     getNextFileName(uri: Uri) {

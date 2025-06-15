@@ -44,6 +44,7 @@ import {
 import { ImportResolver, createImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { MaxAnalysisTime, Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { TypeServerProvider } from 'typeserver/program/typeServerProvider.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 import { AnalysisCompleteCallback } from 'typeserver/service/analysis.js';
 import { findPythonSearchPaths } from 'typeserver/service/pythonPathUtils.js';
@@ -175,7 +176,7 @@ export class TypeService {
         return service;
     }
 
-    runEditMode(callback: (e: ITypeServer) => void, token: CancellationToken) {
+    runEditMode(callback: (e: Program) => void, token: CancellationToken) {
         let edits: FileEditAction[] = [];
         this._program.enterEditMode();
         try {
@@ -258,9 +259,9 @@ export class TypeService {
         // This is how it's worked in the past since each notebook used to have its own
         // workspace and the workspace include setting marked all cells as tracked.
         this._program.setFileOpened(uri, version, contents, {
-            isTracked: this.isTracked(uri) || ipythonMode !== IPythonMode.None,
-            ipythonMode,
-            chainedFileUri: chainedFileUri,
+            isInProject: this.isTracked(uri) || ipythonMode !== IPythonMode.None,
+            isNotebookCell: ipythonMode === IPythonMode.CellDocs,
+            previousCellUri: chainedFileUri,
         });
         this.scheduleReanalysis(/* requireTrackedFileUpdate */ false);
     }
@@ -276,9 +277,9 @@ export class TypeService {
 
     updateOpenFileContents(uri: Uri, version: number | null, contents: string, ipythonMode = IPythonMode.None) {
         this._program.updateOpenFileContents(uri, version, contents, {
-            isTracked: this.isTracked(uri),
-            ipythonMode,
-            chainedFileUri: undefined,
+            isInProject: this.isTracked(uri),
+            isNotebookCell: ipythonMode === IPythonMode.CellDocs,
+            previousCellUri: undefined,
         });
         this.scheduleReanalysis(/* requireTrackedFileUpdate */ false);
     }
@@ -309,7 +310,7 @@ export class TypeService {
     }
 
     run<T>(callback: (ts: ITypeServer) => T, token: CancellationToken): T {
-        return this._program.run(callback, token);
+        return this._program.run((program) => callback(new TypeServerProvider(program)), token);
     }
 
     printStats() {

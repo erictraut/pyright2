@@ -108,7 +108,7 @@ export function applyWorkspaceEdit(typeServer: ITypeServer, edits: WorkspaceEdit
         for (const kv of Object.entries(edits.changes)) {
             const fileUri = Uri.parse(kv[0], typeServer.extensionManager.caseSensitivity);
             const fileInfo = typeServer.getSourceFileInfo(fileUri);
-            if (!fileInfo || !fileInfo.isTracked) {
+            if (!fileInfo || !fileInfo.inProject) {
                 // We don't allow non user file being modified.
                 continue;
             }
@@ -124,7 +124,7 @@ export function applyWorkspaceEdit(typeServer: ITypeServer, edits: WorkspaceEdit
             if (TextDocumentEdit.is(change)) {
                 const fileUri = Uri.parse(change.textDocument.uri, typeServer.extensionManager.caseSensitivity);
                 const fileInfo = typeServer.getSourceFileInfo(fileUri);
-                if (!fileInfo || !fileInfo.isTracked) {
+                if (!fileInfo || !fileInfo.inProject) {
                     // We don't allow non user file being modified.
                     continue;
                 }
@@ -140,24 +140,24 @@ export function applyWorkspaceEdit(typeServer: ITypeServer, edits: WorkspaceEdit
 }
 
 export function applyDocumentChanges(typeServer: ITypeServer, file: ITypeServerSourceFile, edits: TextEdit[]) {
-    if (!file.isOpenByClient) {
-        const fileContent = file.contents;
+    if (file.clientVersion === undefined) {
+        const fileContent = file.getContents();
         typeServer.setFileOpened(file.uri, 0, fileContent ?? '', {
-            isTracked: file.isTracked,
-            ipythonMode: file.ipythonMode,
-            chainedFileUri: file.chainedSourceFile?.uri,
+            isInProject: file.inProject,
+            isNotebookCell: file.notebookCell,
+            previousCellUri: file.previousCell,
         });
     }
 
     const version = file.clientVersion ?? 0;
     const fileUri = file.uri;
     const filePath = fileUri.getFilePath();
-    const sourceDoc = TextDocument.create(filePath, 'python', version, file.contents ?? '');
+    const sourceDoc = TextDocument.create(filePath, 'python', version, file.getContents());
 
     typeServer.setFileOpened(fileUri, version + 1, TextDocument.applyEdits(sourceDoc, edits), {
-        isTracked: file.isTracked,
-        ipythonMode: file.ipythonMode,
-        chainedFileUri: file.chainedSourceFile?.uri,
+        isInProject: file.inProject,
+        isNotebookCell: file.notebookCell,
+        previousCellUri: file.previousCell,
     });
 }
 

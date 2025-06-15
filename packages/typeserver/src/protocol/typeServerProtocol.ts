@@ -7,6 +7,8 @@
  * Defines interfaces and types used in the TypeServer protocol (TSP).
  */
 
+import { CancellationToken } from 'vscode-languageserver';
+
 import { SymbolTable } from 'typeserver/binder/symbol.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
@@ -15,10 +17,8 @@ import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { OpenFileOptions } from 'typeserver/program/program.js';
-import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
-import { CancellationToken } from 'vscode-languageserver';
 
 export interface ITypeServer {
     readonly evaluator: TypeEvaluator | undefined;
@@ -27,7 +27,6 @@ export interface ITypeServer {
     readonly fileSystem: IReadOnlyFileSystem;
     readonly extensionManager: ExtensionManager;
 
-    // owns(uri: Uri): boolean;
     getSourceFileInfoList(): readonly ITypeServerSourceFile[];
     getParseResults(fileUri: Uri): ParseFileResults | undefined;
     getSourceFileInfo(fileUri: Uri): ITypeServerSourceFile | undefined;
@@ -42,21 +41,42 @@ export interface ITypeServer {
 }
 
 export interface ITypeServerSourceFile {
+    // Location within the type server's virtual file system. This may
+    // be different from the real file system location, since the server
+    // may do remapping (e.g. for partial stubs or source files located
+    // within zip files).
     readonly uri: Uri;
-    readonly contents: string;
-    readonly ipythonMode: IPythonMode;
 
-    // Information about the source file
-    readonly isTypeshedFile: boolean;
-    readonly isThirdPartyImport: boolean;
-    readonly clientVersion: number | undefined;
+    // Is the file part of the project as defined by the "include" and "exclude"
+    // settings? These files are checked, and diagnostics are reported for them.
+    readonly inProject: boolean;
 
-    readonly chainedSourceFile?: ITypeServerSourceFile | undefined;
+    // Does this source "file" represent a cell within an iPython notebook?
+    // If so, it is modeled as a chain of related source files. If it's not
+    // the first cell, it will have a previousCell.
+    readonly notebookCell: boolean;
+    readonly previousCell?: Uri;
 
-    readonly isTracked: boolean;
-    readonly isOpenByClient: boolean;
+    // If the source file is opened in the client, this is the document version
+    // supplied by the client. If the file is not open, this will be undefined.
+    readonly clientVersion?: number;
 
-    readonly imports: readonly ITypeServerSourceFile[];
-    readonly importedBy: readonly ITypeServerSourceFile[];
-    readonly shadows: readonly ITypeServerSourceFile[];
+    // Returns the text contents of the source file which may come from the
+    // file system or from the client (if it's currently open).
+    getContents(): string;
+
+    // Returns the list of source files that are imported by this file through
+    // explicit import statements or implicitly (such as the builtins module).
+    // If recursive is true, it will return all imports transitively.
+    getImports(recursive?: boolean): ITypeServerSourceFile[];
+
+    // Returns the list of source files within the project that import this file.
+    // If recursive is true, it will return all source files that import this
+    // file transitively.
+    getImportedBy(recursive?: boolean): ITypeServerSourceFile[];
+
+    // If this file is a type stub, this returns the source files that are likely
+    // to contain the implementation of that stub. Mapping of implementation
+    // files may not be possible or completely accurate in all cases.
+    getImplementation(): ITypeServerSourceFile[];
 }
