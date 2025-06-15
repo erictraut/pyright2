@@ -12,11 +12,12 @@ import { CancellationToken, DocumentHighlight, DocumentHighlightKind } from 'vsc
 
 import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { findNodeByOffset, isWriteAccess } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, TextRange } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
+import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 

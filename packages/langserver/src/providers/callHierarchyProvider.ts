@@ -19,6 +19,7 @@ import {
 import { appendArray } from 'commonUtils/collectionUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
 import { getSymbolKind } from 'langserver/server/lspUtils.js';
 import { canNavigateToFile } from 'langserver/server/navigationUtils.js';
@@ -40,7 +41,7 @@ import {
     lookUpObjectMember,
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
+import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';

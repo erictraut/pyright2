@@ -14,6 +14,7 @@ import { appendArray } from 'commonUtils/collectionUtils.js';
 import { assertNever } from 'commonUtils/debug.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CollectionResult, DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { convertDocumentRangesToLocation } from 'langserver/server/navigationUtils.js';
 import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
 import { getNameFromDeclaration } from 'typeserver/binder/declarationUtils.js';
@@ -26,7 +27,7 @@ import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/te
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { maxTypeRecursionCount } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
+import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';

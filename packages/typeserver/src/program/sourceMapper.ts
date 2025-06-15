@@ -87,13 +87,21 @@ export class SourceMapper {
     findDeclarations(stubDecl: Declaration): Declaration[] {
         if (isClassDeclaration(stubDecl)) {
             return this._findClassOrTypeAliasDeclarations(stubDecl);
-        } else if (isFunctionDeclaration(stubDecl)) {
+        }
+
+        if (isFunctionDeclaration(stubDecl)) {
             return this._findFunctionOrTypeAliasDeclarations(stubDecl);
-        } else if (isVariableDeclaration(stubDecl)) {
+        }
+
+        if (isVariableDeclaration(stubDecl)) {
             return this._findVariableDeclarations(stubDecl);
-        } else if (isParamDeclaration(stubDecl)) {
+        }
+
+        if (isParamDeclaration(stubDecl)) {
             return this._findParamDeclarations(stubDecl);
-        } else if (isSpecialBuiltInClassDeclaration(stubDecl)) {
+        }
+
+        if (isSpecialBuiltInClassDeclaration(stubDecl)) {
             return this._findSpecialBuiltInClassDeclarations(stubDecl);
         }
 

@@ -11,13 +11,14 @@ import { CancellationToken, WorkspaceEdit } from 'vscode-languageserver';
 
 import { assertNever } from 'commonUtils/debug.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
 import { convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
 import { FileEditAction } from 'typeserver/common/editAction.js';
 import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { Position, Range } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
+import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
