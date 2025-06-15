@@ -3,10 +3,8 @@
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
- * Implements common language server functionality.
- * This is split out as a base class to allow for
- * different language server variants to be created
- * from the same core functionality.
+ * Primary interface and state manager for the language server.
+ * It response to LSP requests received from the client.
  */
 
 import {
@@ -117,6 +115,7 @@ import {
     Workspace,
     WorkspaceFactory,
 } from 'langserver/server/workspaceFactory.js';
+import path from 'path';
 import { Diagnostic as AnalyzerDiagnostic, DiagnosticCategory } from 'typeserver/common/diagnostic.js';
 import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
 import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
@@ -143,6 +142,7 @@ import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { isDefined, isString } from 'typeserver/utils/valueTypeUtils.js';
+import { fileURLToPath } from 'url';
 
 const DiagnosticsVersionNone = -1;
 
@@ -221,12 +221,12 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
 
         // Set the working directory to a known location within
         // the extension directory. Otherwise the execution of
-        // python can have unintended and surprising results.
-        // TODO - need to add this back
-        // const moduleDirectory = this.fs.getModulePath();
-        // if (moduleDirectory && this.fs.existsSync(moduleDirectory)) {
-        //     this.fs.chdir(moduleDirectory);
-        // }
+        // Python can have unintended and surprising results.
+        const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+        const moduleDirectory = Uri.file(dirPath, this.caseSensitiveDetector);
+        if (this.fs.existsSync(moduleDirectory)) {
+            this.fs.chdir(moduleDirectory);
+        }
 
         // Set up callbacks.
         this.setupConnection(serverOptions.supportedCommands ?? [], serverOptions.supportedCodeActions ?? []);
