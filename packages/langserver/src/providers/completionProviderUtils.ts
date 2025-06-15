@@ -27,7 +27,6 @@ import {
     isModule,
 } from 'typeserver/evaluator/types.js';
 import { isProperty } from 'typeserver/evaluator/typeUtils.js';
-import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 
 export interface Edits {
     format?: InsertTextFormat;
@@ -151,7 +150,6 @@ export function getTypeDetail(
 }
 
 export function getCompletionItemDocumentation(
-    extensionManager: ExtensionManager,
     typeDetail: string | undefined,
     documentation: string | undefined,
     markupKind: MarkupKind,

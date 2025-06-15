@@ -210,8 +210,8 @@ export class ReferencesProvider {
 
         const locations: Location[] = [];
         const reporter: ReferenceCallback = resultReporter
-            ? (range) => resultReporter.report(convertDocumentRangesToLocation(this._typeServer.fileSystem, range))
-            : (range) => appendArray(locations, convertDocumentRangesToLocation(this._typeServer.fileSystem, range));
+            ? (range) => resultReporter.report(convertDocumentRangesToLocation(this._typeServer, range))
+            : (range) => appendArray(locations, convertDocumentRangesToLocation(this._typeServer, range));
 
         const invokedFromUserFile = sourceFileInfo.inProject;
         const referencesResult = ReferencesProvider.getDeclarationForPosition(

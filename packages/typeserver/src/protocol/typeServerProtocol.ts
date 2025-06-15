@@ -11,8 +11,6 @@ import { CancellationToken } from 'vscode-languageserver';
 
 import { SymbolTable } from 'typeserver/binder/symbol.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { OpenFileOptions } from 'typeserver/program/program.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
@@ -20,14 +18,17 @@ import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ITypeServer {
     readonly evaluator: TypeEvaluator | undefined;
-    readonly fileSystem: IReadOnlyFileSystem;
-    readonly extensionManager: ExtensionManager;
 
     getSourceFileInfoList(): readonly ITypeServerSourceFile[];
     getParseResults(fileUri: Uri): ParseFileResults | undefined;
     getSourceFileInfo(fileUri: Uri): ITypeServerSourceFile | undefined;
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
     getSourceMapper(fileUri: Uri, token: CancellationToken, mapCompiled?: boolean, preferStubs?: boolean): SourceMapper;
+
+    // Converts a URI in the type server's virtual file system to a URI in the
+    // real file system. If the URI cannot be converted (e.g. it points to a
+    // file within a zip container), it returns undefined.
+    convertToRealUri(fileUri: Uri): Uri | undefined;
 
     // Provides information useful for auto inserting an "from <module> import x"
     // statement that targets a specified source file.

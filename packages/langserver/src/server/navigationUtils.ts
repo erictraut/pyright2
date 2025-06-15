@@ -8,20 +8,14 @@
 
 import { Location } from 'vscode-languageserver-types';
 
-import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentRange } from 'typeserver/common/docRange.js';
-import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
-export function canNavigateToFile(fs: IReadOnlyFileSystem, path: Uri): boolean {
-    return !fs.isInZip(path);
-}
-
-export function convertDocumentRangesToLocation(fs: IReadOnlyFileSystem, ranges: DocumentRange[]): Location[] {
+export function convertDocumentRangesToLocation(typeServer: ITypeServer, ranges: DocumentRange[]): Location[] {
     const locations: Location[] = [];
 
     ranges.forEach((range) => {
-        const loc = convertDocumentRangeToLocation(fs, range);
+        const loc = convertDocumentRangeToLocation(typeServer, range);
         if (loc) {
             locations.push(loc);
         }
@@ -30,10 +24,11 @@ export function convertDocumentRangesToLocation(fs: IReadOnlyFileSystem, ranges:
     return locations;
 }
 
-export function convertDocumentRangeToLocation(fs: IReadOnlyFileSystem, range: DocumentRange): Location | undefined {
-    if (!canNavigateToFile(fs, range.uri)) {
+export function convertDocumentRangeToLocation(typeServer: ITypeServer, range: DocumentRange): Location | undefined {
+    const realUri = typeServer.convertToRealUri(range.uri);
+    if (!realUri) {
         return undefined;
     }
 
-    return Location.create(convertUriToLspUriString(fs, range.uri), range.range);
+    return Location.create(realUri.toString(), range.range);
 }

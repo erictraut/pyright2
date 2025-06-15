@@ -13,6 +13,7 @@ import { ServerCommand } from 'langserver/commands/commandController.js';
 import { performQuickAction } from 'langserver/providers/quickActions.js';
 import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
 import { convertToFileTextEdits, convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
+import { TypeServerProvider } from 'typeserver/program/typeServerProvider.js';
 
 export class QuickActionCommand implements ServerCommand {
     constructor(private _ls: LanguageServerInterface) {}
@@ -27,7 +28,8 @@ export class QuickActionCommand implements ServerCommand {
                 return performQuickAction(p, docUri, params.command, otherArgs, token);
             }, token);
 
-            return convertToWorkspaceEdit(workspace.service.fs, convertToFileTextEdits(docUri, editActions ?? []));
+            const typeServer = new TypeServerProvider(workspace.service.program);
+            return convertToWorkspaceEdit(typeServer, convertToFileTextEdits(docUri, editActions ?? []));
         }
     }
 }

@@ -1246,7 +1246,7 @@ export class TestState {
             );
             assert.strictEqual(actual?.length ?? 0, expected.length, `${name} has failed`);
 
-            for (const r of convertDocumentRangesToLocation(this.program.fileSystem, expected)) {
+            for (const r of convertDocumentRangesToLocation(this.typeServer, expected)) {
                 assert.equal(actual?.filter((d) => this._deepEqual(d, r)).length, 1);
             }
         }
@@ -1521,7 +1521,7 @@ export class TestState {
             ).renameSymbol(expected.newName, /* isDefaultWorkspace */ false, isUntitled);
 
             verifyWorkspaceEdit(
-                convertToWorkspaceEdit(this.program.fileSystem, { edits: expected.changes, fileOperations: [] }),
+                convertToWorkspaceEdit(this.typeServer, { edits: expected.changes, fileOperations: [] }),
                 actual ?? { documentChanges: [] }
             );
         }
@@ -1629,6 +1629,7 @@ export class TestState {
 
         const provider = new CompletionProvider(
             this.typeServer,
+            this.extensionManager.caseSensitivity,
             Uri.file(filePath, this.extensionManager.caseSensitivity),
             completionPosition,
             options,

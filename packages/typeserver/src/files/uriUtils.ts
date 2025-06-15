@@ -378,12 +378,6 @@ export function deduplicateFolders(listOfFolders: Uri[][], excludes: Uri[] = [])
     return [...foldersToWatch.values()];
 }
 
-export function convertUriToLspUriString(fs: IReadOnlyFileSystem, uri: Uri): string {
-    // Convert to a URI string that the LSP client understands, performing any
-    // mappings that the server uses internally.
-    return fs.getOriginalUri(uri).toString();
-}
-
 export namespace UriEx {
     export function file(path: string): Uri;
     export function file(path: string, isCaseSensitive: boolean, checkRelative?: boolean): Uri;

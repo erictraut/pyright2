@@ -52,6 +52,7 @@ test('check chained files', () => {
     const parseResult = service.getParseResults(markerUri)!;
     const result = new CompletionProvider(
         new TypeServerProvider(service.program),
+        service.extensionManager.caseSensitivity,
         markerUri,
         convertOffsetToPosition(marker.position, parseResult.tokenizerOutput.lines),
         {
@@ -98,6 +99,7 @@ test('modify chained files', () => {
 
     const result = new CompletionProvider(
         new TypeServerProvider(service.program),
+        service.extensionManager.caseSensitivity,
         markerUri,
         convertOffsetToPosition(marker.position, parseResult.tokenizerOutput.lines),
         {

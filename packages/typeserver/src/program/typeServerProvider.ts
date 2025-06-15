@@ -75,6 +75,14 @@ export class TypeServerProvider implements ITypeServer {
         return this._program.getSourceMapper(fileUri, token, mapCompiled, preferStubs);
     }
 
+    convertToRealUri(fileUri: Uri): Uri | undefined {
+        if (this._program.fileSystem.isInZip(fileUri)) {
+            return undefined;
+        }
+
+        return this._program.fileSystem.getOriginalUri(fileUri);
+    }
+
     getAutoImportInfo(fileUri: Uri, targetImportUri: Uri): AutoImportInfo | undefined {
         const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
         if (!sourceFileInfo) {

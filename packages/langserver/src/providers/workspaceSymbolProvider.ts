@@ -15,7 +15,6 @@ import { IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndex
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
@@ -99,22 +98,25 @@ export class WorkspaceSymbolProvider {
             }
 
             if (isPatternInSymbol(this._query, symbolData.name)) {
-                const location: Location = {
-                    uri: convertUriToLspUriString(typeServer.fileSystem, fileUri),
-                    range: symbolData.selectionRange!,
-                };
+                const realUri = typeServer.convertToRealUri(fileUri);
+                if (realUri) {
+                    const location: Location = {
+                        uri: realUri.toString(),
+                        range: symbolData.selectionRange!,
+                    };
 
-                const symbolInfo: SymbolInformation = {
-                    name: symbolData.name,
-                    kind: symbolData.kind,
-                    location,
-                };
+                    const symbolInfo: SymbolInformation = {
+                        name: symbolData.name,
+                        kind: symbolData.kind,
+                        location,
+                    };
 
-                if (container.length) {
-                    symbolInfo.containerName = container;
+                    if (container.length) {
+                        symbolInfo.containerName = container;
+                    }
+
+                    symbolList.push(symbolInfo);
                 }
-
-                symbolList.push(symbolInfo);
             }
 
             this.appendWorkspaceSymbolsRecursive(

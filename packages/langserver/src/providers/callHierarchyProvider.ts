@@ -22,7 +22,6 @@ import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolColl
 import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
 import { getSymbolKind } from 'langserver/server/lspUtils.js';
-import { canNavigateToFile } from 'langserver/server/navigationUtils.js';
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
 import {
     areDeclarationsSame,
@@ -41,8 +40,6 @@ import {
     lookUpObjectMember,
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
@@ -92,22 +89,19 @@ export class CallHierarchyProvider {
             }
         }
 
+        const realUri = this._typeServer.convertToRealUri(callItemUri);
+
+        if (!realUri) {
+            return null;
+        }
+
         const callItem: CallHierarchyItem = {
             name: symbolName,
             kind: getSymbolKind(targetDecl, this._evaluator, symbolName) ?? SymbolKind.Module,
-            uri: convertUriToLspUriString(this._typeServer.fileSystem, callItemUri),
+            uri: realUri.toString(),
             range: targetDecl.range,
             selectionRange: targetDecl.range,
         };
-
-        if (
-            !canNavigateToFile(
-                this._typeServer.fileSystem,
-                Uri.parse(callItem.uri, this._typeServer.extensionManager.caseSensitivity)
-            )
-        ) {
-            return null;
-        }
 
         return [callItem];
     }
@@ -145,12 +139,7 @@ export class CallHierarchyProvider {
             return null;
         }
 
-        return items.filter((item) =>
-            canNavigateToFile(
-                this._typeServer.fileSystem,
-                Uri.parse(item.from.uri, this._typeServer.extensionManager.caseSensitivity)
-            )
-        );
+        return items;
     }
 
     getOutgoingCalls(): CallHierarchyOutgoingCall[] | null {
@@ -209,7 +198,7 @@ export class CallHierarchyProvider {
         }
 
         const callFinder = new FindOutgoingCallTreeWalker(
-            this._typeServer.fileSystem,
+            this._typeServer,
             parseRoot,
             this._parseResults,
             this._evaluator,
@@ -220,12 +209,7 @@ export class CallHierarchyProvider {
             return null;
         }
 
-        return outgoingCalls.filter((item) =>
-            canNavigateToFile(
-                this._typeServer.fileSystem,
-                Uri.parse(item.to.uri, this._typeServer.extensionManager.caseSensitivity)
-            )
-        );
+        return outgoingCalls;
     }
 
     private get _evaluator(): TypeEvaluator {
@@ -309,7 +293,7 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
     private _outgoingCalls: CallHierarchyOutgoingCall[] = [];
 
     constructor(
-        private _fs: IReadOnlyFileSystem,
+        private _typeServer: ITypeServer,
         private _parseRoot: ParseNode,
         private _parseResults: ParseFileResults,
         private _evaluator: TypeEvaluator,
@@ -401,10 +385,15 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
             return;
         }
 
+        const realUri = this._typeServer.convertToRealUri(resolvedDecl.uri);
+        if (!realUri) {
+            return;
+        }
+
         const callDest: CallHierarchyItem = {
             name: nameNode.d.value,
             kind: getSymbolKind(resolvedDecl, this._evaluator, nameNode.d.value) ?? SymbolKind.Module,
-            uri: convertUriToLspUriString(this._fs, resolvedDecl.uri),
+            uri: realUri.toString(),
             range: resolvedDecl.range,
             selectionRange: resolvedDecl.range,
         };
@@ -561,14 +550,18 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
         }
 
         let callSource: CallHierarchyItem;
+        const realUri = this._typeServer.convertToRealUri(this._fileUri);
+        if (!realUri) {
+            return;
+        }
+
         if (executionNode.nodeType === ParseNodeType.Module) {
             const moduleRange = convertOffsetsToRange(0, 0, this._parseResults.tokenizerOutput.lines);
-            const fileName = this._typeServer.fileSystem.getOriginalUri(this._fileUri).fileName;
 
             callSource = {
-                name: `(module) ${fileName}`,
+                name: `(module) ${realUri.fileName}`,
                 kind: SymbolKind.Module,
-                uri: convertUriToLspUriString(this._typeServer.fileSystem, this._fileUri),
+                uri: realUri.toString(),
                 range: moduleRange,
                 selectionRange: moduleRange,
             };
@@ -582,7 +575,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
             callSource = {
                 name: '(lambda)',
                 kind: SymbolKind.Function,
-                uri: convertUriToLspUriString(this._typeServer.fileSystem, this._fileUri),
+                uri: realUri.toString(),
                 range: lambdaRange,
                 selectionRange: lambdaRange,
             };
@@ -596,7 +589,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
             callSource = {
                 name: executionNode.d.name.d.value,
                 kind: SymbolKind.Function,
-                uri: convertUriToLspUriString(this._typeServer.fileSystem, this._fileUri),
+                uri: realUri.toString(),
                 range: functionRange,
                 selectionRange: functionRange,
             };

@@ -109,7 +109,6 @@ import {
 } from 'langserver/server/languageServerInterface.js';
 import { ClientCapabilities, InitializationOptions } from 'langserver/server/lspTypes.js';
 import { fromLSPAny, isNullProgressReporter } from 'langserver/server/lspUtils.js';
-import { canNavigateToFile } from 'langserver/server/navigationUtils.js';
 import { ProgressReportTracker, ProgressReporter } from 'langserver/server/progressReporter.js';
 import { getEffectiveCommandLineOptions } from 'langserver/server/typeServerExecutor.js';
 import {
@@ -129,11 +128,11 @@ import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
-import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { Localizer, setLocaleOverride } from 'typeserver/localization/localize.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
+import { TypeServerProvider } from 'typeserver/program/typeServerProvider.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
@@ -842,7 +841,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             filter: DefinitionFilter,
             token: CancellationToken
         ) => DocumentRange[] | undefined
-    ) {
+    ): Promise<Location[] | undefined> {
         this.recordUserInteractionTime();
 
         const uri = this.convertLspUriStringToUri(params.textDocument.uri);
@@ -856,9 +855,17 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         if (!locations) {
             return undefined;
         }
-        return locations
-            .filter((loc) => this.canNavigateToFile(loc.uri, workspace.service.fs))
-            .map((loc) => Location.create(convertUriToLspUriString(workspace.service.fs, loc.uri), loc.range));
+        const typeServer = new TypeServerProvider(workspace.service.program);
+        const results: Location[] = [];
+
+        locations.forEach((loc) => {
+            const realUri = typeServer.convertToRealUri(loc.uri);
+            if (realUri) {
+                results.push(Location.create(realUri.toString(), loc.range));
+            }
+        });
+
+        return results.length > 0 ? results : undefined;
     }
 
     protected async onReferences(
@@ -1033,6 +1040,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         return workspace.service.run((program) => {
             const completions = new CompletionProvider(
                 program,
+                this.extensionManager.caseSensitivity,
                 uri,
                 params.position,
                 {
@@ -1065,6 +1073,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             workspace.service.run((program) => {
                 return new CompletionProvider(
                     program,
+                    this.extensionManager.caseSensitivity,
                     uri,
                     completionItemData.position,
                     {
@@ -1239,7 +1248,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         };
         if (
             workspace.disableLanguageServices ||
-            !canNavigateToFile(workspace.service.fs, uri) ||
+            !this.canNavigateToFile(uri, workspace.service.fs) ||
             token.isCancellationRequested
         ) {
             return result;
@@ -1300,7 +1309,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                 const files = workspace.service.getOwnedFiles();
                 files.forEach((file) => {
                     const sourceFile = workspace.service.getSourceFile(file)!;
-                    if (canNavigateToFile(workspace.service.fs, sourceFile.getUri())) {
+                    if (this.canNavigateToFile(sourceFile.getUri(), workspace.service.fs)) {
                         promises.push(this._getWorkspaceDocumentDiagnostics(params, sourceFile, workspace, token));
                     }
                 });
@@ -1386,9 +1395,10 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
     }
 
     protected convertDiagnostics(fs: IFileSystem, fileDiagnostics: FileDiagnostics): PublishDiagnosticsParams[] {
+        const realUri = fs.getOriginalUri(fileDiagnostics.fileUri);
         return [
             {
-                uri: convertUriToLspUriString(fs, fileDiagnostics.fileUri),
+                uri: realUri.toString(),
                 version: fileDiagnostics.version,
                 diagnostics: this._convertDiagnostics(fs, fileDiagnostics.diagnostics),
             },
@@ -1574,7 +1584,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
     }
 
     protected canNavigateToFile(path: Uri, fs: IFileSystem): boolean {
-        return canNavigateToFile(fs, path);
+        return !fs.isInZip(path);
     }
 
     protected async getProgressReporter(reporter: WorkDoneProgressReporter, title: string, token: CancellationToken) {
@@ -1712,14 +1722,19 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
 
             const relatedInfo = diag.getRelatedInfo();
             if (relatedInfo.length > 0) {
-                vsDiag.relatedInformation = relatedInfo
-                    .filter((info) => this.canNavigateToFile(info.uri, fs))
-                    .map((info) =>
-                        DiagnosticRelatedInformation.create(
-                            Location.create(convertUriToLspUriString(fs, info.uri), info.range),
-                            info.message
-                        )
-                    );
+                vsDiag.relatedInformation = [];
+
+                relatedInfo.forEach((info) => {
+                    if (this.canNavigateToFile(info.uri, fs)) {
+                        const realUri = fs.getOriginalUri(info.uri);
+                        vsDiag.relatedInformation!.push(
+                            DiagnosticRelatedInformation.create(
+                                Location.create(realUri.toString(), info.range),
+                                info.message
+                            )
+                        );
+                    }
+                });
             }
 
             convertedDiags.push(vsDiag);

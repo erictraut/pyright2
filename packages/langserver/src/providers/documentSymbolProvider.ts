@@ -14,8 +14,6 @@ import { Uri } from 'commonUtils/uri/uri.js';
 import { IndexOptions, IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndexer.js';
 import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
@@ -27,7 +25,7 @@ export function convertToFlatSymbols(
     const flatSymbols: SymbolInformation[] = [];
 
     for (const symbol of symbolList) {
-        _appendToFlatSymbolsRecursive(typeServer.fileSystem, flatSymbols, uri, symbol);
+        _appendToFlatSymbolsRecursive(typeServer, flatSymbols, uri, symbol);
     }
 
     return flatSymbols;
@@ -116,16 +114,21 @@ export class DocumentSymbolProvider {
 }
 
 function _appendToFlatSymbolsRecursive(
-    fs: IReadOnlyFileSystem,
+    typeServer: ITypeServer,
     flatSymbols: SymbolInformation[],
     documentUri: Uri,
     symbol: DocumentSymbol,
     parent?: DocumentSymbol
 ) {
+    const realUri = typeServer.convertToRealUri(documentUri);
+    if (!realUri) {
+        return;
+    }
+
     const flatSymbol: SymbolInformation = {
         name: symbol.name,
         kind: symbol.kind,
-        location: Location.create(convertUriToLspUriString(fs, documentUri), symbol.range),
+        location: Location.create(realUri.toString(), symbol.range),
     };
 
     if (symbol.tags) {
@@ -140,7 +143,7 @@ function _appendToFlatSymbolsRecursive(
 
     if (symbol.children) {
         for (const child of symbol.children) {
-            _appendToFlatSymbolsRecursive(fs, flatSymbols, documentUri, child, symbol);
+            _appendToFlatSymbolsRecursive(typeServer, flatSymbols, documentUri, child, symbol);
         }
     }
 }

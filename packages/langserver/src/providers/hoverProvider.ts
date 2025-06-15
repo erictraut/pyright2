@@ -48,7 +48,6 @@ import {
 } from 'typeserver/evaluator/types.js';
 import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
@@ -95,7 +94,6 @@ export function convertHoverResults(hoverResults: HoverResults | null, format: M
 }
 
 export function addParameterResultsPart(
-    extensionManager: ExtensionManager,
     paramNameNode: NameNode,
     resolvedDecl: Declaration | undefined,
     format: MarkupKind,
@@ -122,7 +120,6 @@ export function addParameterResultsPart(
 }
 
 export function addDocumentationResultsPart(
-    extensionManager: ExtensionManager,
     docString: string | undefined,
     format: MarkupKind,
     parts: HoverTextPart[],
@@ -417,7 +414,7 @@ export class HoverProvider {
 
             case DeclarationType.Param: {
                 this._addResultsPart(parts, '(parameter) ' + node.d.value + this._getTypeText(node), /* python */ true);
-                addParameterResultsPart(this._typeServer.extensionManager, node, resolvedDecl, this._format, parts);
+                addParameterResultsPart(node, resolvedDecl, this._format, parts);
                 this._addDocumentationPart(parts, node, resolvedDecl);
                 break;
             }
@@ -601,7 +598,7 @@ export class HoverProvider {
             name,
         });
 
-        addDocumentationResultsPart(this._typeServer.extensionManager, docString, this._format, parts, resolvedDecl);
+        addDocumentationResultsPart(docString, this._format, parts, resolvedDecl);
         return !!docString;
     }
 

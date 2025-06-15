@@ -814,6 +814,7 @@ test('completion quote trigger', async () => {
 
     const result = new CompletionProvider(
         state.typeServer,
+        state.extensionManager.caseSensitivity,
         uri,
         position,
         options,
@@ -854,6 +855,7 @@ test('completion quote trigger - middle', async () => {
 
     const result = new CompletionProvider(
         state.typeServer,
+        state.extensionManager.caseSensitivity,
         uri,
         position,
         options,
@@ -901,6 +903,7 @@ test('auto import sort text', async () => {
 
     const result = new CompletionProvider(
         state.typeServer,
+        state.extensionManager.caseSensitivity,
         uri,
         position,
         options,

@@ -31,7 +31,6 @@ import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator/types.js';
 import { doForEachSubtype } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.js';
@@ -147,7 +146,6 @@ class DefinitionProviderBase {
     protected constructor(
         protected readonly sourceMapper: SourceMapper,
         protected readonly evaluator: TypeEvaluator,
-        private readonly _extensionManager: ExtensionManager | undefined,
         protected readonly node: ParseNode | undefined,
         protected readonly offset: number,
         private readonly _filter: DefinitionFilter,
@@ -217,7 +215,7 @@ export class DefinitionProvider extends DefinitionProviderBase {
         const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
-        super(sourceMapper, typeServer.evaluator!, typeServer.extensionManager, node, offset, filter, token);
+        super(sourceMapper, typeServer.evaluator!, node, offset, filter, token);
     }
 
     static getDefinitionsForNode(
@@ -227,15 +225,7 @@ export class DefinitionProvider extends DefinitionProviderBase {
         offset: number,
         token: CancellationToken
     ) {
-        const provider = new DefinitionProviderBase(
-            sourceMapper,
-            evaluator,
-            undefined,
-            node,
-            offset,
-            DefinitionFilter.All,
-            token
-        );
+        const provider = new DefinitionProviderBase(sourceMapper, evaluator, node, offset, DefinitionFilter.All, token);
         return provider.getDefinitionsForNode(node, offset);
     }
 
@@ -256,15 +246,7 @@ export class TypeDefinitionProvider extends DefinitionProviderBase {
         const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
-        super(
-            sourceMapper,
-            typeServer.evaluator!,
-            typeServer.extensionManager,
-            node,
-            offset,
-            DefinitionFilter.All,
-            token
-        );
+        super(sourceMapper, typeServer.evaluator!, node, offset, DefinitionFilter.All, token);
         this._fileUri = fileUri;
     }
 

@@ -143,7 +143,7 @@ export class RenameProvider {
             });
         });
 
-        return convertToWorkspaceEdit(this._typeServer.fileSystem, { edits, fileOperations: [] });
+        return convertToWorkspaceEdit(this._typeServer, { edits, fileOperations: [] });
     }
 
     static getRenameSymbolMode(

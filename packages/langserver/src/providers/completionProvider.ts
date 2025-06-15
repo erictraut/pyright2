@@ -154,6 +154,7 @@ import {
 import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtils.js';
+import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
 
 namespace Keywords {
     const base: string[] = [
@@ -315,6 +316,7 @@ export class CompletionProvider {
 
     constructor(
         protected readonly typeServer: ITypeServer,
+        protected readonly caseDetector: CaseSensitivityDetector,
         protected readonly fileUri: Uri,
         protected readonly position: Position,
         protected readonly options: CompletionOptions,
@@ -377,11 +379,9 @@ export class CompletionProvider {
 
         if (
             completionItemData.moduleUri &&
-            ImportResolver.isSupportedImportSourceFile(
-                Uri.parse(completionItemData.moduleUri, this.typeServer.extensionManager.caseSensitivity)
-            )
+            ImportResolver.isSupportedImportSourceFile(Uri.parse(completionItemData.moduleUri, this.caseDetector))
         ) {
-            const moduleUri = Uri.parse(completionItemData.moduleUri, this.typeServer.extensionManager.caseSensitivity);
+            const moduleUri = Uri.parse(completionItemData.moduleUri, this.caseDetector);
             const documentation = getModuleDocStringFromUris([moduleUri], this.sourceMapper);
             if (!documentation) {
                 return;
@@ -704,7 +704,6 @@ export class CompletionProvider {
 
             if (this.options.format === MarkupKind.Markdown || this.options.format === MarkupKind.PlainText) {
                 this.itemToResolve.documentation = getCompletionItemDocumentation(
-                    this.typeServer.extensionManager,
                     typeDetail,
                     documentation,
                     this.options.format,
