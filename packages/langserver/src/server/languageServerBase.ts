@@ -98,8 +98,8 @@ import { DynamicFeature, DynamicFeatures } from 'langserver/server/dynamicFeatur
 import { FileWatcherDynamicFeature } from 'langserver/server/fileWatcherDynamicFeature.js';
 import {
     LanguageServerInterface,
+    LanguageServerSettings,
     ServerOptions,
-    ServerSettings,
     WorkspaceServices,
 } from 'langserver/server/languageServerInterface.js';
 import { ClientCapabilities, InitializationOptions } from 'langserver/server/lspTypes.js';
@@ -249,7 +249,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         this._workspaceFoldersChangedDisposable?.dispose();
     }
 
-    abstract getSettings(workspace: Workspace): Promise<ServerSettings>;
+    abstract getSettings(workspace: Workspace): Promise<LanguageServerSettings>;
 
     // Creates a service instance that's used for analyzing a
     // program within a workspace.
@@ -316,7 +316,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
     async updateSettingsForWorkspace(
         workspace: Workspace,
         status: InitStatus | undefined,
-        serverSettings?: ServerSettings
+        serverSettings?: LanguageServerSettings
     ): Promise<void> {
         try {
             status?.markCalled();
@@ -343,7 +343,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
     updateOptionsAndRestartService(
         workspace: Workspace,
-        serverSettings: ServerSettings,
+        serverSettings: LanguageServerSettings,
         typeStubTargetImportName?: string
     ) {
         const commandLineOptions = getEffectiveCommandLineOptions(
@@ -1512,7 +1512,11 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
                     return DiagnosticSeverity.Warning;
 
                 case DiagnosticCategory.Information:
-                case DiagnosticCategory.TaskItem: // task items only show up in the task list if they are information or above.
+                    return DiagnosticSeverity.Information;
+
+                case DiagnosticCategory.TaskItem:
+                    // Task items show up in the task list only if they are
+                    // information or above.
                     return DiagnosticSeverity.Information;
 
                 case DiagnosticCategory.UnusedCode:

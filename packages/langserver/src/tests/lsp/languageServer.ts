@@ -28,7 +28,7 @@ import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParse
 import * as PyrightTestHost from 'langserver/tests/harness/testHost.js';
 import { clearCache, typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 
-import { ServerSettings } from 'langserver/server/languageServerInterface.js';
+import { LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
 import { PyrightServer } from 'langserver/server/server.js';
 import { InitStatus, Workspace } from 'langserver/server/workspaceFactory.js';
 import { GlobalMetadataOptionNames } from 'langserver/tests//harness/fourslash/fourSlashTypes.js';
@@ -152,7 +152,7 @@ class TestServer extends PyrightServer {
     override async updateSettingsForWorkspace(
         workspace: Workspace,
         status: InitStatus | undefined,
-        serverSettings?: ServerSettings | undefined
+        serverSettings?: LanguageServerSettings | undefined
     ): Promise<void> {
         const result = await super.updateSettingsForWorkspace(workspace, status, serverSettings);
 

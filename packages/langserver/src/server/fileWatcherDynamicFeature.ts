@@ -3,7 +3,9 @@
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
- * implementation of file watcher feature dynamic registration
+ * Implementation of dynamic registration of the file watcher feature.
+ * Some clients (like VS Code) provide a way to register file watchers
+ * so they can be shared among extensions.
  */
 
 import { isDefined } from 'commonUtils/valueTypeUtils.js';

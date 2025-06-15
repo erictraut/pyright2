@@ -180,8 +180,7 @@ export class TestState {
 
         this.fs = new PyrightFileSystem(this.testFS);
         this.console = new ConsoleWithLogLevel(new NullConsole(), 'test');
-        const em = new ExtensionManager(this.testFS, this.console, this.testFS, testPythonEnvProvider);
-        this.extensionManager = em;
+        this.extensionManager = new ExtensionManager(this.testFS, this.console, this.testFS, testPythonEnvProvider);
 
         this._cancellationToken = new TestCancellationToken();
         this._hostSpecificFeatures = hostSpecificFeatures ?? new TestFeatures();

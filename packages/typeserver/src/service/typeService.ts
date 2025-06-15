@@ -403,7 +403,7 @@ export class TypeService {
         );
     }
 
-    writeTypeStubInBackground(token: CancellationToken): any {
+    writeTypeStubInBackground(token: CancellationToken): void {
         const typingsSubdirUri = this._getTypeStubFolder();
 
         return this._program.writeTypeStub(
@@ -535,7 +535,7 @@ export class TypeService {
     }
 
     private get _console() {
-        return this.options.console!;
+        return this.extensionManager.console;
     }
 
     private get _configOptions() {

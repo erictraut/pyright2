@@ -6,8 +6,9 @@
  * LanguageServer features that can be dynamically added or removed from LSP server
  */
 
-import { ServerSettings } from 'langserver/server/languageServerInterface.js';
 import { Disposable } from 'vscode-languageserver';
+
+import { LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
 
 export abstract class DynamicFeature {
     private _lastRegistration: Disposable | undefined;
@@ -23,7 +24,7 @@ export abstract class DynamicFeature {
         });
     }
 
-    update(settings: ServerSettings) {
+    update(settings: LanguageServerSettings) {
         // Default is no-op
     }
 
@@ -47,7 +48,7 @@ export class DynamicFeatures {
         this._map.set(feature.name, feature);
     }
 
-    update(settings: ServerSettings) {
+    update(settings: LanguageServerSettings) {
         for (const feature of this._map.values()) {
             feature.update(settings);
         }

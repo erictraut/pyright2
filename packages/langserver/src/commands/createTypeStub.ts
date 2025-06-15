@@ -10,15 +10,13 @@ import { CancellationToken, ExecuteCommandParams } from 'vscode-languageserver';
 
 import { Uri } from 'commonUtils/uri/uri.js';
 import { ServerCommand } from 'langserver/commands/commandController.js';
-import { LanguageServerBaseInterface, LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
+import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
 import { TypeServerExecutor } from 'langserver/server/typeServerExecutor.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { OperationCanceledException } from 'typeserver/extensibility/cancellationUtils.js';
 
 export class CreateTypeStubCommand implements ServerCommand {
-    constructor(private _ls: LanguageServerInterface) {
-        // Empty
-    }
+    constructor(private _ls: LanguageServerInterface) {}
 
     async execute(cmdParams: ExecuteCommandParams, token: CancellationToken): Promise<any> {
         if (!cmdParams.arguments || cmdParams.arguments.length < 2) {
@@ -33,7 +31,7 @@ export class CreateTypeStubCommand implements ServerCommand {
 }
 
 export class TypeStubCreator {
-    constructor(private _ls: LanguageServerBaseInterface) {}
+    constructor(private _ls: LanguageServerInterface) {}
 
     async create(workspace: Workspace, importName: string, token: CancellationToken): Promise<any> {
         const service = await TypeServerExecutor.cloneService(this._ls, workspace, {

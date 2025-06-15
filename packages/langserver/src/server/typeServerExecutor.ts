@@ -9,7 +9,7 @@
  */
 
 import { Uri } from 'commonUtils/uri/uri.js';
-import { LanguageServerBaseInterface, ServerSettings } from 'langserver/server/languageServerInterface.js';
+import { LanguageServerInterface, LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { LogLevel } from 'typeserver/extensibility/console.js';
@@ -29,7 +29,7 @@ export interface RunOptions {
 }
 
 export class TypeServerExecutor {
-    static runWithOptions(workspace: Workspace, serverSettings: ServerSettings, options?: RunOptions): void {
+    static runWithOptions(workspace: Workspace, serverSettings: LanguageServerSettings, options?: RunOptions): void {
         const commandLineOptions = getEffectiveCommandLineOptions(
             workspace.rootUri,
             serverSettings,
@@ -43,7 +43,7 @@ export class TypeServerExecutor {
     }
 
     static async cloneService(
-        ls: LanguageServerBaseInterface,
+        ls: LanguageServerInterface,
         workspace: Workspace,
         options?: CloneOptions
     ): Promise<TypeService> {
@@ -78,7 +78,7 @@ export class TypeServerExecutor {
 
 export function getEffectiveCommandLineOptions(
     workspaceRootUri: Uri | undefined,
-    serverSettings: ServerSettings,
+    serverSettings: LanguageServerSettings,
     trackFiles: boolean,
     typeStubTargetImportName?: string,
     pythonEnvironmentName?: string

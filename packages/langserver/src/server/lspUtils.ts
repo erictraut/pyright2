@@ -66,8 +66,9 @@ export function getSymbolKind(declaration: Declaration, evaluator?: TypeEvaluato
 }
 
 export function isNullProgressReporter(reporter: WorkDoneProgressReporter) {
-    // We can't tell if this is a NullProgressReporter (well because this type isn't exposed from vscode-languageserver),
-    // but we're going to assume if the toString for the begin method is empty, then it's a NullProgressReporter.
+    // We can't tell if this is a NullProgressReporter (well because this type
+    // isn't exposed from vscode-languageserver), but we're going to assume if
+    // the toString for the begin method is empty, then it's a NullProgressReporter.
     const beginStr = reporter.begin.toString();
     const contents = beginStr.substring(beginStr.indexOf('{') + 1, beginStr.lastIndexOf('}'));
     return contents.trim() === '';

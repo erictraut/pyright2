@@ -11,7 +11,7 @@ import { CancellationToken, CodeAction, ExecuteCommandParams } from 'vscode-lang
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CommandController } from 'langserver/commands/commandController.js';
 import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
-import { LanguageServerInterface, ServerSettings } from 'langserver/server/languageServerInterface.js';
+import { LanguageServerInterface, LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { HostSpecificFeatures } from 'langserver/tests/harness/fourslash/testState.js';
 import path from 'path';
@@ -96,8 +96,8 @@ export class TestLanguageService implements LanguageServerInterface {
         return Promise.resolve(this._defaultWorkspace);
     }
 
-    getSettings(_workspace: Workspace): Promise<ServerSettings> {
-        const settings: ServerSettings = {
+    getSettings(_workspace: Workspace): Promise<LanguageServerSettings> {
+        const settings: LanguageServerSettings = {
             venvPath: this._workspace.service.getConfigOptions().venvPath,
             pythonPath: this._workspace.service.getConfigOptions().pythonPath,
             typeshedPath: this._workspace.service.getConfigOptions().typeshedPath,

@@ -6,7 +6,6 @@
  * Interface for language server
  */
 
-import { Uri } from 'commonUtils/uri/uri.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { TaskListToken } from 'typeserver/common/diagnostic.js';
 import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.js';
@@ -16,8 +15,9 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';
 import { MaxAnalysisTime } from 'typeserver/program/program.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
-export interface ServerSettings {
+export interface LanguageServerSettings {
     venvPath?: Uri | undefined;
     pythonPath?: Uri | undefined;
     typeshedPath?: Uri | undefined;
@@ -68,7 +68,7 @@ export interface ServerOptions {
     supportsTelemetry?: boolean;
 }
 
-export interface LanguageServerBaseInterface {
+export interface LanguageServerInterface {
     readonly console: ConsoleInterface;
     readonly supportAdvancedEdits: boolean;
     readonly extensionManager: ExtensionManager;
@@ -77,10 +77,7 @@ export interface LanguageServerBaseInterface {
     restart(): void;
 
     getWorkspaces(): Promise<Workspace[]>;
-    getSettings(workspace: Workspace): Promise<ServerSettings>;
-}
-
-export interface LanguageServerInterface extends LanguageServerBaseInterface {
+    getSettings(workspace: Workspace): Promise<LanguageServerSettings>;
     getWorkspaceForFile(fileUri: Uri, pythonPath?: Uri): Promise<Workspace>;
 }
 

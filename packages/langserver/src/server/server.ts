@@ -22,7 +22,7 @@ import { CommandController } from 'langserver/commands/commandController.js';
 import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
 import { resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
 import { LanguageServerBase } from 'langserver/server/languageServerBase.js';
-import { ServerSettings } from 'langserver/server/languageServerInterface.js';
+import { LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
 import { ProgressReporter } from 'langserver/server/progressReporter.js';
 import { WellKnownWorkspaceKinds, Workspace } from 'langserver/server/workspaceFactory.js';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
@@ -86,8 +86,8 @@ export class PyrightServer extends LanguageServerBase {
         this._controller = new CommandController(this);
     }
 
-    async getSettings(workspace: Workspace): Promise<ServerSettings> {
-        const serverSettings: ServerSettings = {
+    async getSettings(workspace: Workspace): Promise<LanguageServerSettings> {
+        const serverSettings: LanguageServerSettings = {
             watchForSourceChanges: true,
             watchForLibraryChanges: true,
             watchForConfigChanges: true,
