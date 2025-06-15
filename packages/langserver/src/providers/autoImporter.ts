@@ -24,8 +24,6 @@ import { TextEditAction } from 'typeserver/common/editAction.js';
 import { Position } from 'typeserver/common/textRange.js';
 import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { ImportResolver, ModuleNameAndType } from 'typeserver/imports/importResolver.js';
-import { ImportType } from 'typeserver/imports/importResult.js';
 import {
     ImportGroup,
     ImportNameInfo,
@@ -39,7 +37,7 @@ import {
 } from 'typeserver/imports/importStatementUtils.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
+import { AutoImportInfo, ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
 
 export interface AutoImportSymbol {
     readonly name: string;
@@ -95,8 +93,8 @@ export interface ImportParts {
     // The number of dots in the module name, indicating its depth in the module hierarchy
     readonly dotCount: number;
 
-    // `ModuleNameAndType` of the module.
-    readonly moduleNameAndType: ModuleNameAndType;
+    // Name and category of target module.
+    readonly targetImportInfo: AutoImportInfo;
 }
 
 export interface ImportAliasData {
@@ -193,6 +191,7 @@ export class AutoImporter {
     private readonly _importStatements: ImportStatements;
 
     constructor(
+        protected readonly fileUri: Uri,
         protected readonly typeServer: ITypeServer,
         protected readonly execEnvironment: ExecutionEnvironment,
         protected readonly parseResults: ParseFileResults,
@@ -218,10 +217,6 @@ export class AutoImporter {
 
         map.forEach((v) => appendArray(results, v));
         return results;
-    }
-
-    protected get importResolver(): ImportResolver {
-        return this.typeServer.importResolver;
     }
 
     protected getCompletionItemData(item: CompletionItem): CompletionItemData | undefined {
@@ -360,12 +355,12 @@ export class AutoImporter {
     ) {
         throwIfCancellationRequested(token);
 
-        const [importSource, importGroup, moduleNameAndType] = this._getImportPartsForSymbols(moduleUri);
-        if (!importSource) {
+        const targetImportParts = this._getImportPartsForTargetModule(moduleUri);
+        if (!targetImportParts) {
             return;
         }
 
-        const dotCount = getCharacterCount(importSource, '.');
+        const dotCount = getCharacterCount(targetImportParts.moduleNameAndType.moduleName, '.');
         for (const autoSymbol of topLevelSymbols.getSymbols()) {
             if (!this.shouldIncludeVariable(autoSymbol, fileProperties.isStub)) {
                 continue;
@@ -380,7 +375,7 @@ export class AutoImporter {
                 continue;
             }
 
-            const alreadyIncluded = this._containsName(name, importSource, results);
+            const alreadyIncluded = this._containsName(name, targetImportParts.moduleNameAndType.moduleName, results);
             if (alreadyIncluded) {
                 continue;
             }
@@ -393,12 +388,12 @@ export class AutoImporter {
                         importParts: {
                             symbolName: name,
                             importName: name,
-                            importFrom: importSource,
+                            importFrom: targetImportParts.moduleNameAndType.moduleName,
                             fileUri: moduleUri,
                             dotCount,
-                            moduleNameAndType,
+                            targetImportInfo: targetImportParts.moduleNameAndType,
                         },
-                        importGroup,
+                        importGroup: targetImportParts.importGroup,
                         symbol: autoSymbol.symbol,
                         kind: autoSymbol.importAlias.kind,
                         itemKind: autoSymbol.importAlias.itemKind,
@@ -414,9 +409,9 @@ export class AutoImporter {
             const nameForImportFrom = this.getNameForImportFrom(/* library */ !fileProperties.isUserCode, moduleUri);
             const autoImportTextEdits = this._getTextEditsForAutoImportByFilePath(
                 { name, alias: abbrFromUsers },
-                { name: importSource, nameForImportFrom },
+                { name: targetImportParts.moduleNameAndType.moduleName, nameForImportFrom },
                 name,
-                importGroup,
+                targetImportParts.importGroup,
                 moduleUri
             );
 
@@ -424,7 +419,7 @@ export class AutoImporter {
                 name,
                 alias: abbrFromUsers,
                 symbol: autoSymbol.symbol,
-                source: importSource,
+                source: targetImportParts.moduleNameAndType.moduleName,
                 kind: autoSymbol.itemKind ?? convertSymbolKindToCompletionItemKind(autoSymbol.kind),
                 insertionText: autoImportTextEdits.insertionText,
                 edits: autoImportTextEdits.edits,
@@ -466,7 +461,7 @@ export class AutoImporter {
             },
             {
                 importParts,
-                importGroup,
+                importGroup: targetImportParts.importGroup,
                 kind: SymbolKind.Module,
                 itemKind: CompletionItemKind.Module,
                 fileUri: moduleUri,
@@ -555,29 +550,32 @@ export class AutoImporter {
         map.set(alias.originalName, data);
     }
 
-    private _getImportPartsForSymbols(uri: Uri): [string | undefined, ImportGroup, ModuleNameAndType] {
+    private _getImportPartsForTargetModule(
+        uri: Uri
+    ): { importGroup: ImportGroup; moduleNameAndType: AutoImportInfo } | undefined {
         const localImport = this._importStatements.mapByFilePath.get(uri.key);
         if (localImport) {
-            return [
-                localImport.moduleName,
-                getImportGroup(localImport),
-                {
-                    importType: ImportType.Local,
-                    isLocalTypingsFile: false,
+            return {
+                importGroup: getImportGroup(localImport),
+                moduleNameAndType: {
+                    category: 'local',
                     moduleName: localImport.moduleName,
                 },
-            ];
+            };
         } else {
             const moduleNameAndType = this._getModuleNameAndTypeFromFilePath(uri);
-            return [
-                moduleNameAndType.moduleName,
-                getImportGroupFromModuleNameAndType(moduleNameAndType),
-                moduleNameAndType,
-            ];
+            if (!moduleNameAndType) {
+                return undefined;
+            }
+
+            return {
+                importGroup: getImportGroupFromModuleNameAndType(moduleNameAndType),
+                moduleNameAndType: moduleNameAndType,
+            };
         }
     }
 
-    private _getImportParts(uri: Uri) {
+    private _getImportParts(uri: Uri): ImportParts | undefined {
         const name = stripFileExtension(uri.fileName);
 
         // See if we can import module as "import xxx"
@@ -587,7 +585,11 @@ export class AutoImporter {
 
         return createImportParts(this._getModuleNameAndTypeFromFilePath(uri));
 
-        function createImportParts(module: ModuleNameAndType): ImportParts | undefined {
+        function createImportParts(module: AutoImportInfo | undefined): ImportParts | undefined {
+            if (!module) {
+                return undefined;
+            }
+
             const moduleName = module.moduleName;
             if (!moduleName) {
                 return undefined;
@@ -602,7 +604,7 @@ export class AutoImporter {
                 importFrom,
                 fileUri: uri,
                 dotCount: getCharacterCount(moduleName, '.'),
-                moduleNameAndType: module,
+                targetImportInfo: module,
             };
         }
     }
@@ -650,8 +652,8 @@ export class AutoImporter {
     // Given the file path of a module that we want to import,
     // convert to a module name that can be used in an
     // 'import from' statement.
-    private _getModuleNameAndTypeFromFilePath(uri: Uri): ModuleNameAndType {
-        return this.importResolver.getModuleNameForImport(uri, this.execEnvironment);
+    private _getModuleNameAndTypeFromFilePath(uri: Uri): AutoImportInfo | undefined {
+        return this.typeServer.getAutoImportInfo(this.fileUri, uri);
     }
 
     private _getTextEditsForAutoImportByFilePath(

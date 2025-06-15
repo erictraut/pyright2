@@ -400,11 +400,7 @@ export class Binder extends ParseTreeWalker {
         // See if a source file was found but it's not part of a py.typed
         // library and no type stub is found.
         let reportStubMissing = false;
-        if (
-            !importResult.isStubFile &&
-            importResult.importType === ImportType.ThirdParty &&
-            !importResult.pyTypedInfo
-        ) {
+        if (!importResult.isStubFile && importResult.importType === ImportType.External && !importResult.pyTypedInfo) {
             reportStubMissing = true;
 
             // If the import is a namespace package, it's possible that all of

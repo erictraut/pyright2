@@ -1349,11 +1349,11 @@ export class Program {
 
         let thirdPartyImportAllowed =
             this._configOptions.useLibraryCodeForTypes ||
-            (importResult.importType === ImportType.ThirdParty && !!importResult.pyTypedInfo) ||
+            (importResult.importType === ImportType.External && !!importResult.pyTypedInfo) ||
             (importResult.importType === ImportType.Local && importer.isThirdPartyPyTypedPresent);
 
         if (
-            importResult.importType === ImportType.ThirdParty ||
+            importResult.importType === ImportType.External ||
             (importer.isThirdPartyImport && importResult.importType === ImportType.Local)
         ) {
             if (this._allowedThirdPartyImports) {
@@ -1429,7 +1429,7 @@ export class Program {
             let isThirdPartyImport = false;
             let isPyTypedPresent = false;
 
-            if (importResult.importType === ImportType.ThirdParty) {
+            if (importResult.importType === ImportType.External) {
                 isThirdPartyImport = true;
                 if (importResult.pyTypedInfo) {
                     isPyTypedPresent = true;

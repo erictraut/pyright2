@@ -110,7 +110,7 @@ import {
     MemberAccessFlags,
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { ImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
+import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportResult } from 'typeserver/imports/importResult.js';
 import { Localizer } from 'typeserver/localization/localize.js';
 import {
@@ -421,10 +421,6 @@ export class CompletionProvider {
         return this.typeServer.evaluator!;
     }
 
-    protected get importResolver() {
-        return this.typeServer.importResolver;
-    }
-
     protected get configOptions() {
         return this.typeServer.configOptions;
     }
@@ -637,9 +633,6 @@ export class CompletionProvider {
         completionMap: CompletionMap,
         detail: SymbolDetail
     ) {
-        // Make sure we don't crash due to OOM.
-        this.typeServer.handleMemoryHighUsage();
-
         let primaryDecl = getLastTypedDeclarationForSymbol(symbol);
         if (!primaryDecl) {
             const declarations = symbol.getDeclarations();
@@ -824,6 +817,7 @@ export class CompletionProvider {
         );
 
         return new AutoImporter(
+            this.fileUri,
             this.typeServer,
             this.execEnv,
             this.parseResults,
@@ -3129,14 +3123,13 @@ export class CompletionProvider {
     }
 
     private _getImportModuleCompletions(node: ModuleNameNode): CompletionMap {
-        const moduleDescriptor: ImportedModuleDescriptor = {
-            leadingDots: node.d.leadingDots,
-            hasTrailingDot: node.d.hasTrailingDot || false,
-            nameParts: node.d.nameParts.map((part) => part.d.value),
-            importedSymbols: new Set<string>(),
-        };
+        let partialModuleImport =
+            '.'.repeat(node.d.leadingDots) + node.d.nameParts.map((part) => part.d.value).join('.');
+        if (node.d.hasTrailingDot) {
+            partialModuleImport += '.';
+        }
 
-        const completions = this.importResolver.getCompletionSuggestions(this.fileUri, this.execEnv, moduleDescriptor);
+        const completions = this.typeServer.getImportCompletions(this.fileUri, partialModuleImport);
 
         const completionMap = new CompletionMap();
 

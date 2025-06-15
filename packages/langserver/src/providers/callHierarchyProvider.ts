@@ -138,10 +138,6 @@ export class CallHierarchyProvider {
                 if (itemsToAdd) {
                     appendArray(items, itemsToAdd);
                 }
-
-                // This operation can consume significant memory, so check
-                // for situations where we need to discard the type cache.
-                this._typeServer.handleMemoryHighUsage();
             }
         }
 

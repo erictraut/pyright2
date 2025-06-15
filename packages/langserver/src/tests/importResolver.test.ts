@@ -291,7 +291,7 @@ describe('Import tests with fake venv', () => {
 
             const moduleImportInfo = getModuleNameForImport(files);
 
-            assert.strictEqual(moduleImportInfo.importType, ImportType.ThirdParty);
+            assert.strictEqual(moduleImportInfo.importType, ImportType.External);
             assert(!moduleImportInfo.isThirdPartyPyTypedPresent);
             assert(!moduleImportInfo.isLocalTypingsFile);
         });
@@ -310,7 +310,7 @@ describe('Import tests with fake venv', () => {
 
             const moduleImportInfo = getModuleNameForImport(files);
 
-            assert.strictEqual(moduleImportInfo.importType, ImportType.ThirdParty);
+            assert.strictEqual(moduleImportInfo.importType, ImportType.External);
             assert(moduleImportInfo.isThirdPartyPyTypedPresent);
             assert(!moduleImportInfo.isLocalTypingsFile);
         });

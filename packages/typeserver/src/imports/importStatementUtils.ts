@@ -20,7 +20,6 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { isFile } from 'typeserver/files/uriUtils.js';
-import { ModuleNameAndType } from 'typeserver/imports/importResolver.js';
 import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
 import {
     ImportAsNode,
@@ -34,6 +33,7 @@ import {
 } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { TokenType } from 'typeserver/parser/tokenizerTypes.js';
+import { AutoImportInfo } from 'typeserver/protocol/typeServerProtocol.js';
 import { addIfUnique, appendArray, createMapFromItems } from 'typeserver/utils/collectionUtils.js';
 import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
@@ -59,8 +59,8 @@ export interface ImportStatements {
 export const enum ImportGroup {
     // The ordering here is important because this is the order
     // in which PEP8 specifies that imports should be ordered.
-    BuiltIn = 0,
-    ThirdParty = 1,
+    Stdlib = 0,
+    External = 1,
     Local = 2,
     LocalRelative = 3,
 }
@@ -71,7 +71,7 @@ export interface ImportNameInfo {
 }
 
 export interface ImportNameWithModuleInfo extends ImportNameInfo {
-    module: ModuleNameAndType;
+    module: AutoImportInfo;
     nameForImportFrom?: string;
 }
 
@@ -83,23 +83,20 @@ export interface ModuleNameInfo {
 // Determines which import grouping should be used when sorting imports.
 export function getImportGroup(statement: ImportStatement): ImportGroup {
     if (statement.importResult) {
-        if (statement.importResult.importType === ImportType.BuiltIn) {
-            return ImportGroup.BuiltIn;
-        } else if (
-            statement.importResult.importType === ImportType.ThirdParty ||
-            statement.importResult.isLocalTypingsFile
-        ) {
-            return ImportGroup.ThirdParty;
+        if (statement.importResult.importType === ImportType.Stdlib) {
+            return ImportGroup.Stdlib;
+        }
+
+        if (statement.importResult.importType === ImportType.External || statement.importResult.isLocalTypingsFile) {
+            return ImportGroup.External;
         }
 
         if (statement.importResult.isRelative) {
             return ImportGroup.LocalRelative;
         }
-
-        return ImportGroup.Local;
-    } else {
-        return ImportGroup.Local;
     }
+
+    return ImportGroup.Local;
 }
 
 // Compares sort order of two import statements.
@@ -514,7 +511,7 @@ function _getInsertionEditForAutoImportInsertion(
         // Find a good spot to insert the new import statement. Follow
         // the PEP8 standard sorting order whereby built-in imports are
         // followed by third-party, which are followed by local.
-        let prevImportGroup = ImportGroup.BuiltIn;
+        let prevImportGroup = ImportGroup.Stdlib;
         for (const curImport of importStatements.orderedImports) {
             // If the import was resolved, use its import type. If it wasn't
             // resolved, assume that it's the same import type as the previous
@@ -747,12 +744,13 @@ export function getAllImportNames(node: ImportNode | ImportFromNode) {
     return importFromNode.d.imports;
 }
 
-export function getImportGroupFromModuleNameAndType(moduleNameAndType: ModuleNameAndType): ImportGroup {
+export function getImportGroupFromModuleNameAndType(targetImportInfo: AutoImportInfo): ImportGroup {
     let importGroup = ImportGroup.Local;
-    if (moduleNameAndType.isLocalTypingsFile || moduleNameAndType.importType === ImportType.ThirdParty) {
-        importGroup = ImportGroup.ThirdParty;
-    } else if (moduleNameAndType.importType === ImportType.BuiltIn) {
-        importGroup = ImportGroup.BuiltIn;
+
+    if (targetImportInfo.category === 'local-stub' || targetImportInfo.category === 'external') {
+        importGroup = ImportGroup.External;
+    } else if (targetImportInfo.category === 'stdlib') {
+        importGroup = ImportGroup.Stdlib;
     }
 
     return importGroup;

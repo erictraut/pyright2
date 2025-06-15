@@ -1826,7 +1826,7 @@ export class Checker extends ParseTreeWalker {
         if (
             importResult.isNativeLib ||
             !importResult.isStubFile ||
-            importResult.importType === ImportType.BuiltIn ||
+            importResult.importType === ImportType.Stdlib ||
             !importResult.nonStubImportResult ||
             importResult.nonStubImportResult.isImportFound
         ) {

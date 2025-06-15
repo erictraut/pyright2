@@ -14,7 +14,6 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { OpenFileOptions } from 'typeserver/program/program.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
@@ -23,7 +22,6 @@ import { Uri } from 'typeserver/utils/uri/uri.js';
 export interface ITypeServer {
     readonly evaluator: TypeEvaluator | undefined;
     readonly configOptions: ConfigOptions;
-    readonly importResolver: ImportResolver;
     readonly fileSystem: IReadOnlyFileSystem;
     readonly extensionManager: ExtensionManager;
 
@@ -33,11 +31,35 @@ export interface ITypeServer {
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
     getSourceMapper(fileUri: Uri, token: CancellationToken, mapCompiled?: boolean, preferStubs?: boolean): SourceMapper;
 
-    // See whether we can get rid of these methods
-    handleMemoryHighUsage(): void;
+    // Provides information useful for auto inserting an "from <module> import x"
+    // statement that targets a specified source file.
+    getAutoImportInfo(fileUri: Uri, targetImportUri: Uri): AutoImportInfo | undefined;
+
+    // Provides a list of potential completions for a partial module name
+    // within an import statement. The partialModuleName is a string of the
+    // module name (perhaps partially complete) within an import statement. For
+    // example, "..x.y" or "a.b.". It returns a map where the keys are
+    // identifiers that can be used to complete the next part of the module
+    // name and are associated with the URI of the module that this name references.
+    getImportCompletions(fileUri: Uri, partialModuleName: string): Map<string, Uri>;
 
     addInterimFile(uri: Uri): void;
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
+}
+
+export type ImportCategory = 'stdlib' | 'external' | 'local' | 'local-stub';
+
+export interface AutoImportInfo {
+    // The multi-part name used in an "import" statement to import the target module.
+    moduleName: string;
+
+    // The category of the import. This can be used to determine how to sort
+    // the inserted import statement.
+    // stdlib - standard library module
+    // external - third-party module
+    // local - local module (within the project)
+    // local-stub - local stub file found in the typings directory
+    category: ImportCategory;
 }
 
 export interface ITypeServerSourceFile {

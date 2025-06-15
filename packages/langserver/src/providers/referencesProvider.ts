@@ -243,10 +243,6 @@ export class ReferencesProvider {
                 if (!fileContents || referencesResult.symbolNames.some((s) => fileContents.indexOf(s) >= 0)) {
                     this.addReferencesToResult(curSourceFileInfo.uri, includeDeclaration, referencesResult);
                 }
-
-                // This operation can consume significant memory, so check
-                // for situations where we need to discard the type cache.
-                this._typeServer.handleMemoryHighUsage();
             }
         }
 

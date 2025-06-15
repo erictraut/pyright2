@@ -16,7 +16,6 @@ import { TextEditAction } from 'typeserver/common/editAction.js';
 import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { rangesAreEqual } from 'typeserver/common/textRange.js';
-import { ImportType } from 'typeserver/imports/importResult.js';
 import {
     getRelativeModuleName,
     getTextEditsForAutoImportInsertions,
@@ -26,13 +25,14 @@ import {
     ImportNameWithModuleInfo,
 } from 'typeserver/imports/importStatementUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
+import { AutoImportInfo, ImportCategory } from 'typeserver/protocol/typeServerProtocol.js';
 
 test('getTextEditsForAutoImportInsertion - import empty', () => {
     const code = `
 //// import os[|/*marker1*/{|"r":"!n!import sys"|}|]
     `;
 
-    testInsertion(code, 'marker1', [], 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', [], 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - import', () => {
@@ -40,7 +40,7 @@ test('getTextEditsForAutoImportInsertion - import', () => {
 //// import os[|/*marker1*/{|"r":"!n!import sys"|}|]
     `;
 
-    testInsertion(code, 'marker1', {}, 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', {}, 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - import alias', () => {
@@ -48,7 +48,7 @@ test('getTextEditsForAutoImportInsertion - import alias', () => {
 //// import os[|/*marker1*/{|"r":"!n!import sys as s"|}|]
     `;
 
-    testInsertion(code, 'marker1', { alias: 's' }, 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', { alias: 's' }, 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - multiple imports', () => {
@@ -56,7 +56,7 @@ test('getTextEditsForAutoImportInsertion - multiple imports', () => {
 //// import os[|/*marker1*/{|"r":"!n!import sys"|}|]
     `;
 
-    testInsertion(code, 'marker1', [{}, {}], 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', [{}, {}], 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - multiple imports alias', () => {
@@ -64,7 +64,7 @@ test('getTextEditsForAutoImportInsertion - multiple imports alias', () => {
 //// import os[|/*marker1*/{|"r":"!n!import sys as s, sys as y"|}|]
     `;
 
-    testInsertion(code, 'marker1', [{ alias: 's' }, { alias: 'y' }], 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', [{ alias: 's' }, { alias: 'y' }], 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - multiple imports alias duplicated', () => {
@@ -72,7 +72,7 @@ test('getTextEditsForAutoImportInsertion - multiple imports alias duplicated', (
 //// import os[|/*marker1*/{|"r":"!n!import sys as s"|}|]
     `;
 
-    testInsertion(code, 'marker1', [{ alias: 's' }, { alias: 's' }], 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', [{ alias: 's' }, { alias: 's' }], 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - from import', () => {
@@ -80,7 +80,7 @@ test('getTextEditsForAutoImportInsertion - from import', () => {
 //// import os[|/*marker1*/{|"r":"!n!from sys import path"|}|]
     `;
 
-    testInsertion(code, 'marker1', { name: 'path' }, 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', { name: 'path' }, 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - from import alias', () => {
@@ -88,7 +88,7 @@ test('getTextEditsForAutoImportInsertion - from import alias', () => {
 //// import os[|/*marker1*/{|"r":"!n!from sys import path as p"|}|]
     `;
 
-    testInsertion(code, 'marker1', { name: 'path', alias: 'p' }, 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', { name: 'path', alias: 'p' }, 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - multiple from imports', () => {
@@ -96,7 +96,7 @@ test('getTextEditsForAutoImportInsertion - multiple from imports', () => {
 //// import os[|/*marker1*/{|"r":"!n!from sys import meta_path, path"|}|]
     `;
 
-    testInsertion(code, 'marker1', [{ name: 'path' }, { name: 'meta_path' }], 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', [{ name: 'path' }, { name: 'meta_path' }], 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - multiple from imports with alias', () => {
@@ -112,7 +112,7 @@ test('getTextEditsForAutoImportInsertion - multiple from imports with alias', ()
             { name: 'meta_path', alias: 'm' },
         ],
         'sys',
-        ImportType.BuiltIn
+        'stdlib'
     );
 });
 
@@ -130,7 +130,7 @@ test('getTextEditsForAutoImportInsertion - multiple from imports with alias dupl
             { name: 'path', alias: 'p' },
         ],
         'sys',
-        ImportType.BuiltIn
+        'stdlib'
     );
 });
 
@@ -139,7 +139,7 @@ test('getTextEditsForAutoImportInsertion - multiple import statements', () => {
 //// import os[|/*marker1*/{|"r":"!n!import sys as s!n!from sys import path as p"|}|]
     `;
 
-    testInsertion(code, 'marker1', [{ alias: 's' }, { name: 'path', alias: 'p' }], 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', [{ alias: 's' }, { name: 'path', alias: 'p' }], 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - different group', () => {
@@ -147,7 +147,7 @@ test('getTextEditsForAutoImportInsertion - different group', () => {
 //// import os[|/*marker1*/{|"r":"!n!!n!import sys as s!n!from sys import path as p"|}|]
     `;
 
-    testInsertion(code, 'marker1', [{ alias: 's' }, { name: 'path', alias: 'p' }], 'sys', ImportType.Local);
+    testInsertion(code, 'marker1', [{ alias: 's' }, { name: 'path', alias: 'p' }], 'sys', 'local');
 });
 
 test('getTextEditsForAutoImportInsertion - at the top', () => {
@@ -155,7 +155,7 @@ test('getTextEditsForAutoImportInsertion - at the top', () => {
 //// [|/*marker1*/{|"r":"import sys as s!n!from sys import path as p!n!!n!!n!"|}|]import os
     `;
 
-    testInsertion(code, 'marker1', [{ alias: 's' }, { name: 'path', alias: 'p' }], 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', [{ alias: 's' }, { name: 'path', alias: 'p' }], 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertion - at top of second group', () => {
@@ -165,7 +165,7 @@ test('getTextEditsForAutoImportInsertion - at top of second group', () => {
 //// [|/*marker1*/{|"r":"from test.a import testa!n!"|}|]from test.b import testb
     `;
 
-    testInsertion(code, 'marker1', [{ name: 'testa' }], 'test.a', ImportType.Local);
+    testInsertion(code, 'marker1', [{ name: 'testa' }], 'test.a', 'local');
 });
 
 test('getTextEditsForAutoImportInsertion - at the top after module doc string', () => {
@@ -178,7 +178,7 @@ test('getTextEditsForAutoImportInsertion - at the top after module doc string', 
 //// [|/*marker1*/{|"r":"import sys as s!n!from sys import path as p!n!!n!!n!"|}|]import os
     `;
 
-    testInsertion(code, 'marker1', [{ alias: 's' }, { name: 'path', alias: 'p' }], 'sys', ImportType.BuiltIn);
+    testInsertion(code, 'marker1', [{ alias: 's' }, { name: 'path', alias: 'p' }], 'sys', 'stdlib');
 });
 
 test('getTextEditsForAutoImportInsertions - mix of import and from import statements', () => {
@@ -186,7 +186,7 @@ test('getTextEditsForAutoImportInsertions - mix of import and from import statem
 //// [|/*marker1*/{|"r":"import sys as s!n!from sys import path as p!n!!n!!n!"|}|]import os
     `;
 
-    const module = { moduleName: 'sys', importType: ImportType.BuiltIn, isLocalTypingsFile: false };
+    const module: AutoImportInfo = { moduleName: 'sys', category: 'stdlib' };
     testInsertions(code, 'marker1', [
         { module, alias: 's' },
         { module, name: 'path', alias: 'p' },
@@ -198,9 +198,9 @@ test('getTextEditsForAutoImportInsertions - multiple modules with different grou
 //// [|/*marker1*/|][|{|"r":"from sys import path as p!n!!n!!n!"|}|][|{|"r":"import numpy!n!!n!!n!"|}|][|{|"r":"from test import join!n!!n!!n!"|}|]import os
     `;
 
-    const module1 = { moduleName: 'sys', importType: ImportType.BuiltIn, isLocalTypingsFile: false };
-    const module2 = { moduleName: 'numpy', importType: ImportType.ThirdParty, isLocalTypingsFile: false };
-    const module3 = { moduleName: 'test', importType: ImportType.Local, isLocalTypingsFile: false };
+    const module1: AutoImportInfo = { moduleName: 'sys', category: 'stdlib' };
+    const module2: AutoImportInfo = { moduleName: 'numpy', category: 'external' };
+    const module3: AutoImportInfo = { moduleName: 'test', category: 'local' };
 
     testInsertions(code, 'marker1', [
         { module: module1, name: 'path', alias: 'p' },
@@ -214,9 +214,9 @@ test('getTextEditsForAutoImportInsertions - multiple modules with existing impor
 //// import os[|/*marker1*/|][|{|"r":"!n!from sys import path as p"|}|][|{|"r":"!n!!n!import numpy"|}|][|{|"r":"!n!!n!from test import join"|}|]
     `;
 
-    const module1 = { moduleName: 'sys', importType: ImportType.BuiltIn, isLocalTypingsFile: false };
-    const module2 = { moduleName: 'numpy', importType: ImportType.ThirdParty, isLocalTypingsFile: false };
-    const module3 = { moduleName: 'test', importType: ImportType.Local, isLocalTypingsFile: false };
+    const module1: AutoImportInfo = { moduleName: 'sys', category: 'stdlib' };
+    const module2: AutoImportInfo = { moduleName: 'numpy', category: 'external' };
+    const module3: AutoImportInfo = { moduleName: 'test', category: 'local' };
 
     testInsertions(code, 'marker1', [
         { module: module1, name: 'path', alias: 'p' },
@@ -230,9 +230,9 @@ test('getTextEditsForAutoImportInsertions - multiple modules with same group', (
 //// import os[|/*marker1*/|][|{|"r":"!n!!n!import module2!n!from module1 import path as p!n!from module3 import join"|}|]
     `;
 
-    const module1 = { moduleName: 'module1', importType: ImportType.Local, isLocalTypingsFile: false };
-    const module2 = { moduleName: 'module2', importType: ImportType.Local, isLocalTypingsFile: false };
-    const module3 = { moduleName: 'module3', importType: ImportType.Local, isLocalTypingsFile: false };
+    const module1: AutoImportInfo = { moduleName: 'module1', category: 'local' };
+    const module2: AutoImportInfo = { moduleName: 'module2', category: 'local' };
+    const module3: AutoImportInfo = { moduleName: 'module3', category: 'local' };
 
     testInsertions(code, 'marker1', [
         { module: module1, name: 'path', alias: 'p' },
@@ -571,7 +571,7 @@ function testInsertion(
     markerName: string,
     importNameInfo: ImportNameInfo | ImportNameInfo[],
     moduleName: string,
-    importType: ImportType
+    importCategory: ImportCategory
 ) {
     importNameInfo = isArray(importNameInfo) ? importNameInfo : [importNameInfo];
     if (importNameInfo.length === 0) {
@@ -585,8 +585,7 @@ function testInsertion(
             return {
                 module: {
                     moduleName,
-                    importType,
-                    isLocalTypingsFile: false,
+                    category: importCategory,
                 },
                 name: i.name,
                 alias: i.alias,

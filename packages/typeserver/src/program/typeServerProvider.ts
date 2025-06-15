@@ -13,12 +13,13 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { ImportResolver } from 'typeserver/imports/importResolver.js';
+import { ImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
+import { ImportType } from 'typeserver/imports/importResult.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { OpenFileOptions, Program } from 'typeserver/program/program.js';
 import { SourceFileProvider } from 'typeserver/program/sourceFileProvider.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
-import { ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
+import { AutoImportInfo, ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class TypeServerProvider implements ITypeServer {
@@ -74,8 +75,53 @@ export class TypeServerProvider implements ITypeServer {
         return this._program.getSourceMapper(fileUri, token, mapCompiled, preferStubs);
     }
 
-    handleMemoryHighUsage(): void {
-        this._program.handleMemoryHighUsage();
+    getAutoImportInfo(fileUri: Uri, targetImportUri: Uri): AutoImportInfo | undefined {
+        const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
+        if (!sourceFileInfo) {
+            return undefined;
+        }
+
+        const execEnv = this._program.configOptions.findExecEnvironment(fileUri);
+        const moduleImportInfo = this._program.importResolver.getModuleNameForImport(targetImportUri, execEnv);
+        const moduleName = moduleImportInfo.moduleName;
+        const category = moduleImportInfo.isLocalTypingsFile
+            ? 'local-stub'
+            : moduleImportInfo.importType === ImportType.Stdlib
+            ? 'stdlib'
+            : moduleImportInfo.importType === ImportType.External
+            ? 'external'
+            : 'local';
+
+        return { category, moduleName };
+    }
+
+    getImportCompletions(fileUri: Uri, partialModuleName: string): Map<string, Uri> {
+        const execEnv = this._program.configOptions.findExecEnvironment(fileUri);
+        const split = partialModuleName
+            .trim()
+            .split('.')
+            .map((part) => part.trim());
+        let leadingDots = 0;
+
+        while (split.length > 1 && split[0] === '') {
+            leadingDots++;
+            split.shift();
+        }
+
+        let hasTrailingDot = false;
+        if (split.length > 1 && split[split.length - 1] === '') {
+            hasTrailingDot = true;
+            split.pop();
+        }
+
+        const moduleDescriptor: ImportedModuleDescriptor = {
+            nameParts: split,
+            leadingDots,
+            hasTrailingDot,
+            importedSymbols: undefined,
+        };
+
+        return this._program.importResolver.getCompletionSuggestions(fileUri, execEnv, moduleDescriptor);
     }
 
     addInterimFile(uri: Uri): void {

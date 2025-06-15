@@ -144,10 +144,6 @@ export class WorkspaceSymbolProvider {
             if (symbolList.length > 0) {
                 this._reporter(symbolList);
             }
-
-            // This operation can consume significant memory, so check
-            // for situations where we need to discard the type cache.
-            typeServer.handleMemoryHighUsage();
         }
     }
 

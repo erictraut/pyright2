@@ -172,7 +172,7 @@ export class ImportResolver {
         sourceFileUri: Uri,
         execEnv: ExecutionEnvironment,
         moduleDescriptor: ImportedModuleDescriptor
-    ) {
+    ): Map<string, Uri> {
         const suggestions = this._getCompletionSuggestionsStrict(sourceFileUri, execEnv, moduleDescriptor);
 
         // We only do parent import resolution for absolute path.
@@ -316,7 +316,7 @@ export class ImportResolver {
         execEnv: ExecutionEnvironment,
         allowInvalidModuleName = false,
         detectPyTyped = false
-    ) {
+    ): ModuleImportInfo {
         // Cache results of the reverse of resolveImport as we cache resolveImport.
         const cache = getOrAdd(
             this._cachedModuleNameResults,
@@ -1118,7 +1118,7 @@ export class ImportResolver {
         detectPyTyped: boolean
     ): ModuleImportInfo {
         let moduleName: string | undefined;
-        let importType = ImportType.BuiltIn;
+        let importType = ImportType.Stdlib;
         let isLocalTypingsFile = false;
         let isThirdPartyPyTypedPresent = false;
         let isTypeshedFile = false;
@@ -1242,7 +1242,7 @@ export class ImportResolver {
             // We'll always try to use the shortest version.
             if (!moduleName || (candidateModuleName && candidateModuleName.length < moduleName.length)) {
                 moduleName = candidateModuleName;
-                importType = ImportType.ThirdParty;
+                importType = ImportType.External;
                 isTypeshedFile = true;
             }
         }
@@ -1255,7 +1255,7 @@ export class ImportResolver {
             // We'll always try to use the shortest version.
             if (!moduleName || (candidateModuleName && candidateModuleName.length < moduleName.length)) {
                 moduleName = candidateModuleName;
-                importType = ImportType.ThirdParty;
+                importType = ImportType.External;
                 isTypeshedFile = true;
             }
         }
@@ -1275,14 +1275,14 @@ export class ImportResolver {
                     const candidateModuleName = candidateModuleNameInfo.moduleName;
                     if (!moduleName || (candidateModuleName && candidateModuleName.length < moduleName.length)) {
                         moduleName = candidateModuleName;
-                        importType = ImportType.ThirdParty;
+                        importType = ImportType.External;
                         isTypeshedFile = false;
                     }
                 }
             }
         }
 
-        if (detectPyTyped && importType === ImportType.ThirdParty) {
+        if (detectPyTyped && importType === ImportType.External) {
             const root = getParentImportResolutionRoot(fileUri, execEnv.root);
 
             // Go up directories one by one looking for a py.typed file.
@@ -1696,7 +1696,7 @@ export class ImportResolver {
                 );
 
                 if (thirdPartyImport) {
-                    thirdPartyImport.importType = ImportType.ThirdParty;
+                    thirdPartyImport.importType = ImportType.External;
 
                     bestResultSoFar = this._pickBestImport(bestResultSoFar, thirdPartyImport, moduleDescriptor);
                 }
@@ -1791,7 +1791,7 @@ export class ImportResolver {
 
             // Prefer local over third-party. We check local first, so we should never
             // see the reverse.
-            if (bestImportSoFar.importType === ImportType.Local && newImport.importType === ImportType.ThirdParty) {
+            if (bestImportSoFar.importType === ImportType.Local && newImport.importType === ImportType.External) {
                 return bestImportSoFar;
             }
 
@@ -1881,12 +1881,12 @@ export class ImportResolver {
                     );
 
                     if (importInfo.isImportFound) {
-                        let importType = isStdLib ? ImportType.BuiltIn : ImportType.ThirdParty;
+                        let importType = isStdLib ? ImportType.Stdlib : ImportType.External;
 
                         // Handle 'typing_extensions' as a special case because it's
                         // part of stdlib typeshed stubs, but it's not part of stdlib.
                         if (importName === 'typing_extensions') {
-                            importType = ImportType.ThirdParty;
+                            importType = ImportType.External;
                         }
 
                         importInfo.importType = importType;
