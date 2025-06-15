@@ -7,7 +7,12 @@
  */
 
 import assert from 'assert';
+import { CancellationToken } from 'vscode-languageserver';
 
+import { createMapFromItems } from 'commonUtils/collectionUtils.js';
+import { assertNever } from 'commonUtils/debug.js';
+import { Uri } from 'commonUtils/uri/uri.js';
+import { isArray } from 'commonUtils/valueTypeUtils.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
 import { applyTextEditsToString } from 'langserver/server/workspaceEditUtils.js';
 import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
@@ -19,11 +24,6 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { isFile } from 'typeserver/files/uriUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
 import { Program } from 'typeserver/program/program.js';
-import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';
-import { assertNever } from 'typeserver/utils/debug.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
-import { isArray } from 'typeserver/utils/valueTypeUtils.js';
-import { CancellationToken } from 'vscode-languageserver';
 
 export function convertFileEditActionToString(edit: FileEditAction): string {
     return `'${edit.replacementText.replace(/\n/g, '!n!')}'@'${edit.fileUri}:(${edit.range.start.line},${

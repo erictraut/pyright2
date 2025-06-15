@@ -8,10 +8,10 @@
 
 import os from 'os';
 
+import { isRootedDiskPath, normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { escapeRegExp } from 'commonUtils/stringUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { Workspace, WorkspaceFolder } from 'langserver/server/workspaceFactory.js';
-import { isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { escapeRegExp } from 'typeserver/utils/stringUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export function resolvePathWithEnvVariables(
     workspace: Workspace,

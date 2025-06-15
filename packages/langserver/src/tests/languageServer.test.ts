@@ -20,6 +20,8 @@ import {
 import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.js';
 
+import { normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { isArray } from 'commonUtils/valueTypeUtils.js';
 import {
     cleanupAfterAll,
     DEFAULT_WORKSPACE_ROOT,
@@ -31,8 +33,6 @@ import {
     runPyrightServer,
     waitForDiagnostics,
 } from 'langserver/tests/lsp/languageServerTestUtils.js';
-import { normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 describe(`Basic language server tests`, () => {
     let serverInfo: PyrightServerInfo | undefined;

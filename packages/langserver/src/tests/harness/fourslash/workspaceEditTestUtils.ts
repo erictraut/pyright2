@@ -19,8 +19,8 @@ import {
     WorkspaceEdit,
 } from 'vscode-languageserver';
 
+import { assertNever } from 'commonUtils/debug.js';
 import { rangesAreEqual } from 'typeserver/common/textRange.js';
-import { assertNever } from 'typeserver/utils/debug.js';
 
 export function verifyWorkspaceEdit(expected: WorkspaceEdit, actual: WorkspaceEdit, marker?: string) {
     if (actual.changes) {

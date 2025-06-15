@@ -16,6 +16,8 @@ import {
     WorkDoneProgressServerReporter,
 } from 'vscode-languageserver';
 
+import { Uri } from 'commonUtils/uri/uri.js';
+import { isDefined, isString } from 'commonUtils/valueTypeUtils.js';
 import { CommandController } from 'langserver/commands/commandController.js';
 import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
 import { resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
@@ -39,8 +41,6 @@ import {
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
-import { isDefined, isString } from 'typeserver/utils/valueTypeUtils.js';
 import { fileURLToPath } from 'url';
 
 const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };

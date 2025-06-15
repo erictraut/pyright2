@@ -10,6 +10,8 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-languageserver';
 import { TextDocumentEdit, WorkspaceEdit } from 'vscode-languageserver-types';
 
+import { combinePaths, getDirectoryPath } from 'commonUtils/pathUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { LanguageServerBaseInterface } from 'langserver/server/languageServerInterface.js';
 import { CloneOptions, getEffectiveCommandLineOptions } from 'langserver/server/typeServerExecutor.js';
 import { applyWorkspaceEdit, generateWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
@@ -19,8 +21,6 @@ import { parseAndGetTestState, TestState } from 'langserver/tests/harness/foursl
 import { verifyWorkspaceEdit } from 'langserver/tests/harness/fourslash/workspaceEditTestUtils.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { combinePaths, getDirectoryPath } from 'typeserver/utils/pathUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 test('test applyWorkspaceEdits changes', async () => {
     const code = `

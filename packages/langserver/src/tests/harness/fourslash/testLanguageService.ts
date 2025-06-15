@@ -8,6 +8,7 @@
 
 import { CancellationToken, CodeAction, ExecuteCommandParams } from 'vscode-languageserver';
 
+import { Uri } from 'commonUtils/uri/uri.js';
 import { CommandController } from 'langserver/commands/commandController.js';
 import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
 import { LanguageServerInterface, ServerSettings } from 'langserver/server/languageServerInterface.js';
@@ -22,7 +23,6 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 import { fileURLToPath } from 'url';
 
 export class TestFeatures implements HostSpecificFeatures {

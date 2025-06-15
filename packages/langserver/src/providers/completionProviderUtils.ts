@@ -8,6 +8,7 @@
 
 import { InsertTextFormat, MarkupContent, MarkupKind, TextEdit } from 'vscode-languageserver-types';
 
+import { Uri } from 'commonUtils/uri/uri.js';
 import { getToolTipForType } from 'langserver/providers/tooltipUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
@@ -27,7 +28,6 @@ import {
 } from 'typeserver/evaluator/types.js';
 import { isProperty } from 'typeserver/evaluator/typeUtils.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface Edits {
     format?: InsertTextFormat;

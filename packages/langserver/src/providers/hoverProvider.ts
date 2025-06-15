@@ -11,6 +11,9 @@
 
 import { CancellationToken, Hover, MarkupKind } from 'vscode-languageserver';
 
+import { assertNever, fail } from 'commonUtils/debug.js';
+import { extractParameterDocumentation } from 'commonUtils/docStringUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import {
     getClassAndConstructorTypes,
     getConstructorTooltip,
@@ -50,9 +53,6 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
-import { assertNever, fail } from 'typeserver/utils/debug.js';
-import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface HoverTextPart {
     python?: boolean;

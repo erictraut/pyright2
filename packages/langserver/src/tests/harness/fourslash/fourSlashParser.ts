@@ -6,6 +6,15 @@
  * Parse fourslash markup code and return parsed content with marker/range data
  */
 
+import { contains } from 'commonUtils/collectionUtils.js';
+import {
+    combinePaths,
+    getRelativePath,
+    isRootedDiskPath,
+    normalizePath,
+    normalizeSlashes,
+} from 'commonUtils/pathUtils.js';
+import { toBoolean } from 'commonUtils/valueTypeUtils.js';
 import {
     FourSlashData,
     FourSlashFile,
@@ -17,15 +26,6 @@ import {
 } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { distlibFolder, libFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
-import { contains } from 'typeserver/utils/collectionUtils.js';
-import {
-    combinePaths,
-    getRelativePath,
-    isRootedDiskPath,
-    normalizePath,
-    normalizeSlashes,
-} from 'typeserver/utils/pathUtils.js';
-import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 
 /**
  * Parse given fourslash markup code and return content with markup/range data

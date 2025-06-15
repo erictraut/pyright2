@@ -10,13 +10,13 @@ import assert from 'assert';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { combinePaths, getFileName, normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { compareStringsCaseSensitive } from 'commonUtils/stringUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { runFourSlashTestContent } from 'langserver/tests/harness/fourslash/runner.js';
 import { parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
 import * as factory from 'langserver/tests/harness/vfs/factory.js';
-import { combinePaths, getFileName, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 

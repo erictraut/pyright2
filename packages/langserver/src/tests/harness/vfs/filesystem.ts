@@ -11,16 +11,16 @@ import { Dirent, ReadStream, WriteStream } from 'fs';
 
 import { Disposable } from 'vscode-jsonrpc';
 
+import { CaseSensitivityDetector } from 'commonUtils/caseSensitivity.js';
+import * as pathUtil from 'commonUtils/pathUtils.js';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'commonUtils/stringUtils.js';
+import { FileUriSchema } from 'commonUtils/uri/fileUri.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { Metadata, SortedMap, closeIterator, getIterator, nextResult } from 'langserver/tests/harness//utils.js';
 import { bufferFrom, createIOError } from 'langserver/tests/harness/utils.js';
 import { ValidationFlags, validate } from 'langserver/tests/harness/vfs/pathValidation.js';
 import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler, FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
-import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
-import * as pathUtil from 'typeserver/utils/pathUtils.js';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
-import { FileUriSchema } from 'typeserver/utils/uri/fileUri.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export const MODULE_PATH = pathUtil.normalizeSlashes('/');
 

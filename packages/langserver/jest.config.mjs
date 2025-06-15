@@ -21,6 +21,7 @@ export default {
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
     moduleNameMapper: {
         '^typeserver/(.*).js$': '<rootDir>/../typeserver/src/$1.ts',
+        '^commonUtils/(.*).js$': '<rootDir>/../typeserver/src/utils/$1',
         '^langserver/(.*).js$': '<rootDir>/../langserver/src/$1',
     },
 };

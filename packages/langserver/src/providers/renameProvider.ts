@@ -9,6 +9,8 @@
 
 import { CancellationToken, WorkspaceEdit } from 'vscode-languageserver';
 
+import { assertNever } from 'commonUtils/debug.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
 import { convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
 import { FileEditAction } from 'typeserver/common/editAction.js';
@@ -19,8 +21,6 @@ import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensi
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
-import { assertNever } from 'typeserver/utils/debug.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class RenameProvider {
     private readonly _parseResults: ParseFileResults | undefined;

@@ -74,6 +74,10 @@ import {
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
+import { CaseSensitivityDetector } from 'commonUtils/caseSensitivity.js';
+import { getNestedProperty } from 'commonUtils/collectionUtils.js';
+import { assert } from 'commonUtils/debug.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { CommandResult } from 'langserver/commands/commandResult.js';
 import { CallHierarchyProvider } from 'langserver/providers/callHierarchyProvider.js';
 import { CompletionItemData, CompletionProvider } from 'langserver/providers/completionProvider.js';
@@ -129,10 +133,6 @@ import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
-import { getNestedProperty } from 'typeserver/utils/collectionUtils.js';
-import { assert } from 'typeserver/utils/debug.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const DiagnosticsVersionNone = -1;
 

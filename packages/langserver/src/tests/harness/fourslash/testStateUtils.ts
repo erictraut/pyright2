@@ -9,6 +9,10 @@
 import assert from 'assert';
 import * as JSONC from 'jsonc-parser';
 
+import { Comparison } from 'commonUtils/comparisonUtils.js';
+import { combinePaths, getBaseFileName } from 'commonUtils/pathUtils.js';
+import { getStringComparer } from 'commonUtils/stringUtils.js';
+import { toBoolean } from 'commonUtils/valueTypeUtils.js';
 import {
     FourSlashData,
     FourSlashFile,
@@ -18,10 +22,6 @@ import {
 } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import * as vfs from 'langserver/tests/harness/vfs/filesystem.js';
 import { configFileName } from 'typeserver/common/pathConsts.js';
-import { Comparison } from 'typeserver/utils/comparisonUtils.js';
-import { combinePaths, getBaseFileName } from 'typeserver/utils/pathUtils.js';
-import { getStringComparer } from 'typeserver/utils/stringUtils.js';
-import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 
 export function createVfsInfoFromFourSlashData(projectRoot: string, testData: FourSlashData) {
     const metaProjectRoot = testData.globalOptions[GlobalMetadataOptionNames.projectRoot];

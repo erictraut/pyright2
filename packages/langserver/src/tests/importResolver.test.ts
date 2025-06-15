@@ -7,6 +7,8 @@
 import assert from 'assert';
 import { Disposable } from 'vscode-jsonrpc';
 
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { Dirent, ReadStream, WriteStream } from 'fs';
 import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
 import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
@@ -22,8 +24,6 @@ import { createFromRealFileSystem, RealTempFile } from 'typeserver/files/realFil
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 

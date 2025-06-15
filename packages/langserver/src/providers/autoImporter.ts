@@ -12,6 +12,10 @@ import { CompletionItemData, CompletionMap } from 'langserver/providers/completi
 import { IndexAliasData } from 'langserver/providers/symbolIndexer.js';
 import { fromLSPAny } from 'langserver/server/lspUtils.js';
 
+import { appendArray } from 'commonUtils/collectionUtils.js';
+import { stripFileExtension } from 'commonUtils/pathUtils.js';
+import { getCharacterCount, getStringComparer, isPatternInSymbol } from 'commonUtils/stringUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { DeclarationType } from 'typeserver/binder/declaration.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
 import { isPrivateOrProtectedName, isPublicConstantOrTypeAlias } from 'typeserver/binder/symbolNameUtils.js';
@@ -37,10 +41,6 @@ import {
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
-import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { stripFileExtension } from 'typeserver/utils/pathUtils.js';
-import { getCharacterCount, getStringComparer, isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface AutoImportSymbol {
     readonly name: string;

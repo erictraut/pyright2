@@ -10,6 +10,7 @@
 
 import { CancellationToken, DocumentHighlight, DocumentHighlightKind } from 'vscode-languageserver';
 
+import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
 import { findNodeByOffset, isWriteAccess } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
@@ -18,7 +19,6 @@ import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellat
 import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class DocumentHighlightProvider {
     private readonly _parseResults: ParseFileResults | undefined;

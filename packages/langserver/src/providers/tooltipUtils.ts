@@ -8,6 +8,7 @@
  * completion suggestions, etc.
  */
 
+import { isDefined } from 'commonUtils/valueTypeUtils.js';
 import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
 import { getCallForName, getEnclosingClass } from 'typeserver/common/parseTreeUtils.js';
@@ -42,7 +43,6 @@ import {
     getPropertyDocStringInherited,
     getVariableDocString,
 } from 'typeserver/service/typeDocStringUtils.js';
-import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 
 // The number of spaces to indent each parameter, after moving to a newline in tooltips.
 const functionParamIndentOffset = 4;

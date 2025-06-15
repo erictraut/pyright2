@@ -26,6 +26,12 @@ import {
     WorkspaceEdit,
 } from 'vscode-languageserver';
 
+import { Comparison } from 'commonUtils/comparisonUtils.js';
+import { assertNever } from 'commonUtils/debug.js';
+import { getFileExtension, normalizePath, normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'commonUtils/stringUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
+import { isNumber, isString } from 'commonUtils/valueTypeUtils.js';
 import { CommandResult } from 'langserver/commands/commandResult.js';
 import { CallHierarchyProvider } from 'langserver/providers/callHierarchyProvider.js';
 import { CompletionOptions, CompletionProvider } from 'langserver/providers/completionProvider.js';
@@ -102,12 +108,6 @@ import { Program } from 'typeserver/program/program.js';
 import { PackageTypeReport } from 'typeserver/service/packageTypeReport.js';
 import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { Comparison } from 'typeserver/utils/comparisonUtils.js';
-import { assertNever } from 'typeserver/utils/debug.js';
-import { getFileExtension, normalizePath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
-import { isNumber, isString } from 'typeserver/utils/valueTypeUtils.js';
 
 export interface TextChange {
     span: TextRange;

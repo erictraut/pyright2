@@ -10,6 +10,8 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
+import { appendArray } from 'commonUtils/collectionUtils.js';
+import { assert } from 'commonUtils/debug.js';
 import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
 import {
     areDeclarationsSame,
@@ -38,8 +40,6 @@ import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { collectImportedByCells } from 'typeserver/program/sourceFileInfoUtils.js';
 import { isStubFile } from 'typeserver/program/sourceMapper.js';
-import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { assert } from 'typeserver/utils/debug.js';
 
 export type CollectionResult = {
     node: NameNode | StringNode;

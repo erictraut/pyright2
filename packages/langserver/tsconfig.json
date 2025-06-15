@@ -6,6 +6,9 @@
             "typeserver/*": [
                 "../typeserver/src/*"
             ],
+            "commonUtils/*": [
+                "../typeserver/src/utils/*"
+            ],
             "langserver/*": [
                 "./src/*"
             ],

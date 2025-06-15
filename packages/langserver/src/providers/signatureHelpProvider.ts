@@ -20,6 +20,8 @@ import {
     SignatureInformation,
 } from 'vscode-languageserver';
 
+import { extractParameterDocumentation } from 'commonUtils/docStringUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import {
     getDocumentationPartsForTypeAndDecl,
     getFunctionDocStringFromType,
@@ -37,8 +39,6 @@ import { CallNode, NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
-import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class SignatureHelpProvider {
     private readonly _parseResults: ParseFileResults | undefined;

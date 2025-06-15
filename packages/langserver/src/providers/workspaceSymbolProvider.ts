@@ -8,6 +8,9 @@
 
 import { CancellationToken, Location, ResultProgressReporter, SymbolInformation } from 'vscode-languageserver';
 
+import { appendArray } from 'commonUtils/collectionUtils.js';
+import { isPatternInSymbol } from 'commonUtils/stringUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndexer.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
@@ -15,9 +18,6 @@ import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellat
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
-import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
 

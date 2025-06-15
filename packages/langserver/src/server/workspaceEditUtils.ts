@@ -18,6 +18,10 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
+import { createMapFromItems } from 'commonUtils/collectionUtils.js';
+import { assertNever } from 'commonUtils/debug.js';
+import { Uri } from 'commonUtils/uri/uri.js';
+import { isArray } from 'commonUtils/valueTypeUtils.js';
 import { FileEditAction, FileEditActions, TextEditAction } from 'typeserver/common/editAction.js';
 import { convertRangeToTextRange, convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
@@ -26,10 +30,6 @@ import { IEditableProgram, ISourceFileInfo } from 'typeserver/extensibility/exte
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';
-import { assertNever } from 'typeserver/utils/debug.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
-import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 export function convertToTextEdits(editActions: TextEditAction[]): TextEdit[] {
     return editActions.map((editAction) => ({

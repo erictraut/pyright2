@@ -10,6 +10,8 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-jsonrpc';
 import { MarkupKind } from 'vscode-languageserver-types';
 
+import { normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { CompletionProvider } from 'langserver/providers/completionProvider.js';
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import * as host from 'langserver/tests/harness/testHost.js';
@@ -23,8 +25,6 @@ import { UriEx } from 'typeserver/files/uriUtils.js';
 import { Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 test('check chained files', () => {
     const code = `

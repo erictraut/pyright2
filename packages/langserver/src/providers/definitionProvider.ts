@@ -12,6 +12,9 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
+import { appendArray } from 'commonUtils/collectionUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
+import { isDefined } from 'commonUtils/valueTypeUtils.js';
 import {
     Declaration,
     DeclarationType,
@@ -33,9 +36,6 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.js';
-import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
-import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 
 export enum DefinitionFilter {
     All = 'all',

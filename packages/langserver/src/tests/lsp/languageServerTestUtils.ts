@@ -11,6 +11,11 @@ import fs from 'fs-extra';
 import { isMainThread, threadId, Worker } from 'node:worker_threads';
 import path from 'path';
 
+import { createDeferred, Deferred } from 'commonUtils/deferred.js';
+import { combinePaths } from 'commonUtils/pathUtils.js';
+import { FileUri } from 'commonUtils/uri/fileUri.js';
+import { Uri } from 'commonUtils/uri/uri.js';
+import { toBoolean } from 'commonUtils/valueTypeUtils.js';
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import { FourSlashData, GlobalMetadataOptionNames } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { createVfsInfoFromFourSlashData, getMarkerByName } from 'langserver/tests/harness/fourslash/testStateUtils.js';
@@ -27,11 +32,6 @@ import { LimitedAccessPythonEnvProvider, PythonPathResult } from 'typeserver/ext
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ParseOptions, Parser } from 'typeserver/parser/parser.js';
-import { createDeferred, Deferred } from 'typeserver/utils/deferred.js';
-import { combinePaths } from 'typeserver/utils/pathUtils.js';
-import { FileUri } from 'typeserver/utils/uri/fileUri.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
-import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 import {
     ApplyWorkspaceEditParams,
     ApplyWorkspaceEditRequest,

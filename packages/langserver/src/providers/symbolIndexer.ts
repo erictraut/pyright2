@@ -8,6 +8,7 @@
 
 import { CancellationToken, CompletionItemKind, SymbolKind } from 'vscode-languageserver';
 
+import { Uri } from 'commonUtils/uri/uri.js';
 import { convertSymbolKindToCompletionItemKind } from 'langserver/providers/autoImporter.js';
 import { getSymbolKind } from 'langserver/server/lspUtils.js';
 import { AliasDeclaration, Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
@@ -19,7 +20,6 @@ import { AnalyzerFileInfo } from 'typeserver/evaluator/analyzerFileInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface IndexOptions {
     includeAliases?: boolean;

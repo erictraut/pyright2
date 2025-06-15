@@ -8,10 +8,10 @@
 
 import { Location } from 'vscode-languageserver-types';
 
+import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentRange } from 'typeserver/common/docRange.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export function canNavigateToFile(fs: ReadOnlyFileSystem, path: Uri): boolean {
     return !fs.isInZip(path);

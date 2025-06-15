@@ -4,8 +4,8 @@
  * Licensed under the MIT license.
  */
 
-import { binarySearch, insertAt } from 'typeserver/utils/collectionUtils.js';
-import { identity } from 'typeserver/utils/valueTypeUtils.js';
+import { binarySearch, insertAt } from 'commonUtils/collectionUtils.js';
+import { identity } from 'commonUtils/valueTypeUtils.js';
 
 export interface SortOptions<T> {
     comparer: (a: T, b: T) => number;

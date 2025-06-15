@@ -9,6 +9,8 @@
 
 import assert from 'assert';
 
+import { combinePaths, normalizePath, normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
 import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { TaskListPriority } from 'typeserver/common/diagnostic.js';
@@ -20,8 +22,6 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 describe(`config test'}`, () => {
     const tempFile = new RealTempFile();

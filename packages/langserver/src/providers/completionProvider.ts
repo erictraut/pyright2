@@ -19,6 +19,10 @@ import {
     TextEdit,
 } from 'vscode-languageserver';
 
+import { appendArray } from 'commonUtils/collectionUtils.js';
+import { assert, fail } from 'commonUtils/debug.js';
+import { isPatternInSymbol } from 'commonUtils/stringUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { AutoImporter, AutoImportResult, buildModuleSymbolsMap } from 'langserver/providers/autoImporter.js';
 import {
     CompletionDetail,
@@ -145,10 +149,6 @@ import {
 } from 'typeserver/parser/tokenizerTypes.js';
 import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtils.js';
-import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { assert, fail } from 'typeserver/utils/debug.js';
-import { isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 namespace Keywords {
     const base: string[] = [

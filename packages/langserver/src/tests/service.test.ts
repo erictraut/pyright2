@@ -6,14 +6,14 @@
 
 import assert from 'assert';
 
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { typeshedFolder } from 'langserver/tests//harness/vfs/factory.js';
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 import { CancellationToken } from 'vscode-jsonrpc';
 
 test('random library file changed', () => {

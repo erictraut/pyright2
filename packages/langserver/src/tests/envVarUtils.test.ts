@@ -10,6 +10,7 @@ import { jest } from '@jest/globals';
 import assert from 'assert';
 import os from 'os';
 
+import { Uri } from 'commonUtils/uri/uri.js';
 import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
@@ -20,7 +21,6 @@ import { NullConsole } from 'typeserver/extensibility//console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const defaultWorkspace = createWorkspace(undefined);
 const normalWorkspace = createWorkspace(UriEx.file('/'));

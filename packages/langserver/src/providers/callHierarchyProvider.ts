@@ -16,6 +16,8 @@ import {
     Range,
 } from 'vscode-languageserver-types';
 
+import { appendArray } from 'commonUtils/collectionUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
 import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
 import { getSymbolKind } from 'langserver/server/lspUtils.js';
@@ -45,8 +47,6 @@ import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from '
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
-import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class CallHierarchyProvider {
     private readonly _parseResults: ParseFileResults | undefined;

@@ -8,14 +8,14 @@ import os from 'os';
 import * as pathModule from 'path';
 import { fileURLToPath } from 'url';
 
+import { CaseSensitivityDetector } from 'commonUtils/caseSensitivity.js';
+import { combinePaths, FileSystemEntries, resolvePaths } from 'commonUtils/pathUtils.js';
+import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'commonUtils/stringUtils.js';
+import { FileUriSchema } from 'commonUtils/uri/fileUri.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { directoryExists, fileExists, getFileSize, UriEx } from 'typeserver/files/uriUtils.js';
-import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
-import { combinePaths, FileSystemEntries, resolvePaths } from 'typeserver/utils/pathUtils.js';
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
-import { FileUriSchema } from 'typeserver/utils/uri/fileUri.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class TestCaseSensitivityDetector implements CaseSensitivityDetector {
     constructor(private _isCaseSensitive = true) {

@@ -6,13 +6,13 @@
 
 import assert from 'assert';
 
+import { combinePaths, getDirectoryPath, normalizeSlashes } from 'commonUtils/pathUtils.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { lib, sitePackages } from 'typeserver/common/pathConsts.js';
 import { PartialStubMapper } from 'typeserver/files/partialStubMapper.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
-import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 const libraryRootUri = UriEx.file(libraryRoot);

@@ -6,6 +6,7 @@
  * Interface for language server
  */
 
+import { Uri } from 'commonUtils/uri/uri.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { TaskListToken } from 'typeserver/common/diagnostic.js';
 import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.js';
@@ -15,7 +16,6 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';
 import { MaxAnalysisTime } from 'typeserver/program/program.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ServerSettings {
     venvPath?: Uri | undefined;

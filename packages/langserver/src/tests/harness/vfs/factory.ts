@@ -6,6 +6,7 @@
  * Provides a factory to create virtual file system backed by a real file system with some path remapped
  */
 
+import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from 'commonUtils/pathUtils.js';
 import { GlobalMetadataOptionNames } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { TestHost } from 'langserver/tests/harness/testHost.js';
 import { bufferFrom } from 'langserver/tests/harness/utils.js';
@@ -21,7 +22,6 @@ import {
 } from 'langserver/tests/harness/vfs/filesystem.js';
 import * as pathConsts from 'typeserver/common/pathConsts.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
-import { combinePaths, getDirectoryPath, normalizeSlashes, resolvePaths } from 'typeserver/utils/pathUtils.js';
 
 export class TextDocument {
     readonly meta: Map<string, string>;

@@ -10,6 +10,9 @@
 
 import { CancellationToken, Location, ResultProgressReporter } from 'vscode-languageserver';
 
+import { appendArray } from 'commonUtils/collectionUtils.js';
+import { assertNever } from 'commonUtils/debug.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { CollectionResult, DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
 import { convertDocumentRangesToLocation } from 'langserver/server/navigationUtils.js';
 import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
@@ -28,9 +31,6 @@ import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
-import { appendArray } from 'typeserver/utils/collectionUtils.js';
-import { assertNever } from 'typeserver/utils/debug.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export type ReferenceCallback = (locations: DocumentRange[]) => void;
 

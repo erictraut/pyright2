@@ -7,8 +7,8 @@
  * Represents a single edit within a file.
  */
 
+import { Uri } from 'commonUtils/uri/uri.js';
 import { Range } from 'typeserver/common/textRange.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface TextEditAction {
     range: Range;

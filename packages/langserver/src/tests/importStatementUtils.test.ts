@@ -8,6 +8,7 @@
 
 import assert from 'assert';
 
+import { isArray } from 'commonUtils/valueTypeUtils.js';
 import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { isFunctionDeclaration } from 'typeserver/binder/declaration.js';
@@ -25,7 +26,6 @@ import {
     ImportNameWithModuleInfo,
 } from 'typeserver/imports/importStatementUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
-import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 test('getTextEditsForAutoImportInsertion - import empty', () => {
     const code = `

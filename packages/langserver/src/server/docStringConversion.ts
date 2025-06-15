@@ -6,7 +6,7 @@
  * Python doc string to markdown/plain text format conversion.
  */
 
-import { cleanAndSplitDocString } from 'typeserver/utils/docStringUtils.js';
+import { cleanAndSplitDocString } from 'commonUtils/docStringUtils.js';
 
 // Converts a docstring to markdown format.
 //
