@@ -14,7 +14,7 @@
         "lint": "eslint 'src/**/*.{js,ts}'",
         "clean": "shx rm -rf ./dist ./out",
         "esbuild:testserver": "esbuild src/tests/lsp/main.ts --bundle --platform=node --format=cjs --outfile=out/testserver.cjs --external:node:* --external:jsonc-parser",
-        "test": "npm run esbuild:testserver && node --experimental-vm-modules $(which jest) --forceExit"
+        "test": "npm run esbuild:testserver && node --experimental-vm-modules --no-warnings $(which jest)"
     },
     "dependencies": {
         "@yarnpkg/fslib": "2.10.4",

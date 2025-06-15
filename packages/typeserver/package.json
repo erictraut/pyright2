@@ -13,7 +13,7 @@
         "build": "tsc",
         "lint": "eslint 'src/**/*.{js,ts}'",
         "clean": "shx rm -rf ./dist ./out",
-        "test": "node --experimental-vm-modules $(which jest) --forceExit"
+        "test": "node --experimental-vm-modules --no-warnings $(which jest)"
     },
     "dependencies": {
         "@yarnpkg/fslib": "2.10.4",

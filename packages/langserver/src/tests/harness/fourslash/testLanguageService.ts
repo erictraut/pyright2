@@ -71,9 +71,7 @@ export class TestLanguageService implements LanguageServerInterface {
                 this.extensionManager,
                 options ?? {
                     typeshedFallbackLoc,
-                    console: this.console,
                     configOptions: new ConfigOptions(Uri.empty()),
-                    fileSystem: this.fs,
                 }
             ),
             disableLanguageServices: false,

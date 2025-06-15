@@ -593,7 +593,6 @@ describe(`config test'}`, () => {
 
         return new TypeService('<default>', em, {
             typeshedFallbackLoc: typeshedFolder,
-            console: cons,
         });
     }
 });
