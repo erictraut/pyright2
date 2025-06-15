@@ -28,8 +28,8 @@ import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParse
 import * as PyrightTestHost from 'langserver/tests/harness/testHost.js';
 import { clearCache, typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 
-import { LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
-import { PyrightServer } from 'langserver/server/server.js';
+import { LanguageServer } from 'langserver/server/languageServer.js';
+import { LanguageServerOptions, LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
 import { InitStatus, Workspace } from 'langserver/server/workspaceFactory.js';
 import { GlobalMetadataOptionNames } from 'langserver/tests//harness/fourslash/fourSlashTypes.js';
 import { CustomLSP } from 'langserver/tests/lsp/customLsp.js';
@@ -45,7 +45,9 @@ import {
 } from 'langserver/tests/lsp/languageServerTestUtils.js';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { NullConsole } from 'typeserver/extensibility/console.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
+import { RealTempFile, WorkspaceFileWatcherProvider } from 'typeserver/files/realFileSystem.js';
 import { initializeDependencies } from 'typeserver/service/asyncInitialization.js';
 
 const WORKER_STARTED = 'WORKER_STARTED';
@@ -113,7 +115,7 @@ class TestPyrightHost implements PyrightTestHost.TestHost {
     }
 }
 
-function createTestHost(testServerData: CustomLSP.TestServerStartOptions) {
+function createTestPythonEnv(testServerData: CustomLSP.TestServerStartOptions) {
     const options = new TestHostOptions({ version: PythonVersion.fromString(testServerData.pythonVersion) });
     const projectRootPaths = testServerData.projectRoots.map((p) => getFileLikePath(p));
     const testData = parseTestData(
@@ -140,9 +142,22 @@ function createTestHost(testServerData: CustomLSP.TestServerStartOptions) {
     return new TestPythonEnvProvider(fs, fs, testData, projectRootPaths, options);
 }
 
-class TestServer extends PyrightServer {
-    constructor(connection: Connection, fs: FileSystem, typeshedFallbackLoc: Uri | undefined) {
-        super(connection, fs, typeshedFallbackLoc);
+class TestServer extends LanguageServer {
+    constructor(connection: Connection, pythonEnv: TestPythonEnvProvider, typeshedFallbackLoc: Uri) {
+        const tempFile = new RealTempFile();
+        const fileWatcherHandler = new WorkspaceFileWatcherProvider();
+        const em = new ExtensionManager(pythonEnv.fs, new NullConsole(), tempFile, pythonEnv);
+        em.tempFile = tempFile;
+
+        const lsOptions: LanguageServerOptions = {
+            productName: 'TestPyright',
+            typeshedFallbackLoc,
+            version: 'Test Version',
+            fileWatcherHandler,
+            extensionManager: em,
+        };
+
+        super(lsOptions, connection);
     }
 
     test_onDidChangeWatchedFiles(params: any) {
@@ -187,9 +202,9 @@ async function runServer(
     try {
         // Create a host so we can control the file system for the PyrightServer.
         const disposables: Disposable[] = [];
-        const host = createTestHost(testServerData);
+        const pythonEnvProvider = createTestPythonEnv(testServerData);
 
-        const server = new TestServer(connection, host.fs, typeshedFolder);
+        const server = new TestServer(connection, pythonEnvProvider, typeshedFolder);
 
         // Listen for the test messages from the client. These messages
         // are how the test code queries the state of the server.

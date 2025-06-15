@@ -65,6 +65,7 @@ import {
     TextDocumentPositionParams,
     TextDocumentSyncKind,
     WorkDoneProgressReporter,
+    WorkDoneProgressServerReporter,
     WorkspaceDiagnosticParams,
     WorkspaceDocumentDiagnosticReport,
     WorkspaceEdit,
@@ -78,8 +79,10 @@ import { CaseSensitivityDetector } from 'commonUtils/caseSensitivity.js';
 import { getNestedProperty } from 'commonUtils/collectionUtils.js';
 import { assert } from 'commonUtils/debug.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { CommandController } from 'langserver/commands/commandController.js';
 import { CommandResult } from 'langserver/commands/commandResult.js';
 import { CallHierarchyProvider } from 'langserver/providers/callHierarchyProvider.js';
+import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
 import { CompletionItemData, CompletionProvider } from 'langserver/providers/completionProvider.js';
 import {
     DefinitionFilter,
@@ -95,11 +98,12 @@ import { RenameProvider } from 'langserver/providers/renameProvider.js';
 import { SignatureHelpProvider } from 'langserver/providers/signatureHelpProvider.js';
 import { WorkspaceSymbolProvider } from 'langserver/providers/workspaceSymbolProvider.js';
 import { DynamicFeature, DynamicFeatures } from 'langserver/server/dynamicFeature.js';
+import { resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
 import { FileWatcherDynamicFeature } from 'langserver/server/fileWatcherDynamicFeature.js';
 import {
     LanguageServerInterface,
+    LanguageServerOptions,
     LanguageServerSettings,
-    ServerOptions,
     WorkspaceServices,
 } from 'langserver/server/languageServerInterface.js';
 import { ClientCapabilities, InitializationOptions } from 'langserver/server/lspTypes.js';
@@ -119,11 +123,15 @@ import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
 import { DocumentRange } from 'typeserver/common/docRange.js';
 import { Position, Range } from 'typeserver/common/textRange.js';
 import { DiagnosticSeverityOverrides, getDiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.js';
-import { ConfigOptions, getDiagLevelDiagnosticRules, parseDiagLevel } from 'typeserver/config/configOptions.js';
+import {
+    ConfigOptions,
+    SignatureDisplayType,
+    getDiagLevelDiagnosticRules,
+    parseDiagLevel,
+} from 'typeserver/config/configOptions.js';
 import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
-import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/extensibility/console.js';
+import { ConsoleInterface, ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
@@ -132,11 +140,13 @@ import { Localizer, setLocaleOverride } from 'typeserver/localization/localize.j
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
+import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { isDefined, isString } from 'typeserver/utils/valueTypeUtils.js';
 
 const DiagnosticsVersionNone = -1;
 
-export abstract class LanguageServerBase implements LanguageServerInterface, Disposable {
+export class LanguageServer implements LanguageServerInterface, Disposable {
     // We support running only one "find all reference" at a time.
     private _pendingFindAllRefsCancellationSource: AbstractCancellationTokenSource | undefined;
 
@@ -150,6 +160,8 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
     private _initialized = false;
     private _workspaceFoldersChangedDisposable: Disposable | undefined;
+
+    private _controller: CommandController;
 
     protected client: ClientCapabilities = {
         hasConfigurationCapability: false,
@@ -189,7 +201,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
     protected readonly dynamicFeatures = new DynamicFeatures();
 
-    constructor(protected serverOptions: ServerOptions, protected connection: Connection) {
+    constructor(protected serverOptions: LanguageServerOptions, protected connection: Connection) {
         this.console.info(
             `${serverOptions.productName} language server ${
                 serverOptions.version && serverOptions.version + ' '
@@ -223,6 +235,8 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
         // Listen on the connection.
         this.connection.listen();
+
+        this._controller = new CommandController(this);
     }
 
     get console(): ConsoleInterface {
@@ -249,7 +263,134 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         this._workspaceFoldersChangedDisposable?.dispose();
     }
 
-    abstract getSettings(workspace: Workspace): Promise<LanguageServerSettings>;
+    async getSettings(workspace: Workspace): Promise<LanguageServerSettings> {
+        const serverSettings: LanguageServerSettings = {
+            watchForSourceChanges: true,
+            watchForLibraryChanges: true,
+            watchForConfigChanges: true,
+            openFilesOnly: true,
+            useLibraryCodeForTypes: true,
+            disableLanguageServices: false,
+            disableTaggedHints: false,
+            typeCheckingMode: 'standard',
+            diagnosticSeverityOverrides: {},
+            logLevel: LogLevel.Info,
+            autoImportCompletions: true,
+            functionSignatureDisplay: SignatureDisplayType.formatted,
+        };
+
+        try {
+            const workspaces = this.workspaceFactory.getNonDefaultWorkspaces(WellKnownWorkspaceKinds.Regular);
+
+            const pythonSection = await this.getConfiguration(workspace.rootUri, 'python');
+            if (pythonSection) {
+                const pythonPath = pythonSection.pythonPath;
+                if (pythonPath && isString(pythonPath) && !isPythonBinary(pythonPath)) {
+                    serverSettings.pythonPath = resolvePathWithEnvVariables(workspace, pythonPath, workspaces);
+                }
+
+                const venvPath = pythonSection.venvPath;
+                if (venvPath && isString(venvPath)) {
+                    serverSettings.venvPath = resolvePathWithEnvVariables(workspace, venvPath, workspaces);
+                }
+            }
+
+            const pythonAnalysisSection = await this.getConfiguration(workspace.rootUri, 'python.analysis');
+            if (pythonAnalysisSection) {
+                const typeshedPaths = pythonAnalysisSection.typeshedPaths;
+                if (typeshedPaths && Array.isArray(typeshedPaths) && typeshedPaths.length > 0) {
+                    const typeshedPath = typeshedPaths[0];
+                    if (typeshedPath && isString(typeshedPath)) {
+                        serverSettings.typeshedPath = resolvePathWithEnvVariables(workspace, typeshedPath, workspaces);
+                    }
+                }
+
+                const stubPath = pythonAnalysisSection.stubPath;
+                if (stubPath && isString(stubPath)) {
+                    serverSettings.stubPath = resolvePathWithEnvVariables(workspace, stubPath, workspaces);
+                }
+
+                const diagnosticSeverityOverrides = pythonAnalysisSection.diagnosticSeverityOverrides;
+                if (diagnosticSeverityOverrides) {
+                    for (const [name, value] of Object.entries(diagnosticSeverityOverrides)) {
+                        const ruleName = this.getDiagnosticRuleName(name);
+                        const severity = this.getSeverityOverrides(value as string | boolean);
+                        if (ruleName && severity) {
+                            serverSettings.diagnosticSeverityOverrides![ruleName] = severity!;
+                        }
+                    }
+                }
+
+                if (pythonAnalysisSection.diagnosticMode !== undefined) {
+                    serverSettings.openFilesOnly = this.isOpenFilesOnly(pythonAnalysisSection.diagnosticMode);
+                } else if (pythonAnalysisSection.openFilesOnly !== undefined) {
+                    serverSettings.openFilesOnly = !!pythonAnalysisSection.openFilesOnly;
+                }
+
+                if (pythonAnalysisSection.useLibraryCodeForTypes !== undefined) {
+                    serverSettings.useLibraryCodeForTypes = !!pythonAnalysisSection.useLibraryCodeForTypes;
+                }
+
+                serverSettings.logLevel = convertLogLevel(pythonAnalysisSection.logLevel);
+                serverSettings.autoSearchPaths = !!pythonAnalysisSection.autoSearchPaths;
+
+                const extraPaths = pythonAnalysisSection.extraPaths;
+                if (extraPaths && Array.isArray(extraPaths) && extraPaths.length > 0) {
+                    serverSettings.extraPaths = extraPaths
+                        .filter((p) => p && isString(p))
+                        .map((p) => resolvePathWithEnvVariables(workspace, p, workspaces))
+                        .filter(isDefined);
+                }
+
+                serverSettings.includeFileSpecs = this._getStringValues(pythonAnalysisSection.include);
+                serverSettings.excludeFileSpecs = this._getStringValues(pythonAnalysisSection.exclude);
+                serverSettings.ignoreFileSpecs = this._getStringValues(pythonAnalysisSection.ignore);
+
+                if (pythonAnalysisSection.typeCheckingMode !== undefined) {
+                    serverSettings.typeCheckingMode = pythonAnalysisSection.typeCheckingMode;
+                }
+
+                if (pythonAnalysisSection.autoImportCompletions !== undefined) {
+                    serverSettings.autoImportCompletions = pythonAnalysisSection.autoImportCompletions;
+                }
+
+                if (
+                    serverSettings.logLevel === LogLevel.Log &&
+                    pythonAnalysisSection.logTypeEvaluationTime !== undefined
+                ) {
+                    serverSettings.logTypeEvaluationTime = pythonAnalysisSection.logTypeEvaluationTime;
+                }
+
+                if (pythonAnalysisSection.typeEvaluationTimeThreshold !== undefined) {
+                    serverSettings.typeEvaluationTimeThreshold = pythonAnalysisSection.typeEvaluationTimeThreshold;
+                }
+            } else {
+                serverSettings.autoSearchPaths = true;
+            }
+
+            const pyrightSection = await this.getConfiguration(workspace.rootUri, 'pyright');
+            if (pyrightSection) {
+                if (pyrightSection.openFilesOnly !== undefined) {
+                    serverSettings.openFilesOnly = !!pyrightSection.openFilesOnly;
+                }
+
+                if (pyrightSection.useLibraryCodeForTypes !== undefined) {
+                    serverSettings.useLibraryCodeForTypes = !!pyrightSection.useLibraryCodeForTypes;
+                }
+
+                serverSettings.disableLanguageServices = !!pyrightSection.disableLanguageServices;
+                serverSettings.disableTaggedHints = !!pyrightSection.disableTaggedHints;
+
+                const typeCheckingMode = pyrightSection.typeCheckingMode;
+                if (typeCheckingMode && isString(typeCheckingMode)) {
+                    serverSettings.typeCheckingMode = typeCheckingMode;
+                }
+            }
+        } catch (error) {
+            this.console.error(`Error reading settings: ${error}`);
+        }
+        return serverSettings;
+    }
 
     // Creates a service instance that's used for analyzing a
     // program within a workspace.
@@ -357,15 +498,28 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         workspace.searchPathsToWatch = workspace.service.librarySearchUrisToWatch ?? [];
     }
 
-    protected abstract executeCommand(params: ExecuteCommandParams, token: CancellationToken): Promise<any>;
+    protected executeCommand(params: ExecuteCommandParams, token: CancellationToken): Promise<any> {
+        return this._controller.execute(params, token);
+    }
 
-    protected abstract isLongRunningCommand(command: string): boolean;
-    protected abstract isRefactoringCommand(command: string): boolean;
+    protected isLongRunningCommand(command: string): boolean {
+        return this._controller.isLongRunningCommand(command);
+    }
 
-    protected abstract executeCodeAction(
+    protected isRefactoringCommand(command: string): boolean {
+        return this._controller.isRefactoringCommand(command);
+    }
+
+    protected async executeCodeAction(
         params: CodeActionParams,
         token: CancellationToken
-    ): Promise<(Command | CodeAction)[] | undefined | null>;
+    ): Promise<(Command | CodeAction)[] | undefined | null> {
+        this.recordUserInteractionTime();
+
+        const uri = Uri.parse(params.textDocument.uri, this.serverOptions.extensionManager.caseSensitivity);
+        const workspace = await this.getWorkspaceForFile(uri);
+        return CodeActionProvider.getCodeActionsForPosition(workspace, uri, params.range, params.context.only, token);
+    }
 
     protected async getConfiguration(scopeUri: Uri | undefined, section: string) {
         if (this.client.hasConfigurationCapability) {
@@ -411,11 +565,15 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         return undefined;
     }
 
-    protected abstract createImportResolver(
-        extensionManager: ExtensionManager,
-        options: ConfigOptions,
-        host: PythonEnvProvider
-    ): ImportResolver;
+    protected createImportResolver(extensionManager: ExtensionManager, options: ConfigOptions): ImportResolver {
+        const importResolver = new ImportResolver(extensionManager, options);
+
+        // In case there was cached information in the file system related to
+        // import resolution, invalidate it now.
+        importResolver.invalidateCache();
+
+        return importResolver;
+    }
 
     protected setupConnection(supportedCommands: string[], supportedCodeActions: string[]): void {
         // After the server has started the client sends an initialize request. The server receives
@@ -1355,7 +1513,59 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         return undefined;
     }
 
-    protected abstract createProgressReporter(): ProgressReporter;
+    protected createProgressReporter(): ProgressReporter {
+        // The old progress notifications are kept for backwards compatibility with
+        // clients that do not support work done progress.
+        let displayingProgress = false;
+        let workDoneProgress: Promise<WorkDoneProgressServerReporter> | undefined;
+        return {
+            isDisplayingProgress: () => displayingProgress,
+            isEnabled: (data: AnalysisResults) => true,
+            begin: () => {
+                displayingProgress = true;
+                if (this.client.hasWindowProgressCapability) {
+                    workDoneProgress = this.connection.window.createWorkDoneProgress();
+                    workDoneProgress
+                        .then((progress) => {
+                            progress.begin('');
+                        })
+                        .catch(() => {
+                            /* ignore errors */
+                        });
+                } else {
+                    this.connection.sendNotification('pyright/beginProgress');
+                }
+            },
+            report: (message: string) => {
+                if (workDoneProgress) {
+                    workDoneProgress
+                        .then((progress) => {
+                            progress.report(message);
+                        })
+                        .catch(() => {
+                            /* ignore errors */
+                        });
+                } else {
+                    this.connection.sendNotification('pyright/reportProgress', message);
+                }
+            },
+            end: () => {
+                displayingProgress = false;
+                if (workDoneProgress) {
+                    workDoneProgress
+                        .then((progress) => {
+                            progress.done();
+                        })
+                        .catch(() => {
+                            /* ignore errors */
+                        });
+                    workDoneProgress = undefined;
+                } else {
+                    this.connection.sendNotification('pyright/endProgress');
+                }
+            },
+        };
+    }
 
     protected canNavigateToFile(path: Uri, fs: FileSystem): boolean {
         return canNavigateToFile(fs, path);
@@ -1442,6 +1652,14 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
             delete (result as any).items;
         }
         return result;
+    }
+
+    private _getStringValues(values: any) {
+        if (!values || !Array.isArray(values) || values.length === 0) {
+            return [];
+        }
+
+        return values.filter((p) => p && isString(p)) as string[];
     }
 
     private _convertDiagnostics(fs: FileSystem, diags: AnalyzerDiagnostic[]): Diagnostic[] {

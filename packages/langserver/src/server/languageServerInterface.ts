@@ -55,7 +55,7 @@ export interface WorkspaceServices {
     fs: FileSystem | undefined;
 }
 
-export interface ServerOptions {
+export interface LanguageServerOptions {
     productName: string;
     typeshedFallbackLoc: Uri;
     version: string;
