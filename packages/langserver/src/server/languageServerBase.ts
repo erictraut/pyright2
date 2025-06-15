@@ -258,9 +258,7 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
 
         const service = new TypeService(name, this.serverOptions.extensionManager, {
             typeshedFallbackLoc: this.serverOptions.typeshedFallbackLoc,
-            console: this.console,
             maxAnalysisTime: this.serverOptions.maxAnalysisTimeInForeground,
-            fileSystem: services?.fs ?? this.serverOptions.extensionManager.fs,
             usingPullDiagnostics: this.client.usingPullDiagnostics,
         });
 

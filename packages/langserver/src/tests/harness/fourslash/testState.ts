@@ -95,7 +95,6 @@ import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { getFileSpec } from 'typeserver/files/uriUtils.js';
@@ -180,7 +179,7 @@ export class TestState {
 
         this.fs = new PyrightFileSystem(this.testFS);
         this.console = new ConsoleWithLogLevel(new NullConsole(), 'test');
-        this.extensionManager = new ExtensionManager(this.testFS, this.console, this.testFS, testPythonEnvProvider);
+        this.extensionManager = new ExtensionManager(this.fs, this.console, this.testFS, testPythonEnvProvider);
 
         this._cancellationToken = new TestCancellationToken();
         this._hostSpecificFeatures = hostSpecificFeatures ?? new TestFeatures();
@@ -202,7 +201,7 @@ export class TestState {
             this._applyTestConfigOptions(configOptions);
         }
 
-        const service = this.createTypeService(this.console, configOptions, testPythonEnvProvider);
+        const service = this.createTypeService(this.console, configOptions);
 
         this.workspace = {
             workspaceName: 'test workspace',
@@ -1714,13 +1713,11 @@ export class TestState {
         }
     }
 
-    protected createTypeService(nullConsole: ConsoleInterface, configOptions: ConfigOptions, host: PythonEnvProvider) {
+    protected createTypeService(nullConsole: ConsoleInterface, configOptions: ConfigOptions) {
         // Do not initiate automatic analysis or file watcher in test.
         const service = new TypeService('test service', this.extensionManager, {
             typeshedFallbackLoc: typeshedFolder,
-            console: nullConsole,
             configOptions,
-            fileSystem: this.fs,
         });
 
         // Directly set files to track rather than using fileSpec from config

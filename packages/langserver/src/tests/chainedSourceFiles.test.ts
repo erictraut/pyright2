@@ -263,9 +263,7 @@ function createServiceWithChainedSourceFiles(basePath: Uri, code: string) {
 
     const service = new TypeService('test service', extensionManager, {
         typeshedFallbackLoc,
-        console: new NullConsole(),
         configOptions: new ConfigOptions(basePath, typeshedFallbackLoc),
-        fileSystem: fs,
     });
 
     const data = parseTestData(basePath.getFilePath(), code, '');

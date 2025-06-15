@@ -206,7 +206,8 @@ describe('expandPathVariables', () => {
 
 function createWorkspace(rootUri: Uri | undefined) {
     const fs = new TestFileSystem(false);
-    const em = new ExtensionManager(fs, new NullConsole(), fs, new TestPythonEnvProvider());
+    const console = new NullConsole();
+    const em = new ExtensionManager(fs, console, fs, new TestPythonEnvProvider());
 
     return {
         workspaceName: '',
@@ -214,7 +215,6 @@ function createWorkspace(rootUri: Uri | undefined) {
         kinds: [WellKnownWorkspaceKinds.Test],
         service: new TypeService('test service', em, {
             typeshedFallbackLoc: typeshedFolder,
-            console: new NullConsole(),
             configOptions: new ConfigOptions(Uri.empty()),
         }),
         disableLanguageServices: false,

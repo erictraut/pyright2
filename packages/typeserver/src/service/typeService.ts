@@ -24,7 +24,7 @@ import {
     CommandLineOptions,
 } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, matchFileSpecs } from 'typeserver/config/configOptions.js';
-import { ConsoleInterface, LogLevel, StandardConsole, log } from 'typeserver/extensibility/console.js';
+import { ConsoleInterface, LogLevel, log } from 'typeserver/extensibility/console.js';
 import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
@@ -61,11 +61,9 @@ const _gitDirectory = normalizeSlashes('/.git/');
 
 export interface TypeServiceOptions {
     typeshedFallbackLoc: Uri;
-    console?: ConsoleInterface;
     configOptions?: ConfigOptions;
     maxAnalysisTime?: MaxAnalysisTime;
     skipScanningUserFiles?: boolean;
-    fileSystem?: FileSystem;
     usingPullDiagnostics?: boolean;
 }
 
@@ -104,19 +102,7 @@ export class TypeService {
 
         this._executionRootUri = Uri.empty();
         this.options = options;
-        this.options.console = options.console ?? new StandardConsole();
-
-        // Create local copy of the given service provider.
-        this._extensionManager = extensionManager.clone();
-
-        // Override the console and the file system if they were explicitly provided.
-        if (this.options.console) {
-            this._extensionManager.console = this.options.console;
-        }
-
-        if (this.options.fileSystem) {
-            this._extensionManager.fs = this.options.fileSystem;
-        }
+        this._extensionManager = extensionManager;
 
         this.options.configOptions =
             options.configOptions ??
@@ -164,7 +150,6 @@ export class TypeService {
         const service = new TypeService(instanceName, this._extensionManager, {
             ...this.options,
             skipScanningUserFiles: true,
-            fileSystem,
             usingPullDiagnostics: this.options.usingPullDiagnostics,
         });
 

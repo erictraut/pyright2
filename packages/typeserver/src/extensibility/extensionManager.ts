@@ -80,18 +80,4 @@ export class ExtensionManager {
     set pythonEnv(value: PythonEnvProvider) {
         this._pythonEnvProvider = value;
     }
-
-    clone(): ExtensionManager {
-        const clone = new ExtensionManager(
-            this._fileSystemProvider,
-            this._consoleProvider,
-            this._caseSensitivityProvider,
-            this._pythonEnvProvider
-        );
-
-        clone._tempFileProvider = this._tempFileProvider;
-        clone._cancellationProvider = this._cancellationProvider;
-
-        return clone;
-    }
 }
