@@ -19,12 +19,12 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { NoAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { normalizeSlashes } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 test('check chained files', () => {
     const code = `

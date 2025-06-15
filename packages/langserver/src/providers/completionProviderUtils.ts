@@ -27,7 +27,7 @@ import {
 } from 'typeserver/evaluator/types.js';
 import { isProperty } from 'typeserver/evaluator/typeUtils.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface Edits {
     format?: InsertTextFormat;

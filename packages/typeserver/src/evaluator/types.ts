@@ -13,7 +13,6 @@ import {
     SpecialBuiltInClassDeclaration,
 } from 'typeserver/binder/declaration.js';
 import { Symbol, SymbolTable } from 'typeserver/binder/symbol.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     ArgumentNode,
     ExpressionNode,
@@ -23,6 +22,7 @@ import {
 } from 'typeserver/parser/parseNodes.js';
 import { partition } from 'typeserver/utils/collectionUtils.js';
 import { assert } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export const enum TypeCategory {
     // Name is not bound to a value of any type

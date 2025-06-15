@@ -19,11 +19,11 @@ import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js'
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { createFromRealFileSystem, RealTempFile } from 'typeserver/files/realFileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
 import { combinePaths, getDirectoryPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const libraryRoot = combinePaths(normalizeSlashes('/'), lib, sitePackages);
 

@@ -47,12 +47,12 @@ import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from '
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { assertNever, fail } from 'typeserver/utils/debug.js';
 import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface HoverTextPart {
     python?: boolean;

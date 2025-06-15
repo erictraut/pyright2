@@ -20,9 +20,9 @@ import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { fileURLToPath } from 'url';
 
 export class TestFeatures implements HostSpecificFeatures {

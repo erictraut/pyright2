@@ -11,7 +11,7 @@
 
 import { ScopeType } from 'typeserver/binder/scope.js';
 import { Diagnostic, DiagnosticWithinFile } from 'typeserver/common/diagnostic.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export enum SymbolCategory {
     Indeterminate,

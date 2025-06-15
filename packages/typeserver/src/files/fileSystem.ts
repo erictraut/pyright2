@@ -3,15 +3,14 @@
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
- * A "file system provider" abstraction that allows us to swap out a
- * real file system implementation for a virtual (mocked) implementation
- * for testing.
+ * A file system abstraction that allows for different implementations
+ * of a file system, including various forms of mocking or virtualization.
  */
 
 import fs from 'fs';
 
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { Disposable } from 'vscode-jsonrpc';
 
 export interface Stats {
@@ -88,18 +87,6 @@ export interface TempFile {
     // The directory returned by tmpdir must exist and be the same each time tmpdir is called.
     tmpdir(): Uri;
     tmpfile(options?: TmpfileOptions): Uri;
-}
-
-export namespace FileSystem {
-    export function is(value: any): value is FileSystem {
-        return value.createFileSystemWatcher && value.createReadStream && value.createWriteStream && value.copyFileSync;
-    }
-}
-
-export namespace TempFile {
-    export function is(value: any): value is TempFile {
-        return value.tmpdir && value.tmpfile;
-    }
 }
 
 export class VirtualDirent implements fs.Dirent {

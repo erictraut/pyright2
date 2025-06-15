@@ -10,7 +10,7 @@ import { CompletionItemKind, MarkupKind } from 'vscode-languageserver-types';
 
 import { CompletionOptions, CompletionProvider } from 'langserver/providers/completionProvider.js';
 import { parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 test('completion import statement tooltip', async () => {
     const code = `

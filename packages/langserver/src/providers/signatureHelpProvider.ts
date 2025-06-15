@@ -33,12 +33,12 @@ import { CallSignature, TypeEvaluator } from 'typeserver/evaluator/typeEvaluator
 import { PrintTypeFlags } from 'typeserver/evaluator/typePrinter.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { CallNode, NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { extractParameterDocumentation } from 'typeserver/utils/docStringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class SignatureHelpProvider {
     private readonly _parseResults: ParseFileResults | undefined;

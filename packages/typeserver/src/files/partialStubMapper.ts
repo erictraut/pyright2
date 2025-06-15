@@ -3,7 +3,8 @@
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
- * A service that maps partial stub packages into the original directory of the installed library.
+ * A service that maps partial stub packages into the original directory of
+ * the installed library.
  */
 
 import fs from 'fs';
@@ -11,30 +12,12 @@ import fs from 'fs';
 import { stubsSuffix } from 'typeserver/common/pathConsts.js';
 import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { isDirectory, tryStat } from 'typeserver/files/uriUtils.js';
 import { getPyTypedInfo, PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { Disposable } from 'vscode-jsonrpc';
 
-export interface SupportPartialStubs {
-    isPartialStubPackagesScanned(execEnv: ExecutionEnvironment): boolean;
-    isPathScanned(path: Uri): boolean;
-    processPartialStubPackages(paths: Uri[], roots: Uri[], bundledStubPath?: Uri): void;
-    clearPartialStubs(): void;
-}
-
-export namespace SupportPartialStubs {
-    export function is(value: any): value is SupportPartialStubs {
-        return (
-            value.isPartialStubPackagesScanned &&
-            value.isPathScanned &&
-            value.processPartialStubPackages &&
-            value.clearPartialStubs
-        );
-    }
-}
-
-export class PartialStubService implements SupportPartialStubs {
+export class PartialStubMapper {
     // Root paths processed
     private readonly _rootSearched = new Set<string>();
 

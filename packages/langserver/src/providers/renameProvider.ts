@@ -16,11 +16,11 @@ import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { Position, Range } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { assertNever } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class RenameProvider {
     private readonly _parseResults: ParseFileResults | undefined;

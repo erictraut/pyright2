@@ -10,8 +10,8 @@
 
 import { pythonVersion3_10, pythonVersion3_9 } from 'typeserver/common/pythonVersion.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { typeAnalyzeSampleFiles, validateResults } from 'typeserver/tests/testUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 test('CallbackProtocol1', () => {
     const analysisResults = typeAnalyzeSampleFiles(['callbackProtocol1.py']);

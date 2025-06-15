@@ -40,10 +40,10 @@ import {
     isMaybeDescriptorInstance,
     MemberAccessFlags,
 } from 'typeserver/evaluator/typeUtils.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ModuleNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { addIfNotNull, appendArray } from 'typeserver/utils/collectionUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const DefaultClassIteratorFlagsForFunctions =
     MemberAccessFlags.SkipObjectBaseClass |

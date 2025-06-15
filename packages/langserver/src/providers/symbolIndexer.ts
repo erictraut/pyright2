@@ -17,9 +17,9 @@ import { convertOffsetsToRange, convertTextRangeToRange } from 'typeserver/commo
 import { Range } from 'typeserver/common/textRange.js';
 import { AnalyzerFileInfo } from 'typeserver/evaluator/analyzerFileInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface IndexOptions {
     includeAliases?: boolean;

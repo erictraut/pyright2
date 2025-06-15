@@ -7,8 +7,8 @@
  * Represents a single edit within a file.
  */
 
-import { Range, rangesAreEqual } from 'typeserver/common/textRange.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Range } from 'typeserver/common/textRange.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface TextEditAction {
     range: Range;
@@ -44,25 +44,4 @@ export interface CreateFileOperation extends FileOperation {
 export interface DeleteFileOperation extends FileOperation {
     kind: 'delete';
     fileUri: Uri;
-}
-
-export namespace TextEditAction {
-    export function is(value: any): value is TextEditAction {
-        return !!value.range && value.replacementText !== undefined;
-    }
-}
-
-export namespace FileEditAction {
-    export function is(value: any): value is FileEditAction {
-        return value.fileUri !== undefined && TextEditAction.is(value);
-    }
-
-    export function areEqual(e1: FileEditAction, e2: FileEditAction) {
-        return (
-            e1 === e2 ||
-            (e1.fileUri.equals(e2.fileUri) &&
-                rangesAreEqual(e1.range, e2.range) &&
-                e1.replacementText === e2.replacementText)
-        );
-    }
 }

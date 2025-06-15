@@ -35,7 +35,6 @@ import {
     OverloadedType,
 } from 'typeserver/evaluator/types.js';
 import { lookUpClassMember } from 'typeserver/evaluator/typeUtils.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ClassNode, ModuleNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { SourceFile } from 'typeserver/program/sourceFile.js';
@@ -44,6 +43,7 @@ import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { buildImportTree } from 'typeserver/program/sourceMapperUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { assert, assertNever } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 
 type ClassOrFunctionOrVariableDeclaration =

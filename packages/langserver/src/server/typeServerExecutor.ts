@@ -13,9 +13,9 @@ import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { LogLevel } from 'typeserver/extensibility/console.js';
 import { FileSystem } from 'typeserver/files//fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface CloneOptions {
     typeStubTargetImportName?: string;

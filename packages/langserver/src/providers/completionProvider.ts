@@ -107,7 +107,6 @@ import {
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportResult } from 'typeserver/imports/importResult.js';
 import { Localizer } from 'typeserver/localization/localize.js';
@@ -149,6 +148,7 @@ import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtil
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { assert, fail } from 'typeserver/utils/debug.js';
 import { isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 namespace Keywords {
     const base: string[] = [

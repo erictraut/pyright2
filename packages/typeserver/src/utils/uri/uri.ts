@@ -8,13 +8,13 @@
 
 import { URI, Utils } from 'vscode-uri';
 
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
-import { JsonObjType } from 'typeserver/files/uri/baseUri.js';
-import { ConstantUri } from 'typeserver/files/uri/constantUri.js';
-import { EmptyUri } from 'typeserver/files/uri/emptyUri.js';
-import { FileUri, FileUriSchema } from 'typeserver/files/uri/fileUri.js';
-import { WebUri } from 'typeserver/files/uri/webUri.js';
+import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
 import { combinePaths, isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
+import { JsonObjType } from 'typeserver/utils/uri/baseUri.js';
+import { ConstantUri } from 'typeserver/utils/uri/constantUri.js';
+import { EmptyUri } from 'typeserver/utils/uri/emptyUri.js';
+import { FileUri, FileUriSchema } from 'typeserver/utils/uri/fileUri.js';
+import { WebUri } from 'typeserver/utils/uri/webUri.js';
 import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 export const enum UriKinds {

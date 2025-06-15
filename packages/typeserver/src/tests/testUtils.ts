@@ -21,13 +21,13 @@ import { ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/conso
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ParseFileResults, ParseOptions, Parser, ParserOutput } from 'typeserver/parser/parser.js';
 import { NameTypeWalker } from 'typeserver/parser/testWalker.js';
 import { Program } from 'typeserver/program/program.js';
 import { fail } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface FileAnalysisResult {
     fileUri: Uri;

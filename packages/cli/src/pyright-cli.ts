@@ -30,7 +30,6 @@ import { FullAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvP
 import { ChokidarFileWatcherProvider } from 'typeserver/files/chokidarFileWatcher.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { getFileSpec, tryStat } from 'typeserver/files/uriUtils.js';
 import { maxSourceFileSize } from 'typeserver/program/sourceFile.js';
 import { SourceFileInfo } from 'typeserver/program/sourceFileInfo.js';
@@ -43,6 +42,7 @@ import { assert, fail } from 'typeserver/utils/debug.js';
 import { createDeferred } from 'typeserver/utils/deferred.js';
 import { combinePaths, normalizePath } from 'typeserver/utils/pathUtils.js';
 import { getStdin } from 'typeserver/utils/streamUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const toolName = 'pyright';
 

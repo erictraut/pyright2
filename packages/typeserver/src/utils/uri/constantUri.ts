@@ -6,8 +6,8 @@
  * URI class that represents a constant/marker URI.
  */
 
-import { BaseUri } from 'typeserver/files/uri/baseUri.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { BaseUri } from 'typeserver/utils/uri/baseUri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class ConstantUri extends BaseUri {
     constructor(name: string) {

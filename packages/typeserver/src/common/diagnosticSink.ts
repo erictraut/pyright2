@@ -12,9 +12,9 @@ import { convertOffsetsToRange } from 'typeserver/common/positionUtils.js';
 import { Range, TextRange } from 'typeserver/common/textRange.js';
 import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { DiagnosticLevel } from 'typeserver/config/configOptions.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { hashString } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 // Represents a collection of diagnostics within a file.
 export interface FileDiagnostics {

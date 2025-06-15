@@ -24,7 +24,6 @@ import { OperationCanceledException } from 'typeserver/extensibility/cancellatio
 import { ConsoleInterface, StandardConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportResult } from 'typeserver/imports/importResult.js';
 import { LocMessage } from 'typeserver/localization/localize.js';
@@ -44,6 +43,7 @@ import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { assert } from 'typeserver/utils/debug.js';
 import { stripFileExtension } from 'typeserver/utils/pathUtils.js';
 import * as StringUtils from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 // Limit the number of import cycles tracked per source file.
 const _maxImportCyclesPerFile = 4;

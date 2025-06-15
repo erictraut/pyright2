@@ -40,13 +40,13 @@ import {
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class CallHierarchyProvider {
     private readonly _parseResults: ParseFileResults | undefined;

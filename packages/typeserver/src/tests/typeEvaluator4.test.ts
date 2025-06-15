@@ -19,8 +19,8 @@ import {
     pythonVersion3_9,
 } from 'typeserver/common/pythonVersion.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { typeAnalyzeSampleFiles, validateResults } from 'typeserver/tests/testUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 test('Final1', () => {
     const analysisResults = typeAnalyzeSampleFiles(['final1.py']);

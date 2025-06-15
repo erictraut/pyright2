@@ -10,7 +10,6 @@
  */
 
 import { Range } from 'typeserver/common/textRange.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     ClassNode,
     ExpressionNode,
@@ -31,6 +30,7 @@ import {
     YieldFromNode,
     YieldNode,
 } from 'typeserver/parser/parseNodes.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export const UnresolvedModuleMarker = Uri.constant('*** unresolved module ***');
 

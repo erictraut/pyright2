@@ -13,7 +13,7 @@ import { LanguageServerBaseInterface, LanguageServerInterface } from 'langserver
 import { TypeServerExecutor } from 'langserver/server/typeServerExecutor.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { OperationCanceledException } from 'typeserver/extensibility/cancellationUtils.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class CreateTypeStubCommand implements ServerCommand {
     constructor(private _ls: LanguageServerInterface) {

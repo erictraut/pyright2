@@ -18,10 +18,10 @@ import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } fro
 import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { combinePaths, normalizePath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 describe(`config test'}`, () => {
     const tempFile = new RealTempFile();

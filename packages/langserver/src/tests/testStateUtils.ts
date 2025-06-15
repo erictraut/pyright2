@@ -16,12 +16,12 @@ import { FileEditAction, FileEditActions } from 'typeserver/common/editAction.js
 import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.js';
 import { TextRange, rangesAreEqual } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { isFile } from 'typeserver/files/uriUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
 import { Program } from 'typeserver/program/program.js';
 import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';
 import { assertNever } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 import { CancellationToken } from 'vscode-languageserver';
 

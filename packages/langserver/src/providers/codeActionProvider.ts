@@ -12,9 +12,9 @@ import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { CreateTypeStubFileAction } from 'typeserver/common/diagnostic.js';
 import { Range } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { Localizer } from 'typeserver/localization/localize.js';
 import { Commands } from 'typeserver/service/commands.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class CodeActionProvider {
     static mightSupport(kinds: CodeActionKind[] | undefined): boolean {

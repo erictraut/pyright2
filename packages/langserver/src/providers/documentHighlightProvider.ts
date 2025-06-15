@@ -16,9 +16,9 @@ import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/commo
 import { Position, TextRange } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class DocumentHighlightProvider {
     private readonly _parseResults: ParseFileResults | undefined;

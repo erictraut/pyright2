@@ -12,9 +12,9 @@ import {
 
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { createDeferred } from 'typeserver/utils/deferred.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 let WorkspaceFactoryIdCounter = 0;
 

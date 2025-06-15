@@ -12,10 +12,10 @@ import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { getFileSystemEntries, isDirectory, tryStat } from 'typeserver/files/uriUtils.js';
 import { compareComparableValues } from 'typeserver/utils/comparisonUtils.js';
 import { normalizePath } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface PythonPathResult {
     paths: Uri[];

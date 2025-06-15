@@ -16,12 +16,12 @@ import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ParseFileResults, ParserOutput } from 'typeserver/parser/parser.js';
 import { OpenFileOptions, Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ISourceFile {
     // See whether we can convert these to regular properties.

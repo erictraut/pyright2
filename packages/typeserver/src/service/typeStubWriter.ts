@@ -23,7 +23,6 @@ import {
     isUnknown,
     removeUnknownFromUnion,
 } from 'typeserver/evaluator/types.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     ArgCategory,
     AssignmentNode,
@@ -57,6 +56,7 @@ import {
 import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
 import { OperatorType } from 'typeserver/parser/tokenizerTypes.js';
 import { SourceFile } from 'typeserver/program/sourceFile.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 class TrackedImport {
     isAccessed = false;

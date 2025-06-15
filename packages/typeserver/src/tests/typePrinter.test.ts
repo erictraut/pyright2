@@ -28,8 +28,8 @@ import {
     UnboundType,
     UnknownType,
 } from 'typeserver/evaluator/types.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ParamCategory } from 'typeserver/parser/parseNodes.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 function returnTypeCallback(type: FunctionType) {
     return type.shared.declaredReturnType ?? UnknownType.create(/* isEllipsis */ true);

@@ -92,7 +92,6 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { getFileSpec } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports//importResolver.js';
 import { Char } from 'typeserver/parser/charCodes.js';
@@ -107,6 +106,7 @@ import { Comparison } from 'typeserver/utils/comparisonUtils.js';
 import { assertNever } from 'typeserver/utils/debug.js';
 import { getFileExtension, normalizePath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isNumber, isString } from 'typeserver/utils/valueTypeUtils.js';
 
 export interface TextChange {

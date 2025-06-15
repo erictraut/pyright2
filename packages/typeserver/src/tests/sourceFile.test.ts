@@ -12,10 +12,10 @@ import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { SourceFile } from 'typeserver/program/sourceFile.js';
 import { combinePaths } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 test('Empty', () => {
     const filePath = combinePaths(process.cwd(), 'tests/samples/test_file1.py');

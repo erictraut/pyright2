@@ -14,8 +14,8 @@ import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console.js'
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { MaxAnalysisTime } from 'typeserver/program/program.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ServerSettings {
     venvPath?: Uri | undefined;
@@ -86,10 +86,4 @@ export interface LanguageServerInterface extends LanguageServerBaseInterface {
 
 export interface CommandService {
     sendCommand(id: string, ...args: string[]): void;
-}
-
-export namespace CommandService {
-    export function is(obj: any): obj is CommandService {
-        return !!obj && obj.sendCommand !== undefined;
-    }
 }

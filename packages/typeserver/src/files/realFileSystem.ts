@@ -11,7 +11,6 @@ import tmp from 'tmp';
 import { isMainThread } from 'worker_threads';
 
 import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import {
     FileWatcher,
@@ -21,10 +20,11 @@ import {
     FileWatcherProvider,
     nullFileWatcherProvider,
 } from 'typeserver/files/fileWatcher.js';
-import { FileUri, FileUriSchema } from 'typeserver/files/uri/fileUri.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
 import { randomBytesHex } from 'typeserver/utils/crypto.js';
 import { combinePaths, getRootLength } from 'typeserver/utils/pathUtils.js';
+import { FileUri, FileUriSchema } from 'typeserver/utils/uri/fileUri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { Disposable } from 'vscode-jsonrpc';
 
 // Automatically remove files created by tmp at process exit.

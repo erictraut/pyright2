@@ -13,11 +13,11 @@ import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
 

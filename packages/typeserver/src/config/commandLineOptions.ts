@@ -11,7 +11,7 @@
 
 import { TaskListToken } from 'typeserver/common/diagnostic.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export const enum DiagnosticSeverityOverrides {
     Error = 'error',

@@ -10,9 +10,3 @@
 export interface CaseSensitivityDetector {
     isCaseSensitive(uri: string): boolean;
 }
-
-export namespace CaseSensitivityDetector {
-    export function is(value: any): value is CaseSensitivityDetector {
-        return !!value.isCaseSensitive;
-    }
-}

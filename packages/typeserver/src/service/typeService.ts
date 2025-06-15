@@ -30,7 +30,6 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from 'typeserver/files/fileWatcher.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import {
     FileSpec,
     deduplicateFolders,
@@ -51,6 +50,7 @@ import { AnalysisCompleteCallback } from 'typeserver/service/analysis.js';
 import { findPythonSearchPaths } from 'typeserver/service/pythonPathUtils.js';
 import { timingStats } from 'typeserver/service/timing.js';
 import { getFileName, isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isString } from 'typeserver/utils/valueTypeUtils.js';
 
 // How long since the last user activity should we wait until running

@@ -9,9 +9,9 @@
 import os from 'os';
 
 import { Workspace, WorkspaceFolder } from 'langserver/server/workspaceFactory.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { escapeRegExp } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export function resolvePathWithEnvVariables(
     workspace: Workspace,

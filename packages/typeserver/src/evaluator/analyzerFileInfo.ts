@@ -15,8 +15,8 @@ import { PythonVersion, pythonVersion3_14 } from 'typeserver/common/pythonVersio
 import { TextRange } from 'typeserver/common/textRange.js';
 import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { DiagnosticRuleSet, ExecutionEnvironment } from 'typeserver/config/configOptions.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 // Maps import paths to the symbol table for the imported module.
 export interface AbsoluteModuleDescriptor {

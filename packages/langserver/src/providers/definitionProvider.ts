@@ -30,11 +30,11 @@ import { doForEachSubtype } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 
 export enum DefinitionFilter {

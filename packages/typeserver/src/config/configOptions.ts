@@ -23,10 +23,10 @@ import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { FileSpec, getFileSpec, isDirectory } from 'typeserver/files/uriUtils.js';
 import { getPathsFromPthFiles } from 'typeserver/service/pythonPathUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isBoolean } from 'typeserver/utils/valueTypeUtils.js';
 
 export enum PythonPlatform {

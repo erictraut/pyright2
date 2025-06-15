@@ -120,10 +120,8 @@ import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
 import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { Localizer, setLocaleOverride } from 'typeserver/localization/localize.js';
@@ -131,8 +129,10 @@ import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
 import { getNestedProperty } from 'typeserver/utils/collectionUtils.js';
 import { assert } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const DiagnosticsVersionNone = -1;
 

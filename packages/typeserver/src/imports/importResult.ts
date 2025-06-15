@@ -7,8 +7,8 @@
  * Interface that describes the output of the import resolver.
  */
 
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export const enum ImportType {
     BuiltIn,

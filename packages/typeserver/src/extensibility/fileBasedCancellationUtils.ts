@@ -25,8 +25,8 @@ import {
     getCancellationFolderName,
     setCancellationFolderName,
 } from 'typeserver/extensibility/cancellationUtils.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 class StatSyncFromFs {
     statSync(uri: Uri) {

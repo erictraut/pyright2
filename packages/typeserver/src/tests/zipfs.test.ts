@@ -7,8 +7,8 @@
 import assert from 'assert';
 import path from 'path';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { fileURLToPath } from 'url';
 
 function runTests(p: string): void {

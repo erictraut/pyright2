@@ -9,14 +9,13 @@
 import type { Dirent } from 'fs';
 
 import { FileSystem, ReadOnlyFileSystem, Stats } from 'typeserver/files/fileSystem.js';
-
-import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
 import {
     getRegexEscapedSeparator,
     isDirectoryWildcardPatternPresent,
     stripTrailingDirectorySeparator,
 } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface FileSpec {
     // File specs can contain wildcard characters (**, *, ?). This
@@ -172,11 +171,13 @@ export function getFileSystemEntriesFromDirEntries(
     const entries = dirEntries.sort((a, b) => {
         if (a.name < b.name) {
             return -1;
-        } else if (a.name > b.name) {
-            return 1;
-        } else {
-            return 0;
         }
+
+        if (a.name > b.name) {
+            return 1;
+        }
+
+        return 0;
     });
     const files: Uri[] = [];
     const directories: Uri[] = [];
@@ -303,11 +304,14 @@ const enum FileSystemEntryKind {
 function fileSystemEntryExists(fs: ReadOnlyFileSystem, uri: Uri, entryKind: FileSystemEntryKind): boolean {
     try {
         const stat = fs.statSync(uri);
+
         switch (entryKind) {
             case FileSystemEntryKind.File:
                 return stat.isFile();
+
             case FileSystemEntryKind.Directory:
                 return stat.isDirectory();
+
             default:
                 return false;
         }

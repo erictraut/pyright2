@@ -25,12 +25,12 @@ import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersio
 import { PythonPlatform } from 'typeserver/config/configOptions.js';
 import { LimitedAccessPythonEnvProvider, PythonPathResult } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { FileUri } from 'typeserver/files/uri/fileUri.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ParseOptions, Parser } from 'typeserver/parser/parser.js';
 import { createDeferred, Deferred } from 'typeserver/utils/deferred.js';
 import { combinePaths } from 'typeserver/utils/pathUtils.js';
+import { FileUri } from 'typeserver/utils/uri/fileUri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
 import {
     ApplyWorkspaceEditParams,

@@ -36,10 +36,10 @@ import {
     WorkspaceFileWatcherProvider,
     createFromRealFileSystem,
 } from 'typeserver/files/realFileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isDefined, isString } from 'typeserver/utils/valueTypeUtils.js';
 import { fileURLToPath } from 'url';
 

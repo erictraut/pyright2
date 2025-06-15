@@ -45,7 +45,6 @@ import {
 } from 'typeserver/evaluator/typeUtils.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { tryStat, UriEx } from 'typeserver/files/uriUtils.js';
 import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
 import { getPyTypedInfo, PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
@@ -61,6 +60,7 @@ import {
 } from 'typeserver/service/packageTypeReport.js';
 import { assert } from 'typeserver/utils/debug.js';
 import { getFileExtension, stripFileExtension } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 type PublicSymbolSet = Set<string>;
 

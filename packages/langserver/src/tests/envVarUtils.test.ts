@@ -18,9 +18,9 @@ import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility//console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const defaultWorkspace = createWorkspace(undefined);
 const normalWorkspace = createWorkspace(UriEx.file('/'));

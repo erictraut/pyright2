@@ -8,8 +8,8 @@
  */
 
 import { FileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { isDirectory, isFile } from 'typeserver/files/uriUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface PyTypedInfo {
     pyTypedPath: Uri;

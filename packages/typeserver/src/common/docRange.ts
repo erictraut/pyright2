@@ -7,7 +7,7 @@
  */
 
 import { Range } from 'typeserver/common/textRange.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface DocumentRange {
     uri: Uri;

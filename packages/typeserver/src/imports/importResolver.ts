@@ -16,8 +16,7 @@ import { stubsSuffix } from 'typeserver/common/pathConsts.js';
 import { PythonVersion, pythonVersion3_0 } from 'typeserver/common/pythonVersion.js';
 import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { PartialStubService } from 'typeserver/files/partialStubService.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { PartialStubMapper } from 'typeserver/files/partialStubMapper.js';
 import {
     getFileSystemEntriesFromDirEntries,
     isDirectory,
@@ -39,6 +38,7 @@ import {
 import { appendArray, flatten, getMapValues, getOrAdd } from 'typeserver/utils/collectionUtils.js';
 import { stripFileExtension } from 'typeserver/utils/pathUtils.js';
 import { equateStringsCaseInsensitive, isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ImportedModuleDescriptor {
     leadingDots: number;
@@ -118,13 +118,13 @@ export class ImportResolver {
     private _cachedFilesForPath = new Map<string, Uri[]>();
     private _cachedDirExistenceForRoot = new Map<string, boolean>();
     private _stdlibModules: Set<string> | undefined;
-    private _partialStubs: PartialStubService;
+    private _partialStubs: PartialStubMapper;
 
     protected readonly cachedParentImportResults: ParentDirectoryCache;
 
     constructor(readonly extensionManager: ExtensionManager, private _configOptions: ConfigOptions) {
         this.cachedParentImportResults = new ParentDirectoryCache(() => this.getPythonSearchPaths([]));
-        this._partialStubs = new PartialStubService(extensionManager.fs);
+        this._partialStubs = new PartialStubMapper(extensionManager.fs);
     }
 
     get fileSystem() {

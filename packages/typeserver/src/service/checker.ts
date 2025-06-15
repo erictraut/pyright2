@@ -134,7 +134,6 @@ import {
     selfSpecializeClass,
     transformPossibleRecursiveTypeAlias,
 } from 'typeserver/evaluator/typeUtils.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver, createImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
 import { getRelativeModuleName, getTopLevelImports } from 'typeserver/imports/importStatementUtils.js';
@@ -213,6 +212,7 @@ import { Commands } from 'typeserver/service/commands.js';
 import { deprecatedAliases, deprecatedSpecialForms } from 'typeserver/service/deprecatedSymbols.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { assert, assertNever } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 interface TypeVarUsageInfo {
     typeVar: TypeVarType;

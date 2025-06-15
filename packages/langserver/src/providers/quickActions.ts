@@ -10,7 +10,7 @@
 import { CancellationToken } from 'vscode-languageserver';
 
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export function performQuickAction(
     programView: IProgramView,

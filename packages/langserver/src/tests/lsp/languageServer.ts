@@ -24,9 +24,9 @@ import { MessagePort, parentPort, setEnvironmentData } from 'worker_threads';
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import * as PyrightTestHost from 'langserver/tests/harness/testHost.js';
 import { clearCache, typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { Deferred, createDeferred } from 'typeserver/utils/deferred.js';
 import { FileSystemEntries, resolvePaths } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 import { ServerSettings } from 'langserver/server/languageServerInterface.js';
 import { PyrightServer } from 'langserver/server/server.js';

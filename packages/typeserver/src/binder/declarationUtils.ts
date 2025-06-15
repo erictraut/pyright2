@@ -18,9 +18,9 @@ import { Symbol } from 'typeserver/binder/symbol.js';
 import { getFileInfoFromNode } from 'typeserver/common/parseTreeUtils.js';
 import { getEmptyRange } from 'typeserver/common/textRange.js';
 import { ImportLookup, ImportLookupResult } from 'typeserver/evaluator/analyzerFileInfo.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { assertNever } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ResolvedAliasInfo {
     declaration: Declaration | undefined;

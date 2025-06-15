@@ -24,11 +24,11 @@ import { TextRange } from 'typeserver/common/textRange.js';
 import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { IEditableProgram, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { createMapFromItems } from 'typeserver/utils/collectionUtils.js';
 import { assertNever } from 'typeserver/utils/debug.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isArray } from 'typeserver/utils/valueTypeUtils.js';
 
 export function convertToTextEdits(editActions: TextEditAction[]): TextEdit[] {

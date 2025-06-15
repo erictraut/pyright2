@@ -9,9 +9,9 @@
 
 import { Range, TextRange } from 'typeserver/common/textRange.js';
 import { DiagnosticLevel } from 'typeserver/config/configOptions.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { Commands } from 'typeserver/service/commands.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export const defaultMaxDiagnosticDepth = 5;
 export const defaultMaxDiagnosticLineCount = 8;

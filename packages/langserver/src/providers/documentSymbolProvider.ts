@@ -15,9 +15,9 @@ import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export function convertToFlatSymbols(
     program: IProgramView,

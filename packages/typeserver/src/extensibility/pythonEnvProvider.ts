@@ -11,8 +11,8 @@ import child_process from 'child_process';
 
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { PythonPlatform } from 'typeserver/config/configOptions.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { getAnyExtensionFromPath } from 'typeserver/utils/pathUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 // preventLocalImports removes the working directory from sys.path.
 // The -c flag adds it automatically, which can allow some stdlib

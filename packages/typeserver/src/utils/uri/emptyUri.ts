@@ -6,8 +6,8 @@
  * URI class that represents an empty URI.
  */
 
-import { JsonObjType } from 'typeserver/files/uri/baseUri.js';
-import { ConstantUri } from 'typeserver/files/uri/constantUri.js';
+import { JsonObjType } from 'typeserver/utils/uri/baseUri.js';
+import { ConstantUri } from 'typeserver/utils/uri/constantUri.js';
 
 const EmptyKey = '<empty>';
 

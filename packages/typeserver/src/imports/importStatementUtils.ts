@@ -19,7 +19,6 @@ import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { isFile } from 'typeserver/files/uriUtils.js';
 import { ModuleNameAndType } from 'typeserver/imports/importResolver.js';
 import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
@@ -37,6 +36,7 @@ import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { TokenType } from 'typeserver/parser/tokenizerTypes.js';
 import { addIfUnique, appendArray, createMapFromItems } from 'typeserver/utils/collectionUtils.js';
 import { compareStringsCaseSensitive } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 const underscoreRegEx = /_/g;
 const indentTextRegEx = /^\s*$/;

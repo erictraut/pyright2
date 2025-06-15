@@ -21,7 +21,6 @@ import { Position } from 'typeserver/common/textRange.js';
 import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
-import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver, ModuleNameAndType } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
 import {
@@ -41,6 +40,7 @@ import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
 import { stripFileExtension } from 'typeserver/utils/pathUtils.js';
 import { getCharacterCount, getStringComparer, isPatternInSymbol } from 'typeserver/utils/stringUtils.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface AutoImportSymbol {
     readonly name: string;
