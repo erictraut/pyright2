@@ -23,14 +23,12 @@ import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
 import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.js';
 import { PythonPlatform } from 'typeserver/config/configOptions.js';
-import { LimitedAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
-import { HostKind, ScriptOutput } from 'typeserver/extensibility/host.js';
+import { LimitedAccessPythonEnvProvider, PythonPathResult } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileUri } from 'typeserver/files/uri/fileUri.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ParseOptions, Parser } from 'typeserver/parser/parser.js';
-import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
 import { createDeferred, Deferred } from 'typeserver/utils/deferred.js';
 import { combinePaths } from 'typeserver/utils/pathUtils.js';
 import { toBoolean } from 'typeserver/utils/valueTypeUtils.js';
@@ -120,33 +118,14 @@ export class TestHostOptions {
     // Search path on virtual file system.
     searchPaths: Uri[];
 
-    // Run script function
-    runScript: (
-        pythonPath: Uri | undefined,
-        scriptPath: Uri,
-        args: string[],
-        cwd: Uri,
-        token: CancellationToken
-    ) => Promise<ScriptOutput>;
-
     constructor({
         version = pythonVersion3_10,
         platform = PythonPlatform.Linux,
         searchPaths = [libFolder, distlibFolder],
-        runScript = async (
-            pythonPath: Uri | undefined,
-            scriptPath: Uri,
-            args: string[],
-            cwd: Uri,
-            token: CancellationToken
-        ) => {
-            return { stdout: '', stderr: '' };
-        },
     } = {}) {
         this.version = version;
         this.platform = platform;
         this.searchPaths = searchPaths;
-        this.runScript = runScript;
     }
 }
 
@@ -1056,7 +1035,7 @@ export function getInitializeParams(
     return params;
 }
 
-export class TestHost extends LimitedAccessHost {
+export class TestPythonEnvProvider extends LimitedAccessPythonEnvProvider {
     private readonly _options: TestHostOptions;
 
     constructor(
@@ -1071,10 +1050,6 @@ export class TestHost extends LimitedAccessHost {
         this._options = options ?? new TestHostOptions();
     }
 
-    override get kind(): HostKind {
-        return HostKind.FullAccess;
-    }
-
     override getPythonVersion(pythonPath?: Uri, logInfo?: string[]): PythonVersion | undefined {
         return this._options.version;
     }
@@ -1085,8 +1060,8 @@ export class TestHost extends LimitedAccessHost {
 
     override getPythonSearchPaths(pythonPath?: Uri, logInfo?: string[]): PythonPathResult {
         return {
-            paths: this._options.searchPaths,
-            prefix: Uri.empty(),
+            paths: this._options.searchPaths.map((u) => u.toString()),
+            prefix: undefined,
         };
     }
 }

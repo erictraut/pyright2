@@ -68,8 +68,8 @@ import {
     getRangeByMarkerName,
 } from 'langserver/tests/harness/fourslash/testStateUtils.js';
 import { verifyWorkspaceEdit } from 'langserver/tests/harness/fourslash/workspaceEditTestUtils.js';
-import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
 import * as host from 'langserver/tests/harness/testHost.js';
+import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
 import { stringify } from 'langserver/tests/harness/utils.js';
 import {
     createFromFileSystem,
@@ -89,12 +89,12 @@ import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Host } from 'typeserver/extensibility/host.js';
+import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { UriEx, getFileSpec } from 'typeserver/files/uriUtils.js';
-import { ImportResolver, ImportResolverFactory } from 'typeserver/imports//importResolver.js';
+import { getFileSpec } from 'typeserver/files/uriUtils.js';
+import { ImportResolver } from 'typeserver/imports//importResolver.js';
 import { Char } from 'typeserver/parser/charCodes.js';
 import { ParseNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
@@ -115,8 +115,6 @@ export interface TextChange {
 }
 
 export interface HostSpecificFeatures {
-    importResolverFactory: ImportResolverFactory;
-
     getCodeActionsForPosition(
         workspace: Workspace,
         fileUri: Uri,
@@ -128,7 +126,10 @@ export interface HostSpecificFeatures {
 }
 
 // Make sure everything is in lower case since it has hard coded `isCaseSensitive`: true.
-const testAccessHost = new TestAccessHost(UriEx.file(vfs.MODULE_PATH), [libFolder, distlibFolder]);
+const testPythonEnvProvider = new TestPythonEnvProvider(vfs.MODULE_PATH, [
+    libFolder.toString(),
+    distlibFolder.toString(),
+]);
 
 export class TestState {
     private readonly _cancellationToken: TestCancellationToken;
@@ -179,7 +180,7 @@ export class TestState {
 
         this.fs = new PyrightFileSystem(this.testFS);
         this.console = new ConsoleWithLogLevel(new NullConsole(), 'test');
-        const em = new ExtensionManager(this.testFS, this.console, this.testFS);
+        const em = new ExtensionManager(this.testFS, this.console, this.testFS, testPythonEnvProvider);
         this.extensionManager = em;
 
         this._cancellationToken = new TestCancellationToken();
@@ -197,17 +198,12 @@ export class TestState {
         if (this.rawConfigJson) {
             const configDirUri = Uri.file(projectRoot, this.extensionManager.caseSensitivity);
             configOptions.initializeTypeCheckingMode('standard');
-            configOptions.initializeFromJson(this.rawConfigJson, configDirUri, this.extensionManager, testAccessHost);
+            configOptions.initializeFromJson(this.rawConfigJson, configDirUri, this.extensionManager);
             configOptions.setupExecutionEnvironments(this.rawConfigJson, configDirUri, this.extensionManager.console);
             this._applyTestConfigOptions(configOptions);
         }
 
-        const service = this.createTypeService(
-            this.console,
-            this._hostSpecificFeatures.importResolverFactory,
-            configOptions,
-            testAccessHost
-        );
+        const service = this.createTypeService(this.console, configOptions, testPythonEnvProvider);
 
         this.workspace = {
             workspaceName: 'test workspace',
@@ -1539,7 +1535,6 @@ export class TestState {
         commandLineOptions.configSettings.verboseOutput = verboseOutput;
         const verifier = new PackageTypeVerifier(
             this.extensionManager,
-            testAccessHost,
             commandLineOptions,
             packageName,
             ignoreUnknownTypesFromImports
@@ -1720,18 +1715,11 @@ export class TestState {
         }
     }
 
-    protected createTypeService(
-        nullConsole: ConsoleInterface,
-        importResolverFactory: ImportResolverFactory,
-        configOptions: ConfigOptions,
-        host: Host
-    ) {
+    protected createTypeService(nullConsole: ConsoleInterface, configOptions: ConfigOptions, host: PythonEnvProvider) {
         // Do not initiate automatic analysis or file watcher in test.
         const service = new TypeService('test service', this.extensionManager, {
             typeshedFallbackLoc: typeshedFolder,
             console: nullConsole,
-            hostFactory: () => host,
-            importResolverFactory,
             configOptions,
             fileSystem: this.fs,
         });

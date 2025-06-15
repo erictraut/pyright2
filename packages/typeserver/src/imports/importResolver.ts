@@ -16,7 +16,6 @@ import { stubsSuffix } from 'typeserver/common/pathConsts.js';
 import { PythonVersion, pythonVersion3_0 } from 'typeserver/common/pythonVersion.js';
 import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Host } from 'typeserver/extensibility/host.js';
 import { PartialStubService } from 'typeserver/files/partialStubService.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import {
@@ -123,11 +122,7 @@ export class ImportResolver {
 
     protected readonly cachedParentImportResults: ParentDirectoryCache;
 
-    constructor(
-        readonly extensionManager: ExtensionManager,
-        private _configOptions: ConfigOptions,
-        readonly host: Host
-    ) {
+    constructor(readonly extensionManager: ExtensionManager, private _configOptions: ConfigOptions) {
         this.cachedParentImportResults = new ParentDirectoryCache(() => this.getPythonSearchPaths([]));
         this._partialStubs = new PartialStubService(extensionManager.fs);
     }
@@ -450,8 +445,8 @@ export class ImportResolver {
         // Find the site packages for the configured virtual environment.
         if (!this._cachedPythonSearchPaths) {
             const info: string[] = [];
-            const paths = (findPythonSearchPaths(this.fileSystem, this._configOptions, this.host, info) || []).map(
-                (p) => this.fileSystem.realCasePath(p)
+            const paths = (findPythonSearchPaths(this.extensionManager, this._configOptions, info) ?? []).map((p) =>
+                this.fileSystem.realCasePath(p)
             );
 
             // Remove duplicates (yes, it happens).
@@ -2749,12 +2744,6 @@ export class ImportResolver {
         );
     }
 }
-
-export type ImportResolverFactory = (
-    extensionManager: ExtensionManager,
-    options: ConfigOptions,
-    host: Host
-) => ImportResolver;
 
 export function formatImportName(moduleDescriptor: ImportedModuleDescriptor) {
     return '.'.repeat(moduleDescriptor.leadingDots) + moduleDescriptor.nameParts.join('.');

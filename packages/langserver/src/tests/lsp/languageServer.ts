@@ -9,7 +9,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {
-    CancellationToken,
     Connection,
     Disposable,
     Message,
@@ -36,8 +35,8 @@ import { GlobalMetadataOptionNames } from 'langserver/tests//harness/fourslash/f
 import { CustomLSP } from 'langserver/tests/lsp/customLsp.js';
 import {
     DEFAULT_WORKSPACE_ROOT,
-    TestHost,
     TestHostOptions,
+    TestPythonEnvProvider,
     createFileSystem,
     getFileLikePath,
     logToDisk,
@@ -115,18 +114,7 @@ class TestPyrightHost implements PyrightTestHost.TestHost {
 }
 
 function createTestHost(testServerData: CustomLSP.TestServerStartOptions) {
-    const scriptOutput = '';
-    const runScript = async (
-        pythonPath: Uri | undefined,
-        scriptPath: Uri,
-        args: string[],
-        cwd: Uri,
-        token: CancellationToken
-    ) => {
-        return { stdout: scriptOutput, stderr: '', exitCode: 0 };
-    };
-
-    const options = new TestHostOptions({ version: PythonVersion.fromString(testServerData.pythonVersion), runScript });
+    const options = new TestHostOptions({ version: PythonVersion.fromString(testServerData.pythonVersion) });
     const projectRootPaths = testServerData.projectRoots.map((p) => getFileLikePath(p));
     const testData = parseTestData(
         testServerData.projectRoots.length === 1 ? projectRootPaths[0] : DEFAULT_WORKSPACE_ROOT,
@@ -149,7 +137,7 @@ function createTestHost(testServerData: CustomLSP.TestServerStartOptions) {
     // create a test file system using the test data.
     const fs = createFileSystem(commonRoot, testData, new TestPyrightHost(PyrightTestHost.HOST));
 
-    return new TestHost(fs, fs, testData, projectRootPaths, options);
+    return new TestPythonEnvProvider(fs, fs, testData, projectRootPaths, options);
 }
 
 class TestServer extends PyrightServer {

@@ -13,7 +13,6 @@ import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
 import { LanguageServerInterface, ServerSettings } from 'langserver/server/languageServerInterface.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { HostSpecificFeatures } from 'langserver/tests/harness/fourslash/testState.js';
-import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
 import path from 'path';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { Range } from 'typeserver/common/textRange.js';
@@ -23,13 +22,10 @@ import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
-import { ImportResolverFactory } from 'typeserver/imports/importResolver.js';
 import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService.js';
 import { fileURLToPath } from 'url';
 
 export class TestFeatures implements HostSpecificFeatures {
-    importResolverFactory: ImportResolverFactory = TypeService.createImportResolver;
-
     getCodeActionsForPosition(
         workspace: Workspace,
         fileUri: Uri,
@@ -76,8 +72,6 @@ export class TestLanguageService implements LanguageServerInterface {
                 options ?? {
                     typeshedFallbackLoc,
                     console: this.console,
-                    hostFactory: () => new TestAccessHost(),
-                    importResolverFactory: TypeService.createImportResolver,
                     configOptions: new ConfigOptions(Uri.empty()),
                     fileSystem: this.fs,
                 }

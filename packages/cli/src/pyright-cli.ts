@@ -26,7 +26,7 @@ import { Range, isEmptyRange } from 'typeserver/common/textRange.js';
 import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
+import { FullAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { ChokidarFileWatcherProvider } from 'typeserver/files/chokidarFileWatcher.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
@@ -393,7 +393,7 @@ async function processArgs(): Promise<ExitStatus> {
         createFromRealFileSystem(tempFile, output, new ChokidarFileWatcherProvider(output))
     );
 
-    const extensionManager = new ExtensionManager(fileSystem, output, tempFile);
+    const extensionManager = new ExtensionManager(fileSystem, output, tempFile, new FullAccessPythonEnvProvider());
     extensionManager.tempFile = tempFile;
 
     // The package type verification uses a different path.
@@ -418,7 +418,6 @@ async function processArgs(): Promise<ExitStatus> {
     const service = new TypeService('<default>', extensionManager, {
         typeshedFallbackLoc: getTypeshedFallbackLoc(extensionManager),
         console: output,
-        hostFactory: () => new FullAccessHost(extensionManager),
     });
 
     if ('threads' in args) {
@@ -786,11 +785,15 @@ function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
                     createFromRealFileSystem(tempFile, output, new ChokidarFileWatcherProvider(output))
                 );
 
-                extensionManager = new ExtensionManager(fileSystem, output, tempFile);
+                extensionManager = new ExtensionManager(
+                    fileSystem,
+                    output,
+                    tempFile,
+                    new FullAccessPythonEnvProvider()
+                );
                 service = new TypeService('<default>', extensionManager, {
                     typeshedFallbackLoc: getTypeshedFallbackLoc(extensionManager),
                     console: output,
-                    hostFactory: () => new FullAccessHost(extensionManager!),
                 });
 
                 service.setCompletionCallback((results) => {
@@ -846,14 +849,7 @@ function verifyPackageTypes(
     ignoreUnknownTypesFromImports: boolean
 ): ExitStatus {
     try {
-        const host = new FullAccessHost(extensionManager);
-        const verifier = new PackageTypeVerifier(
-            extensionManager,
-            host,
-            options,
-            packageName,
-            ignoreUnknownTypesFromImports
-        );
+        const verifier = new PackageTypeVerifier(extensionManager, options, packageName, ignoreUnknownTypesFromImports);
         const report = verifier.verify();
         const jsonReport = buildTypeCompletenessReport(packageName, report, minSeverityLevel);
 

@@ -9,7 +9,7 @@
 
 import assert from 'assert';
 
-import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
 import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { TaskListPriority } from 'typeserver/common/diagnostic.js';
 import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVersion.js';
@@ -586,16 +586,14 @@ describe(`config test'}`, () => {
         const cons = console ?? new NullConsole();
         const fs = createFromRealFileSystem(tempFile, cons);
 
-        const em = new ExtensionManager(fs, cons, tempFile);
+        const pythonEnv = new TestPythonEnvProvider();
+        pythonEnv.getPythonVersion = () => pythonVersion3_13;
+        const em = new ExtensionManager(fs, cons, tempFile, pythonEnv);
         em.tempFile = tempFile;
-
-        const host = new TestAccessHost();
-        host.getPythonVersion = () => pythonVersion3_13;
 
         return new TypeService('<default>', em, {
             typeshedFallbackLoc: typeshedFolder,
             console: cons,
-            hostFactory: () => host,
         });
     }
 });

@@ -1,22 +1,18 @@
 /*
- * fullAccessHost.ts
+ * pythonEnvProvider.ts
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
- * Implementation of host where it is allowed to run external executables.
+ * An abstraction that allows the type server to query information about
+ * the configured Python environment, such as search paths.
  */
 
 import child_process from 'child_process';
 
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { PythonPlatform } from 'typeserver/config/configOptions.js';
-import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { HostKind, NoAccessHost } from 'typeserver/extensibility/host.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { isDirectory } from 'typeserver/files/uriUtils.js';
-import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
-import { assertNever } from 'typeserver/utils/debug.js';
-import { getAnyExtensionFromPath, normalizePath } from 'typeserver/utils/pathUtils.js';
+import { getAnyExtensionFromPath } from 'typeserver/utils/pathUtils.js';
 
 // preventLocalImports removes the working directory from sys.path.
 // The -c flag adds it automatically, which can allow some stdlib
@@ -41,54 +37,66 @@ const extractVersion = [
     'json.dump(tuple(sys.version_info), sys.stdout)',
 ].join('; ');
 
-export class LimitedAccessHost extends NoAccessHost {
-    override get kind(): HostKind {
-        return HostKind.LimitedAccess;
+export interface PythonPathResult {
+    paths: string[];
+    prefix: string | undefined;
+}
+
+export interface PythonEnvProvider {
+    getPythonSearchPaths(pythonPath?: Uri, logInfo?: string[]): PythonPathResult;
+    getPythonVersion(pythonPath?: Uri, logInfo?: string[]): PythonVersion | undefined;
+    getPythonPlatform(logInfo?: string[]): PythonPlatform | undefined;
+}
+
+// This variant of PythonEnvProvider is used when the environment has no
+// access to a Python environment or the platform it is running on.
+export class NoAccessPythonEnvProvider implements PythonEnvProvider {
+    getPythonSearchPaths(pythonPath?: Uri, logInfo?: string[]): PythonPathResult {
+        logInfo?.push('No access to python executable.');
+
+        return {
+            paths: [],
+            prefix: undefined,
+        };
     }
 
+    getPythonVersion(pythonPath?: Uri, logInfo?: string[]): PythonVersion | undefined {
+        return undefined;
+    }
+
+    getPythonPlatform(logInfo?: string[]): PythonPlatform | undefined {
+        return undefined;
+    }
+}
+
+// This variant of PythonEnvProvider is used when the environment has no
+// access to a Python environment but can determine the platform it is running on.
+export class LimitedAccessPythonEnvProvider extends NoAccessPythonEnvProvider {
     override getPythonPlatform(logInfo?: string[]): PythonPlatform | undefined {
-        if (process.platform === 'darwin') {
-            return PythonPlatform.Darwin;
-        } else if (process.platform === 'linux') {
-            return PythonPlatform.Linux;
-        } else if (process.platform === 'win32') {
-            return PythonPlatform.Windows;
+        switch (process.platform) {
+            case 'darwin':
+                return PythonPlatform.Darwin;
+
+            case 'linux':
+                return PythonPlatform.Linux;
+
+            case 'win32':
+                return PythonPlatform.Windows;
         }
 
         return undefined;
     }
 }
 
-export class FullAccessHost extends LimitedAccessHost {
-    constructor(protected extensionManager: ExtensionManager) {
-        super();
-    }
-
-    override get kind(): HostKind {
-        return HostKind.FullAccess;
-    }
-
-    static createHost(kind: HostKind, extensionManager: ExtensionManager) {
-        switch (kind) {
-            case HostKind.NoAccess:
-                return new NoAccessHost();
-            case HostKind.LimitedAccess:
-                return new LimitedAccessHost();
-            case HostKind.FullAccess:
-                return new FullAccessHost(extensionManager);
-            default:
-                assertNever(kind);
-        }
-    }
-
+export class FullAccessPythonEnvProvider extends LimitedAccessPythonEnvProvider {
     override getPythonSearchPaths(pythonPath?: Uri, logInfo?: string[]): PythonPathResult {
         const importFailureInfo = logInfo ?? [];
-        let result = this._executePythonInterpreter(pythonPath?.getFilePath(), (p) =>
+        const result = this._executePythonInterpreter(pythonPath?.getFilePath(), (p) =>
             this._getSearchPathResultFromInterpreter(p, importFailureInfo)
         );
 
         if (!result) {
-            result = {
+            return {
                 paths: [],
                 prefix: undefined,
             };
@@ -174,12 +182,7 @@ export class FullAccessHost extends LimitedAccessHost {
         }
     }
 
-    /**
-     * Executes a chunk of Python code via the provided interpreter and returns the output.
-     * @param interpreterPath Path to interpreter.
-     * @param commandLineArgs Command line args for interpreter other than the code to execute.
-     * @param code Code to execute.
-     */
+    // Executes a chunk of Python code via the provided interpreter and returns the output.
     private _executeCodeInInterpreter(interpreterPath: string, commandLineArgs: string[], code: string): string {
         const useShell = this.shouldUseShellToRunInterpreter(interpreterPath);
         if (useShell) {
@@ -199,16 +202,13 @@ export class FullAccessHost extends LimitedAccessHost {
     private _getSearchPathResultFromInterpreter(
         interpreterPath: string,
         importFailureInfo: string[]
-    ): PythonPathResult | undefined {
-        const result: PythonPathResult = {
-            paths: [],
-            prefix: undefined,
-        };
+    ): PythonPathResult {
+        const paths: string[] = [];
+        let prefix: string | undefined;
 
         try {
             importFailureInfo.push(`Executing interpreter: '${interpreterPath}'`);
             const execOutput = this._executeCodeInInterpreter(interpreterPath, [], extractSys);
-            const caseDetector = this.extensionManager.caseSensitivity;
 
             // Parse the execOutput. It should be a JSON-encoded array of paths.
             try {
@@ -216,32 +216,20 @@ export class FullAccessHost extends LimitedAccessHost {
                 for (let execSplitEntry of execSplit.path) {
                     execSplitEntry = execSplitEntry.trim();
                     if (execSplitEntry) {
-                        const normalizedPath = normalizePath(execSplitEntry);
-                        const normalizedUri = Uri.file(normalizedPath, caseDetector);
-                        const fs = this.extensionManager.fs;
-
-                        // Skip non-existent paths and broken zips/eggs.
-                        if (fs.existsSync(normalizedUri) && isDirectory(fs, normalizedUri)) {
-                            result.paths.push(normalizedUri);
-                        } else {
-                            importFailureInfo.push(`Skipping '${normalizedPath}' because it is not a valid directory`);
-                        }
+                        paths.push(execSplitEntry);
                     }
                 }
 
-                result.prefix = Uri.file(execSplit.prefix, caseDetector);
-
-                if (result.paths.length === 0) {
-                    importFailureInfo.push(`Found no valid directories`);
-                }
+                prefix = execSplit.prefix;
             } catch (err) {
                 importFailureInfo.push(`Could not parse output: '${execOutput}'`);
                 throw err;
             }
-        } catch {
-            return undefined;
+        } catch (err) {
+            importFailureInfo.push('Received exception while executing interpreter');
+            throw err;
         }
 
-        return result;
+        return { paths, prefix };
     }
 }

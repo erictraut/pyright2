@@ -119,7 +119,7 @@ import { ConfigOptions, getDiagLevelDiagnosticRules, parseDiagLevel } from 'type
 import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
 import { ConsoleInterface, ConsoleWithLogLevel, LogLevel } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Host } from 'typeserver/extensibility/host.js';
+import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
@@ -259,8 +259,6 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         const service = new TypeService(name, this.serverOptions.extensionManager, {
             typeshedFallbackLoc: this.serverOptions.typeshedFallbackLoc,
             console: this.console,
-            hostFactory: this.createHost.bind(this),
-            importResolverFactory: this.createImportResolver.bind(this),
             maxAnalysisTime: this.serverOptions.maxAnalysisTimeInForeground,
             fileSystem: services?.fs ?? this.serverOptions.extensionManager.fs,
             usingPullDiagnostics: this.client.usingPullDiagnostics,
@@ -415,11 +413,10 @@ export abstract class LanguageServerBase implements LanguageServerInterface, Dis
         return undefined;
     }
 
-    protected abstract createHost(): Host;
     protected abstract createImportResolver(
         extensionManager: ExtensionManager,
         options: ConfigOptions,
-        host: Host
+        host: PythonEnvProvider
     ): ImportResolver;
 
     protected setupConnection(supportedCommands: string[], supportedCodeActions: string[]): void {

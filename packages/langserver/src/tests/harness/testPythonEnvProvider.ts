@@ -1,17 +1,16 @@
 /*
- * testAccessHost.ts
+ * testPythonEnvProvider.ts
  * Copyright (c) Microsoft Corporation.
  * Licensed under the MIT license.
  *
  * NoAccessHost variation for test environment
  */
 
-import { NoAccessHost } from 'typeserver/extensibility/host.js';
+import { NoAccessPythonEnvProvider, PythonPathResult } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
-import { PythonPathResult } from 'typeserver/service/pythonPathUtils.js';
 
-export class TestAccessHost extends NoAccessHost {
-    constructor(private _modulePath = Uri.empty(), private _searchPaths: Uri[] = []) {
+export class TestPythonEnvProvider extends NoAccessPythonEnvProvider {
+    constructor(private _modulePath: string | undefined = undefined, private _searchPaths: string[] = []) {
         super();
     }
 

@@ -45,8 +45,6 @@ import {
 } from 'typeserver/evaluator/typeUtils.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
-import { Host } from 'typeserver/extensibility/host.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { tryStat, UriEx } from 'typeserver/files/uriUtils.js';
 import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -79,12 +77,10 @@ export class PackageTypeVerifier {
 
     constructor(
         private _extensionManager: ExtensionManager,
-        private _host: Host,
         commandLineOptions: CommandLineOptions,
         private _packageName: string,
         private _ignoreExternal = false
     ) {
-        const host = new FullAccessHost(_extensionManager);
         const typeshedFallbackUri = commandLineOptions.configSettings.typeshedFallbackPath
             ? UriEx.file(commandLineOptions.configSettings.typeshedFallbackPath)
             : undefined;
@@ -96,13 +92,13 @@ export class PackageTypeVerifier {
         if (commandLineOptions.configSettings.pythonPlatform) {
             this._configOptions.defaultPythonPlatform = commandLineOptions.configSettings.pythonPlatform;
         } else {
-            this._configOptions.ensureDefaultPythonPlatform(host, console);
+            this._configOptions.ensureDefaultPythonPlatform(this._extensionManager.pythonEnv, console);
         }
 
         if (commandLineOptions.configSettings.pythonVersion) {
             this._configOptions.defaultPythonVersion = commandLineOptions.configSettings.pythonVersion;
         } else {
-            this._configOptions.ensureDefaultPythonVersion(host, console);
+            this._configOptions.ensureDefaultPythonVersion(this._extensionManager.pythonEnv, console);
         }
 
         if (_ignoreExternal) {
@@ -110,7 +106,7 @@ export class PackageTypeVerifier {
         }
 
         this._execEnv = this._configOptions.findExecEnvironment(Uri.file('.', _extensionManager.caseSensitivity));
-        this._importResolver = new ImportResolver(this._extensionManager, this._configOptions, this._host);
+        this._importResolver = new ImportResolver(this._extensionManager, this._configOptions);
         this._program = new Program(this._importResolver, this._configOptions, this._extensionManager);
     }
 

@@ -8,15 +8,13 @@ import assert from 'assert';
 import { Disposable } from 'vscode-jsonrpc';
 
 import { Dirent, ReadStream, WriteStream } from 'fs';
-import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
 import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { MODULE_PATH, TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { lib, sitePackages, typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
-import { Host } from 'typeserver/extensibility/host.js';
 import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
@@ -355,11 +353,7 @@ describe('Import tests with fake venv', () => {
             const em = createExtensionManagerFromFiles(files);
             const configOptions = new ConfigOptions(UriEx.file('/'), typeshedFolder);
             const fs = em.fs;
-            const importResolver = new ImportResolver(
-                em,
-                configOptions,
-                new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)])
-            );
+            const importResolver = new ImportResolver(em, configOptions);
 
             // Stub package wins over original package (per PEP 561 rules).
             const myUri = UriEx.file(myFile);
@@ -502,11 +496,7 @@ describe('Import tests with fake venv', () => {
         test('no empty import roots', () => {
             const sp = createExtensionManagerFromFiles([]);
             const configOptions = new ConfigOptions(Uri.empty(), typeshedFolder); // Empty, like open-file mode.
-            const importResolver = new ImportResolver(
-                sp,
-                configOptions,
-                new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)])
-            );
+            const importResolver = new ImportResolver(sp, configOptions);
             importResolver.getImportRoots(configOptions.getDefaultExecEnvironment()).forEach((path) => assert(path));
         });
 
@@ -524,11 +514,7 @@ describe('Import tests with fake venv', () => {
 
             const sp = createExtensionManagerFromFiles(files);
             const configOptions = new ConfigOptions(Uri.empty(), typeshedFolder); // Empty, like open-file mode.
-            const importResolver = new ImportResolver(
-                sp,
-                configOptions,
-                new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)])
-            );
+            const importResolver = new ImportResolver(sp, configOptions);
             const importRoots = importResolver.getImportRoots(configOptions.getDefaultExecEnvironment());
 
             assert.strictEqual(
@@ -828,8 +814,6 @@ describe('Import tests with fake venv', () => {
     }
 
     function setupImportResolver(files: { path: string; content: string }[], setup?: (c: ConfigOptions) => void) {
-        const defaultHostFactory = (em: ExtensionManager) =>
-            new TestAccessHost(getModulePath(), [UriEx.file(libraryRoot)]);
         const defaultSetup =
             setup ??
             ((c) => {
@@ -839,7 +823,6 @@ describe('Import tests with fake venv', () => {
 
         // Use environment variables to determine how to create a host and how to modify the config options.
         // These are set in the CI to test imports with different options.
-        let hostFactory: (em: ExtensionManager) => Host = defaultHostFactory;
         let configModifier = defaultSetup;
         let emFactory = defaultEmFactory;
 
@@ -863,9 +846,6 @@ describe('Import tests with fake venv', () => {
                     /* checkRelative */ true
                 );
             };
-            hostFactory = (em: ExtensionManager) => {
-                return new TruePythonTestAccessHost(em, tempFile);
-            };
             emFactory = (files: { path: string; content: string }[]) => createExtensionManagerWithCombinedFs(files);
         }
 
@@ -882,7 +862,7 @@ describe('Import tests with fake venv', () => {
         }
 
         const uri = UriEx.file(file);
-        const importResolver = new ImportResolver(em, configOptions, hostFactory(em));
+        const importResolver = new ImportResolver(em, configOptions);
 
         return { importResolver, uri, configOptions };
     }
@@ -916,20 +896,10 @@ function createExtensionManagerWithCombinedFs(files: { path: string; content: st
 
 function createExtensionManagerWithFs(testFS: TestFileSystem, fs: FileSystem): ExtensionManager {
     const consoleProvider = new NullConsole();
-    const em = new ExtensionManager(fs, consoleProvider, testFS);
+    const pythonEnv = new TestPythonEnvProvider(getModulePath().toString(), [libraryRoot]);
+    const em = new ExtensionManager(fs, consoleProvider, testFS, pythonEnv);
     em.tempFile = testFS;
     return em;
-}
-
-class TruePythonTestAccessHost extends FullAccessHost {
-    constructor(em: ExtensionManager, tempFile: RealTempFile) {
-        const clone = em.clone();
-
-        // Make sure the extension manager uses a real file system and real temporary file provider.
-        clone.tempFile = tempFile;
-        clone.fs = createFromRealFileSystem(tempFile);
-        super(clone);
-    }
 }
 
 class CombinedFileSystem implements FileSystem {

@@ -8,6 +8,7 @@
 
 import { CancellationProvider } from 'typeserver/extensibility/cancellationUtils.js';
 import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { CaseSensitivityDetector } from 'typeserver/files/caseSensitivity.js';
 import { FileSystem, TempFile } from 'typeserver/files/fileSystem.js';
 
@@ -15,6 +16,7 @@ export class ExtensionManager {
     private _fileSystemProvider: FileSystem;
     private _consoleProvider: ConsoleInterface;
     private _caseSensitivityProvider: CaseSensitivityDetector;
+    private _pythonEnvProvider: PythonEnvProvider;
 
     private _tempFileProvider: TempFile | undefined;
     private _cancellationProvider: CancellationProvider | undefined;
@@ -22,11 +24,13 @@ export class ExtensionManager {
     constructor(
         fileSystemProvider: FileSystem,
         consoleProvider: ConsoleInterface,
-        caseSensitivityProvider: CaseSensitivityDetector
+        caseSensitivityProvider: CaseSensitivityDetector,
+        pythonEnvProvider: PythonEnvProvider
     ) {
         this._fileSystemProvider = fileSystemProvider;
         this._consoleProvider = consoleProvider;
         this._caseSensitivityProvider = caseSensitivityProvider;
+        this._pythonEnvProvider = pythonEnvProvider;
     }
 
     get fs(): FileSystem {
@@ -69,11 +73,20 @@ export class ExtensionManager {
         this._cancellationProvider = value;
     }
 
+    get pythonEnv(): PythonEnvProvider {
+        return this._pythonEnvProvider;
+    }
+
+    set pythonEnv(value: PythonEnvProvider) {
+        this._pythonEnvProvider = value;
+    }
+
     clone(): ExtensionManager {
         const clone = new ExtensionManager(
             this._fileSystemProvider,
             this._consoleProvider,
-            this._caseSensitivityProvider
+            this._caseSensitivityProvider,
+            this._pythonEnvProvider
         );
 
         clone._tempFileProvider = this._tempFileProvider;

@@ -27,7 +27,7 @@ import { ConfigOptions, matchFileSpecs } from 'typeserver/config/configOptions.j
 import { ConsoleInterface, LogLevel, StandardConsole, log } from 'typeserver/extensibility/console.js';
 import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Host, HostFactory, NoAccessHost } from 'typeserver/extensibility/host.js';
+import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
@@ -44,11 +44,7 @@ import {
     tryRealpath,
     tryStat,
 } from 'typeserver/files/uriUtils.js';
-import {
-    ImportResolver,
-    ImportResolverFactory,
-    createImportedModuleDescriptor,
-} from 'typeserver/imports/importResolver.js';
+import { ImportResolver, createImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { MaxAnalysisTime, Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { AnalysisCompleteCallback } from 'typeserver/service/analysis.js';
@@ -66,8 +62,6 @@ const _gitDirectory = normalizeSlashes('/.git/');
 export interface TypeServiceOptions {
     typeshedFallbackLoc: Uri;
     console?: ConsoleInterface;
-    hostFactory?: HostFactory;
-    importResolverFactory?: ImportResolverFactory;
     configOptions?: ConfigOptions;
     maxAnalysisTime?: MaxAnalysisTime;
     skipScanningUserFiles?: boolean;
@@ -124,20 +118,13 @@ export class TypeService {
             this._extensionManager.fs = this.options.fileSystem;
         }
 
-        this.options.importResolverFactory = options.importResolverFactory ?? TypeService.createImportResolver;
-        this.options.hostFactory = options.hostFactory ?? (() => new NoAccessHost());
-
         this.options.configOptions =
             options.configOptions ??
             new ConfigOptions(
                 Uri.file(process.cwd(), this._extensionManager.caseSensitivity),
                 this.options.typeshedFallbackLoc
             );
-        const importResolver = this.options.importResolverFactory(
-            this._extensionManager,
-            this.options.configOptions,
-            this.options.hostFactory()
-        );
+        const importResolver = new ImportResolver(this._extensionManager, this.options.configOptions);
 
         this._program = new Program(
             importResolver,
@@ -234,9 +221,9 @@ export class TypeService {
     static createImportResolver(
         extensionManager: ExtensionManager,
         options: ConfigOptions,
-        host: Host
+        host: PythonEnvProvider
     ): ImportResolver {
-        return new ImportResolver(extensionManager, options, host);
+        return new ImportResolver(extensionManager, options);
     }
 
     setCompletionCallback(callback: AnalysisCompleteCallback | undefined): void {
@@ -247,13 +234,12 @@ export class TypeService {
     setOptions(commandLineOptions: CommandLineOptions): void {
         this._commandLineOptions = commandLineOptions;
 
-        const host = this._hostFactory();
-        const configOptions = this._getConfigOptions(host, commandLineOptions);
+        const configOptions = this._getConfigOptions(this._extensionManager.pythonEnv, commandLineOptions);
 
         this._program.setConfigOptions(configOptions);
 
         this._executionRootUri = configOptions.projectRoot;
-        this.applyConfigOptions(host);
+        this.applyConfigOptions();
     }
 
     hasSourceFile(uri: Uri): boolean {
@@ -391,7 +377,7 @@ export class TypeService {
     }
 
     test_getConfigOptions(commandLineOptions: CommandLineOptions): ConfigOptions {
-        return this._getConfigOptions(this._program.host, commandLineOptions);
+        return this._getConfigOptions(this._program.extensionManager.pythonEnv, commandLineOptions);
     }
 
     test_getFileNamesFromFileSpecs(): Uri[] {
@@ -439,7 +425,7 @@ export class TypeService {
     // Forces the service to stop all analysis, discard all its caches,
     // and research for files.
     restart() {
-        this.applyConfigOptions(this._hostFactory());
+        this.applyConfigOptions();
     }
 
     protected runAnalysis(token: CancellationToken) {
@@ -503,7 +489,7 @@ export class TypeService {
         }, timeUntilNextAnalysisInMs);
     }
 
-    protected applyConfigOptions(host: Host) {
+    protected applyConfigOptions() {
         // Indicate that we are about to reanalyze because of this config change.
         // if (this.options.onInvalidated) {
         //     this.options.onInvalidated(InvalidatedReason.Reanalyzed);
@@ -511,7 +497,7 @@ export class TypeService {
 
         // Allocate a new import resolver because the old one has information
         // cached based on the previous config options.
-        const importResolver = this._importResolverFactory(this._extensionManager, this._program.configOptions, host);
+        const importResolver = new ImportResolver(this._extensionManager, this._program.configOptions);
 
         this._program.setImportResolver(importResolver);
 
@@ -552,14 +538,6 @@ export class TypeService {
         return this.options.console!;
     }
 
-    private get _hostFactory() {
-        return this.options.hostFactory!;
-    }
-
-    private get _importResolverFactory() {
-        return this.options.importResolverFactory!;
-    }
-
     private get _configOptions() {
         return this._program.configOptions;
     }
@@ -586,7 +564,7 @@ export class TypeService {
 
     // Calculates the effective options based on the command-line options,
     // an optional config file, and default values.
-    private _getConfigOptions(host: Host, commandLineOptions: CommandLineOptions): ConfigOptions {
+    private _getConfigOptions(host: PythonEnvProvider, commandLineOptions: CommandLineOptions): ConfigOptions {
         const optionRoot = commandLineOptions.executionRoot;
         const executionRootUri = Uri.is(optionRoot)
             ? optionRoot
@@ -679,8 +657,7 @@ export class TypeService {
                 configOptions.initializeFromJson(
                     config.configFileJsonObj,
                     config.configFileDirUri,
-                    this.extensionManager,
-                    host
+                    this.extensionManager
                 );
             }
 
@@ -728,7 +705,7 @@ export class TypeService {
     }
 
     private _ensureDefaultOptions(
-        host: Host,
+        host: PythonEnvProvider,
         configOptions: ConfigOptions,
         projectRoot: Uri,
         executionRoot: Uri,
@@ -831,7 +808,7 @@ export class TypeService {
                     );
                 } else {
                     const importFailureInfo: string[] = [];
-                    if (findPythonSearchPaths(this.fs, configOptions, host, importFailureInfo) === undefined) {
+                    if (findPythonSearchPaths(this.extensionManager, configOptions, importFailureInfo) === undefined) {
                         this._console.error(
                             `site-packages directory cannot be located for venvPath ` +
                                 `${configOptions.venvPath.toUserVisibleString()} and venv ${configOptions.venv}.`
@@ -1632,9 +1609,8 @@ export class TypeService {
         // Watch the library paths for package install/uninstall.
         const importFailureInfo: string[] = [];
         this._librarySearchUrisToWatch = findPythonSearchPaths(
-            this.fs,
+            this.extensionManager,
             this._program.configOptions,
-            this._program.host,
             importFailureInfo,
             /* includeWatchPathsOnly */ true,
             this._executionRootUri
@@ -1790,14 +1766,12 @@ export class TypeService {
         if (this._primaryConfigFileUri) {
             this._console.info(`Reloading configuration file at ${this._primaryConfigFileUri.toUserVisibleString()}`);
 
-            const host = this._program.host;
-
             // We can't just reload config file when it is changed; we need to consider
             // command line options as well to construct new config Options.
-            const configOptions = this._getConfigOptions(host, this._commandLineOptions!);
+            const configOptions = this._getConfigOptions(this._extensionManager.pythonEnv, this._commandLineOptions!);
             this._program.setConfigOptions(configOptions);
 
-            this.applyConfigOptions(host);
+            this.applyConfigOptions();
         }
     }
 

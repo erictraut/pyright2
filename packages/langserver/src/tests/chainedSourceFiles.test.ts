@@ -18,6 +18,7 @@ import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/commo
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
+import { NoAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { Program } from 'typeserver/program/program.js';
@@ -258,12 +259,11 @@ function createServiceWithChainedSourceFiles(basePath: Uri, code: string) {
     const fs = createFromFileSystem(host.HOST, /* ignoreCase */ false, { cwd: basePath.getFilePath() });
     const typeshedFallbackLoc = typeshedFolder;
     const console = new NullConsole();
-    const extensionManager = new ExtensionManager(fs, console, fs);
+    const extensionManager = new ExtensionManager(fs, console, fs, new NoAccessPythonEnvProvider());
 
     const service = new TypeService('test service', extensionManager, {
         typeshedFallbackLoc,
         console: new NullConsole(),
-        importResolverFactory: TypeService.createImportResolver,
         configOptions: new ConfigOptions(basePath, typeshedFallbackLoc),
         fileSystem: fs,
     });

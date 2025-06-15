@@ -193,10 +193,6 @@ export class Program {
         return this._importResolver.fileSystem;
     }
 
-    get host() {
-        return this._importResolver.host;
-    }
-
     dispose() {
         this._cacheManager.unregisterCacheOwner(this);
     }

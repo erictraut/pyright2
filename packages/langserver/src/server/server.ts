@@ -28,8 +28,7 @@ import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOpt
 import { ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileBasedCancellationProvider } from 'typeserver/extensibility/fileBasedCancellationUtils.js';
-import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
-import { Host } from 'typeserver/extensibility/host.js';
+import { FullAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import {
@@ -61,7 +60,7 @@ export class PyrightServer extends LanguageServerBase {
         const fileSystem = realFileSystem ?? createFromRealFileSystem(tempFile, console, fileWatcherProvider);
         const pyrightFs = new PyrightFileSystem(fileSystem);
 
-        const extensionManager = new ExtensionManager(pyrightFs, console, tempFile);
+        const extensionManager = new ExtensionManager(pyrightFs, console, tempFile, new FullAccessPythonEnvProvider());
         extensionManager.tempFile = tempFile;
         extensionManager.cancellation = new FileBasedCancellationProvider();
 
@@ -216,16 +215,11 @@ export class PyrightServer extends LanguageServerBase {
         return serverSettings;
     }
 
-    protected override createHost(): Host {
-        return new FullAccessHost(this.serverOptions.extensionManager);
-    }
-
     protected override createImportResolver(
         extensionManager: ExtensionManager,
-        options: ConfigOptions,
-        host: Host
+        options: ConfigOptions
     ): ImportResolver {
-        const importResolver = new ImportResolver(extensionManager, options, host);
+        const importResolver = new ImportResolver(extensionManager, options);
 
         // In case there was cached information in the file system related to
         // import resolution, invalidate it now.

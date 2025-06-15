@@ -21,7 +21,7 @@ import {
 } from 'typeserver/config/commandLineOptions.js';
 import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { Host } from 'typeserver/extensibility/host.js';
+import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { FileSpec, getFileSpec, isDirectory } from 'typeserver/files/uriUtils.js';
@@ -1158,7 +1158,7 @@ export class ConfigOptions {
     }
 
     // Initialize the structure from a JSON object.
-    initializeFromJson(configObj: any, configDirUri: Uri, extensionManager: ExtensionManager, host: Host) {
+    initializeFromJson(configObj: any, configDirUri: Uri, extensionManager: ExtensionManager) {
         this.initializedFromJson = true;
         const console = extensionManager.console ?? new NullConsole();
 
@@ -1485,7 +1485,7 @@ export class ConfigOptions {
         return undefined;
     }
 
-    ensureDefaultPythonPlatform(host: Host, console: ConsoleInterface) {
+    ensureDefaultPythonPlatform(host: PythonEnvProvider, console: ConsoleInterface) {
         // If no default python platform was specified, assume that the
         // user wants to use the current platform.
         if (this.defaultPythonPlatform !== undefined) {
@@ -1498,7 +1498,7 @@ export class ConfigOptions {
         }
     }
 
-    ensureDefaultPythonVersion(host: Host, console: ConsoleInterface) {
+    ensureDefaultPythonVersion(host: PythonEnvProvider, console: ConsoleInterface) {
         // If no default python version was specified, retrieve the version
         // from the currently-selected python interpreter.
         if (this.defaultPythonVersion !== undefined) {

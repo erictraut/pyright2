@@ -10,11 +10,12 @@
 import * as pathConsts from 'typeserver/common/pathConsts.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { Host } from 'typeserver/extensibility/host.js';
+import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { getFileSystemEntries, isDirectory, tryStat } from 'typeserver/files/uriUtils.js';
 import { compareComparableValues } from 'typeserver/utils/comparisonUtils.js';
+import { normalizePath } from 'typeserver/utils/pathUtils.js';
 
 export interface PythonPathResult {
     paths: Uri[];
@@ -29,9 +30,8 @@ export function getTypeshedSubdirectory(typeshedPath: Uri, isStdLib: boolean) {
 }
 
 export function findPythonSearchPaths(
-    fs: FileSystem,
+    em: ExtensionManager,
     configOptions: ConfigOptions,
-    host: Host,
     importFailureInfo: string[],
     includeWatchPathsOnly?: boolean | undefined,
     workspaceRoot?: Uri | undefined
@@ -47,20 +47,20 @@ export function findPythonSearchPaths(
 
         [pathConsts.lib, pathConsts.lib64, pathConsts.libAlternate].forEach((libPath) => {
             const sitePackagesPath = findSitePackagesPath(
-                fs,
+                em.fs,
                 venvPath.combinePaths(libPath),
                 configOptions.defaultPythonVersion,
                 importFailureInfo
             );
             if (sitePackagesPath) {
                 addPathIfUnique(foundPaths, sitePackagesPath);
-                sitePackagesPaths.push(fs.realCasePath(sitePackagesPath));
+                sitePackagesPaths.push(em.fs.realCasePath(sitePackagesPath));
             }
         });
 
         // Now add paths from ".pth" files located in each of the site packages folders.
         sitePackagesPaths.forEach((sitePackagesPath) => {
-            const pthPaths = getPathsFromPthFiles(fs, sitePackagesPath);
+            const pthPaths = getPathsFromPthFiles(em.fs, sitePackagesPath);
             pthPaths.forEach((path) => {
                 addPathIfUnique(foundPaths, path);
             });
@@ -80,16 +80,36 @@ export function findPythonSearchPaths(
     }
 
     // Fall back on the python interpreter.
-    const pathResult = host.getPythonSearchPaths(configOptions.pythonPath, importFailureInfo);
+    const rawPathResult = em.pythonEnv.getPythonSearchPaths(configOptions.pythonPath, importFailureInfo);
+
+    const pathResult: Uri[] = [];
+    rawPathResult.paths.forEach((p) => {
+        const normalizedPath = normalizePath(p);
+        const normalizedUri = Uri.file(normalizedPath, em.caseSensitivity);
+
+        // Skip non-existent paths and broken zips/eggs.
+        if (em.fs.existsSync(normalizedUri) && isDirectory(em.fs, normalizedUri)) {
+            pathResult.push(normalizedUri);
+        } else {
+            importFailureInfo.push(`Skipping '${normalizedPath}' because it is not a valid directory`);
+        }
+    });
+
+    if (pathResult.length === 0) {
+        importFailureInfo.push(`Found no valid directories`);
+    }
+
+    const prefixUri = rawPathResult.prefix ? Uri.file(rawPathResult.prefix, em.caseSensitivity) : undefined;
+
     if (includeWatchPathsOnly && workspaceRoot && !workspaceRoot.isEmpty()) {
-        const paths = pathResult.paths
-            .filter((p) => !p.startsWith(workspaceRoot) || p.startsWith(pathResult.prefix))
-            .map((p) => fs.realCasePath(p));
+        const paths = pathResult
+            .filter((p) => !p.startsWith(workspaceRoot) || p.startsWith(prefixUri))
+            .map((p) => em.fs.realCasePath(p));
 
         return paths;
     }
 
-    return pathResult.paths.map((p) => fs.realCasePath(p));
+    return pathResult.map((p) => em.fs.realCasePath(p));
 }
 
 export function isPythonBinary(p: string): boolean {

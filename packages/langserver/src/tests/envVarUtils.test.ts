@@ -12,7 +12,7 @@ import os from 'os';
 
 import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
-import { TestAccessHost } from 'langserver/tests/harness/testAccessHost.js';
+import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
 import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
@@ -206,7 +206,7 @@ describe('expandPathVariables', () => {
 
 function createWorkspace(rootUri: Uri | undefined) {
     const fs = new TestFileSystem(false);
-    const em = new ExtensionManager(fs, new NullConsole(), fs);
+    const em = new ExtensionManager(fs, new NullConsole(), fs, new TestPythonEnvProvider());
 
     return {
         workspaceName: '',
@@ -215,8 +215,6 @@ function createWorkspace(rootUri: Uri | undefined) {
         service: new TypeService('test service', em, {
             typeshedFallbackLoc: typeshedFolder,
             console: new NullConsole(),
-            hostFactory: () => new TestAccessHost(),
-            importResolverFactory: TypeService.createImportResolver,
             configOptions: new ConfigOptions(Uri.empty()),
         }),
         disableLanguageServices: false,

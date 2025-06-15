@@ -10,7 +10,7 @@
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FullAccessHost } from 'typeserver/extensibility/fullAccessHost.js';
+import { FullAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { Uri } from 'typeserver/files/uri/uri.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -21,7 +21,7 @@ test('Empty', () => {
     const filePath = combinePaths(process.cwd(), 'tests/samples/test_file1.py');
     const tempFile = new RealTempFile();
     const fs = createFromRealFileSystem(tempFile);
-    const extensionManager = new ExtensionManager(fs, new NullConsole(), tempFile);
+    const extensionManager = new ExtensionManager(fs, new NullConsole(), tempFile, new FullAccessPythonEnvProvider());
     extensionManager.tempFile = tempFile;
 
     const sourceFile = new SourceFile(
@@ -35,7 +35,7 @@ test('Empty', () => {
         }
     );
     const configOptions = new ConfigOptions(Uri.file(process.cwd(), extensionManager.caseSensitivity));
-    const importResolver = new ImportResolver(extensionManager, configOptions, new FullAccessHost(extensionManager));
+    const importResolver = new ImportResolver(extensionManager, configOptions);
 
     sourceFile.parse(configOptions, importResolver);
 });
