@@ -10,7 +10,6 @@
 import { CancellationToken } from 'vscode-languageserver';
 
 import { SymbolTable } from 'typeserver/binder/symbol.js';
-import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
@@ -21,7 +20,6 @@ import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ITypeServer {
     readonly evaluator: TypeEvaluator | undefined;
-    readonly configOptions: ConfigOptions;
     readonly fileSystem: IReadOnlyFileSystem;
     readonly extensionManager: ExtensionManager;
 

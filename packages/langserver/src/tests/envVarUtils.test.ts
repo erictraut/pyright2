@@ -13,6 +13,7 @@ import os from 'os';
 import { NullConsole } from 'commonUtils/console.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
+import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
 import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
@@ -204,7 +205,7 @@ describe('expandPathVariables', () => {
     });
 });
 
-function createWorkspace(rootUri: Uri | undefined) {
+function createWorkspace(rootUri: Uri | undefined): Workspace {
     const fs = new TestFileSystem(false);
     const console = new NullConsole();
     const em = new ExtensionManager(fs, console, fs, new TestPythonEnvProvider());
@@ -220,6 +221,8 @@ function createWorkspace(rootUri: Uri | undefined) {
         disableLanguageServices: false,
         disableTaggedHints: false,
         disableWorkspaceSymbol: false,
+        functionSignatureDisplay: SignatureDisplayType.Formatted,
+        autoImportCompletions: true,
         isInitialized: createInitStatus(),
         searchPathsToWatch: [],
     };

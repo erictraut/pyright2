@@ -10,11 +10,15 @@ import { ConsoleInterface, LogLevel } from 'commonUtils/console.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { TaskListToken } from 'typeserver/common/diagnostic.js';
 import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.js';
-import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
+
+export enum SignatureDisplayType {
+    Compact = 'compact',
+    Formatted = 'formatted',
+}
 
 export interface LanguageServerSettings {
     venvPath?: Uri | undefined;

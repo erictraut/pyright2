@@ -83,11 +83,6 @@ export class ExecutionEnvironment {
 
 export type DiagnosticLevel = 'none' | 'information' | 'warning' | 'error';
 
-export enum SignatureDisplayType {
-    compact = 'compact',
-    formatted = 'formatted',
-}
-
 export interface DiagnosticRuleSet {
     // Should "Unknown" types be reported as "Any"?
     printUnknownAsAny: boolean;
@@ -1011,12 +1006,6 @@ export class ConfigOptions {
     // type information?
     useLibraryCodeForTypes?: boolean | undefined;
 
-    // Offer auto-import completions.
-    autoImportCompletions = true;
-
-    // Use indexing.
-    indexing = false;
-
     // Use type evaluator call tracking
     logTypeEvaluationTime = false;
 
@@ -1080,9 +1069,6 @@ export class ConfigOptions {
     // treated as Any rather than Unknown?
     evaluateUnknownImportsAsAny?: boolean;
 
-    // Controls how hover and completion function signatures are displayed.
-    functionSignatureDisplay: SignatureDisplayType;
-
     // Determines if has a config file (pyrightconfig.json or pyproject.toml) or not.
     configFileSource?: Uri | undefined;
 
@@ -1093,7 +1079,6 @@ export class ConfigOptions {
         this.projectRoot = projectRoot;
         this.typeshedFallbackPath = typeshedFallbackLoc;
         this.diagnosticRuleSet = ConfigOptions.getDiagnosticRuleSet();
-        this.functionSignatureDisplay = SignatureDisplayType.formatted;
     }
 
     static getDiagnosticRuleSet(typeCheckingMode?: string): DiagnosticRuleSet {
@@ -1419,56 +1404,6 @@ export class ConfigOptions {
                 console.error(`Config "useLibraryCodeForTypes" field must be true or false.`);
             } else {
                 this.useLibraryCodeForTypes = configObj.useLibraryCodeForTypes;
-            }
-        }
-
-        // Read the "autoImportCompletions" setting.
-        if (configObj.autoImportCompletions !== undefined) {
-            if (typeof configObj.autoImportCompletions !== 'boolean') {
-                console.error(`Config "autoImportCompletions" field must be true or false.`);
-            } else {
-                this.autoImportCompletions = configObj.autoImportCompletions;
-            }
-        }
-
-        // Read the "indexing" setting.
-        if (configObj.indexing !== undefined) {
-            if (typeof configObj.indexing !== 'boolean') {
-                console.error(`Config "indexing" field must be true or false.`);
-            } else {
-                this.indexing = configObj.indexing;
-            }
-        }
-
-        // Read the "logTypeEvaluationTime" setting.
-        if (configObj.logTypeEvaluationTime !== undefined) {
-            if (typeof configObj.logTypeEvaluationTime !== 'boolean') {
-                console.error(`Config "logTypeEvaluationTime" field must be true or false.`);
-            } else {
-                this.logTypeEvaluationTime = configObj.logTypeEvaluationTime;
-            }
-        }
-
-        // Read the "typeEvaluationTimeThreshold" setting.
-        if (configObj.typeEvaluationTimeThreshold !== undefined) {
-            if (typeof configObj.typeEvaluationTimeThreshold !== 'number') {
-                console.error(`Config "typeEvaluationTimeThreshold" field must be a number.`);
-            } else {
-                this.typeEvaluationTimeThreshold = configObj.typeEvaluationTimeThreshold;
-            }
-        }
-
-        // Read the "functionSignatureDisplay" setting.
-        if (configObj.functionSignatureDisplay !== undefined) {
-            if (typeof configObj.functionSignatureDisplay !== 'string') {
-                console.error(`Config "functionSignatureDisplay" field must be true or false.`);
-            } else {
-                if (
-                    configObj.functionSignatureDisplay === 'compact' ||
-                    configObj.functionSignatureDisplay === 'formatted'
-                ) {
-                    this.functionSignatureDisplay = configObj.functionSignatureDisplay as SignatureDisplayType;
-                }
             }
         }
     }

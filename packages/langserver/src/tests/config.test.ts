@@ -533,8 +533,6 @@ describe(`config test'}`, () => {
 
         service.setOptions(commandLineOptions);
         let options = service.test_getConfigOptions(commandLineOptions);
-        assert.strictEqual(options.autoImportCompletions, true);
-        assert.strictEqual(options.indexing, true);
         assert.strictEqual(options.taskListTokens?.length, 1);
         assert.strictEqual(options.logTypeEvaluationTime, true);
         assert.strictEqual(options.typeEvaluationTimeThreshold, 1);
@@ -546,8 +544,6 @@ describe(`config test'}`, () => {
         commandLineOptions.languageServerSettings.venvPath = 'test_venv_path';
         service.setOptions(commandLineOptions);
         options = service.test_getConfigOptions(commandLineOptions);
-        assert.strictEqual(options.autoImportCompletions, true);
-        assert.strictEqual(options.indexing, true);
         assert.strictEqual(options.taskListTokens?.length, 1);
         assert.strictEqual(options.logTypeEvaluationTime, true);
         assert.strictEqual(options.typeEvaluationTimeThreshold, 1);

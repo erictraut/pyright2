@@ -33,6 +33,7 @@ import {
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
 import { getAutoImportText, getDocumentationPartsForTypeAndDecl } from 'langserver/providers/tooltipUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
+import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { fromLSPAny, toLSPAny } from 'langserver/server/lspUtils.js';
 import { convertToTextEdits } from 'langserver/server/workspaceEditUtils.js';
 import {
@@ -72,10 +73,14 @@ import {
     PrintExpressionFlags,
 } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
-import { PythonVersion, pythonVersion3_10, pythonVersion3_5 } from 'typeserver/common/pythonVersion.js';
+import {
+    latestStablePythonVersion,
+    PythonVersion,
+    pythonVersion3_10,
+    pythonVersion3_5,
+} from 'typeserver/common/pythonVersion.js';
 import { comparePositions, Position, TextRange } from 'typeserver/common/textRange.js';
 import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
-import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
 import { transformTypeForEnumMember } from 'typeserver/evaluator/enums.js';
 import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils.js';
 import { getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts.js';
@@ -263,6 +268,8 @@ export interface CompletionItemData {
 }
 
 export interface CompletionOptions {
+    readonly autoImport: boolean;
+    readonly functionSignatureDisplay: SignatureDisplayType;
     readonly format: MarkupKind;
     readonly snippet: boolean;
     readonly lazyEdit: boolean;
@@ -299,7 +306,6 @@ export class CompletionProvider {
     // token or an f-string expression.
     private _stringLiteralContainer: StringToken | FStringStartToken | undefined = undefined;
 
-    protected readonly execEnv: ExecutionEnvironment;
     protected readonly parseResults: ParseFileResults;
     protected readonly sourceMapper: SourceMapper;
 
@@ -314,8 +320,6 @@ export class CompletionProvider {
         protected readonly options: CompletionOptions,
         protected readonly cancellationToken: CancellationToken
     ) {
-        this.execEnv = this.configOptions.findExecEnvironment(this.fileUri);
-
         this.parseResults = this.typeServer.getParseResults(this.fileUri)!;
         this.sourceMapper = this.typeServer.getSourceMapper(
             this.fileUri,
@@ -419,10 +423,6 @@ export class CompletionProvider {
 
     protected get evaluator() {
         return this.typeServer.evaluator!;
-    }
-
-    protected get configOptions() {
-        return this.typeServer.configOptions;
     }
 
     protected getCompletionItemData(item: CompletionItem): CompletionItemData {
@@ -688,7 +688,7 @@ export class CompletionProvider {
                 primaryDecl,
                 name,
                 detail,
-                this.configOptions.functionSignatureDisplay
+                this.options.functionSignatureDisplay
             );
             const documentation = getDocumentationPartsForTypeAndDecl(
                 this.sourceMapper,
@@ -819,7 +819,6 @@ export class CompletionProvider {
         return new AutoImporter(
             this.fileUri,
             this.typeServer,
-            this.execEnv,
             this.parseResults,
             this.position,
             completionMap,
@@ -837,7 +836,7 @@ export class CompletionProvider {
         completionMap: CompletionMap,
         parensDisabled?: boolean
     ) {
-        if (!this.configOptions.autoImportCompletions) {
+        if (!this.options.autoImport) {
             // If auto import on the server is turned off or this particular invocation
             // is turned off (ex, notebook), don't do any thing.
             return;
@@ -1962,7 +1961,7 @@ export class CompletionProvider {
         this._addSymbols(parseNode, priorWord, completionMap);
 
         // Add keywords.
-        this._findMatchingKeywords(Keywords.forVersion(this.execEnv.pythonVersion), priorWord).map((keyword) => {
+        this._findMatchingKeywords(Keywords.forVersion(latestStablePythonVersion), priorWord).map((keyword) => {
             if (completionMap.has(keyword)) {
                 return;
             }

@@ -46,7 +46,7 @@ import { HoverProvider } from 'langserver/providers/hoverProvider.js';
 import { ReferencesProvider } from 'langserver/providers/referencesProvider.js';
 import { RenameProvider } from 'langserver/providers/renameProvider.js';
 import { SignatureHelpProvider } from 'langserver/providers/signatureHelpProvider.js';
-import { LanguageServerInterface } from 'langserver/server/languageServerInterface.js';
+import { LanguageServerInterface, SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { convertDocumentRangesToLocation } from 'langserver/server/navigationUtils.js';
 import { convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
 import {
@@ -92,7 +92,7 @@ import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/com
 import { Position, Range as PositionRange, TextRange, rangesAreEqual } from 'typeserver/common/textRange.js';
 import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
-import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
+import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { getFileSpec } from 'typeserver/files/uriUtils.js';
@@ -211,6 +211,9 @@ export class TestState {
             disableLanguageServices: false,
             disableTaggedHints: false,
             disableWorkspaceSymbol: false,
+            // Default tests to run use compact signatures.
+            functionSignatureDisplay: SignatureDisplayType.Compact,
+            autoImportCompletions: true,
             isInitialized: createInitStatus(),
             searchPathsToWatch: [],
         };
@@ -929,6 +932,9 @@ export class TestState {
                 this.typeServer,
                 range.fileUri,
                 rangePos.start,
+                {
+                    functionSignatureDisplay: SignatureDisplayType.Compact,
+                },
                 kind,
                 CancellationToken.None
             );
@@ -1614,6 +1620,8 @@ export class TestState {
         const completionPosition = this.convertOffsetToPosition(filePath, marker.position);
 
         const options: CompletionOptions = {
+            functionSignatureDisplay: SignatureDisplayType.Compact,
+            autoImport: true,
             format: docFormat,
             snippet: true,
             lazyEdit: false,
@@ -1750,9 +1758,6 @@ export class TestState {
         // add more global options as we need them
         const newConfigOptions = this._applyTestConfigOptions(configOptions, mountPaths);
 
-        // default tests to run use compact signatures.
-        newConfigOptions.functionSignatureDisplay = SignatureDisplayType.compact;
-
         return newConfigOptions;
     }
 
@@ -1779,10 +1784,6 @@ export class TestState {
             for (const mountPath of mountPaths.keys()) {
                 configOptions.exclude.push(getFileSpec(configOptions.projectRoot, mountPath));
             }
-        }
-
-        if (configOptions.functionSignatureDisplay === undefined) {
-            configOptions.functionSignatureDisplay === SignatureDisplayType.compact;
         }
 
         return configOptions;

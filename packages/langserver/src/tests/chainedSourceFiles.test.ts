@@ -14,6 +14,7 @@ import { NullConsole } from 'commonUtils/console.js';
 import { normalizeSlashes } from 'commonUtils/pathUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CompletionProvider } from 'langserver/providers/completionProvider.js';
+import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParser.js';
 import * as host from 'langserver/tests/harness/testHost.js';
 import { createFromFileSystem, typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
@@ -54,6 +55,8 @@ test('check chained files', () => {
         markerUri,
         convertOffsetToPosition(marker.position, parseResult.tokenizerOutput.lines),
         {
+            functionSignatureDisplay: SignatureDisplayType.Formatted,
+            autoImport: true,
             format: MarkupKind.Markdown,
             lazyEdit: false,
             snippet: false,
@@ -93,14 +96,14 @@ test('modify chained files', () => {
     // Close file in the middle of the chain
     service.setFileClosed(data.markerPositions.get('delete')!.fileUri);
 
-    // Make sure we don't get suggestion from auto import but from chained files.
-    service.program.configOptions.autoImportCompletions = false;
-
     const result = new CompletionProvider(
         new TypeServerProvider(service.program),
         markerUri,
         convertOffsetToPosition(marker.position, parseResult.tokenizerOutput.lines),
         {
+            functionSignatureDisplay: SignatureDisplayType.Formatted,
+            // Make sure we don't get suggestion from auto import but from chained files.
+            autoImport: false,
             format: MarkupKind.Markdown,
             lazyEdit: false,
             snippet: false,

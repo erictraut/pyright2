@@ -845,12 +845,6 @@ export class TypeService {
         if (languageServerOptions.checkOnlyOpenFiles !== undefined) {
             configOptions.checkOnlyOpenFiles = languageServerOptions.checkOnlyOpenFiles;
         }
-        if (languageServerOptions.autoImportCompletions !== undefined) {
-            configOptions.autoImportCompletions = languageServerOptions.autoImportCompletions;
-        }
-        if (languageServerOptions.indexing !== undefined) {
-            configOptions.indexing = languageServerOptions.indexing;
-        }
         if (languageServerOptions.taskListTokens) {
             configOptions.taskListTokens = languageServerOptions.taskListTokens;
         }

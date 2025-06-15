@@ -104,6 +104,7 @@ import {
     LanguageServerInterface,
     LanguageServerOptions,
     LanguageServerSettings,
+    SignatureDisplayType,
     WorkspaceServices,
 } from 'langserver/server/languageServerInterface.js';
 import { ClientCapabilities, InitializationOptions } from 'langserver/server/lspTypes.js';
@@ -123,12 +124,7 @@ import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
 import { DocumentRange } from 'typeserver/common/docRange.js';
 import { Position, Range } from 'typeserver/common/textRange.js';
 import { DiagnosticSeverityOverrides, getDiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.js';
-import {
-    ConfigOptions,
-    SignatureDisplayType,
-    getDiagLevelDiagnosticRules,
-    parseDiagLevel,
-} from 'typeserver/config/configOptions.js';
+import { ConfigOptions, getDiagLevelDiagnosticRules, parseDiagLevel } from 'typeserver/config/configOptions.js';
 import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { IFileSystem } from 'typeserver/files/fileSystem.js';
@@ -270,7 +266,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             diagnosticSeverityOverrides: {},
             logLevel: LogLevel.Info,
             autoImportCompletions: true,
-            functionSignatureDisplay: SignatureDisplayType.formatted,
+            functionSignatureDisplay: SignatureDisplayType.Formatted,
         };
 
         try {
@@ -464,6 +460,9 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
 
             workspace.disableLanguageServices = !!serverSettings.disableLanguageServices;
             workspace.disableTaggedHints = !!serverSettings.disableTaggedHints;
+            workspace.functionSignatureDisplay =
+                serverSettings.functionSignatureDisplay ?? SignatureDisplayType.Formatted;
+            workspace.autoImportCompletions = !!serverSettings.autoImportCompletions;
         } finally {
             // Don't use workspace.isInitialized directly since it might have been
             // reset due to pending config change event.
@@ -954,7 +953,16 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         }
 
         return workspace.service.run((program) => {
-            return new HoverProvider(program, uri, params.position, this.client.hoverContentFormat, token).getHover();
+            return new HoverProvider(
+                program,
+                uri,
+                params.position,
+                {
+                    functionSignatureDisplay: workspace.functionSignatureDisplay,
+                },
+                this.client.hoverContentFormat,
+                token
+            ).getHover();
         }, token);
     }
 
@@ -1028,6 +1036,8 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                 uri,
                 params.position,
                 {
+                    functionSignatureDisplay: workspace.functionSignatureDisplay,
+                    autoImport: workspace.autoImportCompletions,
                     format: this.client.completionDocFormat,
                     snippet: this.client.completionSupportsSnippet,
                     lazyEdit: false,
@@ -1058,6 +1068,8 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                     uri,
                     completionItemData.position,
                     {
+                        functionSignatureDisplay: workspace.functionSignatureDisplay,
+                        autoImport: workspace.autoImportCompletions,
                         format: this.client.completionDocFormat,
                         snippet: this.client.completionSupportsSnippet,
                         lazyEdit: false,

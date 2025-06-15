@@ -12,7 +12,11 @@ import { ConsoleInterface } from 'commonUtils/console.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CommandController } from 'langserver/commands/commandController.js';
 import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
-import { LanguageServerInterface, LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
+import {
+    LanguageServerInterface,
+    LanguageServerSettings,
+    SignatureDisplayType,
+} from 'langserver/server/languageServerInterface.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { HostSpecificFeatures } from 'langserver/tests/harness/fourslash/testState.js';
 import path from 'path';
@@ -77,6 +81,8 @@ export class TestLanguageService implements LanguageServerInterface {
             disableLanguageServices: false,
             disableTaggedHints: false,
             disableWorkspaceSymbol: false,
+            functionSignatureDisplay: SignatureDisplayType.Formatted,
+            autoImportCompletions: true,
             isInitialized: createInitStatus(),
             searchPathsToWatch: [],
         };
@@ -95,16 +101,17 @@ export class TestLanguageService implements LanguageServerInterface {
     }
 
     getSettings(_workspace: Workspace): Promise<LanguageServerSettings> {
+        const configOptions = _workspace.service.getConfigOptions();
         const settings: LanguageServerSettings = {
-            venvPath: this._workspace.service.getConfigOptions().venvPath,
-            pythonPath: this._workspace.service.getConfigOptions().pythonPath,
-            typeshedPath: this._workspace.service.getConfigOptions().typeshedPath,
-            openFilesOnly: this._workspace.service.getConfigOptions().checkOnlyOpenFiles,
-            useLibraryCodeForTypes: this._workspace.service.getConfigOptions().useLibraryCodeForTypes,
+            venvPath: configOptions.venvPath,
+            pythonPath: configOptions.pythonPath,
+            typeshedPath: configOptions.typeshedPath,
+            openFilesOnly: configOptions.checkOnlyOpenFiles,
+            useLibraryCodeForTypes: configOptions.useLibraryCodeForTypes,
             disableLanguageServices: this._workspace.disableLanguageServices,
             disableTaggedHints: this._workspace.disableTaggedHints,
-            autoImportCompletions: this._workspace.service.getConfigOptions().autoImportCompletions,
-            functionSignatureDisplay: this._workspace.service.getConfigOptions().functionSignatureDisplay,
+            autoImportCompletions: this._workspace.autoImportCompletions,
+            functionSignatureDisplay: this._workspace.functionSignatureDisplay,
         };
 
         return Promise.resolve(settings);

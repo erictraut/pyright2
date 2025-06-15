@@ -591,10 +591,6 @@ export class Program {
         return this._configOptions.checkOnlyOpenFiles || false;
     }
 
-    functionSignatureDisplay() {
-        return this._configOptions.functionSignatureDisplay;
-    }
-
     containsSourceFileIn(folder: Uri): boolean {
         for (const normalizedSourceFilePath of this._sourceFileMap.values()) {
             if (normalizedSourceFilePath.uri.startsWith(folder)) {

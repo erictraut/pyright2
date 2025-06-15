@@ -22,6 +22,7 @@ import {
     getTypeForToolTip,
 } from 'langserver/providers/tooltipUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
+import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import {
     Declaration,
     DeclarationType,
@@ -32,7 +33,6 @@ import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
 import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
-import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
@@ -204,6 +204,10 @@ export function getVariableTypeText(
     return `(${label}) ` + typeText;
 }
 
+export interface HoverOptions {
+    readonly functionSignatureDisplay: SignatureDisplayType;
+}
+
 export class HoverProvider {
     private readonly _parseResults: ParseFileResults | undefined;
     private readonly _sourceMapper: SourceMapper;
@@ -212,6 +216,7 @@ export class HoverProvider {
         private readonly _typeServer: ITypeServer,
         private readonly _fileUri: Uri,
         private readonly _position: Position,
+        private readonly _options: HoverOptions,
         private readonly _format: MarkupKind,
         private readonly _token: CancellationToken
     ) {
@@ -252,7 +257,7 @@ export class HoverProvider {
     }
 
     private get _functionSignatureDisplay() {
-        return this._typeServer.configOptions.functionSignatureDisplay;
+        return this._options.functionSignatureDisplay;
     }
 
     private _getHoverResult(): HoverResults | null {

@@ -9,10 +9,10 @@
  */
 
 import { isDefined } from 'commonUtils/valueTypeUtils.js';
+import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
 import { getCallForName, getEnclosingClass } from 'typeserver/common/parseTreeUtils.js';
-import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { getBoundCallMethod } from 'typeserver/evaluator/constructors.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
@@ -131,7 +131,7 @@ export function getFunctionTooltip(
 ) {
     const labelFormatted = label.length === 0 ? '' : `(${label}) `;
     const indentStr =
-        functionSignatureDisplay === SignatureDisplayType.formatted ? '\n' + ' '.repeat(functionParamIndentOffset) : '';
+        functionSignatureDisplay === SignatureDisplayType.Formatted ? '\n' + ' '.repeat(functionParamIndentOffset) : '';
     const funcParts = evaluator.printFunctionParts(type);
     const paramSignature = `${formatSignature(funcParts, indentStr, functionSignatureDisplay)} -> ${funcParts[1]}`;
 
@@ -170,7 +170,7 @@ export function getConstructorTooltip(
         });
     } else if (isFunction(type)) {
         const indentStr =
-            functionSignatureDisplay === SignatureDisplayType.formatted
+            functionSignatureDisplay === SignatureDisplayType.Formatted
                 ? '\n' + ' '.repeat(functionParamIndentOffset)
                 : ' ';
         const funcParts = evaluator.printFunctionParts(type);
@@ -186,7 +186,7 @@ function formatSignature(
     indentStr: string,
     functionSignatureDisplay: SignatureDisplayType
 ) {
-    return functionSignatureDisplay === SignatureDisplayType.formatted &&
+    return functionSignatureDisplay === SignatureDisplayType.Formatted &&
         funcParts.length > 0 &&
         funcParts[0].length > 1
         ? `(${indentStr}${funcParts[0].join(',' + indentStr)}\n)`

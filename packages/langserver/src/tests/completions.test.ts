@@ -10,6 +10,7 @@ import { CompletionItemKind, MarkupKind } from 'vscode-languageserver-types';
 
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CompletionOptions, CompletionProvider } from 'langserver/providers/completionProvider.js';
+import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
 
 test('completion import statement tooltip', async () => {
@@ -803,6 +804,8 @@ test('completion quote trigger', async () => {
     const position = state.convertOffsetToPosition(filePath, marker.position);
 
     const options: CompletionOptions = {
+        functionSignatureDisplay: SignatureDisplayType.Formatted,
+        autoImport: true,
         format: 'markdown',
         snippet: false,
         lazyEdit: false,
@@ -841,6 +844,8 @@ test('completion quote trigger - middle', async () => {
     const position = state.convertOffsetToPosition(filePath, marker.position);
 
     const options: CompletionOptions = {
+        functionSignatureDisplay: SignatureDisplayType.Formatted,
+        autoImport: true,
         format: 'markdown',
         snippet: false,
         lazyEdit: false,
@@ -887,6 +892,8 @@ test('auto import sort text', async () => {
     const position = state.convertOffsetToPosition(filePath, marker.position);
 
     const options: CompletionOptions = {
+        functionSignatureDisplay: SignatureDisplayType.Formatted,
+        autoImport: true,
         format: 'markdown',
         snippet: false,
         lazyEdit: false,

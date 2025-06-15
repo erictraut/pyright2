@@ -22,7 +22,6 @@ import { isPrivateOrProtectedName, isPublicConstantOrTypeAlias } from 'typeserve
 import { isVisibleExternally } from 'typeserver/binder/symbolUtils.js';
 import { TextEditAction } from 'typeserver/common/editAction.js';
 import { Position } from 'typeserver/common/textRange.js';
-import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import {
     ImportGroup,
@@ -193,7 +192,6 @@ export class AutoImporter {
     constructor(
         protected readonly fileUri: Uri,
         protected readonly typeServer: ITypeServer,
-        protected readonly execEnvironment: ExecutionEnvironment,
         protected readonly parseResults: ParseFileResults,
         private readonly _invocationPosition: Position,
         private readonly _excludes: CompletionMap,

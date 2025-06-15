@@ -13,6 +13,7 @@ import {
 import { ConsoleInterface } from 'commonUtils/console.js';
 import { createDeferred } from 'commonUtils/deferred.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 
@@ -84,6 +85,8 @@ export interface Workspace extends WorkspaceFolder {
     disableLanguageServices: boolean;
     disableTaggedHints: boolean;
     disableWorkspaceSymbol: boolean;
+    functionSignatureDisplay: SignatureDisplayType;
+    autoImportCompletions: boolean;
     isInitialized: InitStatus;
     searchPathsToWatch: Uri[];
 }
@@ -274,6 +277,8 @@ export class WorkspaceFactory {
             disableLanguageServices: false,
             disableTaggedHints: false,
             disableWorkspaceSymbol: false,
+            functionSignatureDisplay: SignatureDisplayType.Formatted,
+            autoImportCompletions: true,
             isInitialized: createInitStatus(),
             searchPathsToWatch: [],
         };

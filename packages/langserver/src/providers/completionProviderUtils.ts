@@ -11,9 +11,9 @@ import { InsertTextFormat, MarkupContent, MarkupKind, TextEdit } from 'vscode-la
 import { Uri } from 'commonUtils/uri/uri.js';
 import { getToolTipForType } from 'langserver/providers/tooltipUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
+import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
 import { TextEditAction } from 'typeserver/common/editAction.js';
-import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
