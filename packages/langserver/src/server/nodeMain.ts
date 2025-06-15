@@ -9,11 +9,11 @@
 import { CodeActionKind, ConnectionOptions } from 'vscode-languageserver';
 import { createConnection } from 'vscode-languageserver/node';
 
+import { ConsoleWithLogLevel } from 'commonUtils/console.js';
 import { LanguageServer } from 'langserver/server/languageServer.js';
 import { LanguageServerOptions } from 'langserver/server/languageServerInterface.js';
 import path from 'path';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
-import { ConsoleWithLogLevel } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import {
     FileBasedCancellationProvider,
@@ -59,6 +59,11 @@ export async function main() {
     const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
     const rootDirectory = Uri.file(dirPath, em.caseSensitivity);
     const typeshedFallbackLoc = rootDirectory.combinePaths(typeshedFallback);
+
+    // Set the working directory to a known location within
+    // the extension directory. Otherwise the execution of
+    // Python can have unintended and surprising results.
+    pyrightFs.chdir(rootDirectory);
 
     const lsOptions: LanguageServerOptions = {
         productName: 'Pyright',

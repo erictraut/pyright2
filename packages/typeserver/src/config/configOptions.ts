@@ -19,13 +19,13 @@ import {
     DiagnosticSeverityOverridesMap,
     getDiagnosticSeverityOverrides,
 } from 'typeserver/config/commandLineOptions.js';
-import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileSpec, getFileSpec, isDirectory } from 'typeserver/files/uriUtils.js';
 import { getPathsFromPthFiles } from 'typeserver/service/pythonPathUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { ConsoleInterface, NullConsole } from 'typeserver/utils/console.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isBoolean } from 'typeserver/utils/valueTypeUtils.js';
 

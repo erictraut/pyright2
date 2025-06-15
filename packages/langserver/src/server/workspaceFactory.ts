@@ -10,9 +10,9 @@ import {
     WorkspaceFolder as lspWorkspaceFolder,
 } from 'vscode-languageserver';
 
+import { ConsoleInterface } from 'commonUtils/console.js';
 import { createDeferred } from 'commonUtils/deferred.js';
 import { Uri } from 'commonUtils/uri/uri.js';
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 

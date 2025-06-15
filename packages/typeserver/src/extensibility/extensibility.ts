@@ -13,7 +13,6 @@ import { Diagnostic } from 'typeserver/common/diagnostic.js';
 import { Range } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -21,6 +20,7 @@ import { ParseFileResults, ParserOutput } from 'typeserver/parser/parser.js';
 import { OpenFileOptions, Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { ConsoleInterface } from 'typeserver/utils/console.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ISourceFile {

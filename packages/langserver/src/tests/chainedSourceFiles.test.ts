@@ -10,6 +10,7 @@ import assert from 'assert';
 import { CancellationToken } from 'vscode-jsonrpc';
 import { MarkupKind } from 'vscode-languageserver-types';
 
+import { NullConsole } from 'commonUtils/console.js';
 import { normalizeSlashes } from 'commonUtils/pathUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CompletionProvider } from 'langserver/providers/completionProvider.js';
@@ -18,7 +19,6 @@ import * as host from 'langserver/tests/harness/testHost.js';
 import { createFromFileSystem, typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { convertOffsetsToRange, convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { NoAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';

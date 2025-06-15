@@ -75,6 +75,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { CaseSensitivityDetector } from 'commonUtils/caseSensitivity.js';
 import { getNestedProperty } from 'commonUtils/collectionUtils.js';
+import { ConsoleInterface, ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'commonUtils/console.js';
 import { assert } from 'commonUtils/debug.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CommandController } from 'langserver/commands/commandController.js';
@@ -115,7 +116,6 @@ import {
     Workspace,
     WorkspaceFactory,
 } from 'langserver/server/workspaceFactory.js';
-import path from 'path';
 import { Diagnostic as AnalyzerDiagnostic, DiagnosticCategory } from 'typeserver/common/diagnostic.js';
 import { DiagnosticRule } from 'typeserver/common/diagnosticRules.js';
 import { FileDiagnostics } from 'typeserver/common/diagnosticSink.js';
@@ -129,7 +129,6 @@ import {
     parseDiagLevel,
 } from 'typeserver/config/configOptions.js';
 import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
-import { ConsoleInterface, ConsoleWithLogLevel, LogLevel, convertLogLevel } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
@@ -142,7 +141,6 @@ import { AnalysisResults } from 'typeserver/service/analysis.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 import { isDefined, isString } from 'typeserver/utils/valueTypeUtils.js';
-import { fileURLToPath } from 'url';
 
 const DiagnosticsVersionNone = -1;
 
@@ -218,15 +216,6 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             this.onWorkspaceRemoved.bind(this),
             this.extensionManager
         );
-
-        // Set the working directory to a known location within
-        // the extension directory. Otherwise the execution of
-        // Python can have unintended and surprising results.
-        const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-        const moduleDirectory = Uri.file(dirPath, this.caseSensitiveDetector);
-        if (this.fs.existsSync(moduleDirectory)) {
-            this.fs.chdir(moduleDirectory);
-        }
 
         // Set up callbacks.
         this.setupConnection(serverOptions.supportedCommands ?? [], serverOptions.supportedCodeActions ?? []);
@@ -677,7 +666,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         this.client.supportsDeprecatedDiagnosticTag = supportedDiagnosticTags.some(
             (tag) => tag === DiagnosticTag.Deprecated
         );
-        // if the client is running in VS, it always supports task item diagnostics
+        // If the client is running in VS, it always supports task item diagnostics.
         this.client.supportsTaskItemDiagnosticTag = this.client.hasVisualStudioExtensionsCapability;
         this.client.hasWindowProgressCapability = !!capabilities.window?.workDoneProgress;
         this.client.hasGoToDeclarationCapability = !!capabilities.textDocument?.declaration;

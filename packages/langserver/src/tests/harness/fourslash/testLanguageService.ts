@@ -8,6 +8,7 @@
 
 import { CancellationToken, CodeAction, ExecuteCommandParams } from 'vscode-languageserver';
 
+import { ConsoleInterface } from 'commonUtils/console.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CommandController } from 'langserver/commands/commandController.js';
 import { CodeActionProvider } from 'langserver/providers/codeActionProvider.js';
@@ -18,7 +19,6 @@ import path from 'path';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { Range } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';

@@ -339,7 +339,6 @@ import {
     invalidateTypeCacheIfCanceled,
     throwIfCancellationRequested,
 } from 'typeserver/extensibility/cancellationUtils.js';
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { LocAddendum, LocMessage, ParameterizedString } from 'typeserver/localization/localize.js';
 import {
     ArgCategory,
@@ -396,6 +395,7 @@ import {
 import { ParseOptions, Parser, ParseTextMode } from 'typeserver/parser/parser.js';
 import { KeywordType, OperatorType, StringTokenFlags } from 'typeserver/parser/tokenizerTypes.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { ConsoleInterface } from 'typeserver/utils/console.js';
 import { assert, assertNever, fail } from 'typeserver/utils/debug.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isThenable } from 'typeserver/utils/valueTypeUtils.js';

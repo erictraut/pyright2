@@ -75,8 +75,8 @@ import {
     isTypeAliasPlaceholder,
     mapSubtypes,
 } from 'typeserver/evaluator/typeUtils.js';
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { ArgCategory, ExpressionNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ConsoleInterface } from 'typeserver/utils/console.js';
 import { assert, fail } from 'typeserver/utils/debug.js';
 
 export interface FlowNodeTypeResult {

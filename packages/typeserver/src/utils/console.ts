@@ -8,9 +8,7 @@
  * methods.
  */
 
-import { addIfUnique, removeArrayElements } from 'typeserver/utils/collectionUtils.js';
-import * as debug from 'typeserver/utils/debug.js';
-import { Disposable } from 'vscode-jsonrpc';
+import { assert, fail } from 'typeserver/utils/debug.js';
 
 export enum LogLevel {
     Error = 'error',
@@ -18,6 +16,7 @@ export enum LogLevel {
     Info = 'info',
     Log = 'log',
 }
+
 export interface ConsoleInterface {
     error: (message: string) => void;
     warn: (message: string) => void;
@@ -126,22 +125,10 @@ export class StderrConsole implements ConsoleInterface {
     }
 }
 
-export interface Chainable {
-    addChain(console: ConsoleInterface): void;
-    removeChain(console: ConsoleInterface): void;
-}
-
-export namespace Chainable {
-    export function is(value: any): value is Chainable {
-        return value && value.addChain && value.removeChain;
-    }
-}
-
-export class ConsoleWithLogLevel implements ConsoleInterface, Chainable, Disposable {
+export class ConsoleWithLogLevel implements ConsoleInterface {
     private readonly _chains: ConsoleInterface[] = [];
 
     private _maxLevel = 2;
-    private _disposed = false;
 
     constructor(private _console: ConsoleInterface, private _name = '') {}
 
@@ -169,10 +156,6 @@ export class ConsoleWithLogLevel implements ConsoleInterface, Chainable, Disposa
         this._maxLevel = maxLevel;
     }
 
-    dispose() {
-        this._disposed = true;
-    }
-
     error(message: string) {
         this._log(LogLevel.Error, `${this._prefix}${message}`);
     }
@@ -189,23 +172,11 @@ export class ConsoleWithLogLevel implements ConsoleInterface, Chainable, Disposa
         this._log(LogLevel.Log, `${this._prefix}${message}`);
     }
 
-    addChain(console: ConsoleInterface): void {
-        addIfUnique(this._chains, console);
-    }
-
-    removeChain(console: ConsoleInterface): void {
-        removeArrayElements(this._chains, (i) => i === console);
-    }
-
     private get _prefix() {
         return this._name ? `(${this._name}) ` : '';
     }
 
     private _log(level: LogLevel, message: string): void {
-        if (this._disposed) {
-            return;
-        }
-
         this._processChains(level, message);
 
         if (this._getNumericalLevel(level) > this._maxLevel) {
@@ -217,7 +188,7 @@ export class ConsoleWithLogLevel implements ConsoleInterface, Chainable, Disposa
 
     private _getNumericalLevel(level: LogLevel): number {
         const numericLevel = getLevelNumber(level);
-        debug.assert(numericLevel !== undefined, 'Logger: unknown log level.');
+        assert(numericLevel !== undefined, 'Logger: unknown log level.');
         return numericLevel !== undefined ? numericLevel : 2;
     }
 
@@ -245,7 +216,7 @@ export function log(console: ConsoleInterface, logType: LogLevel, msg: string) {
             break;
 
         default:
-            debug.fail(`${logType} is not expected`);
+            fail(`${logType} is not expected`);
     }
 }
 

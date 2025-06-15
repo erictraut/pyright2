@@ -7,6 +7,7 @@
 import assert from 'assert';
 import { Disposable } from 'vscode-jsonrpc';
 
+import { NullConsole } from 'commonUtils/console.js';
 import { combinePaths, getDirectoryPath, normalizeSlashes } from 'commonUtils/pathUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { Dirent, ReadStream, WriteStream } from 'fs';
@@ -15,7 +16,6 @@ import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { MODULE_PATH, TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { lib, sitePackages, typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';

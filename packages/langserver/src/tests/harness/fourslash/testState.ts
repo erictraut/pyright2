@@ -27,6 +27,7 @@ import {
 } from 'vscode-languageserver';
 
 import { Comparison } from 'commonUtils/comparisonUtils.js';
+import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'commonUtils/console.js';
 import { assertNever } from 'commonUtils/debug.js';
 import { getFileExtension, normalizePath, normalizeSlashes } from 'commonUtils/pathUtils.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'commonUtils/stringUtils.js';
@@ -93,7 +94,6 @@ import { Position, Range as PositionRange, TextRange, rangesAreEqual } from 'typ
 import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
-import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';

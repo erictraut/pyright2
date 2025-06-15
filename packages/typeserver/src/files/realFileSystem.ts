@@ -10,7 +10,6 @@ import fs from 'fs';
 import tmp from 'tmp';
 import { isMainThread } from 'worker_threads';
 
-import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
 import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import {
     FileWatcher,
@@ -21,6 +20,7 @@ import {
     nullFileWatcherProvider,
 } from 'typeserver/files/fileWatcher.js';
 import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
+import { ConsoleInterface, NullConsole } from 'typeserver/utils/console.js';
 import { randomBytesHex } from 'typeserver/utils/crypto.js';
 import { combinePaths, getRootLength } from 'typeserver/utils/pathUtils.js';
 import { FileUri, FileUriSchema } from 'typeserver/utils/uri/fileUri.js';

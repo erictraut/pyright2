@@ -14,9 +14,9 @@ import {
     OperationCanceledException,
     throwIfCancellationRequested,
 } from 'typeserver/extensibility/cancellationUtils.js';
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { MaxAnalysisTime, Program } from 'typeserver/program/program.js';
 import { Duration } from 'typeserver/service/timing.js';
+import { ConsoleInterface } from 'typeserver/utils/console.js';
 import * as debug from 'typeserver/utils/debug.js';
 
 export const nullCallback: AnalysisCompleteCallback = () => {

@@ -17,12 +17,6 @@ export interface CancellationProvider {
     createCancellationTokenSource(): AbstractCancellationTokenSource;
 }
 
-export namespace CancellationProvider {
-    export function is(value: any): value is CancellationProvider {
-        return value && !!value.createCancellationTokenSource;
-    }
-}
-
 let cancellationFolderName: string | undefined;
 
 export function getCancellationFolderName() {
@@ -228,26 +222,4 @@ export class CancellationThrottle {
 
         return false;
     }
-}
-
-export async function raceCancellation<T>(token?: CancellationToken, ...promises: Promise<T>[]): Promise<T> {
-    if (!token) {
-        return Promise.race(promises);
-    }
-    if (token.isCancellationRequested) {
-        throw new OperationCanceledException();
-    }
-
-    return new Promise((resolve, reject) => {
-        if (token.isCancellationRequested) {
-            return reject(new OperationCanceledException());
-        }
-        const disposable = onCancellationRequested(token, () => {
-            disposable.dispose();
-            reject(new OperationCanceledException());
-        });
-        Promise.race(promises)
-            .then(resolve, reject)
-            .finally(() => disposable.dispose());
-    });
 }

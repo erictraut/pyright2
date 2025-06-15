@@ -40,7 +40,6 @@ import {
     InferenceContext,
     MemberAccessFlags,
 } from 'typeserver/evaluator/typeUtils.js';
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import {
     ArgCategory,
     ArgumentNode,
@@ -57,6 +56,7 @@ import {
     ParseNode,
     StringNode,
 } from 'typeserver/parser/parseNodes.js';
+import { ConsoleInterface } from 'typeserver/utils/console.js';
 
 // Maximum number of unioned subtypes for an inferred type (e.g.
 // a list) before the type is considered an "Any".

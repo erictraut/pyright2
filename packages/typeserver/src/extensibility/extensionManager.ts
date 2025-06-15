@@ -7,10 +7,10 @@
  */
 
 import { CancellationProvider } from 'typeserver/extensibility/cancellationUtils.js';
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { FileSystem, TempFile } from 'typeserver/files/fileSystem.js';
 import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
+import { ConsoleInterface } from 'typeserver/utils/console.js';
 
 export class ExtensionManager {
     private _fileSystemProvider: FileSystem;

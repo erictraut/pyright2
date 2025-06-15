@@ -24,7 +24,6 @@ import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { Range, isEmptyRange } from 'typeserver/common/textRange.js';
 import { CommandLineOptions as PyrightCommandLineOptions } from 'typeserver/config/commandLineOptions.js';
-import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { ChokidarFileWatcherProvider } from 'typeserver/files/chokidarFileWatcher.js';
@@ -38,6 +37,7 @@ import { initializeDependencies } from 'typeserver/service/asyncInitialization.j
 import { PackageTypeReport, TypeKnownStatus } from 'typeserver/service/packageTypeReport.js';
 import { PackageTypeVerifier } from 'typeserver/service/packageTypeVerifier.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { ConsoleInterface, LogLevel, StandardConsole, StderrConsole } from 'typeserver/utils/console.js';
 import { assert, fail } from 'typeserver/utils/debug.js';
 import { createDeferred } from 'typeserver/utils/deferred.js';
 import { combinePaths, normalizePath } from 'typeserver/utils/pathUtils.js';
@@ -417,7 +417,6 @@ async function processArgs(): Promise<ExitStatus> {
 
     const service = new TypeService('<default>', extensionManager, {
         typeshedFallbackLoc: getTypeshedFallbackLoc(extensionManager),
-        console: output,
     });
 
     if ('threads' in args) {
@@ -793,7 +792,6 @@ function runWorkerMessageLoop(workerNum: number, tempFolderName: string) {
                 );
                 service = new TypeService('<default>', extensionManager, {
                     typeshedFallbackLoc: getTypeshedFallbackLoc(extensionManager),
-                    console: output,
                 });
 
                 service.setCompletionCallback((results) => {

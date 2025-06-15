@@ -6,11 +6,11 @@
  * Interface for language server
  */
 
+import { ConsoleInterface, LogLevel } from 'commonUtils/console.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { TaskListToken } from 'typeserver/common/diagnostic.js';
 import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.js';
 import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
-import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';

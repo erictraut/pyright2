@@ -6,9 +6,9 @@
  * A simple logging class that can be used to track nested loggings.
  */
 
-import { ConsoleInterface, LogLevel } from 'typeserver/extensibility/console.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Duration, timingStats } from 'typeserver/service/timing.js';
+import { ConsoleInterface, LogLevel } from 'typeserver/utils/console.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
 // Consider an operation "long running" if it goes longer than this.

@@ -9,11 +9,11 @@ import * as pathModule from 'path';
 import { fileURLToPath } from 'url';
 
 import { CaseSensitivityDetector } from 'commonUtils/caseSensitivity.js';
+import { NullConsole } from 'commonUtils/console.js';
 import { combinePaths, FileSystemEntries, resolvePaths } from 'commonUtils/pathUtils.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'commonUtils/stringUtils.js';
 import { FileUriSchema } from 'commonUtils/uri/fileUri.js';
 import { Uri } from 'commonUtils/uri/uri.js';
-import { NullConsole } from 'typeserver/extensibility/console.js';
 import { createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { directoryExists, fileExists, getFileSize, UriEx } from 'typeserver/files/uriUtils.js';
 

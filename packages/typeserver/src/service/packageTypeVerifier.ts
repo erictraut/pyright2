@@ -43,7 +43,6 @@ import {
     partiallySpecializeType,
     specializeForBaseClass,
 } from 'typeserver/evaluator/typeUtils.js';
-import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { tryStat, UriEx } from 'typeserver/files/uriUtils.js';
 import { createImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -58,6 +57,7 @@ import {
     SymbolInfo,
     TypeKnownStatus,
 } from 'typeserver/service/packageTypeReport.js';
+import { NullConsole } from 'typeserver/utils/console.js';
 import { assert } from 'typeserver/utils/debug.js';
 import { getFileExtension, stripFileExtension } from 'typeserver/utils/pathUtils.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';

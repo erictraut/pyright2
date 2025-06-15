@@ -24,7 +24,6 @@ import {
     CommandLineOptions,
 } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, matchFileSpecs } from 'typeserver/config/configOptions.js';
-import { ConsoleInterface, LogLevel, log } from 'typeserver/extensibility/console.js';
 import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
@@ -49,6 +48,7 @@ import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { AnalysisCompleteCallback } from 'typeserver/service/analysis.js';
 import { findPythonSearchPaths } from 'typeserver/service/pythonPathUtils.js';
 import { timingStats } from 'typeserver/service/timing.js';
+import { ConsoleInterface, LogLevel, log } from 'typeserver/utils/console.js';
 import { getFileName, isRootedDiskPath, normalizeSlashes } from 'typeserver/utils/pathUtils.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isString } from 'typeserver/utils/valueTypeUtils.js';

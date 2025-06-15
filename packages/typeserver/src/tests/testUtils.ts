@@ -17,7 +17,6 @@ import { DiagnosticSink } from 'typeserver/common/diagnosticSink.js';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import { ConsoleWithLogLevel, NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FullAccessPythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
@@ -26,6 +25,7 @@ import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ParseFileResults, ParseOptions, Parser, ParserOutput } from 'typeserver/parser/parser.js';
 import { NameTypeWalker } from 'typeserver/parser/testWalker.js';
 import { Program } from 'typeserver/program/program.js';
+import { ConsoleWithLogLevel, NullConsole } from 'typeserver/utils/console.js';
 import { fail } from 'typeserver/utils/debug.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 

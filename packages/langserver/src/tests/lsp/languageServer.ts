@@ -28,6 +28,7 @@ import { parseTestData } from 'langserver/tests/harness/fourslash/fourSlashParse
 import * as PyrightTestHost from 'langserver/tests/harness/testHost.js';
 import { clearCache, typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 
+import { NullConsole } from 'commonUtils/console.js';
 import { LanguageServer } from 'langserver/server/languageServer.js';
 import { LanguageServerOptions, LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
 import { InitStatus, Workspace } from 'langserver/server/workspaceFactory.js';
@@ -45,7 +46,6 @@ import {
 } from 'langserver/tests/lsp/languageServerTestUtils.js';
 import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
-import { NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { RealTempFile, WorkspaceFileWatcherProvider } from 'typeserver/files/realFileSystem.js';
 import { initializeDependencies } from 'typeserver/service/asyncInitialization.js';

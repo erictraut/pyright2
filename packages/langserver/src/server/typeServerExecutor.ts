@@ -8,11 +8,11 @@
  * with a specified set of options.
  */
 
+import { LogLevel } from 'commonUtils/console.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { LanguageServerInterface, LanguageServerSettings } from 'langserver/server/languageServerInterface.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
-import { LogLevel } from 'typeserver/extensibility/console.js';
 import { FileSystem } from 'typeserver/files//fileSystem.js';
 import { isPythonBinary } from 'typeserver/service/pythonPathUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';

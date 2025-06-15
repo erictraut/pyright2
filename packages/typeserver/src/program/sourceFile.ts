@@ -21,7 +21,6 @@ import { ConfigOptions, ExecutionEnvironment, getBasicDiagnosticRuleSet } from '
 import { AnalyzerFileInfo, ImportLookup } from 'typeserver/evaluator/analyzerFileInfo.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { OperationCanceledException } from 'typeserver/extensibility/cancellationUtils.js';
-import { ConsoleInterface, StandardConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -40,6 +39,7 @@ import { Checker } from 'typeserver/service/checker.js';
 import { CircularDependency } from 'typeserver/service/circularDependency.js';
 import { Duration, timingStats } from 'typeserver/service/timing.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
+import { ConsoleInterface, StandardConsole } from 'typeserver/utils/console.js';
 import { assert } from 'typeserver/utils/debug.js';
 import { stripFileExtension } from 'typeserver/utils/pathUtils.js';
 import * as StringUtils from 'typeserver/utils/stringUtils.js';

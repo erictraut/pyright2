@@ -8,7 +8,7 @@
  * if memory usage approaches the max heap space.
  */
 
-import { ConsoleInterface } from 'typeserver/extensibility/console.js';
+import { ConsoleInterface } from 'typeserver/utils/console.js';
 import { fail } from 'typeserver/utils/debug.js';
 import { getHeapStatistics, getSystemMemoryInfo } from 'typeserver/utils/memUtils.js';
 

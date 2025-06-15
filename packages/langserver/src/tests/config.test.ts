@@ -9,6 +9,7 @@
 
 import assert from 'assert';
 
+import { ConsoleInterface, NullConsole } from 'commonUtils/console.js';
 import { combinePaths, normalizePath, normalizeSlashes } from 'commonUtils/pathUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvProvider.js';
@@ -17,7 +18,6 @@ import { TaskListPriority } from 'typeserver/common/diagnostic.js';
 import { pythonVersion3_13, pythonVersion3_9 } from 'typeserver/common/pythonVersion.js';
 import { CommandLineOptions, DiagnosticSeverityOverrides } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, ExecutionEnvironment, getStandardDiagnosticRuleSet } from 'typeserver/config/configOptions.js';
-import { ConsoleInterface, NullConsole } from 'typeserver/extensibility/console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { RealTempFile, createFromRealFileSystem } from 'typeserver/files/realFileSystem.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';

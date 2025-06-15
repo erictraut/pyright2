@@ -10,6 +10,7 @@ import { jest } from '@jest/globals';
 import assert from 'assert';
 import os from 'os';
 
+import { NullConsole } from 'commonUtils/console.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { expandPathVariables, resolvePathWithEnvVariables } from 'langserver/server/envVarUtils.js';
 import { WellKnownWorkspaceKinds, Workspace, createInitStatus } from 'langserver/server/workspaceFactory.js';
@@ -17,7 +18,6 @@ import { TestPythonEnvProvider } from 'langserver/tests/harness/testPythonEnvPro
 import { typeshedFolder } from 'langserver/tests/harness/vfs/factory.js';
 import { TestFileSystem } from 'langserver/tests/harness/vfs/filesystem.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
-import { NullConsole } from 'typeserver/extensibility//console.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService } from 'typeserver/service/typeService.js';

@@ -33,7 +33,6 @@ import {
     OperationCanceledException,
     throwIfCancellationRequested,
 } from 'typeserver/extensibility/cancellationUtils.js';
-import { ConsoleInterface, StandardConsole } from 'typeserver/extensibility/console.js';
 import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { makeDirectories } from 'typeserver/files/uriUtils.js';
@@ -54,6 +53,7 @@ import { CacheManager } from 'typeserver/service/cacheManager.js';
 import { CircularDependency } from 'typeserver/service/circularDependency.js';
 import { Duration, timingStats } from 'typeserver/service/timing.js';
 import { TypeStubWriter } from 'typeserver/service/typeStubWriter.js';
+import { ConsoleInterface, StandardConsole } from 'typeserver/utils/console.js';
 import { assert, fail } from 'typeserver/utils/debug.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isThenable } from 'typeserver/utils/valueTypeUtils.js';
