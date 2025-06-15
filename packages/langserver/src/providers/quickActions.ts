@@ -19,7 +19,7 @@ export function performQuickAction(
     args: any[],
     token: CancellationToken
 ) {
-    const sourceFileInfo = typeServer.getSourceFileInfo(uri);
+    const sourceFileInfo = typeServer.getSourceFile(uri);
 
     // This command should be called only for open files, in which
     // case we should have the file contents already loaded.

@@ -122,8 +122,8 @@ export class CallHierarchyProvider {
         const items: CallHierarchyIncomingCall[] = [];
         const sourceFiles =
             targetDecl.type === DeclarationType.Alias
-                ? [this._typeServer.getSourceFileInfo(this._fileUri)!]
-                : this._typeServer.getSourceFileInfoList();
+                ? [this._typeServer.getSourceFile(this._fileUri)!]
+                : this._typeServer.getSourceFiles();
         for (const curSourceFileInfo of sourceFiles) {
             if (curSourceFileInfo.inProject || curSourceFileInfo.clientVersion !== undefined) {
                 const filePath = curSourceFileInfo.uri;

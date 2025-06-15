@@ -62,7 +62,6 @@ export class SourceMapper {
         private _evaluator: TypeEvaluator,
         private _fileBinder: ShadowFileBinder,
         private _boundSourceGetter: BoundSourceGetter,
-        private _mapCompiled: boolean,
         private _preferStubs: boolean,
         private _fromFile: SourceFileInfo | undefined,
         private _cancelToken: CancellationToken
@@ -758,7 +757,7 @@ export class SourceMapper {
 
     private _getSourcePathsFromStub(stubFileUri: Uri, fromFile: Uri | undefined): Uri[] {
         // Attempt our stubFileUri to see if we can resolve it as a source file path
-        let results = this._importResolver.getSourceFilesFromStub(stubFileUri, this._execEnv, this._mapCompiled);
+        let results = this._importResolver.getSourceFilesFromStub(stubFileUri, this._execEnv);
         if (results.length > 0) {
             return results;
         }
@@ -769,11 +768,7 @@ export class SourceMapper {
 
         // Go through the items in this tree until we find at least one path.
         for (let i = 0; i < stubFileImportTree.length; i++) {
-            results = this._importResolver.getSourceFilesFromStub(
-                stubFileImportTree[i],
-                this._execEnv,
-                this._mapCompiled
-            );
+            results = this._importResolver.getSourceFilesFromStub(stubFileImportTree[i], this._execEnv);
             if (results.length > 0) {
                 return results;
             }
@@ -810,10 +805,9 @@ export class SourceMapper {
             return false;
         }
 
-        // If we get the same file as a source file, then we treat the file as a regular file even if it has "pyi" extension.
-        return this._importResolver
-            .getSourceFilesFromStub(fileUri, this._execEnv, this._mapCompiled)
-            .every((f) => f !== fileUri);
+        // If we get the same file as a source file, then we treat the file as a
+        // regular file even if it has "pyi" extension.
+        return this._importResolver.getSourceFilesFromStub(fileUri, this._execEnv).every((f) => f !== fileUri);
     }
 }
 

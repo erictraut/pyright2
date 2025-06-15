@@ -19,7 +19,12 @@ import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { OpenFileOptions, Program } from 'typeserver/program/program.js';
 import { SourceFileProvider } from 'typeserver/program/sourceFileProvider.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
-import { AutoImportInfo, ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
+import {
+    AutoImportInfo,
+    ITypeServer,
+    ITypeServerSourceFile,
+    SourceFilesOptions,
+} from 'typeserver/protocol/typeServerProtocol.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export class TypeServerProvider implements ITypeServer {
@@ -45,15 +50,11 @@ export class TypeServerProvider implements ITypeServer {
         return this._program.extensionManager;
     }
 
-    getSourceFileInfoList(): readonly ITypeServerSourceFile[] {
-        return this._program.getSourceFileInfoList().map((fileInfo) => new SourceFileProvider(this._program, fileInfo));
-    }
-
     getParseResults(fileUri: Uri): ParseFileResults | undefined {
         return this._program.getParseResults(fileUri);
     }
 
-    getSourceFileInfo(fileUri: Uri): ITypeServerSourceFile | undefined {
+    getSourceFile(fileUri: Uri): ITypeServerSourceFile | undefined {
         const sourceInfo = this._program.getSourceFileInfo(fileUri);
         if (!sourceInfo) {
             return undefined;
@@ -62,17 +63,29 @@ export class TypeServerProvider implements ITypeServer {
         return new SourceFileProvider(this._program, sourceInfo);
     }
 
+    getSourceFiles(options?: SourceFilesOptions): readonly ITypeServerSourceFile[] {
+        return this._program
+            .getSourceFileInfoList()
+            .filter((fileInfo) => {
+                if (options?.filter === 'checked') {
+                    return fileInfo.isTracked || fileInfo.isOpenByClient;
+                }
+
+                if (options?.filter === 'inProject') {
+                    return fileInfo.isTracked;
+                }
+
+                return true;
+            })
+            .map((fileInfo) => new SourceFileProvider(this._program, fileInfo));
+    }
+
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined {
         return this._program.getModuleSymbolTable(fileUri);
     }
 
-    getSourceMapper(
-        fileUri: Uri,
-        token: CancellationToken,
-        mapCompiled?: boolean,
-        preferStubs?: boolean
-    ): SourceMapper {
-        return this._program.getSourceMapper(fileUri, token, mapCompiled, preferStubs);
+    getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper {
+        return this._program.getSourceMapper(fileUri, preferStubs, token);
     }
 
     convertToRealUri(fileUri: Uri): Uri | undefined {

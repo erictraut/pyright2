@@ -198,7 +198,7 @@ export class ReferencesProvider {
         includeDeclaration: boolean,
         resultReporter?: ResultProgressReporter<Location[]>
     ) {
-        const sourceFileInfo = this._typeServer.getSourceFileInfo(fileUri);
+        const sourceFileInfo = this._typeServer.getSourceFile(fileUri);
         if (!sourceFileInfo) {
             return;
         }
@@ -231,7 +231,7 @@ export class ReferencesProvider {
             this.addReferencesToResult(sourceFileInfo.uri, includeDeclaration, referencesResult);
         }
 
-        for (const curSourceFileInfo of this._typeServer.getSourceFileInfoList()) {
+        for (const curSourceFileInfo of this._typeServer.getSourceFiles()) {
             throwIfCancellationRequested(this._token);
 
             // "Find all references" will only include references from user code
@@ -257,7 +257,7 @@ export class ReferencesProvider {
                     continue;
                 }
 
-                const declFileInfo = this._typeServer.getSourceFileInfo(decl.uri);
+                const declFileInfo = this._typeServer.getSourceFile(decl.uri);
                 if (!declFileInfo) {
                     // The file the declaration belongs to doesn't belong to the program.
                     continue;

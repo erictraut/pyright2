@@ -478,7 +478,7 @@ export class AutoImporter {
         const initPathPyi = fileDir.initPyiUri;
         const isStub = uri.hasExtension('.pyi');
         const hasInit = map.has(initPathPy.key) || map.has(initPathPyi.key);
-        const sourceFileInfo = this.typeServer.getSourceFileInfo(uri);
+        const sourceFileInfo = this.typeServer.getSourceFile(uri);
         return { isStub, hasInit, isUserCode: !!sourceFileInfo && sourceFileInfo.inProject };
     }
 

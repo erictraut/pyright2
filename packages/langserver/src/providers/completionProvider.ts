@@ -325,13 +325,13 @@ export class CompletionProvider {
         this.parseResults = this.typeServer.getParseResults(this.fileUri)!;
         this.sourceMapper = this.typeServer.getSourceMapper(
             this.fileUri,
-            this.cancellationToken,
-            /* mapCompiled */ true
+            /* preferStubs */ false,
+            this.cancellationToken
         );
     }
 
     getCompletions(): CompletionList | null {
-        if (!this.typeServer.getSourceFileInfo(this.fileUri)) {
+        if (!this.typeServer.getSourceFile(this.fileUri)) {
             return null;
         }
 
@@ -809,10 +809,10 @@ export class CompletionProvider {
     }
 
     protected createAutoImporter(completionMap: CompletionMap, lazyEdit: boolean) {
-        const currentFile = this.typeServer.getSourceFileInfo(this.fileUri);
+        const currentFile = this.typeServer.getSourceFile(this.fileUri);
         const moduleSymbolMap = buildModuleSymbolsMap(
             this.typeServer,
-            this.typeServer.getSourceFileInfoList().filter((s) => s !== currentFile)
+            this.typeServer.getSourceFiles().filter((s) => s !== currentFile)
         );
 
         return new AutoImporter(

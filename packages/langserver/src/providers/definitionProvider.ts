@@ -105,7 +105,7 @@ export function addDeclarationsToDefinitions(
         }
 
         if (resolvedDecl.type === DeclarationType.Alias) {
-            // Add matching source module
+            // Add matching source module.
             sourceMapper
                 .findModules(resolvedDecl.uri)
                 .map((m) => getFileInfo(m)?.fileUri)
@@ -211,7 +211,7 @@ export class DefinitionProvider extends DefinitionProviderBase {
         filter: DefinitionFilter,
         token: CancellationToken
     ) {
-        const sourceMapper = typeServer.getSourceMapper(fileUri, token);
+        const sourceMapper = typeServer.getSourceMapper(fileUri, /* preferStubs */ false, token);
         const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
@@ -242,7 +242,7 @@ export class TypeDefinitionProvider extends DefinitionProviderBase {
     private readonly _fileUri: Uri;
 
     constructor(typeServer: ITypeServer, fileUri: Uri, position: Position, token: CancellationToken) {
-        const sourceMapper = typeServer.getSourceMapper(fileUri, token, /*mapCompiled*/ false, /*preferStubs*/ true);
+        const sourceMapper = typeServer.getSourceMapper(fileUri, /*preferStubs*/ true, token);
         const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 

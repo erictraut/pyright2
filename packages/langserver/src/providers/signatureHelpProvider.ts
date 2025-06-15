@@ -55,7 +55,7 @@ export class SignatureHelpProvider {
         private _token: CancellationToken
     ) {
         this._parseResults = this._typeServer.getParseResults(this._fileUri);
-        this._sourceMapper = this._typeServer.getSourceMapper(this._fileUri, this._token, /* mapCompiled */ true);
+        this._sourceMapper = this._typeServer.getSourceMapper(this._fileUri, /* preferStubs */ false, this._token);
     }
 
     getSignatureHelp(): SignatureHelp | undefined {

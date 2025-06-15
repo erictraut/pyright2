@@ -17,13 +17,29 @@ import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ITypeServer {
+    // TODO - remove this and replace by individual calls
     readonly evaluator: TypeEvaluator | undefined;
 
-    getSourceFileInfoList(): readonly ITypeServerSourceFile[];
+    // TODO - see if these are needed and remove if not. If they
+    // are needed, make sure the interface makes sense.
     getParseResults(fileUri: Uri): ParseFileResults | undefined;
-    getSourceFileInfo(fileUri: Uri): ITypeServerSourceFile | undefined;
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
-    getSourceMapper(fileUri: Uri, token: CancellationToken, mapCompiled?: boolean, preferStubs?: boolean): SourceMapper;
+    getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
+
+    // Returns a source file if the type server knows about it. This means
+    // it must be part of the project (as defined by the "include" and "exclude")
+    // or imported transitively by a source file that is part of the project or
+    // explicitly opened by the client. If the type server is still in the process
+    // of analyzing the files in the project, it may not yet know about the file.
+    getSourceFile(fileUri: Uri): ITypeServerSourceFile | undefined;
+
+    // Returns a list of source files that the type server knows about.
+    // This includes all files that are part of the project (as defined by the
+    // "include" and "exclude" settings) and all files that are imported transitively
+    // by a source file that is part of the project or explicitly opened by the client.
+    // The list may be incomplete if the type server is still in the process
+    // of analyzing the files in the project.
+    getSourceFiles(options?: SourceFilesOptions): readonly ITypeServerSourceFile[];
 
     // Converts a URI in the type server's virtual file system to a URI in the
     // real file system. If the URI cannot be converted (e.g. it points to a
@@ -42,11 +58,19 @@ export interface ITypeServer {
     // name and are associated with the URI of the module that this name references.
     getImportCompletions(fileUri: Uri, partialModuleName: string): Map<string, Uri>;
 
+    // TODO - see if these are needed and remove if not. If they
+    // are needed, make sure the interface makes sense.
     addInterimFile(uri: Uri): void;
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
 }
 
 export type ImportCategory = 'stdlib' | 'external' | 'local' | 'local-stub';
+
+export type SourceFileFilter = 'all' | 'inProject' | 'checked';
+
+export interface SourceFilesOptions {
+    filter?: SourceFileFilter;
+}
 
 export interface AutoImportInfo {
     // The multi-part name used in an "import" statement to import the target module.

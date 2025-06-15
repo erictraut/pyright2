@@ -137,7 +137,7 @@ export class WorkspaceSymbolProvider {
         }
 
         // "Workspace symbols" searches symbols only from user code.
-        for (const sourceFileInfo of typeServer.getSourceFileInfoList()) {
+        for (const sourceFileInfo of typeServer.getSourceFiles()) {
             if (!sourceFileInfo.inProject) {
                 continue;
             }

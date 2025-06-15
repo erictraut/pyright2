@@ -170,7 +170,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         const fileUri = fileInfo.fileUri;
 
         const resolvedDeclarations: Declaration[] = [];
-        const sourceMapper = typeServer.getSourceMapper(fileUri, token);
+        const sourceMapper = typeServer.getSourceMapper(fileUri, /* preferStubs */ false, token);
         declarations.forEach((decl) => {
             const resolvedDecl = evaluator.resolveAliasDeclaration(decl, resolveLocalName);
             if (resolvedDecl) {
@@ -186,7 +186,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             }
         });
 
-        const sourceFileInfo = typeServer.getSourceFileInfo(fileUri);
+        const sourceFileInfo = typeServer.getSourceFile(fileUri);
         if (sourceFileInfo && sourceFileInfo.notebookCell) {
             // Add declarations from chained source files
             let builtinsScope = fileInfo.builtinsScope;

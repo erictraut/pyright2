@@ -210,7 +210,7 @@ export class ImportResolver {
     }
 
     // Returns the implementation file(s) for the given stub file.
-    getSourceFilesFromStub(stubFileUri: Uri, execEnv: ExecutionEnvironment, _mapCompiled: boolean): Uri[] {
+    getSourceFilesFromStub(stubFileUri: Uri, execEnv: ExecutionEnvironment): Uri[] {
         const sourceFileUris: Uri[] = [];
 
         // When ImportResolver resolves an import to a stub file, a second resolve is done

@@ -86,7 +86,7 @@ export class RenameProvider {
                 break;
 
             case 'multiFileMode': {
-                for (const curSourceFileInfo of this._typeServer.getSourceFileInfoList()) {
+                for (const curSourceFileInfo of this._typeServer.getSourceFiles()) {
                     // Make sure we only add user code to the references to prevent us
                     // from accidentally changing third party library or type stub.
                     if (curSourceFileInfo.inProject) {
@@ -153,7 +153,7 @@ export class RenameProvider {
         isDefaultWorkspace: boolean,
         isUntitled: boolean
     ) {
-        const sourceFileInfo = typeServer.getSourceFileInfo(fileUri)!;
+        const sourceFileInfo = typeServer.getSourceFile(fileUri)!;
 
         // We have 2 different cases
         // Single file mode.
@@ -174,7 +174,7 @@ export class RenameProvider {
             return 'singleFileMode';
         }
 
-        if (referencesResult.declarations.every((d) => typeServer.getSourceFileInfo(d.uri)?.inProject)) {
+        if (referencesResult.declarations.every((d) => typeServer.getSourceFile(d.uri)?.inProject)) {
             return 'multiFileMode';
         }
 

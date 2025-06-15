@@ -750,15 +750,10 @@ export class Program {
         }
     }
 
-    getSourceMapper(
-        fileUri: Uri,
-        token: CancellationToken,
-        mapCompiled?: boolean,
-        preferStubs?: boolean
-    ): SourceMapper {
+    getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper {
         const sourceFileInfo = this.getSourceFileInfo(fileUri);
         const execEnv = this._configOptions.findExecEnvironment(fileUri);
-        return this._createSourceMapper(execEnv, token, sourceFileInfo, mapCompiled, preferStubs);
+        return this._createSourceMapper(execEnv, token, sourceFileInfo, preferStubs);
     }
 
     getParserOutput(fileUri: Uri): ParserOutput | undefined {
@@ -1286,7 +1281,6 @@ export class Program {
         execEnv: ExecutionEnvironment,
         token: CancellationToken,
         from?: SourceFileInfo,
-        mapCompiled?: boolean,
         preferStubs?: boolean
     ) {
         const sourceMapper = new SourceMapper(
@@ -1328,7 +1322,6 @@ export class Program {
 
                 return fileInfo;
             },
-            mapCompiled ?? false,
             preferStubs ?? false,
             from,
             token
