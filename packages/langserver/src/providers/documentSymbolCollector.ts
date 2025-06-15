@@ -28,7 +28,6 @@ import { TextRange } from 'typeserver/common/textRange.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { TypeCategory } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import {
     ImportAsNode,
     NameNode,
@@ -41,6 +40,7 @@ import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { collectImportedByCells } from 'typeserver/program/sourceFileInfoUtils.js';
 import { isStubFile } from 'typeserver/program/sourceMapper.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export type CollectionResult = {
     node: NameNode | StringNode;
@@ -99,7 +99,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     private _aliasResolver: AliasResolver;
 
     constructor(
-        private readonly _program: IProgramView,
+        private readonly _typeServer: ITypeServer,
         symbolNames: string[],
         declarations: Declaration[],
         private readonly _startingNode: ParseNode,
@@ -108,7 +108,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     ) {
         super();
 
-        this._aliasResolver = new AliasResolver(this._program.evaluator!);
+        this._aliasResolver = new AliasResolver(this._typeServer.evaluator!);
 
         // Start with the symbols passed in
         symbolNames.forEach((s) => this._symbolNames.add(s));
@@ -124,13 +124,18 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     }
 
     static collectFromNode(
-        program: IProgramView,
+        typeServer: ITypeServer,
         node: NameNode,
         cancellationToken: CancellationToken,
         startingNode?: ParseNode,
         options?: DocumentSymbolCollectorOptions
     ): CollectionResult[] {
-        const declarations = this.getDeclarationsForNode(program, node, /* resolveLocalName */ true, cancellationToken);
+        const declarations = this.getDeclarationsForNode(
+            typeServer,
+            node,
+            /* resolveLocalName */ true,
+            cancellationToken
+        );
 
         startingNode = startingNode ?? getModuleNode(node);
         if (!startingNode) {
@@ -138,7 +143,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         }
 
         const collector = new DocumentSymbolCollector(
-            program,
+            typeServer,
             [node.d.value],
             declarations,
             startingNode,
@@ -150,14 +155,14 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     }
 
     static getDeclarationsForNode(
-        program: IProgramView,
+        typeServer: ITypeServer,
         node: NameNode,
         resolveLocalName: boolean,
         token: CancellationToken
     ): Declaration[] {
         throwIfCancellationRequested(token);
 
-        const evaluator = program.evaluator;
+        const evaluator = typeServer.evaluator;
         if (!evaluator) {
             return [];
         }
@@ -167,7 +172,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         const fileUri = fileInfo.fileUri;
 
         const resolvedDeclarations: Declaration[] = [];
-        const sourceMapper = program.getSourceMapper(fileUri, token);
+        const sourceMapper = typeServer.getSourceMapper(fileUri, token);
         declarations.forEach((decl) => {
             const resolvedDecl = evaluator.resolveAliasDeclaration(decl, resolveLocalName);
             if (resolvedDecl) {
@@ -183,7 +188,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             }
         });
 
-        const sourceFileInfo = program.getSourceFileInfo(fileUri);
+        const sourceFileInfo = typeServer.getSourceFileInfo(fileUri);
         if (sourceFileInfo && sourceFileInfo.ipythonMode === IPythonMode.CellDocs) {
             // Add declarations from chained source files
             let builtinsScope = fileInfo.builtinsScope;
@@ -194,9 +199,9 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             }
 
             // Add declarations from files that implicitly import the target file.
-            const implicitlyImportedBy = collectImportedByCells(program, sourceFileInfo);
+            const implicitlyImportedBy = collectImportedByCells(typeServer, sourceFileInfo);
             implicitlyImportedBy.forEach((implicitImport) => {
-                const parseTree = program.getParseResults(implicitImport.uri)?.parserOutput.parseTree;
+                const parseTree = typeServer.getParseResults(implicitImport.uri)?.parserOutput.parseTree;
                 if (parseTree) {
                     const scope = getScope(parseTree);
                     const symbol = scope?.lookUpSymbol(node.d.value);
@@ -279,7 +284,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     }
 
     private get _evaluator(): TypeEvaluator {
-        return this._program.evaluator!;
+        return this._typeServer.evaluator!;
     }
 
     private _addResult(node: NameNode | StringNode) {

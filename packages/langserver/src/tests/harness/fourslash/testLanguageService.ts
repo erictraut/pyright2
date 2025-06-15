@@ -20,7 +20,7 @@ import { typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { Range } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { TypeService, TypeServiceOptions } from 'typeserver/service/typeService.js';
 import { fileURLToPath } from 'url';
@@ -50,7 +50,7 @@ export class TestLanguageService implements LanguageServerInterface {
     constructor(
         workspace: Workspace,
         readonly console: ConsoleInterface,
-        readonly fs: FileSystem,
+        readonly fs: IFileSystem,
         options?: TypeServiceOptions
     ) {
         this._workspace = workspace;

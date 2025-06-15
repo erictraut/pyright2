@@ -10,14 +10,14 @@ import { Location } from 'vscode-languageserver-types';
 
 import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentRange } from 'typeserver/common/docRange.js';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 
-export function canNavigateToFile(fs: ReadOnlyFileSystem, path: Uri): boolean {
+export function canNavigateToFile(fs: IReadOnlyFileSystem, path: Uri): boolean {
     return !fs.isInZip(path);
 }
 
-export function convertDocumentRangesToLocation(fs: ReadOnlyFileSystem, ranges: DocumentRange[]): Location[] {
+export function convertDocumentRangesToLocation(fs: IReadOnlyFileSystem, ranges: DocumentRange[]): Location[] {
     const locations: Location[] = [];
 
     ranges.forEach((range) => {
@@ -30,7 +30,7 @@ export function convertDocumentRangesToLocation(fs: ReadOnlyFileSystem, ranges: 
     return locations;
 }
 
-export function convertDocumentRangeToLocation(fs: ReadOnlyFileSystem, range: DocumentRange): Location | undefined {
+export function convertDocumentRangeToLocation(fs: IReadOnlyFileSystem, range: DocumentRange): Location | undefined {
     if (!canNavigateToFile(fs, range.uri)) {
         return undefined;
     }

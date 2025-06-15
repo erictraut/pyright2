@@ -8,12 +8,12 @@
 
 import fs from 'fs';
 
-import { FileSystem, MkDirOptions } from 'typeserver/files/fileSystem.js';
+import { IFileSystem, MkDirOptions } from 'typeserver/files/fileSystem.js';
 import { ReadOnlyFileSystem } from 'typeserver/files/readonlyFileSystem.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
-export class PyrightFileSystem extends ReadOnlyFileSystem implements FileSystem {
-    constructor(realFS: FileSystem) {
+export class PyrightFileSystem extends ReadOnlyFileSystem implements IFileSystem {
+    constructor(realFS: IFileSystem) {
         super(realFS);
     }
 

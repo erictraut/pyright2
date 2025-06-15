@@ -10,7 +10,7 @@
 import fs from 'fs';
 import { Disposable } from 'vscode-jsonrpc';
 
-import { FileSystem, MkDirOptions, Stats, VirtualDirent } from 'typeserver/files/fileSystem.js';
+import { IFileSystem, MkDirOptions, Stats, VirtualDirent } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { UriMap } from 'typeserver/utils/uri/uriMap.js';
@@ -18,17 +18,17 @@ import { UriMap } from 'typeserver/utils/uri/uriMap.js';
 interface MappedEntry {
     mappedUri: Uri;
     originalUri: Uri;
-    filter: (uri: Uri, fs: FileSystem) => boolean;
+    filter: (uri: Uri, fs: IFileSystem) => boolean;
 }
 
-export class ReadOnlyFileSystem implements FileSystem {
+export class ReadOnlyFileSystem implements IFileSystem {
     // Mapped (fake location) directory to original directory map
     private readonly _entryMap = new UriMap<MappedEntry>();
 
     // Original directory to mapped (fake location) directory map
     private readonly _reverseEntryMap = new UriMap<MappedEntry>();
 
-    constructor(protected realFS: FileSystem) {}
+    constructor(protected realFS: IFileSystem) {}
 
     existsSync(uri: Uri): boolean {
         if (this._isOriginalPath(uri)) {
@@ -191,7 +191,11 @@ export class ReadOnlyFileSystem implements FileSystem {
         return this.realFS.isInZip(uri);
     }
 
-    mapDirectory(mappedUri: Uri, originalUri: Uri, filter?: (originalUri: Uri, fs: FileSystem) => boolean): Disposable {
+    mapDirectory(
+        mappedUri: Uri,
+        originalUri: Uri,
+        filter?: (originalUri: Uri, fs: IFileSystem) => boolean
+    ): Disposable {
         const entry: MappedEntry = { originalUri, mappedUri, filter: filter ?? (() => true) };
         this._entryMap.set(mappedUri, entry);
         this._reverseEntryMap.set(originalUri, entry);

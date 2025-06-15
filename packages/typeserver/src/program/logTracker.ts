@@ -6,7 +6,7 @@
  * A simple logging class that can be used to track nested loggings.
  */
 
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { Duration, timingStats } from 'typeserver/service/timing.js';
 import { ConsoleInterface, LogLevel } from 'typeserver/utils/console.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
@@ -14,7 +14,7 @@ import { Uri } from 'typeserver/utils/uri/uri.js';
 // Consider an operation "long running" if it goes longer than this.
 const durationThresholdForInfoInMs = 2000;
 
-export function getPathForLogging(fs: ReadOnlyFileSystem, fileUri: Uri) {
+export function getPathForLogging(fs: IReadOnlyFileSystem, fileUri: Uri) {
     if (fs.isMappedUri(fileUri)) {
         return fs.getOriginalUri(fileUri);
     }

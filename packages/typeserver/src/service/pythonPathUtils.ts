@@ -11,7 +11,7 @@ import * as pathConsts from 'typeserver/common/pathConsts.js';
 import { PythonVersion } from 'typeserver/common/pythonVersion.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { getFileSystemEntries, isDirectory, tryStat } from 'typeserver/files/uriUtils.js';
 import { compareComparableValues } from 'typeserver/utils/comparisonUtils.js';
 import { normalizePath } from 'typeserver/utils/pathUtils.js';
@@ -118,7 +118,7 @@ export function isPythonBinary(p: string): boolean {
 }
 
 function findSitePackagesPath(
-    fs: FileSystem,
+    fs: IFileSystem,
     libPath: Uri,
     pythonVersion: PythonVersion | undefined,
     importFailureInfo: string[]
@@ -176,7 +176,7 @@ function findSitePackagesPath(
     return undefined;
 }
 
-export function readPthSearchPaths(pthFile: Uri, fs: FileSystem): Uri[] {
+export function readPthSearchPaths(pthFile: Uri, fs: IFileSystem): Uri[] {
     const searchPaths: Uri[] = [];
 
     if (fs.existsSync(pthFile)) {
@@ -196,7 +196,7 @@ export function readPthSearchPaths(pthFile: Uri, fs: FileSystem): Uri[] {
     return searchPaths;
 }
 
-export function getPathsFromPthFiles(fs: FileSystem, parentDir: Uri): Uri[] {
+export function getPathsFromPthFiles(fs: IFileSystem, parentDir: Uri): Uri[] {
     const searchPaths: Uri[] = [];
 
     // Get a list of all *.pth files within the specified directory.

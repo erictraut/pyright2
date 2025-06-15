@@ -34,7 +34,7 @@ export interface MkDirOptions {
     // mode: string | number;
 }
 
-export interface ReadOnlyFileSystem {
+export interface IReadOnlyFileSystem {
     existsSync(uri: Uri): boolean;
     chdir(uri: Uri): void;
     readdirEntriesSync(uri: Uri): fs.Dirent[];
@@ -63,7 +63,7 @@ export interface ReadOnlyFileSystem {
     isInZip(uri: Uri): boolean;
 }
 
-export interface FileSystem extends ReadOnlyFileSystem {
+export interface IFileSystem extends IReadOnlyFileSystem {
     mkdirSync(uri: Uri, options?: MkDirOptions): void;
     writeFileSync(uri: Uri, data: string | Buffer, encoding: BufferEncoding | null): void;
 
@@ -75,7 +75,7 @@ export interface FileSystem extends ReadOnlyFileSystem {
     createWriteStream(uri: Uri): fs.WriteStream;
     copyFileSync(uri: Uri, dst: Uri): void;
 
-    mapDirectory(mappedUri: Uri, originalUri: Uri, filter?: (originalUri: Uri, fs: FileSystem) => boolean): Disposable;
+    mapDirectory(mappedUri: Uri, originalUri: Uri, filter?: (originalUri: Uri, fs: IFileSystem) => boolean): Disposable;
 }
 
 export interface TmpfileOptions {

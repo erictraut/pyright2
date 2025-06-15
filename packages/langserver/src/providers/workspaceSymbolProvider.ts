@@ -15,9 +15,9 @@ import { IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndex
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 type WorkspaceSymbolCallback = (symbols: SymbolInformation[]) => void;
 
@@ -57,10 +57,10 @@ export class WorkspaceSymbolProvider {
         return this._allSymbols;
     }
 
-    protected getSymbolsForDocument(program: IProgramView, fileUri: Uri): SymbolInformation[] {
+    protected getSymbolsForDocument(typeServer: ITypeServer, fileUri: Uri): SymbolInformation[] {
         const symbolList: SymbolInformation[] = [];
 
-        const parseResults = program.getParseResults(fileUri);
+        const parseResults = typeServer.getParseResults(fileUri);
         if (!parseResults) {
             return symbolList;
         }
@@ -76,14 +76,14 @@ export class WorkspaceSymbolProvider {
             { includeAliases: false },
             this._token
         );
-        this.appendWorkspaceSymbolsRecursive(indexSymbolData, program, fileUri, '', symbolList);
+        this.appendWorkspaceSymbolsRecursive(indexSymbolData, typeServer, fileUri, '', symbolList);
 
         return symbolList;
     }
 
     protected appendWorkspaceSymbolsRecursive(
         indexSymbolData: IndexSymbolData[] | undefined,
-        program: IProgramView,
+        typeServer: ITypeServer,
         fileUri: Uri,
         container: string,
         symbolList: SymbolInformation[]
@@ -101,7 +101,7 @@ export class WorkspaceSymbolProvider {
 
             if (isPatternInSymbol(this._query, symbolData.name)) {
                 const location: Location = {
-                    uri: convertUriToLspUriString(program.fileSystem, fileUri),
+                    uri: convertUriToLspUriString(typeServer.fileSystem, fileUri),
                     range: symbolData.selectionRange!,
                 };
 
@@ -120,7 +120,7 @@ export class WorkspaceSymbolProvider {
 
             this.appendWorkspaceSymbolsRecursive(
                 symbolData.children,
-                program,
+                typeServer,
                 fileUri,
                 this._getContainerName(container, symbolData.name),
                 symbolList
@@ -128,7 +128,7 @@ export class WorkspaceSymbolProvider {
         }
     }
 
-    private _reportSymbolsForProgram(program: IProgramView) {
+    private _reportSymbolsForProgram(typeServer: ITypeServer) {
         // Don't do a search if the query is empty. We'll return
         // too many results in this case.
         if (!this._query) {
@@ -136,19 +136,19 @@ export class WorkspaceSymbolProvider {
         }
 
         // "Workspace symbols" searches symbols only from user code.
-        for (const sourceFileInfo of program.getSourceFileInfoList()) {
+        for (const sourceFileInfo of typeServer.getSourceFileInfoList()) {
             if (!isUserCode(sourceFileInfo)) {
                 continue;
             }
 
-            const symbolList = this.getSymbolsForDocument(program, sourceFileInfo.uri);
+            const symbolList = this.getSymbolsForDocument(typeServer, sourceFileInfo.uri);
             if (symbolList.length > 0) {
                 this._reporter(symbolList);
             }
 
             // This operation can consume significant memory, so check
             // for situations where we need to discard the type cache.
-            program.handleMemoryHighUsage();
+            typeServer.handleMemoryHighUsage();
         }
     }
 

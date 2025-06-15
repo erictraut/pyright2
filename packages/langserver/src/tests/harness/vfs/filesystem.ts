@@ -19,7 +19,7 @@ import { Uri } from 'commonUtils/uri/uri.js';
 import { Metadata, SortedMap, closeIterator, getIterator, nextResult } from 'langserver/tests/harness//utils.js';
 import { bufferFrom, createIOError } from 'langserver/tests/harness/utils.js';
 import { ValidationFlags, validate } from 'langserver/tests/harness/vfs/pathValidation.js';
-import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
+import { IFileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler, FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
 
 export const MODULE_PATH = pathUtil.normalizeSlashes('/');
@@ -48,7 +48,7 @@ export class TestFileSystemWatcher implements FileWatcher {
 /**
  * Represents a virtual POSIX-like file system.
  */
-export class TestFileSystem implements FileSystem, TempFile, CaseSensitivityDetector {
+export class TestFileSystem implements IFileSystem, TempFile, CaseSensitivityDetector {
     /** Indicates whether the file system is case-sensitive (`false`) or case-insensitive (`true`). */
     readonly ignoreCase: boolean;
 
@@ -901,7 +901,11 @@ export class TestFileSystem implements FileSystem, TempFile, CaseSensitivityDete
         throw new Error('Not implemented in test file system.');
     }
 
-    mapDirectory(mappedUri: Uri, originalUri: Uri, filter?: (originalUri: Uri, fs: FileSystem) => boolean): Disposable {
+    mapDirectory(
+        mappedUri: Uri,
+        originalUri: Uri,
+        filter?: (originalUri: Uri, fs: IFileSystem) => boolean
+    ): Disposable {
         throw new Error('Not implemented in test file system.');
     }
 

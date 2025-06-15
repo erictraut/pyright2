@@ -7,7 +7,7 @@
  * we don't repeatedly search folders.
  */
 
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { ImportResult } from 'typeserver/imports/importResult.js';
 import { getOrAdd } from 'typeserver/utils/collectionUtils.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
@@ -46,7 +46,7 @@ export class ParentDirectoryCache {
         return undefined;
     }
 
-    checkValidPath(fs: FileSystem, sourceFileUri: Uri, root: Uri): boolean {
+    checkValidPath(fs: IFileSystem, sourceFileUri: Uri, root: Uri): boolean {
         if (!sourceFileUri.startsWith(root)) {
             // We don't search containing folders for libs.
             return false;

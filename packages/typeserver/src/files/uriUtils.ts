@@ -8,7 +8,7 @@
 
 import type { Dirent } from 'fs';
 
-import { FileSystem, ReadOnlyFileSystem, Stats } from 'typeserver/files/fileSystem.js';
+import { IFileSystem, IReadOnlyFileSystem, Stats } from 'typeserver/files/fileSystem.js';
 import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
 import {
     getRegexEscapedSeparator,
@@ -85,7 +85,7 @@ export function forEachAncestorDirectory(
 }
 
 // Creates a directory hierarchy for a path, starting from some ancestor path.
-export function makeDirectories(fs: FileSystem, dir: Uri, startingFrom: Uri) {
+export function makeDirectories(fs: IFileSystem, dir: Uri, startingFrom: Uri) {
     if (!dir.startsWith(startingFrom)) {
         return;
     }
@@ -102,7 +102,7 @@ export function makeDirectories(fs: FileSystem, dir: Uri, startingFrom: Uri) {
     }
 }
 
-export function getFileSize(fs: ReadOnlyFileSystem, uri: Uri) {
+export function getFileSize(fs: IReadOnlyFileSystem, uri: Uri) {
     const stat = tryStat(fs, uri);
     if (stat?.isFile()) {
         return stat.size;
@@ -110,19 +110,19 @@ export function getFileSize(fs: ReadOnlyFileSystem, uri: Uri) {
     return 0;
 }
 
-export function fileExists(fs: ReadOnlyFileSystem, uri: Uri): boolean {
+export function fileExists(fs: IReadOnlyFileSystem, uri: Uri): boolean {
     return fileSystemEntryExists(fs, uri, FileSystemEntryKind.File);
 }
 
-export function directoryExists(fs: ReadOnlyFileSystem, uri: Uri): boolean {
+export function directoryExists(fs: IReadOnlyFileSystem, uri: Uri): boolean {
     return fileSystemEntryExists(fs, uri, FileSystemEntryKind.Directory);
 }
 
-export function isDirectory(fs: ReadOnlyFileSystem, uri: Uri): boolean {
+export function isDirectory(fs: IReadOnlyFileSystem, uri: Uri): boolean {
     return tryStat(fs, uri)?.isDirectory() ?? false;
 }
 
-export function isFile(fs: ReadOnlyFileSystem, uri: Uri, treatZipDirectoryAsFile = false): boolean {
+export function isFile(fs: IReadOnlyFileSystem, uri: Uri, treatZipDirectoryAsFile = false): boolean {
     const stats = tryStat(fs, uri);
     if (stats?.isFile()) {
         return true;
@@ -135,7 +135,7 @@ export function isFile(fs: ReadOnlyFileSystem, uri: Uri, treatZipDirectoryAsFile
     return stats?.isZipDirectory?.() ?? false;
 }
 
-export function tryStat(fs: ReadOnlyFileSystem, uri: Uri): Stats | undefined {
+export function tryStat(fs: IReadOnlyFileSystem, uri: Uri): Stats | undefined {
     try {
         if (fs.existsSync(uri)) {
             return fs.statSync(uri);
@@ -146,7 +146,7 @@ export function tryStat(fs: ReadOnlyFileSystem, uri: Uri): Stats | undefined {
     return undefined;
 }
 
-export function tryRealpath(fs: ReadOnlyFileSystem, uri: Uri): Uri | undefined {
+export function tryRealpath(fs: IReadOnlyFileSystem, uri: Uri): Uri | undefined {
     try {
         return fs.realpathSync(uri);
     } catch (e: any) {
@@ -154,7 +154,7 @@ export function tryRealpath(fs: ReadOnlyFileSystem, uri: Uri): Uri | undefined {
     }
 }
 
-export function getFileSystemEntries(fs: ReadOnlyFileSystem, uri: Uri): FileSystemEntries {
+export function getFileSystemEntries(fs: IReadOnlyFileSystem, uri: Uri): FileSystemEntries {
     try {
         return getFileSystemEntriesFromDirEntries(fs.readdirEntriesSync(uri), fs, uri);
     } catch (e: any) {
@@ -165,7 +165,7 @@ export function getFileSystemEntries(fs: ReadOnlyFileSystem, uri: Uri): FileSyst
 // Sorts the entires into files and directories, including any symbolic links.
 export function getFileSystemEntriesFromDirEntries(
     dirEntries: Dirent[],
-    fs: ReadOnlyFileSystem,
+    fs: IReadOnlyFileSystem,
     uri: Uri
 ): FileSystemEntries {
     const entries = dirEntries.sort((a, b) => {
@@ -301,7 +301,7 @@ const enum FileSystemEntryKind {
     Directory,
 }
 
-function fileSystemEntryExists(fs: ReadOnlyFileSystem, uri: Uri, entryKind: FileSystemEntryKind): boolean {
+function fileSystemEntryExists(fs: IReadOnlyFileSystem, uri: Uri, entryKind: FileSystemEntryKind): boolean {
     try {
         const stat = fs.statSync(uri);
 
@@ -321,7 +321,7 @@ function fileSystemEntryExists(fs: ReadOnlyFileSystem, uri: Uri, entryKind: File
 }
 
 export function getDirectoryChangeKind(
-    fs: ReadOnlyFileSystem,
+    fs: IReadOnlyFileSystem,
     oldDirectory: Uri,
     newDirectory: Uri
 ): 'Same' | 'Renamed' | 'Moved' {
@@ -378,8 +378,9 @@ export function deduplicateFolders(listOfFolders: Uri[][], excludes: Uri[] = [])
     return [...foldersToWatch.values()];
 }
 
-export function convertUriToLspUriString(fs: ReadOnlyFileSystem, uri: Uri): string {
-    // Convert to a URI string that the LSP client understands (mapped files are only local to the server).
+export function convertUriToLspUriString(fs: IReadOnlyFileSystem, uri: Uri): string {
+    // Convert to a URI string that the LSP client understands, performing any
+    // mappings that the server uses internally.
     return fs.getOriginalUri(uri).toString();
 }
 

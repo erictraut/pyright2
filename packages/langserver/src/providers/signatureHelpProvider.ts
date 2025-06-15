@@ -34,18 +34,18 @@ import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUt
 import { CallSignature, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { PrintTypeFlags } from 'typeserver/evaluator/typePrinter.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { CallNode, NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class SignatureHelpProvider {
     private readonly _parseResults: ParseFileResults | undefined;
     private readonly _sourceMapper: SourceMapper;
 
     constructor(
-        private _program: IProgramView,
+        private _typeServer: ITypeServer,
         private _fileUri: Uri,
         private _position: Position,
         private _format: MarkupKind,
@@ -54,8 +54,8 @@ export class SignatureHelpProvider {
         private _context: SignatureHelpContext | undefined,
         private _token: CancellationToken
     ) {
-        this._parseResults = this._program.getParseResults(this._fileUri);
-        this._sourceMapper = this._program.getSourceMapper(this._fileUri, this._token, /* mapCompiled */ true);
+        this._parseResults = this._typeServer.getParseResults(this._fileUri);
+        this._sourceMapper = this._typeServer.getSourceMapper(this._fileUri, this._token, /* mapCompiled */ true);
     }
 
     getSignatureHelp(): SignatureHelp | undefined {
@@ -63,7 +63,7 @@ export class SignatureHelpProvider {
     }
 
     private get _evaluator(): TypeEvaluator {
-        return this._program.evaluator!;
+        return this._typeServer.evaluator!;
     }
 
     private _getSignatureHelp(): SignatureHelpResults | undefined {

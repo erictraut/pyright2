@@ -26,9 +26,9 @@ import { FileEditAction, FileEditActions, TextEditAction } from 'typeserver/comm
 import { convertRangeToTextRange, convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
 import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
-import { IEditableProgram, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
+import { ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
 import { TypeService } from 'typeserver/service/typeService.js';
 
 export function convertToTextEdits(editActions: TextEditAction[]): TextEdit[] {
@@ -42,10 +42,10 @@ export function convertToFileTextEdits(fileUri: Uri, editActions: TextEditAction
     return editActions.map((a) => ({ fileUri, ...a }));
 }
 
-export function convertToWorkspaceEdit(fs: ReadOnlyFileSystem, edits: FileEditAction[]): WorkspaceEdit;
-export function convertToWorkspaceEdit(fs: ReadOnlyFileSystem, edits: FileEditActions): WorkspaceEdit;
+export function convertToWorkspaceEdit(fs: IReadOnlyFileSystem, edits: FileEditAction[]): WorkspaceEdit;
+export function convertToWorkspaceEdit(fs: IReadOnlyFileSystem, edits: FileEditActions): WorkspaceEdit;
 export function convertToWorkspaceEdit(
-    fs: ReadOnlyFileSystem,
+    fs: IReadOnlyFileSystem,
     edits: FileEditActions,
     changeAnnotations: {
         [id: string]: ChangeAnnotation;
@@ -53,7 +53,7 @@ export function convertToWorkspaceEdit(
     defaultAnnotationId: string
 ): WorkspaceEdit;
 export function convertToWorkspaceEdit(
-    fs: ReadOnlyFileSystem,
+    fs: IReadOnlyFileSystem,
     edits: FileEditActions | FileEditAction[],
     changeAnnotations?: {
         [id: string]: ChangeAnnotation;
@@ -67,7 +67,7 @@ export function convertToWorkspaceEdit(
     return _convertToWorkspaceEditWithDocumentChanges(fs, edits, changeAnnotations, defaultAnnotationId);
 }
 
-export function appendToWorkspaceEdit(fs: ReadOnlyFileSystem, edits: FileEditAction[], workspaceEdit: WorkspaceEdit) {
+export function appendToWorkspaceEdit(fs: IReadOnlyFileSystem, edits: FileEditAction[], workspaceEdit: WorkspaceEdit) {
     edits.forEach((edit) => {
         const uri = convertUriToLspUriString(fs, edit.fileUri);
         workspaceEdit.changes![uri] = workspaceEdit.changes![uri] || [];
@@ -103,17 +103,17 @@ export function applyTextEditsToString(
     return current;
 }
 
-export function applyWorkspaceEdit(program: IEditableProgram, edits: WorkspaceEdit, filesChanged: Map<string, Uri>) {
+export function applyWorkspaceEdit(typeServer: ITypeServer, edits: WorkspaceEdit, filesChanged: Map<string, Uri>) {
     if (edits.changes) {
         for (const kv of Object.entries(edits.changes)) {
-            const fileUri = Uri.parse(kv[0], program.extensionManager.caseSensitivity);
-            const fileInfo = program.getSourceFileInfo(fileUri);
+            const fileUri = Uri.parse(kv[0], typeServer.extensionManager.caseSensitivity);
+            const fileInfo = typeServer.getSourceFileInfo(fileUri);
             if (!fileInfo || !fileInfo.isTracked) {
                 // We don't allow non user file being modified.
                 continue;
             }
 
-            applyDocumentChanges(program, fileInfo, kv[1]);
+            applyDocumentChanges(typeServer, fileInfo, kv[1]);
             filesChanged.set(fileUri.key, fileUri);
         }
     }
@@ -122,14 +122,14 @@ export function applyWorkspaceEdit(program: IEditableProgram, edits: WorkspaceEd
     if (edits.documentChanges) {
         for (const change of edits.documentChanges) {
             if (TextDocumentEdit.is(change)) {
-                const fileUri = Uri.parse(change.textDocument.uri, program.extensionManager.caseSensitivity);
-                const fileInfo = program.getSourceFileInfo(fileUri);
+                const fileUri = Uri.parse(change.textDocument.uri, typeServer.extensionManager.caseSensitivity);
+                const fileInfo = typeServer.getSourceFileInfo(fileUri);
                 if (!fileInfo || !fileInfo.isTracked) {
                     // We don't allow non user file being modified.
                     continue;
                 }
 
-                applyDocumentChanges(program, fileInfo, change.edits.filter((e) => TextEdit.is(e)) as TextEdit[]);
+                applyDocumentChanges(typeServer, fileInfo, change.edits.filter((e) => TextEdit.is(e)) as TextEdit[]);
                 filesChanged.set(fileUri.key, fileUri);
             }
 
@@ -139,30 +139,30 @@ export function applyWorkspaceEdit(program: IEditableProgram, edits: WorkspaceEd
     }
 }
 
-export function applyDocumentChanges(program: IEditableProgram, fileInfo: ISourceFileInfo, edits: TextEdit[]) {
-    if (!fileInfo.isOpenByClient) {
-        const fileContent = fileInfo.contents;
-        program.setFileOpened(fileInfo.uri, 0, fileContent ?? '', {
-            isTracked: fileInfo.isTracked,
-            ipythonMode: fileInfo.ipythonMode,
-            chainedFileUri: fileInfo.chainedSourceFile?.uri,
+export function applyDocumentChanges(typeServer: ITypeServer, file: ITypeServerSourceFile, edits: TextEdit[]) {
+    if (!file.isOpenByClient) {
+        const fileContent = file.contents;
+        typeServer.setFileOpened(file.uri, 0, fileContent ?? '', {
+            isTracked: file.isTracked,
+            ipythonMode: file.ipythonMode,
+            chainedFileUri: file.chainedSourceFile?.uri,
         });
     }
 
-    const version = fileInfo.clientVersion ?? 0;
-    const fileUri = fileInfo.uri;
+    const version = file.clientVersion ?? 0;
+    const fileUri = file.uri;
     const filePath = fileUri.getFilePath();
-    const sourceDoc = TextDocument.create(filePath, 'python', version, fileInfo.contents ?? '');
+    const sourceDoc = TextDocument.create(filePath, 'python', version, file.contents ?? '');
 
-    program.setFileOpened(fileUri, version + 1, TextDocument.applyEdits(sourceDoc, edits), {
-        isTracked: fileInfo.isTracked,
-        ipythonMode: fileInfo.ipythonMode,
-        chainedFileUri: fileInfo.chainedSourceFile?.uri,
+    typeServer.setFileOpened(fileUri, version + 1, TextDocument.applyEdits(sourceDoc, edits), {
+        isTracked: file.isTracked,
+        ipythonMode: file.ipythonMode,
+        chainedFileUri: file.chainedSourceFile?.uri,
     });
 }
 
 export function generateWorkspaceEdit(
-    fs: ReadOnlyFileSystem,
+    fs: IReadOnlyFileSystem,
     originalService: TypeService,
     clonedService: TypeService,
     filesChanged: Map<string, Uri>
@@ -197,7 +197,7 @@ export function generateWorkspaceEdit(
     return edits;
 }
 
-function _convertToWorkspaceEditWithChanges(fs: ReadOnlyFileSystem, edits: FileEditAction[]) {
+function _convertToWorkspaceEditWithChanges(fs: IReadOnlyFileSystem, edits: FileEditAction[]) {
     const workspaceEdit: WorkspaceEdit = {
         changes: {},
     };
@@ -207,7 +207,7 @@ function _convertToWorkspaceEditWithChanges(fs: ReadOnlyFileSystem, edits: FileE
 }
 
 function _convertToWorkspaceEditWithDocumentChanges(
-    fs: ReadOnlyFileSystem,
+    fs: IReadOnlyFileSystem,
     editActions: FileEditActions,
     changeAnnotations?: {
         [id: string]: ChangeAnnotation;

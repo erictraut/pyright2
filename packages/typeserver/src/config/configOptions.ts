@@ -21,7 +21,7 @@ import {
 } from 'typeserver/config/commandLineOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileSpec, getFileSpec, isDirectory } from 'typeserver/files/uriUtils.js';
 import { getPathsFromPthFiles } from 'typeserver/service/pythonPathUtils.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
@@ -1516,7 +1516,7 @@ export class ConfigOptions {
         }
     }
 
-    ensureDefaultExtraPaths(fs: FileSystem, autoSearchPaths: boolean, extraPaths: string[] | undefined) {
+    ensureDefaultExtraPaths(fs: IFileSystem, autoSearchPaths: boolean, extraPaths: string[] | undefined) {
         const paths: Uri[] = [];
 
         if (autoSearchPaths) {

@@ -33,7 +33,6 @@ import {
     OperationCanceledException,
     throwIfCancellationRequested,
 } from 'typeserver/extensibility/cancellationUtils.js';
-import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { makeDirectories } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -48,6 +47,7 @@ import {
     verifyNoCyclesInChainedFiles,
 } from 'typeserver/program/sourceFileInfoUtils.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 import { AnalysisCompleteCallback, analyzeProgram, RequiringAnalysisCount } from 'typeserver/service/analysis.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';
 import { CircularDependency } from 'typeserver/service/circularDependency.js';
@@ -748,13 +748,13 @@ export class Program {
 
     // This will allow the callback to execute a type evaluator with an associated
     // cancellation token and provide a read-only program.
-    run<T>(callback: (p: IProgramView) => T, token: CancellationToken): T {
+    run<T>(callback: (ts: ITypeServer) => T, token: CancellationToken): T {
         return this._runEvaluatorWithCancellationToken(token, () => callback(this));
     }
 
     // This will allow the callback to execute a type evaluator with an associated
     // cancellation token and provide a mutable program. Should already be in edit mode when called.
-    runEditMode(callback: (v: IEditableProgram) => void, token: CancellationToken): void {
+    runEditMode(callback: (v: ITypeServer) => void, token: CancellationToken): void {
         if (this._editModeTracker.isEditMode) {
             return this._runEvaluatorWithCancellationToken(token, () => callback(this));
         }

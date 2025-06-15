@@ -17,20 +17,20 @@ import { findNodeByOffset, isWriteAccess } from 'typeserver/common/parseTreeUtil
 import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, TextRange } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class DocumentHighlightProvider {
     private readonly _parseResults: ParseFileResults | undefined;
 
     constructor(
-        private _program: IProgramView,
+        private _typeServer: ITypeServer,
         private _fileUri: Uri,
         private _position: Position,
         private _token: CancellationToken
     ) {
-        this._parseResults = this._program.getParseResults(this._fileUri);
+        this._parseResults = this._typeServer.getParseResults(this._fileUri);
     }
 
     getDocumentHighlight(): DocumentHighlight[] | undefined {
@@ -54,7 +54,7 @@ export class DocumentHighlightProvider {
         }
 
         const results = DocumentSymbolCollector.collectFromNode(
-            this._program,
+            this._typeServer,
             node,
             this._token,
             this._parseResults.parserOutput.parseTree,

@@ -12,7 +12,7 @@ import { isDefined } from 'commonUtils/valueTypeUtils.js';
 import { DynamicFeature } from 'langserver/server/dynamicFeature.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { configFileName } from 'typeserver/common/pathConsts.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { deduplicateFolders, isFile } from 'typeserver/files/uriUtils.js';
 import {
     Connection,
@@ -26,7 +26,7 @@ export class FileWatcherDynamicFeature extends DynamicFeature {
     constructor(
         private readonly _connection: Connection,
         private readonly _hasWatchFileRelativePathCapability: boolean,
-        private readonly _fs: FileSystem,
+        private readonly _fs: IFileSystem,
         private readonly _workspaceFactory: IWorkspaceFactory
     ) {
         super('file watcher');

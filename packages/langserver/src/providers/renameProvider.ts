@@ -18,21 +18,21 @@ import { FileEditAction } from 'typeserver/common/editAction.js';
 import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { Position, Range } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class RenameProvider {
     private readonly _parseResults: ParseFileResults | undefined;
 
     constructor(
-        private _program: IProgramView,
+        private _typeServer: ITypeServer,
         private _fileUri: Uri,
         private _position: Position,
         private _token: CancellationToken
     ) {
-        this._parseResults = this._program.getParseResults(this._fileUri);
+        this._parseResults = this._typeServer.getParseResults(this._fileUri);
     }
 
     canRenameSymbol(isDefaultWorkspace: boolean, isUntitled: boolean): Range | null {
@@ -47,7 +47,7 @@ export class RenameProvider {
         }
 
         const renameMode = RenameProvider.getRenameSymbolMode(
-            this._program,
+            this._typeServer,
             this._fileUri,
             referencesResult,
             isDefaultWorkspace,
@@ -72,9 +72,9 @@ export class RenameProvider {
             return null;
         }
 
-        const referenceProvider = new ReferencesProvider(this._program, this._token);
+        const referenceProvider = new ReferencesProvider(this._typeServer, this._token);
         const renameMode = RenameProvider.getRenameSymbolMode(
-            this._program,
+            this._typeServer,
             this._fileUri,
             referencesResult,
             isDefaultWorkspace,
@@ -87,7 +87,7 @@ export class RenameProvider {
                 break;
 
             case 'multiFileMode': {
-                for (const curSourceFileInfo of this._program.getSourceFileInfoList()) {
+                for (const curSourceFileInfo of this._typeServer.getSourceFileInfoList()) {
                     // Make sure we only add user code to the references to prevent us
                     // from accidentally changing third party library or type stub.
                     if (isUserCode(curSourceFileInfo)) {
@@ -106,7 +106,7 @@ export class RenameProvider {
 
                     // This operation can consume significant memory, so check
                     // for situations where we need to discard the type cache.
-                    this._program.handleMemoryHighUsage();
+                    this._typeServer.handleMemoryHighUsage();
                 }
                 break;
             }
@@ -148,17 +148,17 @@ export class RenameProvider {
             });
         });
 
-        return convertToWorkspaceEdit(this._program.fileSystem, { edits, fileOperations: [] });
+        return convertToWorkspaceEdit(this._typeServer.fileSystem, { edits, fileOperations: [] });
     }
 
     static getRenameSymbolMode(
-        program: IProgramView,
+        typeServer: ITypeServer,
         fileUri: Uri,
         referencesResult: ReferencesResult,
         isDefaultWorkspace: boolean,
         isUntitled: boolean
     ) {
-        const sourceFileInfo = program.getSourceFileInfo(fileUri)!;
+        const sourceFileInfo = typeServer.getSourceFileInfo(fileUri)!;
 
         // We have 2 different cases
         // Single file mode.
@@ -174,12 +174,12 @@ export class RenameProvider {
             (userFile && !referencesResult.requiresGlobalSearch) ||
             (!userFile &&
                 sourceFileInfo.isOpenByClient &&
-                referencesResult.declarations.every((d) => program.getSourceFileInfo(d.uri) === sourceFileInfo))
+                referencesResult.declarations.every((d) => typeServer.getSourceFileInfo(d.uri) === sourceFileInfo))
         ) {
             return 'singleFileMode';
         }
 
-        if (referencesResult.declarations.every((d) => isUserCode(program.getSourceFileInfo(d.uri)))) {
+        if (referencesResult.declarations.every((d) => isUserCode(typeServer.getSourceFileInfo(d.uri)))) {
             return 'multiFileMode';
         }
 
@@ -190,7 +190,7 @@ export class RenameProvider {
 
     private _getReferenceResult() {
         const referencesResult = ReferencesProvider.getDeclarationForPosition(
-            this._program,
+            this._typeServer,
             this._fileUri,
             this._position,
             /* reporter */ undefined,

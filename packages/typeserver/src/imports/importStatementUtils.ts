@@ -18,7 +18,7 @@ import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/com
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { isFile } from 'typeserver/files/uriUtils.js';
 import { ModuleNameAndType } from 'typeserver/imports/importResolver.js';
 import { ImportResult, ImportType } from 'typeserver/imports/importResult.js';
@@ -861,7 +861,7 @@ function getConsecutiveNumberPairs(indices: number[]) {
 }
 
 export function getRelativeModuleName(
-    fs: ReadOnlyFileSystem,
+    fs: IReadOnlyFileSystem,
     sourcePath: Uri,
     targetPath: Uri,
     configOptions: ConfigOptions,

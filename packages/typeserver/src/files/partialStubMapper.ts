@@ -11,7 +11,7 @@ import fs from 'fs';
 
 import { stubsSuffix } from 'typeserver/common/pathConsts.js';
 import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { isDirectory, tryStat } from 'typeserver/files/uriUtils.js';
 import { getPyTypedInfo, PyTypedInfo } from 'typeserver/imports/pyTypedUtils.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
@@ -27,7 +27,7 @@ export class PartialStubMapper {
     // Disposables to cleanup moved directories
     private _movedDirectories: Disposable[] = [];
 
-    constructor(private _realFs: FileSystem) {}
+    constructor(private _realFs: IFileSystem) {}
 
     isPartialStubPackagesScanned(execEnv: ExecutionEnvironment): boolean {
         return execEnv.root ? this.isPathScanned(execEnv.root) : false;

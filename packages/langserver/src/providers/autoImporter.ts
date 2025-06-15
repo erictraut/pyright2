@@ -24,7 +24,6 @@ import { TextEditAction } from 'typeserver/common/editAction.js';
 import { Position } from 'typeserver/common/textRange.js';
 import { ExecutionEnvironment } from 'typeserver/config/configOptions.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
 import { ImportResolver, ModuleNameAndType } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
 import {
@@ -41,6 +40,7 @@ import {
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
 
 export interface AutoImportSymbol {
     readonly name: string;
@@ -117,7 +117,10 @@ export type AutoImportResultMap = Map<string, AutoImportResult[]>;
 
 // Build a map of all modules within this program and the module-
 // level scope that contains the symbol table for the module.
-export function buildModuleSymbolsMap(program: IProgramView, files: readonly ISourceFileInfo[]): ModuleSymbolMap {
+export function buildModuleSymbolsMap(
+    typeServer: ITypeServer,
+    files: readonly ITypeServerSourceFile[]
+): ModuleSymbolMap {
     const moduleSymbolMap = new Map<string, ModuleSymbolTable>();
 
     files.forEach((file) => {
@@ -128,7 +131,7 @@ export function buildModuleSymbolsMap(program: IProgramView, files: readonly ISo
         }
 
         const uri = file.uri;
-        const symbolTable = program.getModuleSymbolTable(uri);
+        const symbolTable = typeServer.getModuleSymbolTable(uri);
         if (!symbolTable) {
             return;
         }
@@ -191,7 +194,7 @@ export class AutoImporter {
     private readonly _importStatements: ImportStatements;
 
     constructor(
-        protected readonly program: IProgramView,
+        protected readonly typeServer: ITypeServer,
         protected readonly execEnvironment: ExecutionEnvironment,
         protected readonly parseResults: ParseFileResults,
         private readonly _invocationPosition: Position,
@@ -219,7 +222,7 @@ export class AutoImporter {
     }
 
     protected get importResolver(): ImportResolver {
-        return this.program.importResolver;
+        return this.typeServer.importResolver;
     }
 
     protected getCompletionItemData(item: CompletionItem): CompletionItemData | undefined {
@@ -483,7 +486,7 @@ export class AutoImporter {
         const initPathPyi = fileDir.initPyiUri;
         const isStub = uri.hasExtension('.pyi');
         const hasInit = map.has(initPathPy.key) || map.has(initPathPyi.key);
-        const sourceFileInfo = this.program.getSourceFileInfo(uri);
+        const sourceFileInfo = this.typeServer.getSourceFileInfo(uri);
         return { isStub, hasInit, isUserCode: isUserCode(sourceFileInfo) };
     }
 

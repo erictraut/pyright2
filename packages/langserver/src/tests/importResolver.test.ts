@@ -17,7 +17,7 @@ import { MODULE_PATH, TestFileSystem } from 'langserver/tests/harness/vfs/filesy
 import { lib, sitePackages, typeshedFallback } from 'typeserver/common/pathConsts.js';
 import { ConfigOptions } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js';
+import { IFileSystem, MkDirOptions, Stats } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventHandler } from 'typeserver/files/fileWatcher.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { createFromRealFileSystem, RealTempFile } from 'typeserver/files/realFileSystem.js';
@@ -894,7 +894,7 @@ function createExtensionManagerWithCombinedFs(files: { path: string; content: st
     return createExtensionManagerWithFs(testFS, fs);
 }
 
-function createExtensionManagerWithFs(testFS: TestFileSystem, fs: FileSystem): ExtensionManager {
+function createExtensionManagerWithFs(testFS: TestFileSystem, fs: IFileSystem): ExtensionManager {
     const consoleProvider = new NullConsole();
     const pythonEnv = new TestPythonEnvProvider(getModulePath().toString(), [libraryRoot]);
     const em = new ExtensionManager(fs, consoleProvider, testFS, pythonEnv);
@@ -902,7 +902,7 @@ function createExtensionManagerWithFs(testFS: TestFileSystem, fs: FileSystem): E
     return em;
 }
 
-class CombinedFileSystem implements FileSystem {
+class CombinedFileSystem implements IFileSystem {
     private _realFS = createFromRealFileSystem(this._testFS);
 
     constructor(private _testFS: TestFileSystem) {}
@@ -1019,7 +1019,11 @@ class CombinedFileSystem implements FileSystem {
         return this._testFS.isInZip(path);
     }
 
-    mapDirectory(mappedUri: Uri, originalUri: Uri, filter?: (originalUri: Uri, fs: FileSystem) => boolean): Disposable {
+    mapDirectory(
+        mappedUri: Uri,
+        originalUri: Uri,
+        filter?: (originalUri: Uri, fs: IFileSystem) => boolean
+    ): Disposable {
         return this._realFS.mapDirectory(mappedUri, originalUri, filter);
     }
 }

@@ -110,7 +110,6 @@ import {
     MemberAccessFlags,
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ImportedModuleDescriptor, ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportResult } from 'typeserver/imports/importResult.js';
 import { Localizer } from 'typeserver/localization/localize.js';
@@ -148,6 +147,7 @@ import {
     TokenType,
 } from 'typeserver/parser/tokenizerTypes.js';
 import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtils.js';
 
 namespace Keywords {
@@ -308,7 +308,7 @@ export class CompletionProvider {
     protected itemToResolve: CompletionItem | undefined;
 
     constructor(
-        protected readonly program: IProgramView,
+        protected readonly typeServer: ITypeServer,
         protected readonly fileUri: Uri,
         protected readonly position: Position,
         protected readonly options: CompletionOptions,
@@ -316,12 +316,16 @@ export class CompletionProvider {
     ) {
         this.execEnv = this.configOptions.findExecEnvironment(this.fileUri);
 
-        this.parseResults = this.program.getParseResults(this.fileUri)!;
-        this.sourceMapper = this.program.getSourceMapper(this.fileUri, this.cancellationToken, /* mapCompiled */ true);
+        this.parseResults = this.typeServer.getParseResults(this.fileUri)!;
+        this.sourceMapper = this.typeServer.getSourceMapper(
+            this.fileUri,
+            this.cancellationToken,
+            /* mapCompiled */ true
+        );
     }
 
     getCompletions(): CompletionList | null {
-        if (!this.program.getSourceFileInfo(this.fileUri)) {
+        if (!this.typeServer.getSourceFileInfo(this.fileUri)) {
             return null;
         }
 
@@ -370,10 +374,10 @@ export class CompletionProvider {
         if (
             completionItemData.moduleUri &&
             ImportResolver.isSupportedImportSourceFile(
-                Uri.parse(completionItemData.moduleUri, this.program.extensionManager.caseSensitivity)
+                Uri.parse(completionItemData.moduleUri, this.typeServer.extensionManager.caseSensitivity)
             )
         ) {
-            const moduleUri = Uri.parse(completionItemData.moduleUri, this.program.extensionManager.caseSensitivity);
+            const moduleUri = Uri.parse(completionItemData.moduleUri, this.typeServer.extensionManager.caseSensitivity);
             const documentation = getModuleDocStringFromUris([moduleUri], this.sourceMapper);
             if (!documentation) {
                 return;
@@ -414,15 +418,15 @@ export class CompletionProvider {
     }
 
     protected get evaluator() {
-        return this.program.evaluator!;
+        return this.typeServer.evaluator!;
     }
 
     protected get importResolver() {
-        return this.program.importResolver;
+        return this.typeServer.importResolver;
     }
 
     protected get configOptions() {
-        return this.program.configOptions;
+        return this.typeServer.configOptions;
     }
 
     protected getCompletionItemData(item: CompletionItem): CompletionItemData {
@@ -634,7 +638,7 @@ export class CompletionProvider {
         detail: SymbolDetail
     ) {
         // Make sure we don't crash due to OOM.
-        this.program.handleMemoryHighUsage();
+        this.typeServer.handleMemoryHighUsage();
 
         let primaryDecl = getLastTypedDeclarationForSymbol(symbol);
         if (!primaryDecl) {
@@ -707,7 +711,7 @@ export class CompletionProvider {
 
             if (this.options.format === MarkupKind.Markdown || this.options.format === MarkupKind.PlainText) {
                 this.itemToResolve.documentation = getCompletionItemDocumentation(
-                    this.program.extensionManager,
+                    this.typeServer.extensionManager,
                     typeDetail,
                     documentation,
                     this.options.format,
@@ -813,14 +817,14 @@ export class CompletionProvider {
     }
 
     protected createAutoImporter(completionMap: CompletionMap, lazyEdit: boolean) {
-        const currentFile = this.program.getSourceFileInfo(this.fileUri);
+        const currentFile = this.typeServer.getSourceFileInfo(this.fileUri);
         const moduleSymbolMap = buildModuleSymbolsMap(
-            this.program,
-            this.program.getSourceFileInfoList().filter((s) => s !== currentFile)
+            this.typeServer,
+            this.typeServer.getSourceFileInfoList().filter((s) => s !== currentFile)
         );
 
         return new AutoImporter(
-            this.program,
+            this.typeServer,
             this.execEnv,
             this.parseResults,
             this.position,
@@ -2230,7 +2234,7 @@ export class CompletionProvider {
         }
 
         const results = DocumentSymbolCollector.collectFromNode(
-            this.program,
+            this.typeServer,
             indexNode.d.leftExpr,
             this.cancellationToken,
             startingNode
@@ -2764,7 +2768,7 @@ export class CompletionProvider {
                 ? importInfo.resolvedUris[importInfo.resolvedUris.length - 1]
                 : Uri.empty();
 
-        const parseResults = this.program.getParseResults(resolvedPath);
+        const parseResults = this.typeServer.getParseResults(resolvedPath);
         if (!parseResults) {
             // Add the implicit imports.
             this._addImplicitImportsToCompletion(importInfo, importFromNode, priorWord, completionMap);

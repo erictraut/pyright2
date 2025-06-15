@@ -24,10 +24,9 @@ import {
     CommandLineOptions,
 } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, matchFileSpecs } from 'typeserver/config/configOptions.js';
-import { IEditableProgram, IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
-import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem, IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcher, FileWatcherEventType, ignoredWatchEventFunction } from 'typeserver/files/fileWatcher.js';
 import {
     FileSpec,
@@ -45,6 +44,7 @@ import {
 import { ImportResolver, createImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { MaxAnalysisTime, Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 import { AnalysisCompleteCallback } from 'typeserver/service/analysis.js';
 import { findPythonSearchPaths } from 'typeserver/service/pythonPathUtils.js';
 import { timingStats } from 'typeserver/service/timing.js';
@@ -146,7 +146,7 @@ export class TypeService {
         this._instanceName = instanceName;
     }
 
-    clone(instanceName: string, fileSystem?: FileSystem): TypeService {
+    clone(instanceName: string, fileSystem?: IFileSystem): TypeService {
         const service = new TypeService(instanceName, this._extensionManager, {
             ...this.options,
             skipScanningUserFiles: true,
@@ -175,7 +175,7 @@ export class TypeService {
         return service;
     }
 
-    runEditMode(callback: (e: IEditableProgram) => void, token: CancellationToken) {
+    runEditMode(callback: (e: ITypeServer) => void, token: CancellationToken) {
         let edits: FileEditAction[] = [];
         this._program.enterEditMode();
         try {
@@ -308,7 +308,7 @@ export class TypeService {
         return this._program.getTextOnRange(fileUri, range, token);
     }
 
-    run<T>(callback: (p: IProgramView) => T, token: CancellationToken): T {
+    run<T>(callback: (ts: ITypeServer) => T, token: CancellationToken): T {
         return this._program.run(callback, token);
     }
 
@@ -1480,7 +1480,7 @@ export class TypeService {
         }
 
         function getEventInfo(
-            fs: FileSystem,
+            fs: IFileSystem,
             console: ConsoleInterface,
             program: Program,
             event: FileWatcherEventType,
@@ -1782,11 +1782,11 @@ export class TypeService {
         }
     }
 
-    private _findPyprojectTomlFileHereOrUp(fs: ReadOnlyFileSystem, searchPath: Uri): Uri | undefined {
+    private _findPyprojectTomlFileHereOrUp(fs: IReadOnlyFileSystem, searchPath: Uri): Uri | undefined {
         return forEachAncestorDirectory(searchPath, (ancestor) => this._findPyprojectTomlFile(fs, ancestor));
     }
 
-    private _findPyprojectTomlFile(fs: ReadOnlyFileSystem, searchPath: Uri) {
+    private _findPyprojectTomlFile(fs: IReadOnlyFileSystem, searchPath: Uri) {
         const fileName = searchPath.resolvePaths(pyprojectTomlName);
         if (fs.existsSync(fileName)) {
             return fs.realCasePath(fileName);
@@ -1794,11 +1794,11 @@ export class TypeService {
         return undefined;
     }
 
-    private _findConfigFileHereOrUp(fs: ReadOnlyFileSystem, searchPath: Uri): Uri | undefined {
+    private _findConfigFileHereOrUp(fs: IReadOnlyFileSystem, searchPath: Uri): Uri | undefined {
         return forEachAncestorDirectory(searchPath, (ancestor) => this._findConfigFile(fs, ancestor));
     }
 
-    private _findConfigFile(fs: ReadOnlyFileSystem, searchPath: Uri): Uri | undefined {
+    private _findConfigFile(fs: IReadOnlyFileSystem, searchPath: Uri): Uri | undefined {
         const fileName = searchPath.resolvePaths(configFileName);
         if (fs.existsSync(fileName)) {
             return fs.realCasePath(fileName);

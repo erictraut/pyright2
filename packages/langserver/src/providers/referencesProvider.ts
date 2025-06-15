@@ -27,10 +27,10 @@ import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/te
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { maxTypeRecursionCount } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export type ReferenceCallback = (locations: DocumentRange[]) => void;
 
@@ -111,7 +111,7 @@ export class FindReferencesTreeWalker {
     private _parseResults: ParseFileResults | undefined;
 
     constructor(
-        private _program: IProgramView,
+        private _typeServer: ITypeServer,
         private _fileUri: Uri,
         private _referencesResult: ReferencesResult,
         private _includeDeclaration: boolean,
@@ -122,7 +122,7 @@ export class FindReferencesTreeWalker {
             parseResults: ParseFileResults
         ) => DocumentRange = FindReferencesTreeWalker.createDocumentRange
     ) {
-        this._parseResults = this._program.getParseResults(this._fileUri);
+        this._parseResults = this._typeServer.getParseResults(this._fileUri);
     }
 
     findReferences(rootNode = this._parseResults?.parserOutput.parseTree) {
@@ -132,7 +132,7 @@ export class FindReferencesTreeWalker {
         }
 
         const collector = new DocumentSymbolCollector(
-            this._program,
+            this._typeServer,
             this._referencesResult.symbolNames,
             this._referencesResult.declarations,
             rootNode!,
@@ -182,7 +182,7 @@ export class FindReferencesTreeWalker {
 
 export class ReferencesProvider {
     constructor(
-        private _program: IProgramView,
+        private _typeServer: ITypeServer,
         private _token: CancellationToken,
         private readonly _createDocumentRange?: (
             fileUri: Uri,
@@ -199,24 +199,24 @@ export class ReferencesProvider {
         includeDeclaration: boolean,
         resultReporter?: ResultProgressReporter<Location[]>
     ) {
-        const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
+        const sourceFileInfo = this._typeServer.getSourceFileInfo(fileUri);
         if (!sourceFileInfo) {
             return;
         }
 
-        const parseResults = this._program.getParseResults(fileUri);
+        const parseResults = this._typeServer.getParseResults(fileUri);
         if (!parseResults) {
             return;
         }
 
         const locations: Location[] = [];
         const reporter: ReferenceCallback = resultReporter
-            ? (range) => resultReporter.report(convertDocumentRangesToLocation(this._program.fileSystem, range))
-            : (range) => appendArray(locations, convertDocumentRangesToLocation(this._program.fileSystem, range));
+            ? (range) => resultReporter.report(convertDocumentRangesToLocation(this._typeServer.fileSystem, range))
+            : (range) => appendArray(locations, convertDocumentRangesToLocation(this._typeServer.fileSystem, range));
 
         const invokedFromUserFile = isUserCode(sourceFileInfo);
         const referencesResult = ReferencesProvider.getDeclarationForPosition(
-            this._program,
+            this._typeServer,
             fileUri,
             position,
             reporter,
@@ -232,7 +232,7 @@ export class ReferencesProvider {
             this.addReferencesToResult(sourceFileInfo.uri, includeDeclaration, referencesResult);
         }
 
-        for (const curSourceFileInfo of this._program.getSourceFileInfoList()) {
+        for (const curSourceFileInfo of this._typeServer.getSourceFileInfoList()) {
             throwIfCancellationRequested(this._token);
 
             // "Find all references" will only include references from user code
@@ -247,7 +247,7 @@ export class ReferencesProvider {
 
                 // This operation can consume significant memory, so check
                 // for situations where we need to discard the type cache.
-                this._program.handleMemoryHighUsage();
+                this._typeServer.handleMemoryHighUsage();
             }
         }
 
@@ -262,7 +262,7 @@ export class ReferencesProvider {
                     continue;
                 }
 
-                const declFileInfo = this._program.getSourceFileInfo(decl.uri);
+                const declFileInfo = this._typeServer.getSourceFileInfo(decl.uri);
                 if (!declFileInfo) {
                     // The file the declaration belongs to doesn't belong to the program.
                     continue;
@@ -301,13 +301,13 @@ export class ReferencesProvider {
     }
 
     addReferencesToResult(fileUri: Uri, includeDeclaration: boolean, referencesResult: ReferencesResult): void {
-        const parseResults = this._program.getParseResults(fileUri);
+        const parseResults = this._typeServer.getParseResults(fileUri);
         if (!parseResults) {
             return;
         }
 
         const refTreeWalker = new FindReferencesTreeWalker(
-            this._program,
+            this._typeServer,
             fileUri,
             referencesResult,
             includeDeclaration,
@@ -319,7 +319,7 @@ export class ReferencesProvider {
     }
 
     static getDeclarationForNode(
-        program: IProgramView,
+        typeServer: ITypeServer,
         fileUri: Uri,
         node: NameNode,
         reporter: ReferenceCallback | undefined,
@@ -329,7 +329,7 @@ export class ReferencesProvider {
         throwIfCancellationRequested(token);
 
         const declarations = DocumentSymbolCollector.getDeclarationsForNode(
-            program,
+            typeServer,
             node,
             /* resolveLocalNames */ false,
             token
@@ -339,7 +339,7 @@ export class ReferencesProvider {
             return undefined;
         }
 
-        const requiresGlobalSearch = isVisibleOutside(program.evaluator!, fileUri, node, declarations);
+        const requiresGlobalSearch = isVisibleOutside(typeServer.evaluator!, fileUri, node, declarations);
         const symbolNames = new Set<string>(declarations.map((d) => getNameFromDeclaration(d)!).filter((n) => !!n));
         symbolNames.add(node.d.value);
 
@@ -354,7 +354,7 @@ export class ReferencesProvider {
     }
 
     static getDeclarationForPosition(
-        program: IProgramView,
+        typeServer: ITypeServer,
         fileUri: Uri,
         position: Position,
         reporter: ReferenceCallback | undefined,
@@ -362,7 +362,7 @@ export class ReferencesProvider {
         token: CancellationToken
     ): ReferencesResult | undefined {
         throwIfCancellationRequested(token);
-        const parseResults = program.getParseResults(fileUri);
+        const parseResults = typeServer.getParseResults(fileUri);
         if (!parseResults) {
             return undefined;
         }
@@ -382,7 +382,7 @@ export class ReferencesProvider {
             return undefined;
         }
 
-        return this.getDeclarationForNode(program, fileUri, node, reporter, useCase, token);
+        return this.getDeclarationForNode(typeServer, fileUri, node, reporter, useCase, token);
     }
 }
 

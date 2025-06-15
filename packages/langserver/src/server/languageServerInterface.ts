@@ -12,7 +12,7 @@ import { TaskListToken } from 'typeserver/common/diagnostic.js';
 import { DiagnosticBooleanOverridesMap, DiagnosticSeverityOverridesMap } from 'typeserver/config/commandLineOptions.js';
 import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
@@ -51,7 +51,7 @@ export interface MessageAction {
 }
 
 export interface WorkspaceServices {
-    fs: FileSystem | undefined;
+    fs: IFileSystem | undefined;
 }
 
 export interface LanguageServerOptions {

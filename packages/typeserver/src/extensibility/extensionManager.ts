@@ -8,12 +8,12 @@
 
 import { CancellationProvider } from 'typeserver/extensibility/cancellationUtils.js';
 import { PythonEnvProvider } from 'typeserver/extensibility/pythonEnvProvider.js';
-import { FileSystem, TempFile } from 'typeserver/files/fileSystem.js';
+import { IFileSystem, TempFile } from 'typeserver/files/fileSystem.js';
 import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
 import { ConsoleInterface } from 'typeserver/utils/console.js';
 
 export class ExtensionManager {
-    private _fileSystemProvider: FileSystem;
+    private _fileSystemProvider: IFileSystem;
     private _consoleProvider: ConsoleInterface;
     private _caseSensitivityProvider: CaseSensitivityDetector;
     private _pythonEnvProvider: PythonEnvProvider;
@@ -22,7 +22,7 @@ export class ExtensionManager {
     private _cancellationProvider: CancellationProvider | undefined;
 
     constructor(
-        fileSystemProvider: FileSystem,
+        fileSystemProvider: IFileSystem,
         consoleProvider: ConsoleInterface,
         caseSensitivityProvider: CaseSensitivityDetector,
         pythonEnvProvider: PythonEnvProvider
@@ -33,11 +33,11 @@ export class ExtensionManager {
         this._pythonEnvProvider = pythonEnvProvider;
     }
 
-    get fs(): FileSystem {
+    get fs(): IFileSystem {
         return this._fileSystemProvider;
     }
 
-    set fs(value: FileSystem) {
+    set fs(value: IFileSystem) {
         this._fileSystemProvider = value;
     }
 

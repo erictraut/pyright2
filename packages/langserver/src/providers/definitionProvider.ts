@@ -31,11 +31,11 @@ import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator/types.js';
 import { doForEachSubtype } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export enum DefinitionFilter {
     All = 'all',
@@ -207,17 +207,17 @@ class DefinitionProviderBase {
 
 export class DefinitionProvider extends DefinitionProviderBase {
     constructor(
-        program: IProgramView,
+        typeServer: ITypeServer,
         fileUri: Uri,
         position: Position,
         filter: DefinitionFilter,
         token: CancellationToken
     ) {
-        const sourceMapper = program.getSourceMapper(fileUri, token);
-        const parseResults = program.getParseResults(fileUri);
+        const sourceMapper = typeServer.getSourceMapper(fileUri, token);
+        const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
-        super(sourceMapper, program.evaluator!, program.extensionManager, node, offset, filter, token);
+        super(sourceMapper, typeServer.evaluator!, typeServer.extensionManager, node, offset, filter, token);
     }
 
     static getDefinitionsForNode(
@@ -251,12 +251,20 @@ export class DefinitionProvider extends DefinitionProviderBase {
 export class TypeDefinitionProvider extends DefinitionProviderBase {
     private readonly _fileUri: Uri;
 
-    constructor(program: IProgramView, fileUri: Uri, position: Position, token: CancellationToken) {
-        const sourceMapper = program.getSourceMapper(fileUri, token, /*mapCompiled*/ false, /*preferStubs*/ true);
-        const parseResults = program.getParseResults(fileUri);
+    constructor(typeServer: ITypeServer, fileUri: Uri, position: Position, token: CancellationToken) {
+        const sourceMapper = typeServer.getSourceMapper(fileUri, token, /*mapCompiled*/ false, /*preferStubs*/ true);
+        const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
-        super(sourceMapper, program.evaluator!, program.extensionManager, node, offset, DefinitionFilter.All, token);
+        super(
+            sourceMapper,
+            typeServer.evaluator!,
+            typeServer.extensionManager,
+            node,
+            offset,
+            DefinitionFilter.All,
+            token
+        );
         this._fileUri = fileUri;
     }
 

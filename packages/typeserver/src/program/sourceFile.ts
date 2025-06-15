@@ -22,7 +22,7 @@ import { AnalyzerFileInfo, ImportLookup } from 'typeserver/evaluator/analyzerFil
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { OperationCanceledException } from 'typeserver/extensibility/cancellationUtils.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
 import { ImportResult } from 'typeserver/imports/importResult.js';
 import { LocMessage } from 'typeserver/localization/localize.js';
@@ -243,7 +243,7 @@ export class SourceFile {
     // Data that changes when the source file changes.
     private _writableData: WriteableData;
 
-    readonly fileSystem: FileSystem;
+    readonly fileSystem: IFileSystem;
 
     constructor(
         readonly extensionManager: ExtensionManager,

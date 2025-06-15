@@ -41,24 +41,24 @@ import {
     lookUpObjectMember,
 } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { CallNode, MemberAccessNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class CallHierarchyProvider {
     private readonly _parseResults: ParseFileResults | undefined;
 
     constructor(
-        private _program: IProgramView,
+        private _typeServer: ITypeServer,
         private _fileUri: Uri,
         private _position: Position,
         private _token: CancellationToken
     ) {
-        this._parseResults = this._program.getParseResults(this._fileUri);
+        this._parseResults = this._typeServer.getParseResults(this._fileUri);
     }
 
     onPrepare(): CallHierarchyItem[] | null {
@@ -96,15 +96,15 @@ export class CallHierarchyProvider {
         const callItem: CallHierarchyItem = {
             name: symbolName,
             kind: getSymbolKind(targetDecl, this._evaluator, symbolName) ?? SymbolKind.Module,
-            uri: convertUriToLspUriString(this._program.fileSystem, callItemUri),
+            uri: convertUriToLspUriString(this._typeServer.fileSystem, callItemUri),
             range: targetDecl.range,
             selectionRange: targetDecl.range,
         };
 
         if (
             !canNavigateToFile(
-                this._program.fileSystem,
-                Uri.parse(callItem.uri, this._program.extensionManager.caseSensitivity)
+                this._typeServer.fileSystem,
+                Uri.parse(callItem.uri, this._typeServer.extensionManager.caseSensitivity)
             )
         ) {
             return null;
@@ -129,8 +129,8 @@ export class CallHierarchyProvider {
         const items: CallHierarchyIncomingCall[] = [];
         const sourceFiles =
             targetDecl.type === DeclarationType.Alias
-                ? [this._program.getSourceFileInfo(this._fileUri)!]
-                : this._program.getSourceFileInfoList();
+                ? [this._typeServer.getSourceFileInfo(this._fileUri)!]
+                : this._typeServer.getSourceFileInfoList();
         for (const curSourceFileInfo of sourceFiles) {
             if (isUserCode(curSourceFileInfo) || curSourceFileInfo.isOpenByClient) {
                 const filePath = curSourceFileInfo.uri;
@@ -142,7 +142,7 @@ export class CallHierarchyProvider {
 
                 // This operation can consume significant memory, so check
                 // for situations where we need to discard the type cache.
-                this._program.handleMemoryHighUsage();
+                this._typeServer.handleMemoryHighUsage();
             }
         }
 
@@ -152,8 +152,8 @@ export class CallHierarchyProvider {
 
         return items.filter((item) =>
             canNavigateToFile(
-                this._program.fileSystem,
-                Uri.parse(item.from.uri, this._program.extensionManager.caseSensitivity)
+                this._typeServer.fileSystem,
+                Uri.parse(item.from.uri, this._typeServer.extensionManager.caseSensitivity)
             )
         );
     }
@@ -214,7 +214,7 @@ export class CallHierarchyProvider {
         }
 
         const callFinder = new FindOutgoingCallTreeWalker(
-            this._program.fileSystem,
+            this._typeServer.fileSystem,
             parseRoot,
             this._parseResults,
             this._evaluator,
@@ -227,14 +227,14 @@ export class CallHierarchyProvider {
 
         return outgoingCalls.filter((item) =>
             canNavigateToFile(
-                this._program.fileSystem,
-                Uri.parse(item.to.uri, this._program.extensionManager.caseSensitivity)
+                this._typeServer.fileSystem,
+                Uri.parse(item.to.uri, this._typeServer.extensionManager.caseSensitivity)
             )
         );
     }
 
     private get _evaluator(): TypeEvaluator {
-        return this._program.evaluator!;
+        return this._typeServer.evaluator!;
     }
 
     private _getTargetDeclaration(referencesResult: ReferencesResult): {
@@ -286,7 +286,13 @@ export class CallHierarchyProvider {
     ): CallHierarchyIncomingCall[] | undefined {
         throwIfCancellationRequested(this._token);
 
-        const callFinder = new FindIncomingCallTreeWalker(this._program, fileUri, symbolName, declaration, this._token);
+        const callFinder = new FindIncomingCallTreeWalker(
+            this._typeServer,
+            fileUri,
+            symbolName,
+            declaration,
+            this._token
+        );
 
         const incomingCalls = callFinder.findCalls();
         return incomingCalls.length > 0 ? incomingCalls : undefined;
@@ -294,7 +300,7 @@ export class CallHierarchyProvider {
 
     private _getDeclaration(): ReferencesResult | undefined {
         return ReferencesProvider.getDeclarationForPosition(
-            this._program,
+            this._typeServer,
             this._fileUri,
             this._position,
             /* reporter */ undefined,
@@ -308,7 +314,7 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
     private _outgoingCalls: CallHierarchyOutgoingCall[] = [];
 
     constructor(
-        private _fs: ReadOnlyFileSystem,
+        private _fs: IReadOnlyFileSystem,
         private _parseRoot: ParseNode,
         private _parseResults: ParseFileResults,
         private _evaluator: TypeEvaluator,
@@ -444,7 +450,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
     private readonly _parseResults: ParseFileResults;
 
     constructor(
-        private readonly _program: IProgramView,
+        private readonly _typeServer: ITypeServer,
         private readonly _fileUri: Uri,
         private readonly _symbolName: string,
         private readonly _targetDeclaration: Declaration,
@@ -452,7 +458,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
     ) {
         super();
 
-        this._parseResults = this._program.getParseResults(this._fileUri)!;
+        this._parseResults = this._typeServer.getParseResults(this._fileUri)!;
         this._declarations.push(this._targetDeclaration);
     }
 
@@ -534,12 +540,12 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
     }
 
     private get _evaluator(): TypeEvaluator {
-        return this._program.evaluator!;
+        return this._typeServer.evaluator!;
     }
 
     private _getDeclarations(node: NameNode) {
         const declarations = DocumentSymbolCollector.getDeclarationsForNode(
-            this._program,
+            this._typeServer,
             node,
             /* resolveLocalName */ true,
             this._cancellationToken
@@ -562,12 +568,12 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
         let callSource: CallHierarchyItem;
         if (executionNode.nodeType === ParseNodeType.Module) {
             const moduleRange = convertOffsetsToRange(0, 0, this._parseResults.tokenizerOutput.lines);
-            const fileName = this._program.fileSystem.getOriginalUri(this._fileUri).fileName;
+            const fileName = this._typeServer.fileSystem.getOriginalUri(this._fileUri).fileName;
 
             callSource = {
                 name: `(module) ${fileName}`,
                 kind: SymbolKind.Module,
-                uri: convertUriToLspUriString(this._program.fileSystem, this._fileUri),
+                uri: convertUriToLspUriString(this._typeServer.fileSystem, this._fileUri),
                 range: moduleRange,
                 selectionRange: moduleRange,
             };
@@ -581,7 +587,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
             callSource = {
                 name: '(lambda)',
                 kind: SymbolKind.Function,
-                uri: convertUriToLspUriString(this._program.fileSystem, this._fileUri),
+                uri: convertUriToLspUriString(this._typeServer.fileSystem, this._fileUri),
                 range: lambdaRange,
                 selectionRange: lambdaRange,
             };
@@ -595,7 +601,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
             callSource = {
                 name: executionNode.d.name.d.value,
                 kind: SymbolKind.Function,
-                uri: convertUriToLspUriString(this._program.fileSystem, this._fileUri),
+                uri: convertUriToLspUriString(this._typeServer.fileSystem, this._fileUri),
                 range: functionRange,
                 selectionRange: functionRange,
             };

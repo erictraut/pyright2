@@ -131,7 +131,7 @@ import {
 } from 'typeserver/config/configOptions.js';
 import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -194,7 +194,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
 
     protected readonly workspaceFactory: WorkspaceFactory;
     protected readonly openFileMap = new Map<string, TextDocument>();
-    protected readonly fs: FileSystem;
+    protected readonly fs: IFileSystem;
     protected readonly caseSensitiveDetector: CaseSensitivityDetector;
 
     // The URIs for which diagnostics are reported
@@ -1373,7 +1373,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         return Promise.resolve();
     }
 
-    protected convertDiagnostics(fs: FileSystem, fileDiagnostics: FileDiagnostics): PublishDiagnosticsParams[] {
+    protected convertDiagnostics(fs: IFileSystem, fileDiagnostics: FileDiagnostics): PublishDiagnosticsParams[] {
         return [
             {
                 uri: convertUriToLspUriString(fs, fileDiagnostics.fileUri),
@@ -1387,7 +1387,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         return rule;
     }
 
-    protected onAnalysisCompletedHandler(fs: FileSystem, results: AnalysisResults): void {
+    protected onAnalysisCompletedHandler(fs: IFileSystem, results: AnalysisResults): void {
         // If we're in pull mode, disregard any 'tracking' results. They're not necessary.
         if (this.client.usingPullDiagnostics && results.reason === 'tracking') {
             return;
@@ -1561,7 +1561,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         };
     }
 
-    protected canNavigateToFile(path: Uri, fs: FileSystem): boolean {
+    protected canNavigateToFile(path: Uri, fs: IFileSystem): boolean {
         return canNavigateToFile(fs, path);
     }
 
@@ -1656,7 +1656,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         return values.filter((p) => p && isString(p)) as string[];
     }
 
-    private _convertDiagnostics(fs: FileSystem, diags: AnalyzerDiagnostic[]): Diagnostic[] {
+    private _convertDiagnostics(fs: IFileSystem, diags: AnalyzerDiagnostic[]): Diagnostic[] {
         const convertedDiags: Diagnostic[] = [];
 
         diags.forEach((diag) => {

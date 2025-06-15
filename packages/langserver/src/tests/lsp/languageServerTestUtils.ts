@@ -29,7 +29,7 @@ import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { PythonVersion, pythonVersion3_10 } from 'typeserver/common/pythonVersion.js';
 import { PythonPlatform } from 'typeserver/config/configOptions.js';
 import { LimitedAccessPythonEnvProvider, PythonPathResult } from 'typeserver/extensibility/pythonEnvProvider.js';
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { UriEx } from 'typeserver/files/uriUtils.js';
 import { ParseOptions, Parser } from 'typeserver/parser/parser.js';
 import {
@@ -1039,7 +1039,7 @@ export class TestPythonEnvProvider extends LimitedAccessPythonEnvProvider {
     private readonly _options: TestHostOptions;
 
     constructor(
-        readonly fs: FileSystem,
+        readonly fs: IFileSystem,
         readonly testFs: vfs.TestFileSystem,
         readonly testData: FourSlashData,
         readonly projectRoots: string[],

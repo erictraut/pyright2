@@ -7,7 +7,7 @@
  * Parser for py.typed files.
  */
 
-import { FileSystem } from 'typeserver/files/fileSystem.js';
+import { IFileSystem } from 'typeserver/files/fileSystem.js';
 import { isDirectory, isFile } from 'typeserver/files/uriUtils.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
@@ -19,7 +19,7 @@ export interface PyTypedInfo {
 //
 // Retrieves information about a py.typed file, if it exists, under the given path.
 //
-export function getPyTypedInfo(fileSystem: FileSystem, dirPath: Uri): PyTypedInfo | undefined {
+export function getPyTypedInfo(fileSystem: IFileSystem, dirPath: Uri): PyTypedInfo | undefined {
     if (!fileSystem.existsSync(dirPath) || !isDirectory(fileSystem, dirPath)) {
         return undefined;
     }
@@ -35,7 +35,7 @@ export function getPyTypedInfo(fileSystem: FileSystem, dirPath: Uri): PyTypedInf
 //
 // Retrieves information about a py.typed file. The pyTypedPath provided must be a valid path.
 //
-export function getPyTypedInfoForPyTypedFile(fileSystem: FileSystem, pyTypedPath: Uri) {
+export function getPyTypedInfoForPyTypedFile(fileSystem: IFileSystem, pyTypedPath: Uri) {
     // This function intentionally doesn't check whether the given py.typed path exists or not,
     // as filesystem access is expensive if done repeatedly.
     // The caller should verify the file's validity before calling this method and use a cache if possible

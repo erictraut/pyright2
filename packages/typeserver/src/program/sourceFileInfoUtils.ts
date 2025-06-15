@@ -6,20 +6,23 @@
  * Functions that operate on SourceFileInfo objects.
  */
 
-import { IProgramView, ISourceFileInfo } from 'typeserver/extensibility/extensibility.js';
+import { ITypeServer, ITypeServerSourceFile } from 'typeserver/protocol/typeServerProtocol.js';
 import { fail } from 'typeserver/utils/debug.js';
 
-export function isUserCode(fileInfo: ISourceFileInfo | undefined) {
+export function isUserCode(fileInfo: ITypeServerSourceFile | undefined) {
     return !!fileInfo && fileInfo.isTracked && !fileInfo.isThirdPartyImport && !fileInfo.isTypeshedFile;
 }
 
-export function collectImportedByCells<T extends ISourceFileInfo>(program: IProgramView, fileInfo: T): Set<T> {
+export function collectImportedByCells<T extends ITypeServerSourceFile>(typeServer: ITypeServer, fileInfo: T): Set<T> {
     const importedByCells = new Set<T>();
     _collectImportedByRecursively(fileInfo, importedByCells);
     return importedByCells;
 }
 
-export function verifyNoCyclesInChainedFiles<T extends ISourceFileInfo>(program: IProgramView, fileInfo: T): void {
+export function verifyNoCyclesInChainedFiles<T extends ITypeServerSourceFile>(
+    typeServer: ITypeServer,
+    fileInfo: T
+): void {
     let nextChainedFile = fileInfo.chainedSourceFile;
     if (!nextChainedFile) {
         return;
@@ -38,10 +41,10 @@ export function verifyNoCyclesInChainedFiles<T extends ISourceFileInfo>(program:
     }
 }
 
-export function createChainedByList<T extends ISourceFileInfo>(program: IProgramView, fileInfo: T): T[] {
+export function createChainedByList<T extends ITypeServerSourceFile>(typeServer: ITypeServer, fileInfo: T): T[] {
     // We want to create reverse map of all chained files.
-    const map = new Map<ISourceFileInfo, ISourceFileInfo>();
-    for (const file of program.getSourceFileInfoList()) {
+    const map = new Map<ITypeServerSourceFile, ITypeServerSourceFile>();
+    for (const file of typeServer.getSourceFileInfoList()) {
         if (!file.chainedSourceFile) {
             continue;
         }
@@ -49,10 +52,10 @@ export function createChainedByList<T extends ISourceFileInfo>(program: IProgram
         map.set(file.chainedSourceFile, file);
     }
 
-    const visited = new Set<ISourceFileInfo>();
+    const visited = new Set<ITypeServerSourceFile>();
 
-    const chainedByList: ISourceFileInfo[] = [fileInfo];
-    let current: ISourceFileInfo | undefined = fileInfo;
+    const chainedByList: ITypeServerSourceFile[] = [fileInfo];
+    let current: ITypeServerSourceFile | undefined = fileInfo;
     while (current) {
         if (visited.has(current)) {
             fail('Detected a cycle in chained files');
@@ -68,7 +71,7 @@ export function createChainedByList<T extends ISourceFileInfo>(program: IProgram
     return chainedByList as T[];
 }
 
-function _collectImportedByRecursively(fileInfo: ISourceFileInfo, importedBy: Set<ISourceFileInfo>) {
+function _collectImportedByRecursively(fileInfo: ITypeServerSourceFile, importedBy: Set<ITypeServerSourceFile>) {
     fileInfo.importedBy.forEach((dep) => {
         if (importedBy.has(dep)) {
             // Already visited.

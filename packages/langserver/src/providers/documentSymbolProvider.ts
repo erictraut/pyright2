@@ -14,20 +14,20 @@ import { Uri } from 'commonUtils/uri/uri.js';
 import { IndexOptions, IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndexer.js';
 import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { IReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export function convertToFlatSymbols(
-    program: IProgramView,
+    typeServer: ITypeServer,
     uri: Uri,
     symbolList: DocumentSymbol[]
 ): SymbolInformation[] {
     const flatSymbols: SymbolInformation[] = [];
 
     for (const symbol of symbolList) {
-        _appendToFlatSymbolsRecursive(program.fileSystem, flatSymbols, uri, symbol);
+        _appendToFlatSymbolsRecursive(typeServer.fileSystem, flatSymbols, uri, symbol);
     }
 
     return flatSymbols;
@@ -37,13 +37,13 @@ export class DocumentSymbolProvider {
     private _parseResults: ParseFileResults | undefined;
 
     constructor(
-        protected readonly program: IProgramView,
+        protected readonly typeServer: ITypeServer,
         protected readonly uri: Uri,
         private readonly _supportHierarchicalDocumentSymbol: boolean,
         private readonly _indexOptions: IndexOptions,
         private readonly _token: CancellationToken
     ) {
-        this._parseResults = this.program.getParseResults(this.uri);
+        this._parseResults = this.typeServer.getParseResults(this.uri);
     }
 
     getSymbols(): DocumentSymbol[] | SymbolInformation[] {
@@ -56,12 +56,12 @@ export class DocumentSymbolProvider {
             return symbolList;
         }
 
-        return convertToFlatSymbols(this.program, this.uri, symbolList);
+        return convertToFlatSymbols(this.typeServer, this.uri, symbolList);
     }
 
     protected getHierarchicalSymbols() {
         const symbolList: DocumentSymbol[] = [];
-        const parseResults = this.program.getParseResults(this.uri);
+        const parseResults = this.typeServer.getParseResults(this.uri);
         if (!parseResults) {
             return symbolList;
         }
@@ -116,7 +116,7 @@ export class DocumentSymbolProvider {
 }
 
 function _appendToFlatSymbolsRecursive(
-    fs: ReadOnlyFileSystem,
+    fs: IReadOnlyFileSystem,
     flatSymbols: SymbolInformation[],
     documentUri: Uri,
     symbol: DocumentSymbol,

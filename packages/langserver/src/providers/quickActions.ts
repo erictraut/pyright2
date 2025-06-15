@@ -10,16 +10,16 @@
 import { CancellationToken } from 'vscode-languageserver';
 
 import { Uri } from 'commonUtils/uri/uri.js';
-import { IProgramView } from 'typeserver/extensibility/extensibility.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export function performQuickAction(
-    programView: IProgramView,
+    typeServer: ITypeServer,
     uri: Uri,
     command: string,
     args: any[],
     token: CancellationToken
 ) {
-    const sourceFileInfo = programView.getSourceFileInfo(uri);
+    const sourceFileInfo = typeServer.getSourceFileInfo(uri);
 
     // This command should be called only for open files, in which
     // case we should have the file contents already loaded.
@@ -28,7 +28,7 @@ export function performQuickAction(
     }
 
     // If we have no completed analysis job, there's nothing to do.
-    const parseResults = programView.getParseResults(uri);
+    const parseResults = typeServer.getParseResults(uri);
     if (!parseResults) {
         return [];
     }

@@ -11,7 +11,7 @@ import tmp from 'tmp';
 import { Disposable } from 'vscode-jsonrpc';
 import { isMainThread } from 'worker_threads';
 
-import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
+import { IFileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
 import {
     FileWatcher,
     FileWatcherEventHandler,
@@ -36,7 +36,7 @@ export function createFromRealFileSystem(
     caseSensitiveDetector: CaseSensitivityDetector,
     console?: ConsoleInterface,
     fileWatcherProvider?: FileWatcherProvider
-): FileSystem {
+): IFileSystem {
     return new RealFileSystem(
         caseSensitiveDetector,
         console ?? new NullConsole(),
@@ -219,7 +219,7 @@ const yarnFS = new YarnFS();
 
 // Use `createFromRealFileSystem` instead of `new RealFileSystem`
 // unless you are creating a new file system that inherits from `RealFileSystem`
-export class RealFileSystem implements FileSystem {
+export class RealFileSystem implements IFileSystem {
     constructor(
         private readonly _caseSensitiveDetector: CaseSensitivityDetector,
         private readonly _console: ConsoleInterface,
@@ -446,7 +446,11 @@ export class RealFileSystem implements FileSystem {
         return originalUri;
     }
 
-    mapDirectory(mappedUri: Uri, originalUri: Uri, filter?: (originalUri: Uri, fs: FileSystem) => boolean): Disposable {
+    mapDirectory(
+        mappedUri: Uri,
+        originalUri: Uri,
+        filter?: (originalUri: Uri, fs: IFileSystem) => boolean
+    ): Disposable {
         // Not supported at this level.
         return {
             dispose: () => {
