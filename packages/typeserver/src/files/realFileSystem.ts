@@ -8,6 +8,7 @@ import { FakeFS, NativePath, PortablePath, PosixFS, ppath, VirtualFS, ZipFS, Zip
 import { getLibzipSync } from '@yarnpkg/libzip';
 import fs from 'fs';
 import tmp from 'tmp';
+import { Disposable } from 'vscode-jsonrpc';
 import { isMainThread } from 'worker_threads';
 
 import { FileSystem, MkDirOptions, TempFile, TmpfileOptions } from 'typeserver/files/fileSystem.js';
@@ -25,7 +26,6 @@ import { randomBytesHex } from 'typeserver/utils/crypto.js';
 import { combinePaths, getRootLength } from 'typeserver/utils/pathUtils.js';
 import { FileUri, FileUriSchema } from 'typeserver/utils/uri/fileUri.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
-import { Disposable } from 'vscode-jsonrpc';
 
 // Automatically remove files created by tmp at process exit.
 tmp.setGracefulCleanup();

@@ -27,7 +27,6 @@ import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { maxTypeRecursionCount } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { IProgramView, ReferenceUseCase } from 'typeserver/extensibility/extensibility.js';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isUserCode } from 'typeserver/program/sourceFileInfoUtils.js';
@@ -188,8 +187,7 @@ export class ReferencesProvider {
             fileUri: Uri,
             result: CollectionResult,
             parseResults: ParseFileResults
-        ) => DocumentRange,
-        private readonly _convertToLocation?: (fs: ReadOnlyFileSystem, ranges: DocumentRange) => Location | undefined
+        ) => DocumentRange
     ) {
         // empty
     }
@@ -212,15 +210,8 @@ export class ReferencesProvider {
 
         const locations: Location[] = [];
         const reporter: ReferenceCallback = resultReporter
-            ? (range) =>
-                  resultReporter.report(
-                      convertDocumentRangesToLocation(this._program.fileSystem, range, this._convertToLocation)
-                  )
-            : (range) =>
-                  appendArray(
-                      locations,
-                      convertDocumentRangesToLocation(this._program.fileSystem, range, this._convertToLocation)
-                  );
+            ? (range) => resultReporter.report(convertDocumentRangesToLocation(this._program.fileSystem, range))
+            : (range) => appendArray(locations, convertDocumentRangesToLocation(this._program.fileSystem, range));
 
         const invokedFromUserFile = isUserCode(sourceFileInfo);
         const referencesResult = ReferencesProvider.getDeclarationForPosition(

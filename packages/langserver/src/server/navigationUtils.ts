@@ -17,12 +17,17 @@ export function canNavigateToFile(fs: ReadOnlyFileSystem, path: Uri): boolean {
     return !fs.isInZip(path);
 }
 
-export function convertDocumentRangesToLocation(
-    fs: ReadOnlyFileSystem,
-    ranges: DocumentRange[],
-    converter: (fs: ReadOnlyFileSystem, range: DocumentRange) => Location | undefined = convertDocumentRangeToLocation
-): Location[] {
-    return ranges.map((range) => converter(fs, range)).filter((loc) => !!loc) as Location[];
+export function convertDocumentRangesToLocation(fs: ReadOnlyFileSystem, ranges: DocumentRange[]): Location[] {
+    const locations: Location[] = [];
+
+    ranges.forEach((range) => {
+        const loc = convertDocumentRangeToLocation(fs, range);
+        if (loc) {
+            locations.push(loc);
+        }
+    });
+
+    return locations;
 }
 
 export function convertDocumentRangeToLocation(fs: ReadOnlyFileSystem, range: DocumentRange): Location | undefined {

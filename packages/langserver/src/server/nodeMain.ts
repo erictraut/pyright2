@@ -6,10 +6,11 @@
  * Provides the main entrypoint to the server when running in Node.
  */
 
-import { CodeActionKind, ConnectionOptions } from 'vscode-languageserver';
+import { ConnectionOptions } from 'vscode-languageserver';
 import { createConnection } from 'vscode-languageserver/node';
 
 import { ConsoleWithLogLevel } from 'commonUtils/console.js';
+import { Uri } from 'commonUtils/uri/uri.js';
 import { LanguageServer } from 'langserver/server/languageServer.js';
 import { LanguageServerOptions } from 'langserver/server/languageServerInterface.js';
 import path from 'path';
@@ -27,10 +28,7 @@ import {
     WorkspaceFileWatcherProvider,
 } from 'typeserver/files/realFileSystem.js';
 import { initializeDependencies } from 'typeserver/service/asyncInitialization.js';
-import { Uri } from 'typeserver/utils/uri/uri.js';
 import { fileURLToPath } from 'url';
-
-const maxAnalysisTimeInForeground = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };
 
 export async function main() {
     await initializeDependencies();
@@ -52,12 +50,12 @@ export async function main() {
     const fileSystem = createFromRealFileSystem(tempFile, console, fileWatcherHandler);
     const pyrightFs = new PyrightFileSystem(fileSystem);
 
-    const em = new ExtensionManager(pyrightFs, console, tempFile, new FullAccessPythonEnvProvider());
-    em.tempFile = tempFile;
-    em.cancellation = new FileBasedCancellationProvider();
+    const extensionManager = new ExtensionManager(pyrightFs, console, tempFile, new FullAccessPythonEnvProvider());
+    extensionManager.tempFile = tempFile;
+    extensionManager.cancellation = new FileBasedCancellationProvider();
 
     const dirPath = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-    const rootDirectory = Uri.file(dirPath, em.caseSensitivity);
+    const rootDirectory = Uri.file(dirPath, extensionManager.caseSensitivity);
     const typeshedFallbackLoc = rootDirectory.combinePaths(typeshedFallback);
 
     // Set the working directory to a known location within
@@ -67,12 +65,10 @@ export async function main() {
 
     const lsOptions: LanguageServerOptions = {
         productName: 'Pyright',
-        typeshedFallbackLoc,
         version,
-        extensionManager: em,
         fileWatcherHandler,
-        maxAnalysisTimeInForeground,
-        supportedCodeActions: [CodeActionKind.QuickFix],
+        typeshedFallbackLoc,
+        extensionManager,
     };
 
     new LanguageServer(lsOptions, conn);

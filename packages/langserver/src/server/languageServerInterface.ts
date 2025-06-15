@@ -14,7 +14,6 @@ import { SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
 import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherHandler } from 'typeserver/files/fileWatcher.js';
-import { MaxAnalysisTime } from 'typeserver/program/program.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface LanguageServerSettings {
@@ -57,15 +56,10 @@ export interface WorkspaceServices {
 
 export interface LanguageServerOptions {
     productName: string;
-    typeshedFallbackLoc: Uri;
     version: string;
+    typeshedFallbackLoc: Uri;
     extensionManager: ExtensionManager;
     fileWatcherHandler: FileWatcherHandler;
-    maxAnalysisTimeInForeground?: MaxAnalysisTime;
-    disableChecker?: boolean;
-    supportedCommands?: string[];
-    supportedCodeActions?: string[];
-    supportsTelemetry?: boolean;
 }
 
 export interface LanguageServerInterface {

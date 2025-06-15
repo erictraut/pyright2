@@ -16,6 +16,7 @@ import {
     CallHierarchyPrepareParams,
     CancellationToken,
     CodeAction,
+    CodeActionKind,
     CodeActionParams,
     Command,
     CompletionItem,
@@ -130,7 +131,7 @@ import {
 } from 'typeserver/config/configOptions.js';
 import { CancelAfter } from 'typeserver/extensibility/cancellationUtils.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { FileSystem, ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
+import { FileSystem } from 'typeserver/files/fileSystem.js';
 import { FileWatcherEventType } from 'typeserver/files/fileWatcher.js';
 import { convertUriToLspUriString } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports/importResolver.js';
@@ -143,6 +144,8 @@ import { TypeService } from 'typeserver/service/typeService.js';
 import { isDefined, isString } from 'typeserver/utils/valueTypeUtils.js';
 
 const DiagnosticsVersionNone = -1;
+
+const maxAnalysisTime = { openFilesTimeInMs: 50, noOpenFilesTimeInMs: 200 };
 
 export class LanguageServer implements LanguageServerInterface, Disposable {
     // We support running only one "find all reference" at a time.
@@ -218,7 +221,9 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         );
 
         // Set up callbacks.
-        this.setupConnection(serverOptions.supportedCommands ?? [], serverOptions.supportedCodeActions ?? []);
+        const supportedCommands: string[] = [];
+        const supportedCodeActions: string[] = [CodeActionKind.QuickFix];
+        this.setupConnection(supportedCommands, supportedCodeActions);
 
         this._progressReporter = new ProgressReportTracker(this.createProgressReporter());
 
@@ -381,14 +386,12 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         return serverSettings;
     }
 
-    // Creates a service instance that's used for analyzing a
-    // program within a workspace.
     createTypeService(name: string, workspaceRoot: Uri, services?: WorkspaceServices): TypeService {
         this.console.info(`Starting service instance "${name}"`);
 
         const service = new TypeService(name, this.serverOptions.extensionManager, {
             typeshedFallbackLoc: this.serverOptions.typeshedFallbackLoc,
-            maxAnalysisTime: this.serverOptions.maxAnalysisTimeInForeground,
+            maxAnalysisTime,
             usingPullDiagnostics: this.client.usingPullDiagnostics,
         });
 
@@ -510,15 +513,18 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         return CodeActionProvider.getCodeActionsForPosition(workspace, uri, params.range, params.context.only, token);
     }
 
-    protected async getConfiguration(scopeUri: Uri | undefined, section: string) {
+    protected async getConfiguration(scopeUri: Uri | undefined, section: string): Promise<any> {
         if (this.client.hasConfigurationCapability) {
             const item: ConfigurationItem = {};
+
             if (scopeUri !== undefined) {
                 item.scopeUri = scopeUri.toString();
             }
+
             if (section !== undefined) {
                 item.section = section;
             }
+
             return this.connection.workspace.getConfiguration(item);
         }
 
@@ -861,8 +867,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         token: CancellationToken,
         workDoneReporter: WorkDoneProgressReporter,
         resultReporter: ResultProgressReporter<Location[]> | undefined,
-        createDocumentRange?: (uri: Uri, result: CollectionResult, parseResults: ParseFileResults) => DocumentRange,
-        convertToLocation?: (fs: ReadOnlyFileSystem, ranges: DocumentRange) => Location | undefined
+        createDocumentRange?: (uri: Uri, result: CollectionResult, parseResults: ParseFileResults) => DocumentRange
     ): Promise<Location[] | null | undefined> {
         if (this._pendingFindAllRefsCancellationSource) {
             this._pendingFindAllRefsCancellationSource.cancel();
@@ -890,12 +895,12 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             }
 
             return workspace.service.run((program) => {
-                return new ReferencesProvider(
-                    program,
-                    source.token,
-                    createDocumentRange,
-                    convertToLocation
-                ).reportReferences(uri, params.position, params.context.includeDeclaration, resultReporter);
+                return new ReferencesProvider(program, source.token, createDocumentRange).reportReferences(
+                    uri,
+                    params.position,
+                    params.context.includeDeclaration,
+                    resultReporter
+                );
             }, token);
         } finally {
             progress.reporter.done();

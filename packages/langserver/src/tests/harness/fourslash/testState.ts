@@ -19,7 +19,6 @@ import {
     DocumentHighlight,
     DocumentHighlightKind,
     ExecuteCommandParams,
-    Location,
     MarkupContent,
     MarkupKind,
     TextEdit,
@@ -95,7 +94,6 @@ import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { CommandLineOptions } from 'typeserver/config/commandLineOptions.js';
 import { ConfigOptions, SignatureDisplayType } from 'typeserver/config/configOptions.js';
 import { ExtensionManager } from 'typeserver/extensibility/extensionManager.js';
-import { ReadOnlyFileSystem } from 'typeserver/files/fileSystem.js';
 import { PyrightFileSystem } from 'typeserver/files/pyrightFileSystem.js';
 import { getFileSpec } from 'typeserver/files/uriUtils.js';
 import { ImportResolver } from 'typeserver/imports//importResolver.js';
@@ -1203,8 +1201,7 @@ export class TestState {
                 references: DocumentRange[];
             };
         },
-        createDocumentRange?: (fileUri: Uri, result: CollectionResult, parseResults: ParseFileResults) => DocumentRange,
-        convertToLocation?: (fs: ReadOnlyFileSystem, ranges: DocumentRange) => Location | undefined
+        createDocumentRange?: (fileUri: Uri, result: CollectionResult, parseResults: ParseFileResults) => DocumentRange
     ) {
         this.analyze();
 
@@ -1229,8 +1226,7 @@ export class TestState {
             const actual = new ReferencesProvider(
                 this.program,
                 CancellationToken.None,
-                createDocumentRange,
-                convertToLocation
+                createDocumentRange
             ).reportReferences(
                 Uri.file(fileName, this.extensionManager.caseSensitivity),
                 position,
@@ -1238,7 +1234,7 @@ export class TestState {
             );
             assert.strictEqual(actual?.length ?? 0, expected.length, `${name} has failed`);
 
-            for (const r of convertDocumentRangesToLocation(this.program.fileSystem, expected, convertToLocation)) {
+            for (const r of convertDocumentRangesToLocation(this.program.fileSystem, expected)) {
                 assert.equal(actual?.filter((d) => this._deepEqual(d, r)).length, 1);
             }
         }
