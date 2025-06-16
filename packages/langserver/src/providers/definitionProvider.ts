@@ -15,6 +15,7 @@ import { CancellationToken } from 'vscode-languageserver';
 import { appendArray } from 'commonUtils/collectionUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { isDefined } from 'commonUtils/valueTypeUtils.js';
+import { isStubFile, ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import {
     Declaration,
     DeclarationType,
@@ -28,12 +29,11 @@ import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, rangesAreEqual } from 'typeserver/common/textRange.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import { OverloadedType, TypeCategory, isOverloaded } from 'typeserver/evaluator/types.js';
+import { isOverloaded, OverloadedType, TypeCategory } from 'typeserver/evaluator/types.js';
 import { doForEachSubtype } from 'typeserver/evaluator/typeUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { SourceMapper, isStubFile } from 'typeserver/program/sourceMapper.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export enum DefinitionFilter {
@@ -44,7 +44,7 @@ export enum DefinitionFilter {
 
 export function addDeclarationsToDefinitions(
     evaluator: TypeEvaluator,
-    sourceMapper: SourceMapper,
+    sourceMapper: ProviderSourceMapper,
     declarations: Declaration[] | undefined,
     definitions: DocumentRange[]
 ) {
@@ -144,13 +144,17 @@ export function filterDefinitions(filter: DefinitionFilter, definitions: Documen
 
 class DefinitionProviderBase {
     protected constructor(
-        protected readonly sourceMapper: SourceMapper,
-        protected readonly evaluator: TypeEvaluator,
+        protected readonly typeServer: ITypeServer,
+        protected readonly sourceMapper: ProviderSourceMapper,
         protected readonly node: ParseNode | undefined,
         protected readonly offset: number,
         private readonly _filter: DefinitionFilter,
         protected readonly token: CancellationToken
     ) {}
+
+    get evaluator(): TypeEvaluator {
+        return this.typeServer.evaluator!;
+    }
 
     getDefinitionsForNode(node: ParseNode, offset: number) {
         throwIfCancellationRequested(this.token);
@@ -211,11 +215,11 @@ export class DefinitionProvider extends DefinitionProviderBase {
         filter: DefinitionFilter,
         token: CancellationToken
     ) {
-        const sourceMapper = typeServer.getSourceMapper(fileUri, /* preferStubs */ false, token);
+        const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /* preferStubs */ false, token);
         const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
-        super(sourceMapper, typeServer.evaluator!, node, offset, filter, token);
+        super(typeServer, sourceMapper, node, offset, filter, token);
     }
 
     getDefinitions(): DocumentRange[] | undefined {
@@ -231,11 +235,11 @@ export class TypeDefinitionProvider extends DefinitionProviderBase {
     private readonly _fileUri: Uri;
 
     constructor(typeServer: ITypeServer, fileUri: Uri, position: Position, token: CancellationToken) {
-        const sourceMapper = typeServer.getSourceMapper(fileUri, /*preferStubs*/ true, token);
+        const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /*preferStubs*/ true, token);
         const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
-        super(sourceMapper, typeServer.evaluator!, node, offset, DefinitionFilter.All, token);
+        super(typeServer, sourceMapper, node, offset, DefinitionFilter.All, token);
         this._fileUri = fileUri;
     }
 

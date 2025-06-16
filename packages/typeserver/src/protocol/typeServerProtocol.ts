@@ -23,6 +23,8 @@ export interface ITypeServer {
     // TODO - rethink these interfaces.
     getParseResults(fileUri: Uri): ParseFileResults | undefined;
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
+
+    // TODO - remove this
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
 
     // Converts an offset within a source file to a position or vice versa.

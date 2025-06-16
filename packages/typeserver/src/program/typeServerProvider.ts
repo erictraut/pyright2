@@ -79,6 +79,7 @@ export class TypeServerProvider implements ITypeServer {
         return this._program.getModuleSymbolTable(fileUri);
     }
 
+    // TODO - remove this
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper {
         return this._program.getSourceMapper(fileUri, preferStubs, token);
     }
