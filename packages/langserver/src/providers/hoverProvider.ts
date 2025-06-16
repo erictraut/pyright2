@@ -14,6 +14,7 @@ import { CancellationToken, Hover, MarkupKind } from 'vscode-languageserver';
 import { assertNever, fail } from 'commonUtils/debug.js';
 import { extractParameterDocumentation } from 'commonUtils/docStringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import {
     getClassAndConstructorTypes,
     getConstructorTooltip,
@@ -55,7 +56,6 @@ import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from '
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export interface HoverTextPart {
@@ -74,7 +74,7 @@ export interface HoverOptions {
 
 export class HoverProvider {
     private readonly _parseResults: ParseFileResults | undefined;
-    private readonly _sourceMapper: SourceMapper;
+    private readonly _sourceMapper: ProviderSourceMapper;
 
     constructor(
         private readonly _typeServer: ITypeServer,
@@ -85,7 +85,12 @@ export class HoverProvider {
         private readonly _token: CancellationToken
     ) {
         this._parseResults = this._typeServer.getParseResults(this._fileUri);
-        this._sourceMapper = this._typeServer.getSourceMapper(this._fileUri, /* preferStubs */ false, this._token);
+        this._sourceMapper = new ProviderSourceMapper(
+            this._typeServer,
+            this._fileUri,
+            /* preferStubs */ false,
+            this._token
+        );
     }
 
     getHover(): Hover | null {

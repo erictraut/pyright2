@@ -22,6 +22,7 @@ import {
 
 import { extractParameterDocumentation } from 'commonUtils/docStringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import {
     getDocumentationPartsForTypeAndDecl,
     getFunctionDocStringFromType,
@@ -37,12 +38,11 @@ import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellat
 import { CallNode, NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { Tokenizer } from 'typeserver/parser/tokenizer.js';
-import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class SignatureHelpProvider {
     private readonly _parseResults: ParseFileResults | undefined;
-    private readonly _sourceMapper: SourceMapper;
+    private readonly _sourceMapper: ProviderSourceMapper;
 
     constructor(
         private _typeServer: ITypeServer,
@@ -55,7 +55,7 @@ export class SignatureHelpProvider {
         private _token: CancellationToken
     ) {
         this._parseResults = this._typeServer.getParseResults(this._fileUri);
-        this._sourceMapper = this._typeServer.getSourceMapper(this._fileUri, /* preferStubs */ false, this._token);
+        this._sourceMapper = new ProviderSourceMapper(_typeServer, this._fileUri, /* preferStubs */ false, this._token);
     }
 
     getSignatureHelp(): SignatureHelp | undefined {

@@ -9,6 +9,16 @@
  */
 
 import { isDefined } from 'commonUtils/valueTypeUtils.js';
+import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
+import {
+    getClassDocString,
+    getFunctionDocStringInherited,
+    getModuleDocString,
+    getModuleDocStringFromUris,
+    getOverloadedDocStringsInherited,
+    getPropertyDocStringInherited,
+    getVariableDocString,
+} from 'langserver/providers/typeDocStringUtils.js';
 import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/binder/declaration.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
@@ -33,16 +43,6 @@ import {
 } from 'typeserver/evaluator/types.js';
 import { MemberAccessFlags, lookUpClassMember } from 'typeserver/evaluator/typeUtils.js';
 import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
-import { SourceMapper } from 'typeserver/program/sourceMapper.js';
-import {
-    getClassDocString,
-    getFunctionDocStringInherited,
-    getModuleDocString,
-    getModuleDocStringFromUris,
-    getOverloadedDocStringsInherited,
-    getPropertyDocStringInherited,
-    getVariableDocString,
-} from 'typeserver/service/typeDocStringUtils.js';
 
 // The number of spaces to indent each parameter, after moving to a newline in tooltips.
 const functionParamIndentOffset = 4;
@@ -193,7 +193,11 @@ function formatSignature(
         : `(${funcParts[0].join(', ')})`;
 }
 
-export function getFunctionDocStringFromType(type: FunctionType, sourceMapper: SourceMapper, evaluator: TypeEvaluator) {
+export function getFunctionDocStringFromType(
+    type: FunctionType,
+    sourceMapper: ProviderSourceMapper,
+    evaluator: TypeEvaluator
+) {
     const decl = type.shared.declaration;
     const enclosingClass = decl ? getEnclosingClass(decl.node) : undefined;
     const classResults = enclosingClass ? evaluator.getTypeOfClass(enclosingClass) : undefined;
@@ -203,7 +207,7 @@ export function getFunctionDocStringFromType(type: FunctionType, sourceMapper: S
 
 export function getOverloadedDocStringsFromType(
     type: OverloadedType,
-    sourceMapper: SourceMapper,
+    sourceMapper: ProviderSourceMapper,
     evaluator: TypeEvaluator
 ) {
     const overloads = OverloadedType.getOverloads(type);
@@ -226,7 +230,7 @@ export function getOverloadedDocStringsFromType(
 }
 
 function getDocumentationPartForTypeAlias(
-    sourceMapper: SourceMapper,
+    sourceMapper: ProviderSourceMapper,
     resolvedDecl: Declaration | undefined,
     evaluator: TypeEvaluator,
     symbol?: Symbol
@@ -264,7 +268,7 @@ function getDocumentationPartForTypeAlias(
 }
 
 function getDocumentationPartForType(
-    sourceMapper: SourceMapper,
+    sourceMapper: ProviderSourceMapper,
     type: Type,
     resolvedDecl: Declaration | undefined,
     evaluator: TypeEvaluator,
@@ -306,7 +310,7 @@ function getDocumentationPartForType(
 }
 
 export function getDocumentationPartsForTypeAndDecl(
-    sourceMapper: SourceMapper,
+    sourceMapper: ProviderSourceMapper,
     type: Type | undefined,
     resolvedDecl: Declaration | undefined,
     evaluator: TypeEvaluator,

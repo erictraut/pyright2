@@ -123,22 +123,6 @@ export class SourceMapper {
             .map((d) => d);
     }
 
-    isUserCode(uri: Uri): boolean {
-        const file = this._boundSourceGetter(uri);
-        return file !== undefined && file.isUserCode;
-    }
-
-    getNextFileName(uri: Uri) {
-        const withoutExtension = uri.stripExtension();
-        let suffix = 1;
-        let result = withoutExtension.addExtension(`_${suffix}.py`);
-        while (this.isUserCode(result) && suffix < 1000) {
-            suffix += 1;
-            result = withoutExtension.addExtension(`_${suffix}.py`);
-        }
-        return result;
-    }
-
     private _findSpecialBuiltInClassDeclarations(
         stubDecl: SpecialBuiltInClassDeclaration,
         recursiveDeclCache = new Set<string>()

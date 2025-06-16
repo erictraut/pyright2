@@ -31,7 +31,9 @@ import {
     SymbolDetail,
 } from 'langserver/providers/completionProviderUtils.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import { getAutoImportText, getDocumentationPartsForTypeAndDecl } from 'langserver/providers/tooltipUtils.js';
+import { getModuleDocStringFromUris } from 'langserver/providers/typeDocStringUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
 import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { fromLSPAny, toLSPAny } from 'langserver/server/lspUtils.js';
@@ -151,9 +153,7 @@ import {
     Token,
     TokenType,
 } from 'typeserver/parser/tokenizerTypes.js';
-import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
-import { getModuleDocStringFromUris } from 'typeserver/service/typeDocStringUtils.js';
 import { CaseSensitivityDetector } from 'typeserver/utils/caseSensitivity.js';
 
 namespace Keywords {
@@ -308,7 +308,7 @@ export class CompletionProvider {
     private _stringLiteralContainer: StringToken | FStringStartToken | undefined = undefined;
 
     protected readonly parseResults: ParseFileResults;
-    protected readonly sourceMapper: SourceMapper;
+    protected readonly sourceMapper: ProviderSourceMapper;
 
     // If we're being asked to resolve a completion item, we run the
     // original completion algorithm and look for this symbol.
@@ -323,7 +323,8 @@ export class CompletionProvider {
         protected readonly cancellationToken: CancellationToken
     ) {
         this.parseResults = this.typeServer.getParseResults(this.fileUri)!;
-        this.sourceMapper = this.typeServer.getSourceMapper(
+        this.sourceMapper = new ProviderSourceMapper(
+            typeServer,
             this.fileUri,
             /* preferStubs */ false,
             this.cancellationToken
@@ -503,7 +504,7 @@ export class CompletionProvider {
                     const methodSignature = this._printMethodSignature(classResults.classType, decl);
 
                     let text: string;
-                    if (isStubFile(this.fileUri)) {
+                    if (ProviderSourceMapper.isStubFile(this.fileUri)) {
                         text = `${methodSignature}: ...`;
                     } else {
                         const methodBody = this.printOverriddenMethodBody(
@@ -1711,7 +1712,7 @@ export class CompletionProvider {
             return;
         }
 
-        const printFlags = isStubFile(this.fileUri)
+        const printFlags = ProviderSourceMapper.isStubFile(this.fileUri)
             ? PrintExpressionFlags.ForwardDeclarations | PrintExpressionFlags.DoNotLimitStringLength
             : PrintExpressionFlags.DoNotLimitStringLength;
 
@@ -1843,7 +1844,7 @@ export class CompletionProvider {
         const node = decl.node;
 
         let ellipsisForDefault: boolean | undefined;
-        if (isStubFile(this.fileUri)) {
+        if (ProviderSourceMapper.isStubFile(this.fileUri)) {
             // In stubs, always use "...".
             ellipsisForDefault = true;
         } else if (classType.shared.moduleName === decl.moduleName) {
@@ -1851,7 +1852,7 @@ export class CompletionProvider {
             ellipsisForDefault = false;
         }
 
-        const printFlags = isStubFile(this.fileUri)
+        const printFlags = ProviderSourceMapper.isStubFile(this.fileUri)
             ? PrintExpressionFlags.ForwardDeclarations | PrintExpressionFlags.DoNotLimitStringLength
             : PrintExpressionFlags.DoNotLimitStringLength;
 
