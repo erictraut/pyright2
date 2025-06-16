@@ -31,7 +31,6 @@ import {
 import { getExecutionScopeNode } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetsToRange } from 'typeserver/common/positionUtils.js';
 import { Position, rangesAreEqual } from 'typeserver/common/textRange.js';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ClassType, isClassInstance, isFunction, isInstantiableClass } from 'typeserver/evaluator/types.js';
 import {
     MemberAccessFlags,
@@ -79,7 +78,10 @@ export class CallHierarchyProvider {
 
         // make sure the alias is resolved to class or function
         if (targetDecl.type === DeclarationType.Alias) {
-            const resolvedDecl = this._evaluator.resolveAliasDeclaration(targetDecl, /* resolveLocalNames */ true);
+            const resolvedDecl = this._typeServer.evaluator.resolveAliasDeclaration(
+                targetDecl,
+                /* resolveLocalNames */ true
+            );
             if (!resolvedDecl) {
                 return null;
             }
@@ -97,7 +99,7 @@ export class CallHierarchyProvider {
 
         const callItem: CallHierarchyItem = {
             name: symbolName,
-            kind: getSymbolKind(targetDecl, this._evaluator, symbolName) ?? SymbolKind.Module,
+            kind: getSymbolKind(this._typeServer, targetDecl, symbolName) ?? SymbolKind.Module,
             uri: realUri.toString(),
             range: targetDecl.range,
             selectionRange: targetDecl.range,
@@ -157,7 +159,10 @@ export class CallHierarchyProvider {
 
         // Find the parse node root corresponding to the function or class.
         let parseRoot: ParseNode | undefined;
-        const resolvedDecl = this._evaluator.resolveAliasDeclaration(targetDecl, /* resolveLocalNames */ true);
+        const resolvedDecl = this._typeServer.evaluator.resolveAliasDeclaration(
+            targetDecl,
+            /* resolveLocalNames */ true
+        );
         if (!resolvedDecl) {
             return null;
         }
@@ -166,7 +171,7 @@ export class CallHierarchyProvider {
             parseRoot = resolvedDecl.node;
         } else if (resolvedDecl.type === DeclarationType.Class) {
             // Look up the __init__ method for this class.
-            const classType = this._evaluator.getTypeForDeclaration(resolvedDecl)?.type;
+            const classType = this._typeServer.evaluator.getTypeForDeclaration(resolvedDecl)?.type;
 
             if (classType && isInstantiableClass(classType)) {
                 // Don't perform a recursive search of parent classes in this
@@ -181,7 +186,7 @@ export class CallHierarchyProvider {
                 );
 
                 if (initMethodMember) {
-                    const initMethodType = this._evaluator.getTypeOfMember(initMethodMember);
+                    const initMethodType = this._typeServer.evaluator.getTypeOfMember(initMethodMember);
                     if (initMethodType && isFunction(initMethodType)) {
                         const initDecls = initMethodMember.symbol.getDeclarations();
                         if (initDecls && initDecls.length > 0) {
@@ -199,23 +204,13 @@ export class CallHierarchyProvider {
             return null;
         }
 
-        const callFinder = new FindOutgoingCallTreeWalker(
-            this._typeServer,
-            parseRoot,
-            this._parseResults,
-            this._evaluator,
-            this._token
-        );
+        const callFinder = new FindOutgoingCallTreeWalker(this._typeServer, parseRoot, this._parseResults, this._token);
         const outgoingCalls = callFinder.findCalls();
         if (outgoingCalls.length === 0) {
             return null;
         }
 
         return outgoingCalls;
-    }
-
-    private get _evaluator(): TypeEvaluator {
-        return this._typeServer.evaluator!;
     }
 
     private _getTargetDeclaration(referencesResult: ReferencesResult): {
@@ -299,7 +294,6 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
         private _typeServer: ITypeServer,
         private _parseRoot: ParseNode,
         private _parseResults: ParseFileResults,
-        private _evaluator: TypeEvaluator,
         private _cancellationToken: CancellationToken
     ) {
         super();
@@ -322,7 +316,7 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
         }
 
         if (nameNode) {
-            const declarations = this._evaluator.getDeclInfoForNameNode(nameNode)?.decls;
+            const declarations = this._typeServer.evaluator.getDeclInfoForNameNode(nameNode)?.decls;
 
             if (declarations) {
                 // TODO - it would be better if we could match the call to the
@@ -343,13 +337,13 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
         // Determine whether the member corresponds to a property.
         // If so, we'll treat it as a function call for purposes of
         // finding outgoing calls.
-        const leftHandType = this._evaluator.getType(node.d.leftExpr);
+        const leftHandType = this._typeServer.evaluator.getType(node.d.leftExpr);
         if (leftHandType) {
             doForEachSubtype(leftHandType, (subtype) => {
                 let baseType = subtype;
 
                 // This could be a bound TypeVar (e.g. used for "self" and "cls").
-                baseType = this._evaluator.makeTopLevelTypeVarsConcrete(baseType);
+                baseType = this._typeServer.evaluator.makeTopLevelTypeVarsConcrete(baseType);
 
                 if (!isClassInstance(baseType)) {
                     return;
@@ -360,7 +354,7 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
                     return;
                 }
 
-                const memberType = this._evaluator.getTypeOfMember(memberInfo);
+                const memberType = this._typeServer.evaluator.getTypeOfMember(memberInfo);
                 const propertyDecls = memberInfo.symbol.getDeclarations();
 
                 if (!memberType) {
@@ -379,7 +373,10 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
     }
 
     private _addOutgoingCallForDeclaration(nameNode: NameNode, declaration: Declaration) {
-        const resolvedDecl = this._evaluator.resolveAliasDeclaration(declaration, /* resolveLocalNames */ true);
+        const resolvedDecl = this._typeServer.evaluator.resolveAliasDeclaration(
+            declaration,
+            /* resolveLocalNames */ true
+        );
         if (!resolvedDecl) {
             return;
         }
@@ -395,7 +392,7 @@ class FindOutgoingCallTreeWalker extends ParseTreeWalker {
 
         const callDest: CallHierarchyItem = {
             name: nameNode.d.value,
-            kind: getSymbolKind(resolvedDecl, this._evaluator, nameNode.d.value) ?? SymbolKind.Module,
+            kind: getSymbolKind(this._typeServer, resolvedDecl, nameNode.d.value) ?? SymbolKind.Module,
             uri: realUri.toString(),
             range: resolvedDecl.range,
             selectionRange: resolvedDecl.range,
@@ -469,7 +466,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
             const declarations = this._getDeclarations(nameNode);
             if (declarations) {
                 if (this._targetDeclaration.type === DeclarationType.Alias) {
-                    const resolvedCurDecls = this._evaluator.resolveAliasDeclaration(
+                    const resolvedCurDecls = this._typeServer.evaluator.resolveAliasDeclaration(
                         this._targetDeclaration,
                         /* resolveLocalNames */ true
                     );
@@ -492,13 +489,13 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
             // Determine whether the member corresponds to a property.
             // If so, we'll treat it as a function call for purposes of
             // finding outgoing calls.
-            const leftHandType = this._evaluator.getType(node.d.leftExpr);
+            const leftHandType = this._typeServer.evaluator.getType(node.d.leftExpr);
             if (leftHandType) {
                 doForEachSubtype(leftHandType, (subtype) => {
                     let baseType = subtype;
 
                     // This could be a bound TypeVar (e.g. used for "self" and "cls").
-                    baseType = this._evaluator.makeTopLevelTypeVarsConcrete(baseType);
+                    baseType = this._typeServer.evaluator.makeTopLevelTypeVarsConcrete(baseType);
 
                     if (!isClassInstance(baseType)) {
                         return;
@@ -509,7 +506,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
                         return;
                     }
 
-                    const memberType = this._evaluator.getTypeOfMember(memberInfo);
+                    const memberType = this._typeServer.evaluator.getTypeOfMember(memberInfo);
                     const propertyDecls = memberInfo.symbol.getDeclarations();
 
                     if (!memberType) {
@@ -524,10 +521,6 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
         }
 
         return true;
-    }
-
-    private get _evaluator(): TypeEvaluator {
-        return this._typeServer.evaluator!;
     }
 
     private _getDeclarations(node: NameNode) {

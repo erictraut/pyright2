@@ -32,7 +32,7 @@ import { findNodeByOffset, getCallNodeAndActiveParamIndex, getNodeDepth } from '
 import { convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position } from 'typeserver/common/textRange.js';
 import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils.js';
-import { CallSignature, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { CallSignature } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { PrintTypeFlags } from 'typeserver/evaluator/typePrinter.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { CallNode, NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
@@ -60,10 +60,6 @@ export class SignatureHelpProvider {
 
     getSignatureHelp(): SignatureHelp | undefined {
         return this._convert(this._getSignatureHelp());
-    }
-
-    private get _evaluator(): TypeEvaluator {
-        return this._typeServer.evaluator!;
     }
 
     private _getSignatureHelp(): SignatureHelpResults | undefined {
@@ -114,7 +110,7 @@ export class SignatureHelpProvider {
             return;
         }
 
-        const callSignatureInfo = this._evaluator.getCallSignatureInfo(
+        const callSignatureInfo = this._typeServer.evaluator.getCallSignatureInfo(
             callInfo.callNode,
             callInfo.activeIndex,
             callInfo.activeOrFake
@@ -228,10 +224,13 @@ export class SignatureHelpProvider {
 
     private _makeSignature(callNode: CallNode, signature: CallSignature): SignatureInfo {
         const functionType = signature.type;
-        const stringParts = this._evaluator.printFunctionParts(functionType, PrintTypeFlags.ExpandTypedDictArgs);
+        const stringParts = this._typeServer.evaluator.printFunctionParts(
+            functionType,
+            PrintTypeFlags.ExpandTypedDictArgs
+        );
         const parameters: ParamInfo[] = [];
         const functionDocString =
-            getFunctionDocStringFromType(functionType, this._sourceMapper, this._evaluator) ??
+            getFunctionDocStringFromType(this._typeServer, functionType, this._sourceMapper) ??
             this._getDocStringFromCallNode(callNode);
         const paramListDetails = getParamListDetails(functionType);
 
@@ -333,18 +332,18 @@ export class SignatureHelpProvider {
             return undefined;
         }
 
-        for (const decl of this._evaluator.getDeclInfoForNameNode(name)?.decls ?? []) {
-            const resolveDecl = this._evaluator.resolveAliasDeclaration(decl, /* resolveLocalNames */ true);
+        for (const decl of this._typeServer.evaluator.getDeclInfoForNameNode(name)?.decls ?? []) {
+            const resolveDecl = this._typeServer.evaluator.resolveAliasDeclaration(decl, /* resolveLocalNames */ true);
             if (!resolveDecl) {
                 continue;
             }
 
-            const type = this._evaluator.getType(name);
+            const type = this._typeServer.evaluator.getType(name);
             if (!type) {
                 continue;
             }
 
-            const part = getDocumentationPartsForTypeAndDecl(this._sourceMapper, type, resolveDecl, this._evaluator);
+            const part = getDocumentationPartsForTypeAndDecl(this._typeServer, this._sourceMapper, type, resolveDecl);
             if (part) {
                 return part;
             }

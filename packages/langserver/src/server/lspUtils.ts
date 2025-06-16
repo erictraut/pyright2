@@ -8,8 +8,8 @@
 import { LSPAny, SymbolKind, WorkDoneProgressReporter } from 'vscode-languageserver';
 
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 // Converts an internal object to LSPAny to be sent out via LSP
 export function toLSPAny(obj: any) {
@@ -21,7 +21,11 @@ export function fromLSPAny<T>(lspAny: LSPAny | undefined) {
     return lspAny as any as T;
 }
 
-export function getSymbolKind(declaration: Declaration, evaluator?: TypeEvaluator, name = ''): SymbolKind | undefined {
+export function getSymbolKind(
+    typeServer: ITypeServer | undefined,
+    declaration: Declaration,
+    name = ''
+): SymbolKind | undefined {
     switch (declaration.type) {
         case DeclarationType.Class:
         case DeclarationType.SpecialBuiltInClass:
@@ -32,7 +36,7 @@ export function getSymbolKind(declaration: Declaration, evaluator?: TypeEvaluato
                 return SymbolKind.Function;
             }
 
-            const declType = evaluator?.getTypeForDeclaration(declaration)?.type;
+            const declType = typeServer?.evaluator.getTypeForDeclaration(declaration)?.type;
             if (declType && isMaybeDescriptorInstance(declType, /* requireSetter */ false)) {
                 return SymbolKind.Property;
             }

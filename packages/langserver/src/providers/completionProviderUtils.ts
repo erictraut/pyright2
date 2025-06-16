@@ -14,7 +14,6 @@ import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langser
 import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
 import { TextEditAction } from 'typeserver/common/editAction.js';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     Type,
@@ -27,6 +26,7 @@ import {
     isModule,
 } from 'typeserver/evaluator/types.js';
 import { isProperty } from 'typeserver/evaluator/typeUtils.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export interface Edits {
     format?: InsertTextFormat;
@@ -59,7 +59,7 @@ export interface CompletionDetail extends CommonDetail {
 }
 
 export function getTypeDetail(
-    evaluator: TypeEvaluator,
+    typeServer: ITypeServer,
     type: Type,
     primaryDecl: Declaration | undefined,
     name: string,
@@ -97,22 +97,22 @@ export function getTypeDetail(
             // Handle the case where type is a function and was assigned to a variable.
             if (type.category === TypeCategory.Overloaded || type.category === TypeCategory.Function) {
                 return getToolTipForType(
+                    typeServer,
                     type,
                     /* label */ '',
                     name,
-                    evaluator,
                     /* isProperty */ false,
                     functionSignatureDisplay
                 );
             } else {
-                return name + ': ' + evaluator.printType(type, { expandTypeAlias });
+                return name + ': ' + typeServer.evaluator.printType(type, { expandTypeAlias });
             }
         }
 
         case DeclarationType.Function: {
             const functionType =
                 detail?.boundObjectOrClass && isFunctionOrOverloaded(type)
-                    ? evaluator.bindFunctionToClassOrObject(detail.boundObjectOrClass, type)
+                    ? typeServer.evaluator.bindFunctionToClassOrObject(detail.boundObjectOrClass, type)
                     : type;
             if (!functionType) {
                 return undefined;
@@ -120,15 +120,15 @@ export function getTypeDetail(
 
             if (isProperty(functionType) && detail?.boundObjectOrClass && isClassInstance(detail.boundObjectOrClass)) {
                 const propertyType =
-                    evaluator.getGetterTypeFromProperty(functionType as ClassType) || UnknownType.create();
-                return name + ': ' + evaluator.printType(propertyType) + ' (property)';
+                    typeServer.evaluator.getGetterTypeFromProperty(functionType as ClassType) || UnknownType.create();
+                return name + ': ' + typeServer.evaluator.printType(propertyType) + ' (property)';
             }
 
             return getToolTipForType(
+                typeServer,
                 functionType,
                 /* label */ '',
                 name,
-                evaluator,
                 /* isProperty */ false,
                 functionSignatureDisplay
             );
@@ -152,8 +152,7 @@ export function getTypeDetail(
 export function getCompletionItemDocumentation(
     typeDetail: string | undefined,
     documentation: string | undefined,
-    markupKind: MarkupKind,
-    declaration: Declaration | undefined
+    markupKind: MarkupKind
 ): MarkupContent | undefined {
     if (markupKind === MarkupKind.Markdown) {
         let markdownString = '```python\n' + typeDetail + '\n```\n';

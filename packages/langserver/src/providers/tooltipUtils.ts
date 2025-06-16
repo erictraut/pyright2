@@ -24,7 +24,6 @@ import { Declaration, DeclarationType, VariableDeclaration } from 'typeserver/bi
 import { Symbol } from 'typeserver/binder/symbol.js';
 import { getCallForName, getEnclosingClass } from 'typeserver/common/parseTreeUtils.js';
 import { getBoundCallMethod } from 'typeserver/evaluator/constructors.js';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     FunctionType,
@@ -33,7 +32,6 @@ import {
     TypeBase,
     TypeCategory,
     UnknownType,
-    combineTypes,
     isClassInstance,
     isFunction,
     isFunctionOrOverloaded,
@@ -43,28 +41,29 @@ import {
 } from 'typeserver/evaluator/types.js';
 import { MemberAccessFlags, lookUpClassMember } from 'typeserver/evaluator/typeUtils.js';
 import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 // The number of spaces to indent each parameter, after moving to a newline in tooltips.
 const functionParamIndentOffset = 4;
 
 export function getToolTipForType(
+    typeServer: ITypeServer,
     type: Type,
     label: string,
     name: string,
-    evaluator: TypeEvaluator,
     isProperty: boolean,
     functionSignatureDisplay: SignatureDisplayType,
     typeNode?: ExpressionNode
 ): string {
     // Support __call__ method for class instances to show the signature of the method
     if (type.category === TypeCategory.Class && isClassInstance(type) && typeNode) {
-        const callMethodResult = getBoundCallMethod(evaluator, typeNode, type);
+        const callMethodResult = getBoundCallMethod(typeServer.evaluator, typeNode, type);
         if (
             callMethodResult?.type.category === TypeCategory.Function ||
             callMethodResult?.type.category === TypeCategory.Overloaded
         ) {
             // Eliminate overloads that are not applicable.
-            const methodType = limitOverloadBasedOnCall(evaluator, callMethodResult.type, typeNode);
+            const methodType = limitOverloadBasedOnCall(typeServer, callMethodResult.type, typeNode);
             if (methodType) {
                 type = methodType;
             }
@@ -73,12 +72,12 @@ export function getToolTipForType(
     let signatureString = '';
     if (isOverloaded(type)) {
         signatureString = label.length > 0 ? `(${label})\n` : '';
-        signatureString += `${getOverloadedTooltip(type, evaluator, functionSignatureDisplay)}`;
+        signatureString += `${getOverloadedTooltip(typeServer, type, functionSignatureDisplay)}`;
     } else if (isFunction(type)) {
-        signatureString = `${getFunctionTooltip(label, name, type, evaluator, isProperty, functionSignatureDisplay)}`;
+        signatureString = `${getFunctionTooltip(typeServer, label, name, type, isProperty, functionSignatureDisplay)}`;
     } else {
         signatureString = label.length > 0 ? `(${label}) ` : '';
-        signatureString += `${name}: ${evaluator.printType(type)}`;
+        signatureString += `${name}: ${typeServer.evaluator.printType(type)}`;
     }
 
     return signatureString;
@@ -86,18 +85,18 @@ export function getToolTipForType(
 
 // 70 is vscode's default hover width size.
 export function getOverloadedTooltip(
+    typeServer: ITypeServer,
     type: OverloadedType,
-    evaluator: TypeEvaluator,
     functionSignatureDisplay: SignatureDisplayType,
     columnThreshold = 70
 ) {
     let content = '';
     const overloads = OverloadedType.getOverloads(type).map((o) =>
         getFunctionTooltip(
+            typeServer,
             /* label */ '',
             o.shared.name,
             o,
-            evaluator,
             /* isProperty */ false,
             functionSignatureDisplay
         )
@@ -122,17 +121,17 @@ export function getOverloadedTooltip(
 }
 
 export function getFunctionTooltip(
+    typeServer: ITypeServer,
     label: string,
     functionName: string,
     type: FunctionType,
-    evaluator: TypeEvaluator,
     isProperty = false,
     functionSignatureDisplay: SignatureDisplayType
 ) {
     const labelFormatted = label.length === 0 ? '' : `(${label}) `;
     const indentStr =
         functionSignatureDisplay === SignatureDisplayType.Formatted ? '\n' + ' '.repeat(functionParamIndentOffset) : '';
-    const funcParts = evaluator.printFunctionParts(type);
+    const funcParts = typeServer.evaluator.printFunctionParts(type);
     const paramSignature = `${formatSignature(funcParts, indentStr, functionSignatureDisplay)} -> ${funcParts[1]}`;
 
     if (TypeBase.isInstantiable(type)) {
@@ -153,9 +152,9 @@ export function getFunctionTooltip(
 }
 
 export function getConstructorTooltip(
+    typeServer: ITypeServer,
     constructorName: string,
     type: Type,
-    evaluator: TypeEvaluator,
     functionSignatureDisplay: SignatureDisplayType
 ) {
     const classText = `class `;
@@ -163,7 +162,7 @@ export function getConstructorTooltip(
 
     if (isOverloaded(type)) {
         const overloads = OverloadedType.getOverloads(type).map((overload) =>
-            getConstructorTooltip(constructorName, overload, evaluator, functionSignatureDisplay)
+            getConstructorTooltip(typeServer, constructorName, overload, functionSignatureDisplay)
         );
         overloads.forEach((overload, index) => {
             signature += overload + ': ...' + '\n\n';
@@ -173,7 +172,7 @@ export function getConstructorTooltip(
             functionSignatureDisplay === SignatureDisplayType.Formatted
                 ? '\n' + ' '.repeat(functionParamIndentOffset)
                 : ' ';
-        const funcParts = evaluator.printFunctionParts(type);
+        const funcParts = typeServer.evaluator.printFunctionParts(type);
         const paramSignature = formatSignature(funcParts, indentStr, functionSignatureDisplay);
         signature += `${classText}${constructorName}${paramSignature}`;
     }
@@ -194,21 +193,21 @@ function formatSignature(
 }
 
 export function getFunctionDocStringFromType(
+    typeServer: ITypeServer,
     type: FunctionType,
-    sourceMapper: ProviderSourceMapper,
-    evaluator: TypeEvaluator
+    sourceMapper: ProviderSourceMapper
 ) {
     const decl = type.shared.declaration;
     const enclosingClass = decl ? getEnclosingClass(decl.node) : undefined;
-    const classResults = enclosingClass ? evaluator.getTypeOfClass(enclosingClass) : undefined;
+    const classResults = enclosingClass ? typeServer.evaluator.getTypeOfClass(enclosingClass) : undefined;
 
     return getFunctionDocStringInherited(type, decl, sourceMapper, classResults?.classType);
 }
 
 export function getOverloadedDocStringsFromType(
+    typeServer: ITypeServer,
     type: OverloadedType,
-    sourceMapper: ProviderSourceMapper,
-    evaluator: TypeEvaluator
+    sourceMapper: ProviderSourceMapper
 ) {
     const overloads = OverloadedType.getOverloads(type);
     if (overloads.length === 0) {
@@ -217,22 +216,22 @@ export function getOverloadedDocStringsFromType(
 
     const decl = overloads[0].shared.declaration;
     const enclosingClass = decl ? getEnclosingClass(decl.node) : undefined;
-    const classResults = enclosingClass ? evaluator.getTypeOfClass(enclosingClass) : undefined;
+    const classResults = enclosingClass ? typeServer.evaluator.getTypeOfClass(enclosingClass) : undefined;
 
     return getOverloadedDocStringsInherited(
+        typeServer,
         type,
         overloads.map((o) => o.shared.declaration).filter(isDefined),
         sourceMapper,
-        evaluator,
 
         classResults?.classType
     );
 }
 
 function getDocumentationPartForTypeAlias(
+    typeServer: ITypeServer,
     sourceMapper: ProviderSourceMapper,
     resolvedDecl: Declaration | undefined,
-    evaluator: TypeEvaluator,
     symbol?: Symbol
 ) {
     if (!resolvedDecl) {
@@ -258,7 +257,7 @@ function getDocumentationPartForTypeAlias(
 
     if (resolvedDecl.type === DeclarationType.Function) {
         // @property functions
-        const doc = getPropertyDocStringInherited(resolvedDecl, sourceMapper, evaluator);
+        const doc = getPropertyDocStringInherited(typeServer, resolvedDecl, sourceMapper);
         if (doc) {
             return doc;
         }
@@ -268,10 +267,10 @@ function getDocumentationPartForTypeAlias(
 }
 
 function getDocumentationPartForType(
+    typeServer: ITypeServer,
     sourceMapper: ProviderSourceMapper,
     type: Type,
     resolvedDecl: Declaration | undefined,
-    evaluator: TypeEvaluator,
     boundObjectOrClass?: ClassType | undefined
 ) {
     if (isModule(type)) {
@@ -286,20 +285,20 @@ function getDocumentationPartForType(
         }
     } else if (isFunction(type)) {
         const functionType = boundObjectOrClass
-            ? evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
+            ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
             : type;
         if (functionType && isFunction(functionType)) {
-            const doc = getFunctionDocStringFromType(functionType, sourceMapper, evaluator);
+            const doc = getFunctionDocStringFromType(typeServer, functionType, sourceMapper);
             if (doc) {
                 return doc;
             }
         }
     } else if (isOverloaded(type)) {
         const functionType = boundObjectOrClass
-            ? evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
+            ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
             : type;
         if (functionType && isOverloaded(functionType)) {
-            const doc = getOverloadedDocStringsFromType(functionType, sourceMapper, evaluator).find((d) => d);
+            const doc = getOverloadedDocStringsFromType(typeServer, functionType, sourceMapper).find((d) => d);
 
             if (doc) {
                 return doc;
@@ -310,10 +309,10 @@ function getDocumentationPartForType(
 }
 
 export function getDocumentationPartsForTypeAndDecl(
+    typeServer: ITypeServer,
     sourceMapper: ProviderSourceMapper,
     type: Type | undefined,
     resolvedDecl: Declaration | undefined,
-    evaluator: TypeEvaluator,
     optional?: {
         name?: string;
         symbol?: Symbol;
@@ -321,7 +320,7 @@ export function getDocumentationPartsForTypeAndDecl(
     }
 ): string | undefined {
     // Get the alias first
-    const aliasDoc = getDocumentationPartForTypeAlias(sourceMapper, resolvedDecl, evaluator, optional?.symbol);
+    const aliasDoc = getDocumentationPartForTypeAlias(typeServer, sourceMapper, resolvedDecl, optional?.symbol);
 
     // Combine this with the type doc
     let typeDoc: string | undefined;
@@ -340,7 +339,7 @@ export function getDocumentationPartsForTypeAndDecl(
         ) {
             const name = resolvedDecl.node.d.module.d.nameParts.find((n) => n.d.value === optional.name);
             if (name) {
-                const aliasDecls = evaluator.getDeclInfoForNameNode(name)?.decls ?? [resolvedDecl];
+                const aliasDecls = typeServer.evaluator.getDeclInfoForNameNode(name)?.decls ?? [resolvedDecl];
                 resolvedDecl = aliasDecls.length > 0 ? aliasDecls[0] : resolvedDecl;
             }
         }
@@ -351,7 +350,7 @@ export function getDocumentationPartsForTypeAndDecl(
     typeDoc =
         typeDoc ??
         (type
-            ? getDocumentationPartForType(sourceMapper, type, resolvedDecl, evaluator, optional?.boundObjectOrClass)
+            ? getDocumentationPartForType(typeServer, sourceMapper, type, resolvedDecl, optional?.boundObjectOrClass)
             : undefined);
 
     // Combine with a new line if they both exist
@@ -373,30 +372,7 @@ export function getAutoImportText(name: string, from?: string, alias?: string): 
     return text;
 }
 
-export function combineExpressionTypes(typeNodes: ExpressionNode[], evaluator: TypeEvaluator): Type {
-    const typeList = typeNodes.map((n) => evaluator.getType(n) || UnknownType.create());
-    let result = combineTypes(typeList);
-
-    // We're expecting a set of types, if there is only one and the outermost type is a list, take its inner type. This
-    // is probably an expression that at runtime would turn into a list.
-    if (
-        typeList.length === 1 &&
-        result.category === TypeCategory.Class &&
-        ClassType.isBuiltIn(result, 'list') &&
-        result.priv.typeArgs
-    ) {
-        result = result.priv.typeArgs[0];
-    } else if (
-        typeList.length === 1 &&
-        result.category === TypeCategory.Class &&
-        ClassType.isBuiltIn(result, 'range')
-    ) {
-        result = evaluator.getBuiltInObject(typeNodes[0], 'int');
-    }
-    return result;
-}
-
-export function getClassAndConstructorTypes(node: NameNode, evaluator: TypeEvaluator) {
+export function getClassAndConstructorTypes(typeServer: ITypeServer, node: NameNode) {
     // If the class is used as part of a call (i.e. it is being
     // instantiated), include the constructor arguments within the
     // hover text.
@@ -421,12 +397,12 @@ export function getClassAndConstructorTypes(node: NameNode, evaluator: TypeEvalu
     }
 
     // Get the init method for this class.
-    const classType = getTypeForToolTip(evaluator, node);
+    const classType = getTypeForToolTip(typeServer, node);
     if (!isInstantiableClass(classType)) {
         return;
     }
 
-    const instanceType = getTypeForToolTip(evaluator, callLeftNode.parent);
+    const instanceType = getTypeForToolTip(typeServer, callLeftNode.parent);
     if (!isClassInstance(instanceType)) {
         return;
     }
@@ -438,10 +414,10 @@ export function getClassAndConstructorTypes(node: NameNode, evaluator: TypeEvalu
     const initMember = lookUpClassMember(classType, '__init__', MemberAccessFlags.SkipInstanceMembers);
 
     if (initMember) {
-        const functionType = evaluator.getTypeOfMember(initMember);
+        const functionType = typeServer.evaluator.getTypeOfMember(initMember);
 
         if (isFunctionOrOverloaded(functionType)) {
-            methodType = bindFunctionToClassOrObjectToolTip(evaluator, node, instanceType, functionType);
+            methodType = bindFunctionToClassOrObjectToolTip(typeServer, node, instanceType, functionType);
         }
     }
 
@@ -460,13 +436,13 @@ export function getClassAndConstructorTypes(node: NameNode, evaluator: TypeEvalu
         );
 
         if (newMember) {
-            const newMemberType = evaluator.getTypeOfMember(newMember);
+            const newMemberType = typeServer.evaluator.getTypeOfMember(newMember);
 
             // Prefer `__new__` if it doesn't have default params (*args: Any, **kwargs: Any) or no params ().
             if (isFunctionOrOverloaded(newMemberType)) {
                 // Set `treatConstructorAsClassMethod` to true to exclude `cls` as a parameter.
                 methodType = bindFunctionToClassOrObjectToolTip(
-                    evaluator,
+                    typeServer,
                     node,
                     instanceType,
                     newMemberType,
@@ -480,13 +456,13 @@ export function getClassAndConstructorTypes(node: NameNode, evaluator: TypeEvalu
 }
 
 export function bindFunctionToClassOrObjectToolTip(
-    evaluator: TypeEvaluator,
+    typeServer: ITypeServer,
     node: ExpressionNode,
     baseType: ClassType | undefined,
     memberType: FunctionType | OverloadedType,
     treatConstructorAsClassMethod?: boolean
 ): FunctionType | OverloadedType | undefined {
-    const methodType = evaluator.bindFunctionToClassOrObject(
+    const methodType = typeServer.evaluator.bindFunctionToClassOrObject(
         baseType,
         memberType,
         /* memberClass */ undefined,
@@ -497,11 +473,11 @@ export function bindFunctionToClassOrObjectToolTip(
         return undefined;
     }
 
-    return limitOverloadBasedOnCall(evaluator, methodType, node);
+    return limitOverloadBasedOnCall(typeServer, methodType, node);
 }
 
 export function limitOverloadBasedOnCall<T extends Type>(
-    evaluator: TypeEvaluator,
+    typeServer: ITypeServer,
     type: T,
     node: ExpressionNode
 ): T | FunctionType | OverloadedType {
@@ -517,7 +493,7 @@ export function limitOverloadBasedOnCall<T extends Type>(
         return type;
     }
 
-    const callTypeResult = evaluator.getTypeResult(callNode);
+    const callTypeResult = typeServer.evaluator.getTypeResult(callNode);
     if (!callTypeResult || !callTypeResult.overloadsUsedForCall || callTypeResult.overloadsUsedForCall.length === 0) {
         return type;
     }
@@ -529,9 +505,9 @@ export function limitOverloadBasedOnCall<T extends Type>(
     return OverloadedType.create(callTypeResult.overloadsUsedForCall);
 }
 
-export function getTypeForToolTip(evaluator: TypeEvaluator, node: ExpressionNode) {
+export function getTypeForToolTip(typeServer: ITypeServer, node: ExpressionNode) {
     // It does common work necessary for hover for a type we got
     // from raw type evaluator.
-    const type = evaluator.getType(node) ?? UnknownType.create();
-    return limitOverloadBasedOnCall(evaluator, type, node);
+    const type = typeServer.evaluator.getType(node) ?? UnknownType.create();
+    return limitOverloadBasedOnCall(typeServer, type, node);
 }

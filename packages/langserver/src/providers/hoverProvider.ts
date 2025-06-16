@@ -39,7 +39,7 @@ import {
 } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
-import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { PrintTypeOptions } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     Type,
@@ -97,10 +97,6 @@ export class HoverProvider {
         return _convertHoverResults(this._getHoverResult(), this._format);
     }
 
-    private get _evaluator(): TypeEvaluator {
-        return this._typeServer.evaluator!;
-    }
-
     private get _functionSignatureDisplay() {
         return this._options.functionSignatureDisplay;
     }
@@ -142,7 +138,7 @@ export class HoverProvider {
                 node = node.parent.d.valueExpr;
             }
 
-            const declInfo = this._evaluator.getDeclInfoForNameNode(node);
+            const declInfo = this._typeServer.evaluator.getDeclInfoForNameNode(node);
             const declarations = declInfo?.decls;
 
             if (declarations && declarations.length > 0) {
@@ -177,10 +173,10 @@ export class HoverProvider {
                         }
 
                         typeText = getToolTipForType(
+                            this._typeServer,
                             type,
                             label,
                             node.d.value,
-                            this._evaluator,
                             isProperty,
                             this._functionSignatureDisplay
                         );
@@ -191,7 +187,7 @@ export class HoverProvider {
                 }
             }
         } else if (node.nodeType === ParseNodeType.String) {
-            const type = this._evaluator.getExpectedType(node)?.type;
+            const type = this._typeServer.evaluator.getExpectedType(node)?.type;
             if (type !== undefined) {
                 this._tryAddPartsForTypedDictKey(node, type, results.parts);
             }
@@ -203,7 +199,7 @@ export class HoverProvider {
     private _addResultsForDeclaration(parts: HoverTextPart[], declaration: Declaration, node: NameNode): void {
         const resolvedDecl =
             declaration.type === DeclarationType.Alias
-                ? this._evaluator.resolveAliasDeclaration(declaration, /* resolveLocalNames */ true)
+                ? this._typeServer.evaluator.resolveAliasDeclaration(declaration, /* resolveLocalNames */ true)
                 : declaration;
         if (
             !resolvedDecl ||
@@ -247,7 +243,7 @@ export class HoverProvider {
                 // the type alias when printing the type information.
                 const type = this._getType(typeNode);
                 const typeText = _getVariableTypeText(
-                    this._evaluator,
+                    this._typeServer,
                     resolvedDecl,
                     node.d.value,
                     type,
@@ -299,7 +295,7 @@ export class HoverProvider {
                 let label = 'function';
                 let isProperty = false;
                 if (resolvedDecl.isMethod) {
-                    const declaredType = this._evaluator.getTypeForDeclaration(resolvedDecl)?.type;
+                    const declaredType = this._typeServer.evaluator.getTypeForDeclaration(resolvedDecl)?.type;
                     isProperty = !!declaredType && isMaybeDescriptorInstance(declaredType, /* requireSetter */ false);
                     label = isProperty ? 'property' : 'method';
                 }
@@ -308,10 +304,10 @@ export class HoverProvider {
                 const resolvedType = this._getType(resolvedDecl.node.d.name);
                 type = isAnyOrUnknown(type) ? resolvedType : type;
                 const signatureString = getToolTipForType(
+                    this._typeServer,
                     type,
                     label,
                     node.d.value,
-                    this._evaluator,
                     isProperty,
                     this._functionSignatureDisplay
                 );
@@ -330,7 +326,7 @@ export class HoverProvider {
 
             case DeclarationType.TypeAlias: {
                 const type = convertToInstance(this._getType(node));
-                const typeText = this._evaluator.printType(type, { expandTypeAlias: true });
+                const typeText = this._typeServer.evaluator.printType(type, { expandTypeAlias: true });
                 this._addResultsPart(parts, `(type) ${node.d.value} = ${typeText}`, /* python */ true);
                 this._addDocumentationPart(parts, node, resolvedDecl);
                 break;
@@ -351,7 +347,7 @@ export class HoverProvider {
 
             const type = this._getType(node);
             typeText = _getVariableTypeText(
-                this._evaluator,
+                this._typeServer,
                 /* declaration */ undefined,
                 node.d.value,
                 type,
@@ -379,7 +375,7 @@ export class HoverProvider {
                     }
 
                     // e.g. (key) name: str
-                    const text = '(key) ' + node.d.value + ': ' + this._evaluator.printType(entry.valueType);
+                    const text = '(key) ' + node.d.value + ': ' + this._typeServer.evaluator.printType(entry.valueType);
                     this._addResultsPart(parts, text, /* python */ true);
 
                     const declarations = ClassType.getSymbolTable(subtype).get(node.d.value)?.getDeclarations();
@@ -398,7 +394,7 @@ export class HoverProvider {
     }
 
     private _addInitOrNewMethodInsteadIfCallNode(node: NameNode, parts: HoverTextPart[], declaration: Declaration) {
-        const result = getClassAndConstructorTypes(node, this._evaluator);
+        const result = getClassAndConstructorTypes(this._typeServer, node);
         if (!result) {
             return false;
         }
@@ -406,7 +402,12 @@ export class HoverProvider {
         if (result.methodType && isFunctionOrOverloaded(result.methodType)) {
             this._addResultsPart(
                 parts,
-                getConstructorTooltip(node.d.value, result.methodType, this._evaluator, this._functionSignatureDisplay),
+                getConstructorTooltip(
+                    this._typeServer,
+                    node.d.value,
+                    result.methodType,
+                    this._functionSignatureDisplay
+                ),
                 /* python */ true
             );
 
@@ -423,12 +424,12 @@ export class HoverProvider {
     private _getType(node: ExpressionNode) {
         // It does common work necessary for hover for a type we got
         // from raw type evaluator.
-        return getTypeForToolTip(this._evaluator, node);
+        return getTypeForToolTip(this._typeServer, node);
     }
 
     private _getTypeText(node: ExpressionNode, options?: PrintTypeOptions): string {
         const type = this._getType(node);
-        return ': ' + this._evaluator.printType(type, options);
+        return ': ' + this._typeServer.evaluator.printType(type, options);
     }
 
     private _addDocumentationPart(parts: HoverTextPart[], node: NameNode, resolvedDecl: Declaration | undefined) {
@@ -442,9 +443,15 @@ export class HoverProvider {
         resolvedDecl: Declaration | undefined,
         name?: string
     ): boolean {
-        const docString = getDocumentationPartsForTypeAndDecl(this._sourceMapper, type, resolvedDecl, this._evaluator, {
-            name,
-        });
+        const docString = getDocumentationPartsForTypeAndDecl(
+            this._typeServer,
+            this._sourceMapper,
+            type,
+            resolvedDecl,
+            {
+                name,
+            }
+        );
 
         _addDocumentationResultsPart(docString, this._format, parts);
         return !!docString;
@@ -459,7 +466,7 @@ export class HoverProvider {
 }
 
 function _getVariableTypeText(
-    evaluator: TypeEvaluator,
+    typeServer: ITypeServer,
     declaration: VariableDeclaration | undefined,
     name: string,
     type: Type,
@@ -468,7 +475,10 @@ function _getVariableTypeText(
 ) {
     let label = 'variable';
     if (declaration) {
-        label = declaration.isConstant || evaluator.isFinalVariableDeclaration(declaration) ? 'constant' : 'variable';
+        label =
+            declaration.isConstant || typeServer.evaluator.isFinalVariableDeclaration(declaration)
+                ? 'constant'
+                : 'variable';
     }
 
     let typeVarName: string | undefined;
@@ -481,9 +491,12 @@ function _getVariableTypeText(
                 typeVarName = type.shared.name;
             } else {
                 // Handle type aliases specially.
-                const typeText = evaluator.printType(convertToInstance(getTypeForToolTip(evaluator, typeNode)), {
-                    expandTypeAlias: true,
-                });
+                const typeText = typeServer.evaluator.printType(
+                    convertToInstance(getTypeForToolTip(typeServer, typeNode)),
+                    {
+                        expandTypeAlias: true,
+                    }
+                );
 
                 return `(type) ${name} = ` + typeText;
             }
@@ -496,17 +509,18 @@ function _getVariableTypeText(
         typeNode.parent?.nodeType === ParseNodeType.Call
     ) {
         return getToolTipForType(
+            typeServer,
             type,
             label,
             name,
-            evaluator,
             /* isProperty */ false,
             functionSignatureDisplay,
             typeNode
         );
     }
 
-    const typeText = typeVarName ?? name + ': ' + evaluator.printType(getTypeForToolTip(evaluator, typeNode));
+    const typeText =
+        typeVarName ?? name + ': ' + typeServer.evaluator.printType(getTypeForToolTip(typeServer, typeNode));
 
     return `(${label}) ` + typeText;
 }

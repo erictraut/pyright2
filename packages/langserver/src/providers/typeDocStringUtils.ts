@@ -22,7 +22,6 @@ import {
     VariableDeclaration,
 } from 'typeserver/binder/declaration.js';
 import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     ClassType,
     FunctionType,
@@ -42,6 +41,7 @@ import {
     MemberAccessFlags,
 } from 'typeserver/evaluator/typeUtils.js';
 import { ModuleNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 import { addIfNotNull, appendArray } from 'typeserver/utils/collectionUtils.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
@@ -108,10 +108,10 @@ export function getFunctionDocStringInherited(
 }
 
 export function getOverloadedDocStringsInherited(
+    typeServer: ITypeServer,
     type: OverloadedType,
     resolvedDecls: Declaration[],
     sourceMapper: ProviderSourceMapper,
-    evaluator: TypeEvaluator,
     classType?: ClassType
 ) {
     let docStrings: string[] | undefined;
@@ -136,7 +136,7 @@ export function getOverloadedDocStringsInherited(
 
         for (const classMember of memberIterator) {
             const inheritedDecl = classMember.symbol.getDeclarations().slice(-1)[0];
-            const declType = evaluator.getTypeForDeclaration(inheritedDecl)?.type;
+            const declType = typeServer.evaluator.getTypeForDeclaration(inheritedDecl)?.type;
             if (declType) {
                 docStrings = _getOverloadedDocStrings(declType, inheritedDecl, sourceMapper);
                 if (docStrings && docStrings.length > 0) {
@@ -150,14 +150,14 @@ export function getOverloadedDocStringsInherited(
 }
 
 export function getPropertyDocStringInherited(
+    typeServer: ITypeServer,
     decl: FunctionDeclaration,
-    sourceMapper: ProviderSourceMapper,
-    evaluator: TypeEvaluator
+    sourceMapper: ProviderSourceMapper
 ) {
     const enclosingClass = ParseTreeUtils.getEnclosingClass(decl.node.d.name, /* stopAtFunction */ false);
-    const classResults = enclosingClass ? evaluator.getTypeOfClass(enclosingClass) : undefined;
+    const classResults = enclosingClass ? typeServer.evaluator.getTypeOfClass(enclosingClass) : undefined;
     if (classResults) {
-        return _getPropertyDocStringInherited(decl, sourceMapper, evaluator, classResults.classType);
+        return _getPropertyDocStringInherited(typeServer, decl, sourceMapper, classResults.classType);
     }
     return undefined;
 }
@@ -326,16 +326,16 @@ function _getOverloadedDocStrings(
 }
 
 function _getPropertyDocStringInherited(
+    typeServer: ITypeServer,
     decl: Declaration | undefined,
     sourceMapper: ProviderSourceMapper,
-    evaluator: TypeEvaluator,
     classType: ClassType
 ) {
     if (!decl || !isFunctionDeclaration(decl)) {
         return;
     }
 
-    const declaredType = evaluator.getTypeForDeclaration(decl)?.type;
+    const declaredType = typeServer.evaluator.getTypeForDeclaration(decl)?.type;
     if (!declaredType || !isMaybeDescriptorInstance(declaredType)) {
         return;
     }
@@ -358,7 +358,7 @@ function _getPropertyDocStringInherited(
         if (decls) {
             for (const decl of decls) {
                 if (isFunctionDeclaration(decl)) {
-                    const declaredType = evaluator.getTypeForDeclaration(decl)?.type;
+                    const declaredType = typeServer.evaluator.getTypeForDeclaration(decl)?.type;
                     if (declaredType && isMaybeDescriptorInstance(declaredType)) {
                         const docString = _getFunctionDocStringFromDeclaration(decl, sourceMapper);
                         if (docString) {

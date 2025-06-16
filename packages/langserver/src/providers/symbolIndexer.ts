@@ -139,7 +139,7 @@ function collectSymbolIndexDataForName(
     indexSymbolData: IndexSymbolData[],
     token: CancellationToken
 ) {
-    const symbolKind = getSymbolKind(declaration, undefined, name);
+    const symbolKind = getSymbolKind(undefined, declaration, name);
     if (symbolKind === undefined) {
         return;
     }

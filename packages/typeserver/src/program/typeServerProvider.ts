@@ -41,8 +41,8 @@ import { Uri } from 'typeserver/utils/uri/uri.js';
 export class TypeServerProvider implements ITypeServer {
     constructor(private _program: Program) {}
 
-    get evaluator(): TypeEvaluator | undefined {
-        return this._program.evaluator;
+    get evaluator(): TypeEvaluator {
+        return this._program.evaluator!;
     }
 
     getParseResults(fileUri: Uri): ParseFileResults | undefined {

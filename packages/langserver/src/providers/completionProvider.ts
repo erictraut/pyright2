@@ -86,7 +86,7 @@ import { TextRangeCollection } from 'typeserver/common/textRangeCollection.js';
 import { transformTypeForEnumMember } from 'typeserver/evaluator/enums.js';
 import { getParamListDetails, ParamKind } from 'typeserver/evaluator/parameterUtils.js';
 import { getTypedDictMembersForClass } from 'typeserver/evaluator/typedDicts.js';
-import { CallSignatureInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { CallSignatureInfo } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { printLiteralValue } from 'typeserver/evaluator/typePrinter.js';
 import {
     ClassType,
@@ -422,10 +422,6 @@ export class CompletionProvider {
         }
     }
 
-    protected get evaluator() {
-        return this.typeServer.evaluator!;
-    }
-
     protected getCompletionItemData(item: CompletionItem): CompletionItemData {
         return fromLSPAny<CompletionItemData>(item.data);
     }
@@ -440,7 +436,7 @@ export class CompletionProvider {
             return undefined;
         }
 
-        const classResults = this.evaluator.getTypeOfClass(enclosingClass);
+        const classResults = this.typeServer.evaluator.getTypeOfClass(enclosingClass);
         if (!classResults) {
             return undefined;
         }
@@ -462,7 +458,7 @@ export class CompletionProvider {
             let decl = getLastTypedDeclarationForSymbol(symbol);
             if (decl && decl.type === DeclarationType.Function) {
                 if (isPatternInSymbol(partialName.d.value, name)) {
-                    const declaredType = this.evaluator.getTypeForDeclaration(decl)?.type;
+                    const declaredType = this.typeServer.evaluator.getTypeForDeclaration(decl)?.type;
                     if (!declaredType) {
                         return;
                     }
@@ -647,7 +643,8 @@ export class CompletionProvider {
         }
 
         primaryDecl = primaryDecl
-            ? this.evaluator.resolveAliasDeclaration(primaryDecl, /* resolveLocalNames */ true) ?? primaryDecl
+            ? this.typeServer.evaluator.resolveAliasDeclaration(primaryDecl, /* resolveLocalNames */ true) ??
+              primaryDecl
             : undefined;
 
         const autoImportText = detail.autoImportSource
@@ -677,14 +674,14 @@ export class CompletionProvider {
 
             // This call can be expensive to perform on every completion item
             // that we return, so we do it lazily in the "resolve" callback.
-            const type = this.evaluator.getEffectiveTypeOfSymbol(symbol);
+            const type = this.typeServer.evaluator.getEffectiveTypeOfSymbol(symbol);
             if (!type) {
                 // Can't resolve. so bail out.
                 return;
             }
 
             const typeDetail = getTypeDetail(
-                this.evaluator,
+                this.typeServer,
                 type,
                 primaryDecl,
                 name,
@@ -692,10 +689,10 @@ export class CompletionProvider {
                 this.options.functionSignatureDisplay
             );
             const documentation = getDocumentationPartsForTypeAndDecl(
+                this.typeServer,
                 this.sourceMapper,
                 type,
                 primaryDecl,
-                this.evaluator,
                 {
                     name,
                     symbol,
@@ -707,8 +704,7 @@ export class CompletionProvider {
                 this.itemToResolve.documentation = getCompletionItemDocumentation(
                     typeDetail,
                     documentation,
-                    this.options.format,
-                    primaryDecl
+                    this.options.format
                 );
             } else {
                 fail(`Unsupported markup type: ${this.options.format}`);
@@ -752,21 +748,21 @@ export class CompletionProvider {
         const symbolTable = new Map<string, Symbol>();
         const completionMap = new CompletionMap();
 
-        let leftType = this.evaluator.getType(leftExprNode);
+        let leftType = this.typeServer.evaluator.getType(leftExprNode);
         if (!leftType) {
             return completionMap;
         }
 
-        leftType = this.evaluator.makeTopLevelTypeVarsConcrete(leftType);
+        leftType = this.typeServer.evaluator.makeTopLevelTypeVarsConcrete(leftType);
 
         // If this is an unknown type with a "possible type" associated with
         // it, use the possible type.
         if (isUnknown(leftType) && leftType.priv.possibleType) {
-            leftType = this.evaluator.makeTopLevelTypeVarsConcrete(leftType.priv.possibleType);
+            leftType = this.typeServer.evaluator.makeTopLevelTypeVarsConcrete(leftType.priv.possibleType);
         }
 
         doForEachSubtype(leftType, (subtype) => {
-            subtype = this.evaluator.makeTopLevelTypeVarsConcrete(subtype);
+            subtype = this.typeServer.evaluator.makeTopLevelTypeVarsConcrete(subtype);
 
             if (isClass(subtype)) {
                 const instance = TypeBase.isInstance(subtype);
@@ -784,12 +780,12 @@ export class CompletionProvider {
             } else if (isModule(subtype)) {
                 getMembersForModule(subtype, symbolTable);
             } else if (isFunctionOrOverloaded(subtype)) {
-                const functionClass = this.evaluator.getBuiltInType(leftExprNode, 'function');
+                const functionClass = this.typeServer.evaluator.getBuiltInType(leftExprNode, 'function');
                 if (functionClass && isInstantiableClass(functionClass)) {
                     getMembersForClass(functionClass, symbolTable, /* includeInstanceVars */ true);
                 }
             } else if (isNoneInstance(subtype)) {
-                const objectClass = this.evaluator.getBuiltInType(leftExprNode, 'object');
+                const objectClass = this.typeServer.evaluator.getBuiltInType(leftExprNode, 'object');
                 if (objectClass && isInstantiableClass(objectClass)) {
                     getMembersForClass(objectClass, symbolTable, TypeBase.isInstance(subtype));
                 }
@@ -1423,7 +1419,7 @@ export class CompletionProvider {
                 return false;
             }
 
-            const decls = this.evaluator.getDeclInfoForNameNode(curNode)?.decls;
+            const decls = this.typeServer.evaluator.getDeclInfoForNameNode(curNode)?.decls;
             if (decls?.length !== 1 || !isVariableDeclaration(decls[0]) || decls[0].node !== curNode) {
                 return false;
             }
@@ -1653,7 +1649,7 @@ export class CompletionProvider {
             return;
         }
 
-        const classResults = this.evaluator.getTypeOfClass(enclosingClass);
+        const classResults = this.typeServer.evaluator.getTypeOfClass(enclosingClass);
         if (!classResults) {
             return undefined;
         }
@@ -1667,9 +1663,9 @@ export class CompletionProvider {
 
         // First, see whether we can use semantic info to get variable type.
         if (classMember) {
-            const memberType = this.evaluator.getTypeOfMember(classMember);
+            const memberType = this.typeServer.evaluator.getTypeOfMember(classMember);
 
-            const text = this.evaluator.printType(memberType, {
+            const text = this.typeServer.evaluator.printType(memberType, {
                 enforcePythonSyntax: true,
                 expandTypeAlias: false,
             });
@@ -1732,7 +1728,7 @@ export class CompletionProvider {
             return undefined;
         }
 
-        const classResults = this.evaluator.getTypeOfClass(enclosingClass);
+        const classResults = this.typeServer.evaluator.getTypeOfClass(enclosingClass);
         if (!classResults) {
             return undefined;
         }
@@ -1774,7 +1770,35 @@ export class CompletionProvider {
     }
 
     private _getMethodOverloadsCompletions(priorWord: string, partialName: NameNode): CompletionMap | undefined {
-        const symbolTable = getSymbolTable(this.evaluator, partialName);
+        const getSymbolTable = (partialName: NameNode) => {
+            const enclosingClass = getEnclosingClass(partialName, false);
+            if (enclosingClass) {
+                const classResults = this.typeServer.evaluator.getTypeOfClass(enclosingClass);
+                if (!classResults) {
+                    return undefined;
+                }
+
+                const symbolTable = new Map<string, Symbol>();
+                for (const mroClass of classResults.classType.shared.mro) {
+                    if (isInstantiableClass(mroClass)) {
+                        getMembersForClass(mroClass, symbolTable, /* includeInstanceVars */ false);
+                    }
+                }
+
+                return symbolTable;
+            }
+
+            // For function overload, we only care about top level functions
+            const moduleNode = getEnclosingModule(partialName);
+            if (moduleNode) {
+                const moduleScope = getScope(moduleNode);
+                return moduleScope?.symbolTable;
+            }
+
+            return undefined;
+        };
+
+        const symbolTable = getSymbolTable(partialName);
         if (!symbolTable) {
             return undefined;
         }
@@ -1810,34 +1834,6 @@ export class CompletionProvider {
         });
 
         return completionMap;
-
-        function getSymbolTable(evaluator: TypeEvaluator, partialName: NameNode) {
-            const enclosingClass = getEnclosingClass(partialName, false);
-            if (enclosingClass) {
-                const classResults = evaluator.getTypeOfClass(enclosingClass);
-                if (!classResults) {
-                    return undefined;
-                }
-
-                const symbolTable = new Map<string, Symbol>();
-                for (const mroClass of classResults.classType.shared.mro) {
-                    if (isInstantiableClass(mroClass)) {
-                        getMembersForClass(mroClass, symbolTable, /* includeInstanceVars */ false);
-                    }
-                }
-
-                return symbolTable;
-            }
-
-            // For function overload, we only care about top level functions
-            const moduleNode = getEnclosingModule(partialName);
-            if (moduleNode) {
-                const moduleScope = getScope(moduleNode);
-                return moduleScope?.symbolTable;
-            }
-
-            return undefined;
-        }
     }
 
     private _printMethodSignature(classType: ClassType, decl: FunctionDeclaration): string {
@@ -2019,7 +2015,7 @@ export class CompletionProvider {
             return;
         }
 
-        const signatureInfo = this.evaluator.getCallSignatureInfo(
+        const signatureInfo = this.typeServer.evaluator.getCallSignatureInfo(
             callInfo.callNode,
             callInfo.activeIndex,
             callInfo.activeOrFake
@@ -2145,7 +2141,7 @@ export class CompletionProvider {
 
     private _getIndexKeyType(baseType: ClassType) {
         // Handle __getitem__.
-        const getItemType = this.evaluator.getBoundMagicMethod(baseType, '__getitem__');
+        const getItemType = this.typeServer.evaluator.getBoundMagicMethod(baseType, '__getitem__');
         if (getItemType) {
             const typesToCombine: Type[] = [];
 
@@ -2168,7 +2164,7 @@ export class CompletionProvider {
     }
 
     private _getIndexKeys(indexNode: IndexNode, invocationNode: ParseNode) {
-        const baseType = this.evaluator.getType(indexNode.d.leftExpr);
+        const baseType = this.typeServer.evaluator.getType(indexNode.d.leftExpr);
         if (!baseType || !isClassInstance(baseType)) {
             return [];
         }
@@ -2203,7 +2199,7 @@ export class CompletionProvider {
         }
 
         // Must be local variable/parameter
-        const declarations = this.evaluator.getDeclInfoForNameNode(indexNode.d.leftExpr)?.decls ?? [];
+        const declarations = this.typeServer.evaluator.getDeclInfoForNameNode(indexNode.d.leftExpr)?.decls ?? [];
         const declaration = declarations.length > 0 ? declarations[0] : undefined;
         if (
             !declaration ||
@@ -2254,7 +2250,7 @@ export class CompletionProvider {
 
                 if (node.parent.d.rightExpr.nodeType === ParseNodeType.Call) {
                     const call = node.parent.d.rightExpr;
-                    const type = this.evaluator.getType(call.d.leftExpr);
+                    const type = this.typeServer.evaluator.getType(call.d.leftExpr);
                     if (!type || !isInstantiableClass(type) || !ClassType.isBuiltIn(type, 'dict')) {
                         continue;
                     }
@@ -2333,7 +2329,7 @@ export class CompletionProvider {
                 : undefined;
 
         if (nodeForExpectedType) {
-            const expectedTypeResult = this.evaluator.getExpectedType(nodeForExpectedType);
+            const expectedTypeResult = this.typeServer.evaluator.getExpectedType(nodeForExpectedType);
             if (expectedTypeResult && containsLiteralType(expectedTypeResult.type)) {
                 this._addLiteralValuesForTargetType(
                     expectedTypeResult.type,
@@ -2445,7 +2441,7 @@ export class CompletionProvider {
             comparison.nodeType === ParseNodeType.BinaryOperation &&
             supportedOperators.includes(comparison.d.operator)
         ) {
-            const type = this.evaluator.getType(comparison.d.leftExpr);
+            const type = this.typeServer.evaluator.getType(comparison.d.leftExpr);
             if (type && containsLiteralType(type)) {
                 this._addLiteralValuesForTargetType(type, priorWord, priorText, postText, completionMap);
                 return true;
@@ -2458,7 +2454,7 @@ export class CompletionProvider {
             assignmentExpression.nodeType === ParseNodeType.AssignmentExpression &&
             assignmentExpression.d.rightExpr === parentAndChild.child
         ) {
-            const type = this.evaluator.getType(assignmentExpression.d.name);
+            const type = this.typeServer.evaluator.getType(assignmentExpression.d.name);
             if (type && containsLiteralType(type)) {
                 this._addLiteralValuesForTargetType(type, priorWord, priorText, postText, completionMap);
                 return true;
@@ -2476,7 +2472,7 @@ export class CompletionProvider {
             caseNode.d.suite === parentAndChild.child &&
             caseNode.parent?.nodeType === ParseNodeType.Match
         ) {
-            const type = this.evaluator.getType(caseNode.parent.d.expr);
+            const type = this.typeServer.evaluator.getType(caseNode.parent.d.expr);
             if (type && containsLiteralType(type)) {
                 this._addLiteralValuesForTargetType(type, priorWord, priorText, postText, completionMap);
                 return true;
@@ -2494,7 +2490,7 @@ export class CompletionProvider {
             patternLiteral.parent.parent?.nodeType === ParseNodeType.Case &&
             patternLiteral.parent.parent.parent?.nodeType === ParseNodeType.Match
         ) {
-            const type = this.evaluator.getType(patternLiteral.parent.parent.parent.d.expr);
+            const type = this.typeServer.evaluator.getType(patternLiteral.parent.parent.parent.d.expr);
             if (type && containsLiteralType(type)) {
                 this._addLiteralValuesForTargetType(type, priorWord, priorText, postText, completionMap);
                 return true;
@@ -2557,18 +2553,20 @@ export class CompletionProvider {
         const excludes = new Set(existingKeys);
 
         typedDicts.forEach((typedDict) => {
-            getTypedDictMembersForClass(this.evaluator, typedDict, /* allowNarrowed */ true).knownItems.forEach(
-                (_, key) => {
-                    // Unions of TypedDicts may define the same key.
-                    if (excludes.has(key) || completionMap.has(key)) {
-                        return;
-                    }
-
-                    excludes.add(key);
-
-                    this._addStringLiteralToCompletions(key, quoteInfo, postText, completionMap);
+            getTypedDictMembersForClass(
+                this.typeServer.evaluator,
+                typedDict,
+                /* allowNarrowed */ true
+            ).knownItems.forEach((_, key) => {
+                // Unions of TypedDicts may define the same key.
+                if (excludes.has(key) || completionMap.has(key)) {
+                    return;
                 }
-            );
+
+                excludes.add(key);
+
+                this._addStringLiteralToCompletions(key, quoteInfo, postText, completionMap);
+            });
         });
 
         return true;
@@ -2582,7 +2580,7 @@ export class CompletionProvider {
         postText: string,
         completionMap: CompletionMap
     ) {
-        const expectedTypeResult = this.evaluator.getExpectedType(dictionaryNode);
+        const expectedTypeResult = this.typeServer.evaluator.getExpectedType(dictionaryNode);
         if (!expectedTypeResult) {
             return false;
         }
@@ -2603,7 +2601,7 @@ export class CompletionProvider {
 
     private _tryNarrowTypedDicts(types: ClassType[], keys: string[]): ClassType[] {
         const newTypes = types.flatMap((type) => {
-            const entries = getTypedDictMembersForClass(this.evaluator, type, /* allowNarrowed */ true);
+            const entries = getTypedDictMembersForClass(this.typeServer.evaluator, type, /* allowNarrowed */ true);
 
             for (let index = 0; index < keys.length; index++) {
                 if (!entries.knownItems.has(keys[index])) {
@@ -2684,7 +2682,7 @@ export class CompletionProvider {
             return false;
         }
 
-        const baseType = this.evaluator.getType(indexNode.d.leftExpr);
+        const baseType = this.typeServer.evaluator.getType(indexNode.d.leftExpr);
         if (!baseType) {
             return false;
         }
@@ -2914,7 +2912,7 @@ export class CompletionProvider {
 
                 // If this is a class scope, add symbols from parent classes.
                 if (curNode.nodeType === ParseNodeType.Class) {
-                    const classType = this.evaluator.getTypeOfClass(curNode);
+                    const classType = this.typeServer.evaluator.getTypeOfClass(curNode);
                     if (classType && isInstantiableClass(classType.classType)) {
                         classType.classType.shared.mro.forEach((baseClass, index) => {
                             if (isInstantiableClass(baseClass)) {
@@ -3066,7 +3064,10 @@ export class CompletionProvider {
     }
 
     private _convertDeclarationTypeToItemKind(declaration: Declaration): CompletionItemKind {
-        const resolvedDeclaration = this.evaluator.resolveAliasDeclaration(declaration, /* resolveLocalNames */ true);
+        const resolvedDeclaration = this.typeServer.evaluator.resolveAliasDeclaration(
+            declaration,
+            /* resolveLocalNames */ true
+        );
         if (!resolvedDeclaration) {
             return CompletionItemKind.Variable;
         }
@@ -3093,7 +3094,7 @@ export class CompletionProvider {
 
             case DeclarationType.Function: {
                 if (this._isPossiblePropertyDeclaration(resolvedDeclaration)) {
-                    const functionType = this.evaluator.getTypeOfFunction(resolvedDeclaration.node);
+                    const functionType = this.typeServer.evaluator.getTypeOfFunction(resolvedDeclaration.node);
                     if (
                         functionType &&
                         isMaybeDescriptorInstance(functionType.decoratedType, /* requireSetter */ false)
@@ -3181,7 +3182,7 @@ export class CompletionProvider {
             return false;
         }
 
-        const symbolType = transformTypeForEnumMember(this.evaluator, containingType, name);
+        const symbolType = transformTypeForEnumMember(this.typeServer.evaluator, containingType, name);
 
         return (
             symbolType &&

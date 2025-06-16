@@ -24,7 +24,6 @@ import { DocumentRange } from 'typeserver/common/docRange.js';
 import { findNodeByOffset, getEvaluationScopeNode } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { isRangeInRange, Position, Range, TextRange } from 'typeserver/common/textRange.js';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { maxTypeRecursionCount } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
@@ -334,7 +333,7 @@ export class ReferencesProvider {
             return undefined;
         }
 
-        const requiresGlobalSearch = isVisibleOutside(typeServer.evaluator!, fileUri, node, declarations);
+        const requiresGlobalSearch = isVisibleOutside(typeServer, fileUri, node, declarations);
         const symbolNames = new Set<string>(declarations.map((d) => getNameFromDeclaration(d)!).filter((n) => !!n));
         symbolNames.add(node.d.value);
 
@@ -381,8 +380,8 @@ export class ReferencesProvider {
     }
 }
 
-function isVisibleOutside(evaluator: TypeEvaluator, currentUri: Uri, node: NameNode, declarations: Declaration[]) {
-    const result = evaluator.lookUpSymbolRecursive(node, node.d.value, /* honorCodeFlow */ false);
+function isVisibleOutside(typeServer: ITypeServer, currentUri: Uri, node: NameNode, declarations: Declaration[]) {
+    const result = typeServer.evaluator.lookUpSymbolRecursive(node, node.d.value, /* honorCodeFlow */ false);
     if (result && !isExternallyVisible(result.symbol)) {
         return false;
     }
@@ -480,7 +479,11 @@ function isVisibleOutside(evaluator: TypeEvaluator, currentUri: Uri, node: NameN
             case ParseNodeType.Class:
             case ParseNodeType.Function: {
                 const name = scopingNode.d.name;
-                const result = evaluator.lookUpSymbolRecursive(name, name.d.value, /* honorCodeFlow */ false);
+                const result = typeServer.evaluator.lookUpSymbolRecursive(
+                    name,
+                    name.d.value,
+                    /* honorCodeFlow */ false
+                );
                 return result ? isExternallyVisible(result.symbol, recursionCount) : true;
             }
 

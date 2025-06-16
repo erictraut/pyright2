@@ -18,7 +18,31 @@ import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ITypeServer {
     // TODO - remove this and replace by individual calls
-    readonly evaluator: TypeEvaluator | undefined;
+    readonly evaluator: TypeEvaluator;
+
+    // getContextType
+    // getType - makeTopLevelTypeVarsConcrete
+    // getTypeOfClass
+    // getTypeOfFunction
+
+    // transformTypeForEnumMember (completion provider)
+
+    // getTypeOfSymbol
+
+    // getDeclaration
+    // getTypeForDeclaration
+
+    // printType
+    // printFunctionParts (tooltipUtils)
+    // getTypeOfMember
+    // getCallSignatureInfo
+    // getBoundMagicMethod
+    // bindFunctionToClassOrObject
+    // getTypedDictMembersForClass
+
+    // lookUpSymbolRecursive
+
+    // isFinalVariableDeclaration
 
     // TODO - rethink these interfaces.
     getParseResults(fileUri: Uri): ParseFileResults | undefined;

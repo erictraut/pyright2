@@ -26,7 +26,6 @@ import { Symbol } from 'typeserver/binder/symbol.js';
 import { getDunderAllInfo, getFileInfo, getScope, isCodeUnreachable } from 'typeserver/common/analyzerNodeInfo.js';
 import { getModuleNode, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
-import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { TypeCategory } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import {
@@ -62,7 +61,7 @@ type CacheEntry = { original: Declaration; resolved: Declaration | undefined } |
 export class AliasResolver {
     private readonly _caches: CacheEntry[] = [undefined, undefined];
 
-    constructor(private readonly _evaluator: TypeEvaluator) {
+    constructor(private readonly _typeServer: ITypeServer) {
         // Empty
     }
 
@@ -73,7 +72,7 @@ export class AliasResolver {
             return this._caches[index]!.resolved;
         }
 
-        const resolved = this._evaluator.resolveAliasDeclaration(declaration, resolveLocalNames, {
+        const resolved = this._typeServer.evaluator.resolveAliasDeclaration(declaration, resolveLocalNames, {
             allowExternallyHiddenAccess: true,
             skipFileNeededCheck: true,
         });
@@ -107,7 +106,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     ) {
         super();
 
-        this._aliasResolver = new AliasResolver(this._typeServer.evaluator!);
+        this._aliasResolver = new AliasResolver(this._typeServer);
 
         // Start with the symbols passed in
         symbolNames.forEach((s) => this._symbolNames.add(s));
@@ -166,7 +165,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             return [];
         }
 
-        const declarations = getDeclarationsForNameNode(evaluator, node, /* skipUnreachableCode */ false);
+        const declarations = getDeclarationsForNameNode(typeServer, node, /* skipUnreachableCode */ false);
         const fileInfo = getFileInfo(node);
         const fileUri = fileInfo.fileUri;
 
@@ -223,7 +222,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
                 ?.getDeclarations()
                 .filter((d) => !isAliasDeclaration(d))
                 .forEach((decl) => {
-                    const resolvedDecl = evaluator!.resolveAliasDeclaration(decl, resolveLocalName);
+                    const resolvedDecl = evaluator.resolveAliasDeclaration(decl, resolveLocalName);
                     if (resolvedDecl) {
                         addDeclarationIfUnique(declarations, resolvedDecl);
                     }
@@ -251,7 +250,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         }
 
         if (this._declarations.length > 0) {
-            const declarations = getDeclarationsForNameNode(this._evaluator, node, this._skipUnreachableCode);
+            const declarations = getDeclarationsForNameNode(this._typeServer, node, this._skipUnreachableCode);
             if (declarations && declarations.length > 0) {
                 // Does this name share a declaration with the symbol of interest?
                 if (this._resultsContainsDeclaration(node, declarations)) {
@@ -287,10 +286,6 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         }
 
         return false;
-    }
-
-    private get _evaluator(): TypeEvaluator {
-        return this._typeServer.evaluator!;
     }
 
     private _addResult(node: NameNode | StringNode) {
@@ -394,14 +389,14 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     }
 }
 
-export function getDeclarationsForNameNode(evaluator: TypeEvaluator, node: NameNode, skipUnreachableCode = true) {
+export function getDeclarationsForNameNode(typeServer: ITypeServer, node: NameNode, skipUnreachableCode = true) {
     // This can handle symbols brought in by wildcard (import *) as long as the declarations that the symbol collector
     // compares against point to the actual alias declaration, not one that uses local name (ex, import alias)
     if (node.parent?.nodeType !== ParseNodeType.ModuleName) {
-        return _getDeclarationsForNonModuleNameNode(evaluator, node, skipUnreachableCode);
+        return _getDeclarationsForNonModuleNameNode(typeServer, node, skipUnreachableCode);
     }
 
-    return _getDeclarationsForModuleNameNode(evaluator, node);
+    return _getDeclarationsForModuleNameNode(typeServer, node);
 }
 
 export function addDeclarationIfUnique(declarations: Declaration[], itemToAdd: Declaration) {
@@ -422,13 +417,13 @@ export function addDeclarationIfUnique(declarations: Declaration[], itemToAdd: D
 }
 
 function _getDeclarationsForNonModuleNameNode(
-    evaluator: TypeEvaluator,
+    typeServer: ITypeServer,
     node: NameNode,
     skipUnreachableCode = true
 ): Declaration[] {
     assert(node.parent?.nodeType !== ParseNodeType.ModuleName);
 
-    let decls = evaluator.getDeclInfoForNameNode(node, skipUnreachableCode)?.decls || [];
+    let decls = typeServer.evaluator.getDeclInfoForNameNode(node, skipUnreachableCode)?.decls || [];
     if (node.parent?.nodeType === ParseNodeType.ImportFromAs) {
         // Make sure we get the decl for this specific "from import" statement
         decls = decls.filter((d) => d.node === node.parent);
@@ -437,7 +432,7 @@ function _getDeclarationsForNonModuleNameNode(
     // If we can't get decl, see whether we can get type from the node.
     // Some might have synthesized type for the node such as subModule in import X.Y statement.
     if (decls.length === 0) {
-        const type = evaluator.getType(node);
+        const type = typeServer.evaluator.getType(node);
         if (type?.category === TypeCategory.Module) {
             // Synthesize decl for the module.
             return [synthesizeAliasDeclaration(type.priv.fileUri)];
@@ -457,14 +452,14 @@ function _getDeclarationsForNonModuleNameNode(
 
         appendArray(
             decls,
-            evaluator.getDeclInfoForNameNode(node.d.module.d.nameParts[0], skipUnreachableCode)?.decls || []
+            typeServer.evaluator.getDeclInfoForNameNode(node.d.module.d.nameParts[0], skipUnreachableCode)?.decls || []
         );
     }
 
     return decls;
 }
 
-function _getDeclarationsForModuleNameNode(evaluator: TypeEvaluator, node: NameNode): Declaration[] {
+function _getDeclarationsForModuleNameNode(typeServer: ITypeServer, node: NameNode): Declaration[] {
     assert(node.parent?.nodeType === ParseNodeType.ModuleName);
 
     // We don't have symbols corresponding to ModuleName in our system since those
@@ -487,7 +482,7 @@ function _getDeclarationsForModuleNameNode(evaluator: TypeEvaluator, node: NameN
             // we can match both "import X" and "from X import ..."
             appendArray(
                 decls,
-                evaluator
+                typeServer.evaluator
                     .getDeclInfoForNameNode(moduleName.d.nameParts[0])
                     ?.decls?.filter((d) => isAliasDeclaration(d)) || []
             );
@@ -558,7 +553,7 @@ function _getDeclarationsForModuleNameNode(evaluator: TypeEvaluator, node: NameN
             // "import X.Y" hold onto synthesized module type (without any decl).
             // And "from X.Y import ..." doesn't have any symbol associated module names.
             // they can't be referenced in the module.
-            return evaluator.getDeclInfoForNameNode(moduleName.d.nameParts[index])?.decls || [];
+            return typeServer.evaluator.getDeclInfoForNameNode(moduleName.d.nameParts[index])?.decls || [];
         }
 
         return [];
