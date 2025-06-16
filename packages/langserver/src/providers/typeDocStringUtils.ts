@@ -315,7 +315,7 @@ function _getOverloadedDocStrings(
         isStubFile(resolvedDecl.uri) &&
         isFunctionDeclaration(resolvedDecl)
     ) {
-        const implDecls = sourceMapper.findFunctionDeclarations(resolvedDecl);
+        const implDecls = sourceMapper.findDeclarations(resolvedDecl).filter((d) => isFunctionDeclaration(d));
         const docString = _getFunctionOrClassDeclsDocString(implDecls);
         if (docString) {
             docStrings.push(docString);
@@ -397,7 +397,7 @@ function _getFunctionDocString(
 function _getFunctionDocStringFromDeclaration(resolvedDecl: FunctionDeclaration, sourceMapper: ProviderSourceMapper) {
     let docString = _getFunctionOrClassDeclsDocString([resolvedDecl]);
     if (!docString && isStubFile(resolvedDecl.uri)) {
-        const implDecls = sourceMapper.findFunctionDeclarations(resolvedDecl);
+        const implDecls = sourceMapper.findDeclarations(resolvedDecl).filter((d) => isFunctionDeclaration(d));
         docString = _getFunctionOrClassDeclsDocString(implDecls);
     }
 

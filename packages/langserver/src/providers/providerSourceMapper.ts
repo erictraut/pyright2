@@ -8,7 +8,7 @@
  * operations that involve mapping a stub file to a source file.
  */
 
-import { Declaration, FunctionDeclaration } from 'typeserver/binder/declaration.js';
+import { Declaration } from 'typeserver/binder/declaration.js';
 import { ClassType } from 'typeserver/evaluator/types.js';
 import { ModuleNode } from 'typeserver/parser/parseNodes.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
@@ -30,23 +30,26 @@ export class ProviderSourceMapper {
     }
 
     findModules(stubFileUri: Uri): ModuleNode[] {
+        // Used to get the docstring for the implementation modules
+        // and to get a synthesized declaration for a module so
+        // "go to definition" works for intermediate modules in a
+        // multi-part module name.
         return this._sourceMapper.findModules(stubFileUri);
     }
 
     getModuleNode(fileUri: Uri): ModuleNode | undefined {
+        // Used only to get the docstring for the stub module
         return this._sourceMapper.getModuleNode(fileUri);
     }
 
     findDeclarations(stubDecl: Declaration): Declaration[] {
+        // Used to find corresponding declarations for a stub declaration
         return this._sourceMapper.findDeclarations(stubDecl);
     }
 
     findDeclarationsByType(originatedPath: Uri, type: ClassType): Declaration[] {
+        // Used to implement "Go to Type Definition" for a type
         return this._sourceMapper.findDeclarationsByType(originatedPath, type);
-    }
-
-    findFunctionDeclarations(stubDecl: FunctionDeclaration): FunctionDeclaration[] {
-        return this._sourceMapper.findFunctionDeclarations(stubDecl);
     }
 }
 

@@ -112,12 +112,6 @@ export class SourceMapper {
         return result;
     }
 
-    findFunctionDeclarations(stubDecl: FunctionDeclaration): FunctionDeclaration[] {
-        return this._findFunctionOrTypeAliasDeclarations(stubDecl)
-            .filter((d) => isFunctionDeclaration(d))
-            .map((d) => d);
-    }
-
     private _findSpecialBuiltInClassDeclarations(
         stubDecl: SpecialBuiltInClassDeclaration,
         recursiveDeclCache = new Set<string>()

@@ -12,6 +12,7 @@ import { CancellationToken } from 'vscode-languageserver';
 
 import { appendArray } from 'commonUtils/collectionUtils.js';
 import { assert } from 'commonUtils/debug.js';
+import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
 import {
@@ -170,13 +171,17 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         const fileUri = fileInfo.fileUri;
 
         const resolvedDeclarations: Declaration[] = [];
-        const sourceMapper = typeServer.getSourceMapper(fileUri, /* preferStubs */ false, token);
+        const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /* preferStubs */ false, token);
+
         declarations.forEach((decl) => {
             const resolvedDecl = evaluator.resolveAliasDeclaration(decl, resolveLocalName);
+
             if (resolvedDecl) {
                 addDeclarationIfUnique(resolvedDeclarations, resolvedDecl);
+
                 if (sourceMapper && isStubFile(resolvedDecl.uri)) {
                     const implDecls = sourceMapper.findDeclarations(resolvedDecl);
+
                     for (const implDecl of implDecls) {
                         if (implDecl && !implDecl.uri.isEmpty()) {
                             addDeclarationIfUnique(resolvedDeclarations, implDecl);
@@ -187,9 +192,11 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         });
 
         const sourceFileInfo = typeServer.getSourceFile(fileUri);
+
         if (sourceFileInfo && sourceFileInfo.notebookCell) {
             // Add declarations from chained source files
             let builtinsScope = fileInfo.builtinsScope;
+
             while (builtinsScope && builtinsScope.type === ScopeType.Module) {
                 const symbol = builtinsScope?.lookUpSymbol(node.d.value);
                 appendSymbolDeclarations(symbol, resolvedDeclarations);
@@ -198,6 +205,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
 
             // Add declarations from files that implicitly import the target file.
             const implicitlyImportedBy = typeServer.getImportedByRecursive(sourceFileInfo.uri);
+
             implicitlyImportedBy.forEach((implicitImport) => {
                 const parseTree = typeServer.getParseResults(implicitImport.uri)?.parserOutput.parseTree;
                 if (parseTree) {

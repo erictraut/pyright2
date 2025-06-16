@@ -259,8 +259,8 @@ export class TypeDefinitionProvider extends DefinitionProviderBase {
                     }
                 });
 
-                // Fall back to Go To Definition if the type can't be found (ex. Go To Type Definition
-                // was executed on a type name)
+                // Fall back to "Go To Definition" if the type can't be found -- as if
+                // "Go To Type Definition" was executed on a type name.
                 if (declarations.length === 0) {
                     declarations = this.evaluator.getDeclInfoForNameNode(this.node)?.decls ?? [];
                 }
