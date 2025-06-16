@@ -9,6 +9,13 @@
 import assert from 'assert';
 
 import { isArray } from 'commonUtils/valueTypeUtils.js';
+import {
+    AutoImporter,
+    ImportNameInfo,
+    ImportNameWithModuleInfo,
+    ModuleSymbolTable,
+} from 'langserver/providers/autoImporter.js';
+import { CompletionMap } from 'langserver/providers/completionProvider.js';
 import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { parseAndGetTestState, TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { isFunctionDeclaration } from 'typeserver/binder/declaration.js';
@@ -16,16 +23,11 @@ import { TextEditAction } from 'typeserver/common/editAction.js';
 import { findNodeByOffset } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { rangesAreEqual } from 'typeserver/common/textRange.js';
-import {
-    getRelativeModuleName,
-    getTextEditsForAutoImportInsertions,
-    getTextEditsForAutoImportSymbolAddition,
-    getTopLevelImports,
-    ImportNameInfo,
-    ImportNameWithModuleInfo,
-} from 'typeserver/imports/importStatementUtils.js';
+import { getRelativeModuleName, getTopLevelImports } from 'typeserver/imports/importStatementUtils.js';
 import { NameNode } from 'typeserver/parser/parseNodes.js';
-import { AutoImportInfo, ImportCategory } from 'typeserver/protocol/typeServerProtocol.js';
+import { ParseFileResults } from 'typeserver/parser/parser.js';
+import { AutoImportInfo, ImportCategory, ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
+import { Uri } from 'typeserver/utils/uri/uri.js';
 
 test('getTextEditsForAutoImportInsertion - import empty', () => {
     const code = `
@@ -535,7 +537,13 @@ function testAddition(
     const importStatement = getTopLevelImports(parseResults.parserOutput.parseTree).orderedImports.find(
         (i) => i.moduleName === moduleName
     )!;
-    const edits = getTextEditsForAutoImportSymbolAddition(importNameInfo, importStatement, parseResults);
+
+    const autoImporter = makeAutoImporter(marker!.fileUri, state.typeServer, parseResults, marker.position);
+    const edits = autoImporter.test_getTextEditsForAutoImportSymbolAddition(
+        importNameInfo,
+        importStatement,
+        parseResults
+    );
 
     const ranges = [...state.getRanges().filter((r) => !!r.marker?.data)];
     assert.strictEqual(edits.length, ranges.length, `${markerName} expects ${ranges.length} but got ${edits.length}`);
@@ -553,7 +561,8 @@ function testInsertions(
     const parseResults = state.program.getBoundSourceFile(marker!.fileUri)!.getParseResults()!;
 
     const importStatements = getTopLevelImports(parseResults.parserOutput.parseTree);
-    const edits = getTextEditsForAutoImportInsertions(
+    const autoImporter = makeAutoImporter(marker!.fileUri, state.typeServer, parseResults, marker.position);
+    const edits = autoImporter.test_getTextEditsForAutoImportInsertions(
         importNameInfo,
         importStatements,
         parseResults,
@@ -564,6 +573,21 @@ function testInsertions(
     assert.strictEqual(edits.length, ranges.length, `${markerName} expects ${ranges.length} but got ${edits.length}`);
 
     testTextEdits(state, edits, ranges);
+}
+
+function makeAutoImporter(uri: Uri, typeServer: ITypeServer, parseResults: ParseFileResults, markerOffset: number) {
+    const completionMap = new CompletionMap();
+    const moduleSymbolMap = new Map<string, ModuleSymbolTable>();
+    const autoImporter = new AutoImporter(
+        uri,
+        typeServer,
+        parseResults,
+        convertOffsetToPosition(markerOffset, parseResults.tokenizerOutput.lines),
+        completionMap,
+        moduleSymbolMap,
+        {}
+    );
+    return autoImporter;
 }
 
 function testInsertion(

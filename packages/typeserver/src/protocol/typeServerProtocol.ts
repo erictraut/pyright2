@@ -25,6 +25,17 @@ export interface ITypeServer {
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
 
+    // Converts an offset within a source file to a position or vice versa.
+    convertOffsetToPosition(fileUri: Uri, offset: number): Position | undefined;
+    convertPositionToOffset(fileUri: Uri, position: Position): number | undefined;
+
+    // For a given position, returns a list of declarations for the
+    getDeclarationsForPosition(
+        fileUri: Uri,
+        position: Position,
+        options?: DeclarationOptions
+    ): DeclarationInfo | undefined;
+
     // Returns a source file if the type server knows about it. This means
     // it must be part of the project (as defined by the "include" and "exclude")
     // or imported transitively by a source file that is part of the project or
@@ -69,12 +80,39 @@ export interface ITypeServer {
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
 }
 
+export interface DeclarationInfo {
+    // Symbol name
+    name: string;
+
+    // Range of characters that comprise the identifier or string literal
+    // value that was used to look up the declaration
+    range: Range;
+
+    // One or more declarations with locations
+    declarations: Declaration[];
+}
+
+export interface Position {
+    line: number; // 0-based line number
+    character: number; // 0-based character index within the line
+}
+
+export interface Range {
+    start: Position; // Start position of the range
+    end: Position; // End position of the range
+}
+
 export type ImportCategory = 'stdlib' | 'external' | 'local' | 'local-stub';
 
 export type SourceFileFilter = 'all' | 'inProject' | 'checked';
 
 export interface SourceFilesOptions {
     filter?: SourceFileFilter;
+}
+
+export interface DeclarationOptions {
+    // Resolve import declarations if possible?
+    resolveImports?: boolean;
 }
 
 export type DeclarationCategory =
@@ -87,8 +125,18 @@ export type DeclarationCategory =
     | 'type-alias'; // A "type" statement
 
 export interface Declaration {
-    id: string | number;
+    // An ID that can be used to retrieve additional information about
+    // the declaration such as its type.
+    id: string;
+
+    // The category of the declaration based on the statement that defines it.
     category: DeclarationCategory;
+
+    // The Uri of the source file that contains the declaration.
+    uri: Uri;
+
+    // The range within the file that can be used for "go to declaration".
+    range: Range;
 }
 
 export interface AutoImportInfo {

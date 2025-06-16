@@ -25,7 +25,6 @@ import {
     tryStat,
 } from 'typeserver/files/uriUtils.js';
 import { ImplicitImport, ImportResult, ImportType } from 'typeserver/imports/importResult.js';
-import { getDirectoryLeadingDotsPointsTo } from 'typeserver/imports/importStatementUtils.js';
 import { ImportPath, ParentDirectoryCache } from 'typeserver/imports/parentDirectoryCache.js';
 import { PyTypedInfo, getPyTypedInfoForPyTypedFile } from 'typeserver/imports/pyTypedUtils.js';
 import { Tokenizer } from 'typeserver/parser/tokenizer.js';
@@ -2331,7 +2330,7 @@ export class ImportResolver {
         importFailureInfo.push('Attempting to resolve relative import');
 
         // Determine which search path this file is part of.
-        const directory = getDirectoryLeadingDotsPointsTo(sourceFileUri.getDirectory(), moduleDescriptor.leadingDots);
+        const directory = _getDirectoryLeadingDotsPointsTo(sourceFileUri.getDirectory(), moduleDescriptor.leadingDots);
         if (!directory) {
             importFailureInfo.push(`Invalid relative path '${importName}'`);
             return undefined;
@@ -2392,7 +2391,7 @@ export class ImportResolver {
         suggestions: Map<string, Uri>
     ) {
         // Determine which search path this file is part of.
-        const directory = getDirectoryLeadingDotsPointsTo(sourceFileUri.getDirectory(), moduleDescriptor.leadingDots);
+        const directory = _getDirectoryLeadingDotsPointsTo(sourceFileUri.getDirectory(), moduleDescriptor.leadingDots);
         if (!directory) {
             return;
         }
@@ -2770,6 +2769,10 @@ export function getModuleNameFromPath(
     return moduleNameInfo.moduleName;
 }
 
+export function isDefaultWorkspace(uri: Uri | undefined) {
+    return !uri || uri.isEmpty() || Uri.isDefaultWorkspace(uri);
+}
+
 function _getModuleNameInfoFromPath(
     containerPath: Uri,
     fileUri: Uri,
@@ -2823,6 +2826,15 @@ function _isNativeModuleFileExtension(fileExtension: string): boolean {
     return supportedNativeLibExtensions.some((ext) => ext === fileExtension);
 }
 
-export function isDefaultWorkspace(uri: Uri | undefined) {
-    return !uri || uri.isEmpty() || Uri.isDefaultWorkspace(uri);
+function _getDirectoryLeadingDotsPointsTo(fromDirectory: Uri, leadingDots: number) {
+    let currentDirectory = fromDirectory;
+    for (let i = 1; i < leadingDots; i++) {
+        if (currentDirectory.isRoot()) {
+            return undefined;
+        }
+
+        currentDirectory = currentDirectory.getDirectory();
+    }
+
+    return currentDirectory;
 }
