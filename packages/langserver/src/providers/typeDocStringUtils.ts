@@ -8,7 +8,7 @@
  * the source file.
  */
 
-import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
+import { isStubFile, ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import {
     ClassDeclaration,
     Declaration,
@@ -164,7 +164,7 @@ export function getPropertyDocStringInherited(
 
 export function getVariableInStubFileDocStrings(decl: VariableDeclaration, sourceMapper: ProviderSourceMapper) {
     const docStrings: string[] = [];
-    if (!ProviderSourceMapper.isStubFile(decl.uri)) {
+    if (!isStubFile(decl.uri)) {
         return docStrings;
     }
 
@@ -207,7 +207,7 @@ export function getModuleDocStringFromModuleNodes(modules: ModuleNode[]): string
 export function getModuleDocStringFromUris(uris: Uri[], sourceMapper: ProviderSourceMapper) {
     const modules: ModuleNode[] = [];
     for (const uri of uris) {
-        if (ProviderSourceMapper.isStubFile(uri)) {
+        if (isStubFile(uri)) {
             addIfNotNull(modules, sourceMapper.getModuleNode(uri));
         }
 
@@ -239,7 +239,7 @@ export function getClassDocString(
     let docString = classType.shared.docString;
     if (!docString && resolvedDecl && _isAnyClassDeclaration(resolvedDecl)) {
         docString = isClassDeclaration(resolvedDecl) ? _getFunctionOrClassDeclsDocString([resolvedDecl]) : undefined;
-        if (!docString && resolvedDecl && ProviderSourceMapper.isStubFile(resolvedDecl.uri)) {
+        if (!docString && resolvedDecl && isStubFile(resolvedDecl.uri)) {
             for (const implDecl of sourceMapper.findDeclarations(resolvedDecl)) {
                 if (isVariableDeclaration(implDecl) && !!implDecl.docString) {
                     docString = implDecl.docString;
@@ -255,7 +255,7 @@ export function getClassDocString(
     }
 
     if (!docString && resolvedDecl) {
-        const implDecls = sourceMapper.findClassDeclarationsByType(resolvedDecl.uri, classType);
+        const implDecls = sourceMapper.findDeclarationsByType(resolvedDecl.uri, classType);
         if (implDecls) {
             const classDecls = implDecls.filter((d) => isClassDeclaration(d)).map((d) => d);
             docString = _getFunctionOrClassDeclsDocString(classDecls);
@@ -312,7 +312,7 @@ function _getOverloadedDocStrings(
     if (
         docStrings.length === 0 &&
         resolvedDecl &&
-        ProviderSourceMapper.isStubFile(resolvedDecl.uri) &&
+        isStubFile(resolvedDecl.uri) &&
         isFunctionDeclaration(resolvedDecl)
     ) {
         const implDecls = sourceMapper.findFunctionDeclarations(resolvedDecl);
@@ -396,7 +396,7 @@ function _getFunctionDocString(
 
 function _getFunctionDocStringFromDeclaration(resolvedDecl: FunctionDeclaration, sourceMapper: ProviderSourceMapper) {
     let docString = _getFunctionOrClassDeclsDocString([resolvedDecl]);
-    if (!docString && ProviderSourceMapper.isStubFile(resolvedDecl.uri)) {
+    if (!docString && isStubFile(resolvedDecl.uri)) {
         const implDecls = sourceMapper.findFunctionDeclarations(resolvedDecl);
         docString = _getFunctionOrClassDeclsDocString(implDecls);
     }

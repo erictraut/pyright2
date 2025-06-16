@@ -31,7 +31,7 @@ import {
     SymbolDetail,
 } from 'langserver/providers/completionProviderUtils.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
-import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
+import { isStubFile, ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import { getAutoImportText, getDocumentationPartsForTypeAndDecl } from 'langserver/providers/tooltipUtils.js';
 import { getModuleDocStringFromUris } from 'langserver/providers/typeDocStringUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
@@ -504,7 +504,7 @@ export class CompletionProvider {
                     const methodSignature = this._printMethodSignature(classResults.classType, decl);
 
                     let text: string;
-                    if (ProviderSourceMapper.isStubFile(this.fileUri)) {
+                    if (isStubFile(this.fileUri)) {
                         text = `${methodSignature}: ...`;
                     } else {
                         const methodBody = this.printOverriddenMethodBody(
@@ -1712,7 +1712,7 @@ export class CompletionProvider {
             return;
         }
 
-        const printFlags = ProviderSourceMapper.isStubFile(this.fileUri)
+        const printFlags = isStubFile(this.fileUri)
             ? PrintExpressionFlags.ForwardDeclarations | PrintExpressionFlags.DoNotLimitStringLength
             : PrintExpressionFlags.DoNotLimitStringLength;
 
@@ -1844,7 +1844,7 @@ export class CompletionProvider {
         const node = decl.node;
 
         let ellipsisForDefault: boolean | undefined;
-        if (ProviderSourceMapper.isStubFile(this.fileUri)) {
+        if (isStubFile(this.fileUri)) {
             // In stubs, always use "...".
             ellipsisForDefault = true;
         } else if (classType.shared.moduleName === decl.moduleName) {
@@ -1852,7 +1852,7 @@ export class CompletionProvider {
             ellipsisForDefault = false;
         }
 
-        const printFlags = ProviderSourceMapper.isStubFile(this.fileUri)
+        const printFlags = isStubFile(this.fileUri)
             ? PrintExpressionFlags.ForwardDeclarations | PrintExpressionFlags.DoNotLimitStringLength
             : PrintExpressionFlags.DoNotLimitStringLength;
 

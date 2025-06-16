@@ -255,10 +255,7 @@ export class TypeDefinitionProvider extends DefinitionProviderBase {
 
                 doForEachSubtype(type, (subtype) => {
                     if (subtype?.category === TypeCategory.Class) {
-                        appendArray(
-                            declarations,
-                            this.sourceMapper.findClassDeclarationsByType(this._fileUri, subtype)
-                        );
+                        appendArray(declarations, this.sourceMapper.findDeclarationsByType(this._fileUri, subtype));
                     }
                 });
 

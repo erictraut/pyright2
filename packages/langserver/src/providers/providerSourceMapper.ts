@@ -8,7 +8,7 @@
  * operations that involve mapping a stub file to a source file.
  */
 
-import { ClassDeclaration, Declaration, FunctionDeclaration } from 'typeserver/binder/declaration.js';
+import { Declaration, FunctionDeclaration } from 'typeserver/binder/declaration.js';
 import { ClassType } from 'typeserver/evaluator/types.js';
 import { ModuleNode } from 'typeserver/parser/parseNodes.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
@@ -41,19 +41,15 @@ export class ProviderSourceMapper {
         return this._sourceMapper.findDeclarations(stubDecl);
     }
 
-    findDeclarationsByType(originatedPath: Uri, type: ClassType, useTypeAlias = false): Declaration[] {
-        return this._sourceMapper.findDeclarationsByType(originatedPath, type, useTypeAlias);
-    }
-
-    findClassDeclarationsByType(originatedPath: Uri, type: ClassType): ClassDeclaration[] {
-        return this._sourceMapper.findClassDeclarationsByType(originatedPath, type);
+    findDeclarationsByType(originatedPath: Uri, type: ClassType): Declaration[] {
+        return this._sourceMapper.findDeclarationsByType(originatedPath, type);
     }
 
     findFunctionDeclarations(stubDecl: FunctionDeclaration): FunctionDeclaration[] {
         return this._sourceMapper.findFunctionDeclarations(stubDecl);
     }
+}
 
-    static isStubFile(uri: Uri): boolean {
-        return uri.lastExtension === '.pyi';
-    }
+export function isStubFile(uri: Uri): boolean {
+    return uri.lastExtension === '.pyi';
 }

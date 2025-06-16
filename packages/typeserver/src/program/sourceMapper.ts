@@ -106,15 +106,10 @@ export class SourceMapper {
         return [];
     }
 
-    findDeclarationsByType(originatedPath: Uri, type: ClassType, useTypeAlias = false): Declaration[] {
+    findDeclarationsByType(originatedPath: Uri, type: ClassType): Declaration[] {
         const result: ClassOrFunctionOrVariableDeclaration[] = [];
-        this._addClassTypeDeclarations(originatedPath, type, result, new Set<string>(), useTypeAlias);
+        this._addClassTypeDeclarations(originatedPath, type, result, new Set<string>());
         return result;
-    }
-
-    findClassDeclarationsByType(originatedPath: Uri, type: ClassType): ClassDeclaration[] {
-        const result = this.findDeclarationsByType(originatedPath, type);
-        return result.filter((r) => isClassDeclaration(r)).map((r) => r);
     }
 
     findFunctionDeclarations(stubDecl: FunctionDeclaration): FunctionDeclaration[] {
@@ -598,19 +593,13 @@ export class SourceMapper {
         originated: Uri,
         type: ClassType,
         result: ClassOrFunctionOrVariableDeclaration[],
-        recursiveDeclCache: Set<string>,
-        useTypeAlias = false
+        recursiveDeclCache: Set<string>
     ) {
-        const fileUri =
-            useTypeAlias && type.props?.typeAliasInfo ? type.props.typeAliasInfo.shared.fileUri : type.shared.fileUri;
+        const fileUri = type.shared.fileUri;
         const sourceFiles = this._getSourceFiles(fileUri, /* stubToShadow */ undefined, originated);
 
-        const fullName =
-            useTypeAlias && type.props?.typeAliasInfo ? type.props.typeAliasInfo.shared.fullName : type.shared.fullName;
-        const moduleName =
-            useTypeAlias && type.props?.typeAliasInfo
-                ? type.props.typeAliasInfo.shared.moduleName
-                : type.shared.moduleName;
+        const fullName = type.shared.fullName;
+        const moduleName = type.shared.moduleName;
         const fullClassName = fullName.substring(moduleName.length + 1 /* +1 for trailing dot */);
 
         for (const sourceFile of sourceFiles) {
