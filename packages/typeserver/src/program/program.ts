@@ -19,7 +19,7 @@ import { FileEditAction } from 'typeserver/common/editAction.js';
 import { getDocString } from 'typeserver/common/parseTreeUtils.js';
 import { convertRangeToTextRange } from 'typeserver/common/positionUtils.js';
 import { doRangesIntersect, Range } from 'typeserver/common/textRange.js';
-import { ConfigOptions, ExecutionEnvironment, matchFileSpecs } from 'typeserver/config/configOptions.js';
+import { ConfigOptions, matchFileSpecs } from 'typeserver/config/configOptions.js';
 import {
     AbsoluteModuleDescriptor,
     ImportLookupResult,
@@ -751,9 +751,7 @@ export class Program {
     }
 
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper {
-        const sourceFileInfo = this.getSourceFileInfo(fileUri);
-        const execEnv = this._configOptions.findExecEnvironment(fileUri);
-        return this._createSourceMapper(execEnv, token, sourceFileInfo, preferStubs);
+        return this._createSourceMapper(fileUri, token, preferStubs);
     }
 
     getParserOutput(fileUri: Uri): ParserOutput | undefined {
@@ -1277,12 +1275,10 @@ export class Program {
         return false;
     }
 
-    private _createSourceMapper(
-        execEnv: ExecutionEnvironment,
-        token: CancellationToken,
-        from?: SourceFileInfo,
-        preferStubs?: boolean
-    ) {
+    private _createSourceMapper(fileUri: Uri, token: CancellationToken, preferStubs = false) {
+        const from = this.getSourceFileInfo(fileUri);
+        const execEnv = this._configOptions.findExecEnvironment(fileUri);
+
         const sourceMapper = new SourceMapper(
             this._importResolver,
             execEnv,
@@ -1290,7 +1286,7 @@ export class Program {
             (stubFileUri: Uri, implFileUri: Uri) => {
                 let stubFileInfo = this.getSourceFileInfo(stubFileUri);
                 if (!stubFileInfo) {
-                    // make sure uri exits before adding interimFile
+                    // Make sure uri exits before adding interim file.
                     if (!this.fileSystem.existsSync(stubFileUri)) {
                         return undefined;
                     }
@@ -1306,7 +1302,7 @@ export class Program {
             (f) => {
                 let fileInfo = this.getBoundSourceFileInfo(f);
                 if (!fileInfo) {
-                    // make sure uri exits before adding interimFile
+                    // Make sure uri exits before adding interim file.
                     if (!this.fileSystem.existsSync(f)) {
                         return undefined;
                     }
@@ -1322,10 +1318,11 @@ export class Program {
 
                 return fileInfo;
             },
-            preferStubs ?? false,
+            preferStubs,
             from,
             token
         );
+
         return sourceMapper;
     }
 
@@ -1994,13 +1991,12 @@ export class Program {
                 }
 
                 if (boundFile) {
-                    const execEnv = this._configOptions.findExecEnvironment(fileToCheck.uri);
                     fileToCheck.sourceFile.check(
                         this.configOptions,
                         this._lookUpImport,
                         this._importResolver,
                         this._evaluator!,
-                        this._createSourceMapper(execEnv, token, fileToCheck),
+                        this._createSourceMapper(fileToCheck.uri, token),
                         dependentFiles
                     );
                 }

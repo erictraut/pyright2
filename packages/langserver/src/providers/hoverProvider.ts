@@ -68,144 +68,6 @@ export interface HoverResults {
     range: Range;
 }
 
-export function convertHoverResults(hoverResults: HoverResults | null, format: MarkupKind): Hover | null {
-    if (!hoverResults) {
-        return null;
-    }
-
-    const markupString = hoverResults.parts
-        .map((part) => {
-            if (part.python) {
-                if (format === MarkupKind.Markdown) {
-                    return '```python\n' + part.text + '\n```\n';
-                } else if (format === MarkupKind.PlainText) {
-                    return part.text + '\n\n';
-                } else {
-                    fail(`Unsupported markup type: ${format}`);
-                }
-            }
-            return part.text;
-        })
-        .join('')
-        .trimEnd();
-
-    return {
-        contents: {
-            kind: format,
-            value: markupString,
-        },
-        range: hoverResults.range,
-    };
-}
-
-export function addParameterResultsPart(
-    paramNameNode: NameNode,
-    resolvedDecl: Declaration | undefined,
-    format: MarkupKind,
-    parts: HoverTextPart[]
-) {
-    // See if we have a docstring for the parent function.
-    let docString: string | undefined = undefined;
-    const funcNode = getEnclosingFunction(resolvedDecl?.node || paramNameNode);
-    if (funcNode) {
-        docString = getDocString(funcNode?.d.suite?.d.statements ?? []);
-        if (docString) {
-            // Compute the docstring now.
-            docString = extractParameterDocumentation(docString, paramNameNode.d.value);
-        }
-    }
-    if (!docString) {
-        return;
-    }
-
-    parts.push({
-        python: false,
-        text: docString,
-    });
-}
-
-export function addDocumentationResultsPart(
-    docString: string | undefined,
-    format: MarkupKind,
-    parts: HoverTextPart[],
-    resolvedDecl: Declaration | undefined
-) {
-    if (!docString) {
-        return;
-    }
-
-    if (format === MarkupKind.Markdown) {
-        const markDown = convertDocStringToMarkdown(docString);
-
-        if (parts.length > 0 && markDown.length > 0) {
-            parts.push({ text: '---\n' });
-        }
-
-        parts.push({ text: markDown, python: false });
-        return;
-    }
-
-    if (format === MarkupKind.PlainText) {
-        parts.push({ text: convertDocStringToPlainText(docString), python: false });
-        return;
-    }
-
-    fail(`Unsupported markup type: ${format}`);
-}
-
-export function getVariableTypeText(
-    evaluator: TypeEvaluator,
-    declaration: VariableDeclaration | undefined,
-    name: string,
-    type: Type,
-    typeNode: ExpressionNode,
-    functionSignatureDisplay: SignatureDisplayType
-) {
-    let label = 'variable';
-    if (declaration) {
-        label = declaration.isConstant || evaluator.isFinalVariableDeclaration(declaration) ? 'constant' : 'variable';
-    }
-
-    let typeVarName: string | undefined;
-
-    if (type.props?.typeAliasInfo && typeNode.nodeType === ParseNodeType.Name) {
-        const typeAliasInfo = getTypeAliasInfo(type);
-        if (typeAliasInfo?.shared.name === typeNode.d.value) {
-            if (isTypeVar(type)) {
-                label = isParamSpec(type) ? 'param spec' : 'type variable';
-                typeVarName = type.shared.name;
-            } else {
-                // Handle type aliases specially.
-                const typeText = evaluator.printType(convertToInstance(getTypeForToolTip(evaluator, typeNode)), {
-                    expandTypeAlias: true,
-                });
-
-                return `(type) ${name} = ` + typeText;
-            }
-        }
-    }
-
-    if (
-        type.category === TypeCategory.Function ||
-        type.category === TypeCategory.Overloaded ||
-        typeNode.parent?.nodeType === ParseNodeType.Call
-    ) {
-        return getToolTipForType(
-            type,
-            label,
-            name,
-            evaluator,
-            /* isProperty */ false,
-            functionSignatureDisplay,
-            typeNode
-        );
-    }
-
-    const typeText = typeVarName ?? name + ': ' + evaluator.printType(getTypeForToolTip(evaluator, typeNode));
-
-    return `(${label}) ` + typeText;
-}
-
 export interface HoverOptions {
     readonly functionSignatureDisplay: SignatureDisplayType;
 }
@@ -227,31 +89,7 @@ export class HoverProvider {
     }
 
     getHover(): Hover | null {
-        return convertHoverResults(this._getHoverResult(), this._format);
-    }
-
-    static getPrimaryDeclaration(declarations: Declaration[]) {
-        // In most cases, it's best to treat the first declaration as the
-        // "primary". This works well for properties that have setters
-        // which often have doc strings on the getter but not the setter.
-        // The one case where using the first declaration doesn't work as
-        // well is the case where an import statement within an __init__.py
-        // file uses the form "from .A import A". In this case, if we use
-        // the first declaration, it will show up as a module rather than
-        // the imported symbol type.
-        const primaryDeclaration = declarations[0];
-        if (primaryDeclaration.type === DeclarationType.Alias && declarations.length > 1) {
-            return declarations[1];
-        } else if (
-            primaryDeclaration.type === DeclarationType.Variable &&
-            declarations.length > 1 &&
-            primaryDeclaration.isDefinedBySlots
-        ) {
-            // Slots cannot have docstrings, so pick the secondary.
-            return declarations[1];
-        }
-
-        return primaryDeclaration;
+        return _convertHoverResults(this._getHoverResult(), this._format);
     }
 
     private get _evaluator(): TypeEvaluator {
@@ -303,7 +141,7 @@ export class HoverProvider {
             const declarations = declInfo?.decls;
 
             if (declarations && declarations.length > 0) {
-                const primaryDeclaration = HoverProvider.getPrimaryDeclaration(declarations);
+                const primaryDeclaration = _getPrimaryDeclaration(declarations);
                 this._addResultsForDeclaration(results.parts, primaryDeclaration, node);
             } else if (declInfo && declInfo.synthesizedTypes.length > 0) {
                 const nameNode = node;
@@ -403,7 +241,7 @@ export class HoverProvider {
                 // Determine if this identifier is a type alias. If so, expand
                 // the type alias when printing the type information.
                 const type = this._getType(typeNode);
-                const typeText = getVariableTypeText(
+                const typeText = _getVariableTypeText(
                     this._evaluator,
                     resolvedDecl,
                     node.d.value,
@@ -419,7 +257,7 @@ export class HoverProvider {
 
             case DeclarationType.Param: {
                 this._addResultsPart(parts, '(parameter) ' + node.d.value + this._getTypeText(node), /* python */ true);
-                addParameterResultsPart(node, resolvedDecl, this._format, parts);
+                _addParameterResultsPart(node, resolvedDecl, parts);
                 this._addDocumentationPart(parts, node, resolvedDecl);
                 break;
             }
@@ -507,7 +345,7 @@ export class HoverProvider {
             const node = typeInfo.node ?? hoverNode;
 
             const type = this._getType(node);
-            typeText = getVariableTypeText(
+            typeText = _getVariableTypeText(
                 this._evaluator,
                 /* declaration */ undefined,
                 node.d.value,
@@ -603,7 +441,7 @@ export class HoverProvider {
             name,
         });
 
-        addDocumentationResultsPart(docString, this._format, parts, resolvedDecl);
+        _addDocumentationResultsPart(docString, this._format, parts);
         return !!docString;
     }
 
@@ -613,4 +451,160 @@ export class HoverProvider {
             text,
         });
     }
+}
+
+function _getVariableTypeText(
+    evaluator: TypeEvaluator,
+    declaration: VariableDeclaration | undefined,
+    name: string,
+    type: Type,
+    typeNode: ExpressionNode,
+    functionSignatureDisplay: SignatureDisplayType
+) {
+    let label = 'variable';
+    if (declaration) {
+        label = declaration.isConstant || evaluator.isFinalVariableDeclaration(declaration) ? 'constant' : 'variable';
+    }
+
+    let typeVarName: string | undefined;
+
+    if (type.props?.typeAliasInfo && typeNode.nodeType === ParseNodeType.Name) {
+        const typeAliasInfo = getTypeAliasInfo(type);
+        if (typeAliasInfo?.shared.name === typeNode.d.value) {
+            if (isTypeVar(type)) {
+                label = isParamSpec(type) ? 'param spec' : 'type variable';
+                typeVarName = type.shared.name;
+            } else {
+                // Handle type aliases specially.
+                const typeText = evaluator.printType(convertToInstance(getTypeForToolTip(evaluator, typeNode)), {
+                    expandTypeAlias: true,
+                });
+
+                return `(type) ${name} = ` + typeText;
+            }
+        }
+    }
+
+    if (
+        type.category === TypeCategory.Function ||
+        type.category === TypeCategory.Overloaded ||
+        typeNode.parent?.nodeType === ParseNodeType.Call
+    ) {
+        return getToolTipForType(
+            type,
+            label,
+            name,
+            evaluator,
+            /* isProperty */ false,
+            functionSignatureDisplay,
+            typeNode
+        );
+    }
+
+    const typeText = typeVarName ?? name + ': ' + evaluator.printType(getTypeForToolTip(evaluator, typeNode));
+
+    return `(${label}) ` + typeText;
+}
+
+function _convertHoverResults(hoverResults: HoverResults | null, format: MarkupKind): Hover | null {
+    if (!hoverResults) {
+        return null;
+    }
+
+    const markupString = hoverResults.parts
+        .map((part) => {
+            if (part.python) {
+                if (format === MarkupKind.Markdown) {
+                    return '```python\n' + part.text + '\n```\n';
+                } else if (format === MarkupKind.PlainText) {
+                    return part.text + '\n\n';
+                } else {
+                    fail(`Unsupported markup type: ${format}`);
+                }
+            }
+            return part.text;
+        })
+        .join('')
+        .trimEnd();
+
+    return {
+        contents: {
+            kind: format,
+            value: markupString,
+        },
+        range: hoverResults.range,
+    };
+}
+
+function _addParameterResultsPart(
+    paramNameNode: NameNode,
+    resolvedDecl: Declaration | undefined,
+    parts: HoverTextPart[]
+) {
+    // See if we have a docstring for the parent function.
+    let docString: string | undefined = undefined;
+    const funcNode = getEnclosingFunction(resolvedDecl?.node || paramNameNode);
+    if (funcNode) {
+        docString = getDocString(funcNode?.d.suite?.d.statements ?? []);
+        if (docString) {
+            // Compute the docstring now.
+            docString = extractParameterDocumentation(docString, paramNameNode.d.value);
+        }
+    }
+    if (!docString) {
+        return;
+    }
+
+    parts.push({
+        python: false,
+        text: docString,
+    });
+}
+
+function _addDocumentationResultsPart(docString: string | undefined, format: MarkupKind, parts: HoverTextPart[]) {
+    if (!docString) {
+        return;
+    }
+
+    if (format === MarkupKind.Markdown) {
+        const markDown = convertDocStringToMarkdown(docString);
+
+        if (parts.length > 0 && markDown.length > 0) {
+            parts.push({ text: '---\n' });
+        }
+
+        parts.push({ text: markDown, python: false });
+        return;
+    }
+
+    if (format === MarkupKind.PlainText) {
+        parts.push({ text: convertDocStringToPlainText(docString), python: false });
+        return;
+    }
+
+    fail(`Unsupported markup type: ${format}`);
+}
+
+function _getPrimaryDeclaration(declarations: Declaration[]) {
+    // In most cases, it's best to treat the first declaration as the
+    // "primary". This works well for properties that have setters
+    // which often have doc strings on the getter but not the setter.
+    // The one case where using the first declaration doesn't work as
+    // well is the case where an import statement within an __init__.py
+    // file uses the form "from .A import A". In this case, if we use
+    // the first declaration, it will show up as a module rather than
+    // the imported symbol type.
+    const primaryDeclaration = declarations[0];
+    if (primaryDeclaration.type === DeclarationType.Alias && declarations.length > 1) {
+        return declarations[1];
+    } else if (
+        primaryDeclaration.type === DeclarationType.Variable &&
+        declarations.length > 1 &&
+        primaryDeclaration.isDefinedBySlots
+    ) {
+        // Slots cannot have docstrings, so pick the secondary.
+        return declarations[1];
+    }
+
+    return primaryDeclaration;
 }
