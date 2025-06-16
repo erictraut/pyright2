@@ -79,7 +79,7 @@ export class CallHierarchyProvider {
 
         // make sure the alias is resolved to class or function
         if (targetDecl.type === DeclarationType.Alias) {
-            const resolvedDecl = this._evaluator.resolveAliasDeclaration(targetDecl, true);
+            const resolvedDecl = this._evaluator.resolveAliasDeclaration(targetDecl, /* resolveLocalNames */ true);
             if (!resolvedDecl) {
                 return null;
             }
@@ -167,6 +167,7 @@ export class CallHierarchyProvider {
         } else if (resolvedDecl.type === DeclarationType.Class) {
             // Look up the __init__ method for this class.
             const classType = this._evaluator.getTypeForDeclaration(resolvedDecl)?.type;
+
             if (classType && isInstantiableClass(classType)) {
                 // Don't perform a recursive search of parent classes in this
                 // case because we don't want to find an inherited __init__
@@ -178,6 +179,7 @@ export class CallHierarchyProvider {
                         MemberAccessFlags.SkipObjectBaseClass |
                         MemberAccessFlags.SkipBaseClasses
                 );
+
                 if (initMethodMember) {
                     const initMethodType = this._evaluator.getTypeOfMember(initMethodMember);
                     if (initMethodType && isFunction(initMethodType)) {
@@ -227,6 +229,7 @@ export class CallHierarchyProvider {
         const declarations = referencesResult.declarations;
         const node = referencesResult.nodeAtOffset;
         let targetDecl = declarations[0];
+
         for (const decl of declarations) {
             if (hasTypeForDeclaration(decl) || !hasTypeForDeclaration(targetDecl)) {
                 if (decl.type === DeclarationType.Function || decl.type === DeclarationType.Class) {

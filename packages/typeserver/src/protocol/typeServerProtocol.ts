@@ -20,8 +20,7 @@ export interface ITypeServer {
     // TODO - remove this and replace by individual calls
     readonly evaluator: TypeEvaluator | undefined;
 
-    // TODO - see if these are needed and remove if not. If they
-    // are needed, make sure the interface makes sense.
+    // TODO - rethink these interfaces.
     getParseResults(fileUri: Uri): ParseFileResults | undefined;
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
@@ -65,8 +64,7 @@ export interface ITypeServer {
     // transitive closure.
     getImportedByRecursive(fileUri: Uri): ITypeServerSourceFile[];
 
-    // TODO - see if these are needed and remove if not. If they
-    // are needed, make sure the interface makes sense.
+    // TODO - rethink these interfaces.
     addInterimFile(uri: Uri): void;
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
 }
@@ -77,6 +75,20 @@ export type SourceFileFilter = 'all' | 'inProject' | 'checked';
 
 export interface SourceFilesOptions {
     filter?: SourceFileFilter;
+}
+
+export type DeclarationCategory =
+    | 'class' // A "class" statement (or a special form in typing.pyi)
+    | 'def' // A "def" statement
+    | 'parameter' // A parameter in a "def" or "lambda" statement (with or without a type annotation)
+    | 'variable' // A local variable (with or without a type annotation)
+    | 'import' // An "import" or "from ... import" statement
+    | 'type-parameter' // A type parameter defined with Python 3.12 generics syntax
+    | 'type-alias'; // A "type" statement
+
+export interface Declaration {
+    id: string | number;
+    category: DeclarationCategory;
 }
 
 export interface AutoImportInfo {

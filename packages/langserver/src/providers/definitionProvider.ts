@@ -218,17 +218,6 @@ export class DefinitionProvider extends DefinitionProviderBase {
         super(sourceMapper, typeServer.evaluator!, node, offset, filter, token);
     }
 
-    static getDefinitionsForNode(
-        sourceMapper: SourceMapper,
-        evaluator: TypeEvaluator,
-        node: ParseNode,
-        offset: number,
-        token: CancellationToken
-    ) {
-        const provider = new DefinitionProviderBase(sourceMapper, evaluator, node, offset, DefinitionFilter.All, token);
-        return provider.getDefinitionsForNode(node, offset);
-    }
-
     getDefinitions(): DocumentRange[] | undefined {
         if (this.node === undefined) {
             return undefined;
