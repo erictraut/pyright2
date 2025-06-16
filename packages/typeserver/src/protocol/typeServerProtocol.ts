@@ -58,6 +58,13 @@ export interface ITypeServer {
     // name and are associated with the URI of the module that this name references.
     getImportCompletions(fileUri: Uri, partialModuleName: string): Map<string, Uri>;
 
+    // Returns the transitive closure of all source files this source file imports.
+    getImportsRecursive(fileUri: Uri): ITypeServerSourceFile[];
+
+    // Returns the list of source files that include this source file in their
+    // transitive closure.
+    getImportedByRecursive(fileUri: Uri): ITypeServerSourceFile[];
+
     // TODO - see if these are needed and remove if not. If they
     // are needed, make sure the interface makes sense.
     addInterimFile(uri: Uri): void;
@@ -110,15 +117,12 @@ export interface ITypeServerSourceFile {
     // file system or from the client (if it's currently open).
     getContents(): string;
 
-    // Returns the list of source files that are imported by this file through
-    // explicit import statements or implicitly (such as the builtins module).
-    // If recursive is true, it will return all imports transitively.
-    getImports(recursive?: boolean): ITypeServerSourceFile[];
+    // Returns the list of source files that are directly imported by this file
+    // through import statements or implicitly (such as the builtins module).
+    getImports(): ITypeServerSourceFile[];
 
-    // Returns the list of source files within the project that import this file.
-    // If recursive is true, it will return all source files that import this
-    // file transitively.
-    getImportedBy(recursive?: boolean): ITypeServerSourceFile[];
+    // Returns the list of source files that directly import this file.
+    getImportedBy(): ITypeServerSourceFile[];
 
     // If this file is a type stub, this returns the source files that are likely
     // to contain the implementation of that stub. Mapping of implementation

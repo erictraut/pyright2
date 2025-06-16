@@ -16,7 +16,6 @@ import { getLastTypedDeclarationForSymbol, isVisibleExternally } from 'typeserve
 import { getScope, ScopedNode } from 'typeserver/common/analyzerNodeInfo.js';
 import { convertOffsetsToRange, convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { Range } from 'typeserver/common/textRange.js';
-import { AnalyzerFileInfo } from 'typeserver/evaluator/analyzerFileInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
@@ -63,7 +62,6 @@ export interface IndexSymbolData {
 
 export class SymbolIndexer {
     static indexSymbols(
-        fileInfo: AnalyzerFileInfo,
         parseResults: ParseFileResults,
         indexOptions: IndexOptions,
         token: CancellationToken
@@ -76,21 +74,13 @@ export class SymbolIndexer {
         //    __all__ to make sure we don't include too many symbols in the index.
 
         const indexSymbolData: IndexSymbolData[] = [];
-        collectSymbolIndexData(
-            fileInfo,
-            parseResults,
-            parseResults.parserOutput.parseTree,
-            indexOptions,
-            indexSymbolData,
-            token
-        );
+        collectSymbolIndexData(parseResults, parseResults.parserOutput.parseTree, indexOptions, indexSymbolData, token);
 
         return indexSymbolData;
     }
 }
 
 function collectSymbolIndexData(
-    fileInfo: AnalyzerFileInfo,
     parseResults: ParseFileResults,
     node: ScopedNode,
     indexOptions: IndexOptions,
@@ -129,7 +119,6 @@ function collectSymbolIndexData(
         // We rely on ExternallyHidden flag to determine what
         // symbols should be public (included in the index)
         collectSymbolIndexDataForName(
-            fileInfo,
             parseResults,
             declaration,
             indexOptions,
@@ -142,7 +131,6 @@ function collectSymbolIndexData(
 }
 
 function collectSymbolIndexDataForName(
-    fileInfo: AnalyzerFileInfo,
     parseResults: ParseFileResults,
     declaration: Declaration,
     indexOptions: IndexOptions,
@@ -161,7 +149,7 @@ function collectSymbolIndexDataForName(
     const children: IndexSymbolData[] = [];
 
     if (declaration.type === DeclarationType.Class || declaration.type === DeclarationType.Function) {
-        collectSymbolIndexData(fileInfo, parseResults, declaration.node, indexOptions, children, token);
+        collectSymbolIndexData(parseResults, declaration.node, indexOptions, children, token);
 
         range = convertOffsetsToRange(
             declaration.node.start,

@@ -40,11 +40,11 @@ import {
     Declaration,
     DeclarationType,
     FunctionDeclaration,
+    isAliasDeclaration,
     isIntrinsicDeclaration,
     isVariableDeclaration,
     VariableDeclaration,
 } from 'typeserver/binder/declaration.js';
-import { isDefinedInFile } from 'typeserver/binder/declarationUtils.js';
 import { getScopeForNode } from 'typeserver/binder/scopeUtils.js';
 import { Symbol, SymbolTable } from 'typeserver/binder/symbol.js';
 import { isDunderName, isPrivateName, isPrivateOrProtectedName } from 'typeserver/binder/symbolNameUtils.js';
@@ -2962,7 +2962,8 @@ export class CompletionProvider {
             // exported from this scope, don't include it in the
             // suggestion list unless we are in the same file.
             const hidden =
-                !isVisibleExternally(symbol) && !symbol.getDeclarations().some((d) => isDefinedInFile(d, this.fileUri));
+                !isVisibleExternally(symbol) &&
+                !symbol.getDeclarations().some((d) => this._isDefinedInFile(d, this.fileUri));
             if (!hidden && includeSymbolCallback(symbol, name)) {
                 // Don't add a symbol more than once. It may have already been
                 // added from an inner scope's symbol table.
@@ -2978,6 +2979,18 @@ export class CompletionProvider {
                 }
             }
         });
+    }
+
+    private _isDefinedInFile(decl: Declaration, fileUri: Uri) {
+        if (isAliasDeclaration(decl)) {
+            // Alias decl's path points to the original symbol
+            // the alias is pointing to. So, we need to get the
+            // filepath in that the alias is defined from the node.
+            return getFileInfoFromNode(decl.node)?.fileUri.equals(fileUri);
+        }
+
+        // Other decls, the path points to the file the symbol is defined in.
+        return decl.uri.equals(fileUri);
     }
 
     private _shouldShowAutoParensForClass(symbol: Symbol, node: ParseNode) {

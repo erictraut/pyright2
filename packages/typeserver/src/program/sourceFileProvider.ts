@@ -45,41 +45,12 @@ export class SourceFileProvider implements ITypeServerSourceFile {
         return this._sourceFileInfo.contents;
     }
 
-    getImports(recursive?: boolean): ITypeServerSourceFile[] {
-        const result: ITypeServerSourceFile[] = [];
-
-        if (!recursive) {
-            this._sourceFileInfo.imports.forEach((importedFile) => {
-                result.push(new SourceFileProvider(this._program, importedFile));
-            });
-            return result;
-        }
-
-        const imports = this._program.getImportsRecursive(this._sourceFileInfo);
-        imports.forEach((importedFile) => {
-            result.push(new SourceFileProvider(this._program, importedFile));
-        });
-
-        return result;
+    getImports(): ITypeServerSourceFile[] {
+        return this._sourceFileInfo.imports.map((f) => new SourceFileProvider(this._program, f));
     }
 
-    getImportedBy(recursive?: boolean): ITypeServerSourceFile[] {
-        const result: ITypeServerSourceFile[] = [];
-
-        if (!recursive) {
-            this._sourceFileInfo.importedBy.forEach((importingFile) => {
-                result.push(new SourceFileProvider(this._program, importingFile));
-            });
-
-            return result;
-        }
-
-        const importedBy = this._program.getImportedByRecursive(this._sourceFileInfo);
-        importedBy.forEach((importingFile) => {
-            result.push(new SourceFileProvider(this._program, importingFile));
-        });
-
-        return result;
+    getImportedBy(): ITypeServerSourceFile[] {
+        return this._sourceFileInfo.importedBy.map((f) => new SourceFileProvider(this._program, f));
     }
 
     getImplementation(): ITypeServerSourceFile[] {

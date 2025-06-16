@@ -7,15 +7,8 @@
  * Collection of static methods that operate on declarations.
  */
 
-import {
-    AliasDeclaration,
-    Declaration,
-    DeclarationType,
-    ModuleLoaderActions,
-    isAliasDeclaration,
-} from 'typeserver/binder/declaration.js';
+import { AliasDeclaration, Declaration, DeclarationType, ModuleLoaderActions } from 'typeserver/binder/declaration.js';
 import { Symbol } from 'typeserver/binder/symbol.js';
-import { getFileInfoFromNode } from 'typeserver/common/parseTreeUtils.js';
 import { getEmptyRange } from 'typeserver/common/textRange.js';
 import { ImportLookup, ImportLookupResult } from 'typeserver/evaluator/analyzerFileInfo.js';
 import { NameNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
@@ -154,16 +147,23 @@ export function getNameFromDeclaration(declaration: Declaration) {
     throw new Error(`Shouldn't reach here`);
 }
 
+// The node associated with a declaration is a high-level node such as a class
+// or def statement. When reporting diagnostics, it is often better to associate
+// them with the name node for the declaration. This function returns that node
+// for the declaration if it exists..
 export function getNameNodeForDeclaration(declaration: Declaration): NameNode | undefined {
     switch (declaration.type) {
-        case DeclarationType.Alias:
+        case DeclarationType.Alias: {
             if (declaration.node.nodeType === ParseNodeType.ImportAs) {
                 return declaration.node.d.alias ?? declaration.node.d.module.d.nameParts[0];
-            } else if (declaration.node.nodeType === ParseNodeType.ImportFromAs) {
-                return declaration.node.d.alias ?? declaration.node.d.name;
-            } else {
-                return declaration.node.d.module.d.nameParts[0];
             }
+
+            if (declaration.node.nodeType === ParseNodeType.ImportFromAs) {
+                return declaration.node.d.alias ?? declaration.node.d.name;
+            }
+
+            return declaration.node.d.module.d.nameParts[0];
+        }
 
         case DeclarationType.Class:
         case DeclarationType.Function:
@@ -185,18 +185,6 @@ export function getNameNodeForDeclaration(declaration: Declaration): NameNode | 
     }
 
     throw new Error(`Shouldn't reach here`);
-}
-
-export function isDefinedInFile(decl: Declaration, fileUri: Uri) {
-    if (isAliasDeclaration(decl)) {
-        // Alias decl's path points to the original symbol
-        // the alias is pointing to. So, we need to get the
-        // filepath in that the alias is defined from the node.
-        return getFileInfoFromNode(decl.node)?.fileUri.equals(fileUri);
-    }
-
-    // Other decls, the path points to the file the symbol is defined in.
-    return decl.uri.equals(fileUri);
 }
 
 export function getDeclarationsWithUsesLocalNameRemoved(decls: Declaration[]) {

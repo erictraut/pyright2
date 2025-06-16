@@ -197,7 +197,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             }
 
             // Add declarations from files that implicitly import the target file.
-            const implicitlyImportedBy = sourceFileInfo.getImportedBy(/* recursive */ true);
+            const implicitlyImportedBy = typeServer.getImportedByRecursive(sourceFileInfo.uri);
             implicitlyImportedBy.forEach((implicitImport) => {
                 const parseTree = typeServer.getParseResults(implicitImport.uri)?.parserOutput.parseTree;
                 if (parseTree) {

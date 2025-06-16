@@ -13,7 +13,6 @@ import { isPatternInSymbol } from 'commonUtils/stringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndexer.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
-import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
@@ -63,17 +62,7 @@ export class WorkspaceSymbolProvider {
             return symbolList;
         }
 
-        const fileInfo = getFileInfo(parseResults.parserOutput.parseTree);
-        if (!fileInfo) {
-            return symbolList;
-        }
-
-        const indexSymbolData = SymbolIndexer.indexSymbols(
-            fileInfo,
-            parseResults,
-            { includeAliases: false },
-            this._token
-        );
+        const indexSymbolData = SymbolIndexer.indexSymbols(parseResults, { includeAliases: false }, this._token);
         this.appendWorkspaceSymbolsRecursive(indexSymbolData, typeServer, fileUri, '', symbolList);
 
         return symbolList;

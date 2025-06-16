@@ -27,11 +27,5 @@ export function performQuickAction(
         return [];
     }
 
-    // If we have no completed analysis job, there's nothing to do.
-    const parseResults = typeServer.getParseResults(uri);
-    if (!parseResults) {
-        return [];
-    }
-
     return [];
 }

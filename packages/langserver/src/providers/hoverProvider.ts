@@ -30,7 +30,12 @@ import {
     isUnresolvedAliasDeclaration,
 } from 'typeserver/binder/declaration.js';
 import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
-import * as ParseTreeUtils from 'typeserver/common/parseTreeUtils.js';
+import {
+    findNodeByOffset,
+    getDocString,
+    getEnclosingFunction,
+    getParentNodeOfType,
+} from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
 import { PrintTypeOptions, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
@@ -101,9 +106,9 @@ export function addParameterResultsPart(
 ) {
     // See if we have a docstring for the parent function.
     let docString: string | undefined = undefined;
-    const funcNode = ParseTreeUtils.getEnclosingFunction(resolvedDecl?.node || paramNameNode);
+    const funcNode = getEnclosingFunction(resolvedDecl?.node || paramNameNode);
     if (funcNode) {
-        docString = ParseTreeUtils.getDocString(funcNode?.d.suite?.d.statements ?? []);
+        docString = getDocString(funcNode?.d.suite?.d.statements ?? []);
         if (docString) {
             // Compute the docstring now.
             docString = extractParameterDocumentation(docString, paramNameNode.d.value);
@@ -269,7 +274,7 @@ export class HoverProvider {
             return null;
         }
 
-        let node = ParseTreeUtils.findNodeByOffset(this._parseResults.parserOutput.parseTree, offset);
+        let node = findNodeByOffset(this._parseResults.parserOutput.parseTree, offset);
         if (node === undefined) {
             return null;
         }
@@ -422,7 +427,7 @@ export class HoverProvider {
             case DeclarationType.TypeParam: {
                 // If the user is hovering over a type parameter name in a class type parameter
                 // list, display the computed variance of the type param.
-                const typeParamListNode = ParseTreeUtils.getParentNodeOfType(node, ParseNodeType.TypeParameterList);
+                const typeParamListNode = getParentNodeOfType(node, ParseNodeType.TypeParameterList);
                 const nodeType = typeParamListNode?.parent?.nodeType;
                 const printTypeVarVariance = nodeType === ParseNodeType.Class || nodeType === ParseNodeType.TypeAlias;
 

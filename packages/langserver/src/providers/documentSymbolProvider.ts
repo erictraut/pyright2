@@ -12,7 +12,6 @@ import { CancellationToken, DocumentSymbol, Location, SymbolInformation } from '
 
 import { Uri } from 'commonUtils/uri/uri.js';
 import { IndexOptions, IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndexer.js';
-import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
@@ -59,17 +58,11 @@ export class DocumentSymbolProvider {
 
     protected getHierarchicalSymbols() {
         const symbolList: DocumentSymbol[] = [];
-        const parseResults = this.typeServer.getParseResults(this.uri);
-        if (!parseResults) {
+        if (!this._parseResults) {
             return symbolList;
         }
 
-        const fileInfo = getFileInfo(parseResults.parserOutput.parseTree);
-        if (!fileInfo) {
-            return symbolList;
-        }
-
-        const indexSymbolData = SymbolIndexer.indexSymbols(fileInfo, parseResults, this._indexOptions, this._token);
+        const indexSymbolData = SymbolIndexer.indexSymbols(this._parseResults, this._indexOptions, this._token);
         this.appendDocumentSymbolsRecursive(indexSymbolData, symbolList);
 
         return symbolList;

@@ -145,6 +145,38 @@ export class TypeServerProvider implements ITypeServer {
         return this._program.importResolver.getCompletionSuggestions(fileUri, execEnv, moduleDescriptor);
     }
 
+    getImportsRecursive(fileUri: Uri): ITypeServerSourceFile[] {
+        const sourceFile = this._program.getSourceFileInfo(fileUri);
+        if (!sourceFile) {
+            return [];
+        }
+
+        const result: ITypeServerSourceFile[] = [];
+        const imports = this._program.getImportsRecursive(sourceFile);
+
+        imports.forEach((importedFile) => {
+            result.push(new SourceFileProvider(this._program, importedFile));
+        });
+
+        return result;
+    }
+
+    getImportedByRecursive(fileUri: Uri): ITypeServerSourceFile[] {
+        const sourceFile = this._program.getSourceFileInfo(fileUri);
+        if (!sourceFile) {
+            return [];
+        }
+
+        const result: ITypeServerSourceFile[] = [];
+        const imports = this._program.getImportedByRecursive(sourceFile);
+
+        imports.forEach((importedFile) => {
+            result.push(new SourceFileProvider(this._program, importedFile));
+        });
+
+        return result;
+    }
+
     addInterimFile(uri: Uri): void {
         this._program.addInterimFile(uri);
     }
