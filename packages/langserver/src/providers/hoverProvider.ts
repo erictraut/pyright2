@@ -37,7 +37,7 @@ import {
     getEnclosingFunction,
     getParentNodeOfType,
 } from 'typeserver/common/parseTreeUtils.js';
-import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
 import { PrintTypeOptions } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
@@ -108,12 +108,12 @@ export class HoverProvider {
             return null;
         }
 
-        const offset = convertPositionToOffset(this._position, this._parseResults.tokenizerOutput.lines);
+        const offset = this._typeServer.convertPositionToOffset(this._fileUri, this._position);
         if (offset === undefined) {
             return null;
         }
 
-        let node = findNodeByOffset(this._parseResults.parserOutput.parseTree, offset);
+        const node = findNodeByOffset(this._parseResults.parserOutput.parseTree, offset);
         if (node === undefined) {
             return null;
         }
@@ -127,17 +127,6 @@ export class HoverProvider {
         };
 
         if (node.nodeType === ParseNodeType.Name) {
-            // Handle the case where we're pointing to a "fused" keyword argument.
-            // We want to display the hover information for the value expression.
-            if (
-                node.parent?.nodeType === ParseNodeType.Argument &&
-                node.parent.d.isNameSameAsValue &&
-                node.parent.d.name === node &&
-                node.parent.d.valueExpr.nodeType === ParseNodeType.Name
-            ) {
-                node = node.parent.d.valueExpr;
-            }
-
             const declInfo = this._typeServer.evaluator.getDeclInfoForNameNode(node);
             const declarations = declInfo?.decls;
 

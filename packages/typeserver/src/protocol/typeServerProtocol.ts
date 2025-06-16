@@ -20,28 +20,32 @@ export interface ITypeServer {
     // TODO - remove this and replace by individual calls
     readonly evaluator: TypeEvaluator;
 
+    // Accessing Declarations
+    //----------------
+    // getDeclaration - including resolving alias declarations
+
+    // Accessing Types
+    //----------------
     // getContextType
     // getType - makeTopLevelTypeVarsConcrete
     // getTypeOfClass
     // getTypeOfFunction
-
-    // transformTypeForEnumMember (completion provider)
-
-    // getTypeOfSymbol
-
-    // getDeclaration
     // getTypeForDeclaration
+    // getTypeOfSymbol
+    // getTypeOfMember
 
+    // Operating on Types
+    //----------------
     // printType
     // printFunctionParts (tooltipUtils)
-    // getTypeOfMember
     // getCallSignatureInfo
     // getBoundMagicMethod
     // bindFunctionToClassOrObject
     // getTypedDictMembersForClass
 
+    // These should go away
     // lookUpSymbolRecursive
-
+    // transformTypeForEnumMember (completion provider)
     // isFinalVariableDeclaration
 
     // TODO - rethink these interfaces.

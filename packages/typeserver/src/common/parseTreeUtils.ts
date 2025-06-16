@@ -170,10 +170,6 @@ export function isCompliantWithNodeRangeRules(node: ParseNode) {
         return false;
     }
 
-    if (node.nodeType === ParseNodeType.Argument && node.d.isNameSameAsValue) {
-        return false;
-    }
-
     return true;
 }
 
@@ -213,9 +209,7 @@ export function printArg(node: ArgumentNode, flags: PrintExpressionFlags) {
     if (node.d.name) {
         argStr += node.d.name.d.value + '=';
     }
-    if (!node.d.isNameSameAsValue) {
-        argStr += printExpression(node.d.valueExpr, flags);
-    }
+    argStr += printExpression(node.d.valueExpr, flags);
     return argStr;
 }
 

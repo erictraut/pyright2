@@ -18,7 +18,6 @@ import { FileEditAction } from 'typeserver/common/editAction.js';
 import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { Position, Range } from 'typeserver/common/textRange.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
@@ -118,28 +117,10 @@ export class RenameProvider {
         const edits: FileEditAction[] = [];
         referencesResult.results.forEach((result) => {
             // Special case the renames of keyword arguments.
-            const node = result.node;
-            let range = result.location.range;
-            let replacementText = newName;
-
-            if (
-                node.nodeType === ParseNodeType.Name &&
-                node.parent?.nodeType === ParseNodeType.Argument &&
-                node.parent.d.isNameSameAsValue &&
-                result.parentRange
-            ) {
-                range = result.parentRange;
-                if (node === node.parent.d.valueExpr) {
-                    replacementText = `${node.d.value}=${newName}`;
-                } else {
-                    replacementText = `${newName}=${node.d.value}`;
-                }
-            }
-
             edits.push({
                 fileUri: result.location.uri,
-                range,
-                replacementText,
+                range: result.location.range,
+                replacementText: newName,
             });
         });
 

@@ -15,8 +15,6 @@ import { getScope } from 'typeserver/common/analyzerNodeInfo.js';
 import {
     pythonVersion3_10,
     pythonVersion3_11,
-    pythonVersion3_13,
-    pythonVersion3_14,
     pythonVersion3_7,
     pythonVersion3_8,
     pythonVersion3_9,
@@ -898,18 +896,6 @@ test('Call17', () => {
     const analysisResults = typeAnalyzeSampleFiles(['call17.py']);
 
     validateResults(analysisResults, 0);
-});
-
-test('Call18', () => {
-    const configOptions = new ConfigOptions(Uri.empty());
-
-    configOptions.defaultPythonVersion = pythonVersion3_13;
-    const analysisResults1 = typeAnalyzeSampleFiles(['call18.py'], configOptions);
-    validateResults(analysisResults1, 2);
-
-    configOptions.defaultPythonVersion = pythonVersion3_14;
-    const analysisResults2 = typeAnalyzeSampleFiles(['call18.py'], configOptions);
-    validateResults(analysisResults2, 0);
 });
 
 test('Function1', () => {

@@ -74,13 +74,6 @@ export class TestWalker extends ParseTreeWalker {
                             }
                             break;
 
-                        case ParseNodeType.Argument: {
-                            if (node.d.isNameSameAsValue) {
-                                skipCheck = true;
-                            }
-                            break;
-                        }
-
                         default:
                             fail(`node ${node.nodeType} is not marked as not following range rules.`);
                     }
@@ -96,13 +89,7 @@ export class TestWalker extends ParseTreeWalker {
                         // Make sure the child is after the previous child.
                         if (child.start < TextRange.getEnd(prevNode)) {
                             // Special-case the function annotation which can "bleed" into the suite.
-                            let exempted = prevNode.nodeType === ParseNodeType.FunctionAnnotation;
-
-                            // Special-case name nodes that are part of an argument node that's
-                            // using a keyword argument shortcut.
-                            if (node.nodeType === ParseNodeType.Argument && node.d.isNameSameAsValue) {
-                                exempted = true;
-                            }
+                            const exempted = prevNode.nodeType === ParseNodeType.FunctionAnnotation;
 
                             if (!exempted) {
                                 fail(`Child node is not after previous child node`);
