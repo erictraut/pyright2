@@ -97,10 +97,6 @@ export class HoverProvider {
         return _convertHoverResults(this._getHoverResult(), this._format);
     }
 
-    private get _functionSignatureDisplay() {
-        return this._options.functionSignatureDisplay;
-    }
-
     private _getHoverResult(): HoverResults | null {
         throwIfCancellationRequested(this._token);
 
@@ -167,7 +163,7 @@ export class HoverProvider {
                             label,
                             node.d.value,
                             isProperty,
-                            this._functionSignatureDisplay
+                            this._options.functionSignatureDisplay
                         );
                     }
 
@@ -237,7 +233,7 @@ export class HoverProvider {
                     node.d.value,
                     type,
                     typeNode,
-                    this._functionSignatureDisplay
+                    this._options.functionSignatureDisplay
                 );
 
                 this._addResultsPart(parts, typeText, /* python */ true);
@@ -298,7 +294,7 @@ export class HoverProvider {
                     label,
                     node.d.value,
                     isProperty,
-                    this._functionSignatureDisplay
+                    this._options.functionSignatureDisplay
                 );
 
                 this._addResultsPart(parts, signatureString, /* python */ true);
@@ -341,7 +337,7 @@ export class HoverProvider {
                 node.d.value,
                 type,
                 node,
-                this._functionSignatureDisplay
+                this._options.functionSignatureDisplay
             );
         }
 
@@ -395,7 +391,7 @@ export class HoverProvider {
                     this._typeServer,
                     node.d.value,
                     result.methodType,
-                    this._functionSignatureDisplay
+                    this._options.functionSignatureDisplay
                 ),
                 /* python */ true
             );

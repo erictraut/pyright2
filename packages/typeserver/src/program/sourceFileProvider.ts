@@ -41,8 +41,14 @@ export class SourceFileProvider implements ITypeServerSourceFile {
         return this._sourceFileInfo.clientVersion;
     }
 
-    getContents(): string {
-        return this._sourceFileInfo.contents;
+    getContents(start?: number, end?: number): string {
+        const result = this._sourceFileInfo.contents;
+
+        if (start !== undefined || end !== undefined) {
+            return result.substring(start ?? 0, end);
+        }
+
+        return result;
     }
 
     getImports(): ITypeServerSourceFile[] {

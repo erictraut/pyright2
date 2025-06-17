@@ -203,9 +203,10 @@ export interface ITypeServerSourceFile {
     // supplied by the client. If the file is not open, this will be undefined.
     readonly clientVersion?: number;
 
-    // Returns the text contents of the source file which may come from the
-    // file system or from the client (if it's currently open).
-    getContents(): string;
+    // Returns the text of the source file which may come from the
+    // file system or from the client (if it's currently open). Optionally,
+    // a start and end offset can be provided to return a substring.
+    getContents(start?: number, end?: number): string;
 
     // Returns the list of source files that are directly imported by this file
     // through import statements or implicitly (such as the builtins module).
