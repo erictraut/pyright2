@@ -73,18 +73,17 @@ export interface HoverOptions {
 }
 
 export class HoverProvider {
-    private readonly _parseResults: ParseFileResults | undefined;
     private readonly _sourceMapper: ProviderSourceMapper;
 
     constructor(
         private readonly _typeServer: ITypeServer,
         private readonly _fileUri: Uri,
+        private readonly _parseResults: ParseFileResults,
         private readonly _position: Position,
         private readonly _options: HoverOptions,
         private readonly _format: MarkupKind,
         private readonly _token: CancellationToken
     ) {
-        this._parseResults = this._typeServer.getParseResults(this._fileUri);
         this._sourceMapper = new ProviderSourceMapper(
             this._typeServer,
             this._fileUri,
@@ -99,10 +98,6 @@ export class HoverProvider {
 
     private _getHoverResult(): HoverResults | null {
         throwIfCancellationRequested(this._token);
-
-        if (!this._parseResults) {
-            return null;
-        }
 
         const offset = convertPositionToOffset(this._position, this._parseResults.tokenizerOutput.lines);
         if (offset === undefined) {

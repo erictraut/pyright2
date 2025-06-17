@@ -83,6 +83,7 @@ function checkSignatureHelp(code: string, expects: boolean) {
     const actual = new SignatureHelpProvider(
         state.typeServer,
         marker.fileUri,
+        parseResults,
         position,
         MarkupKind.Markdown,
         /*hasSignatureLabelOffsetCapability*/ true,

@@ -11,6 +11,7 @@ import { CancellationToken, Location, ResultProgressReporter, SymbolInformation 
 import { appendArray } from 'commonUtils/collectionUtils.js';
 import { isPatternInSymbol } from 'commonUtils/stringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { WorkspaceParseProvider } from 'langserver/providers/parseProvider.js';
 import { IndexSymbolData, SymbolIndexer } from 'langserver/providers/symbolIndexer.js';
 import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
@@ -46,18 +47,23 @@ export class WorkspaceSymbolProvider {
                 continue;
             }
 
-            workspace.service.run((program) => {
-                this._reportSymbolsForProgram(program);
+            workspace.service.run((typeServer) => {
+                const parseProvider = new WorkspaceParseProvider(workspace);
+                this._reportSymbolsForProgram(typeServer, parseProvider);
             }, this._token);
         }
 
         return this._allSymbols;
     }
 
-    protected getSymbolsForDocument(typeServer: ITypeServer, fileUri: Uri): SymbolInformation[] {
+    protected getSymbolsForDocument(
+        typeServer: ITypeServer,
+        parseProvider: WorkspaceParseProvider,
+        fileUri: Uri
+    ): SymbolInformation[] {
         const symbolList: SymbolInformation[] = [];
 
-        const parseResults = typeServer.getParseResults(fileUri);
+        const parseResults = parseProvider.parseFile(fileUri);
         if (!parseResults) {
             return symbolList;
         }
@@ -118,7 +124,7 @@ export class WorkspaceSymbolProvider {
         }
     }
 
-    private _reportSymbolsForProgram(typeServer: ITypeServer) {
+    private _reportSymbolsForProgram(typeServer: ITypeServer, parseProvider: WorkspaceParseProvider) {
         // Don't do a search if the query is empty. We'll return
         // too many results in this case.
         if (!this._query) {
@@ -131,7 +137,7 @@ export class WorkspaceSymbolProvider {
                 continue;
             }
 
-            const symbolList = this.getSymbolsForDocument(typeServer, sourceFileInfo.uri);
+            const symbolList = this.getSymbolsForDocument(typeServer, parseProvider, sourceFileInfo.uri);
             if (symbolList.length > 0) {
                 this._reporter(symbolList);
             }

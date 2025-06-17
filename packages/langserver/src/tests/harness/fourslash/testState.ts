@@ -27,7 +27,7 @@ import {
 
 import { Comparison } from 'commonUtils/comparisonUtils.js';
 import { ConsoleInterface, ConsoleWithLogLevel, NullConsole } from 'commonUtils/console.js';
-import { assertNever } from 'commonUtils/debug.js';
+import { assertDefined, assertNever } from 'commonUtils/debug.js';
 import { getFileExtension, normalizePath, normalizeSlashes } from 'commonUtils/pathUtils.js';
 import { compareStringsCaseInsensitive, compareStringsCaseSensitive } from 'commonUtils/stringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
@@ -928,9 +928,13 @@ export class TestState {
             }
 
             const rangePos = this.convertOffsetsToRange(range.fileName, range.pos, range.end);
+            const parseResults = this.program.getParseResults(range.fileUri);
+            assertDefined(parseResults);
+
             const provider = new HoverProvider(
                 this.typeServer,
                 range.fileUri,
+                parseResults,
                 rangePos.start,
                 {
                     functionSignatureDisplay: SignatureDisplayType.Compact,
@@ -1147,10 +1151,14 @@ export class TestState {
 
             const expected = map[name];
             const position = this.convertOffsetToPosition(fileName, marker.position);
+            const fileUri = Uri.file(fileName, this.extensionManager.caseSensitivity);
+            const parseResults = this.program.getParseResults(fileUri);
+            assertDefined(parseResults);
 
             const actual = new SignatureHelpProvider(
                 this.typeServer,
-                Uri.file(fileName, this.extensionManager.caseSensitivity),
+                fileUri,
+                parseResults,
                 position,
                 docFormat,
                 /* hasSignatureLabelOffsetCapability */ true,

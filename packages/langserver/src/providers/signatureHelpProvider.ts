@@ -41,12 +41,12 @@ import { Tokenizer } from 'typeserver/parser/tokenizer.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class SignatureHelpProvider {
-    private readonly _parseResults: ParseFileResults | undefined;
     private readonly _sourceMapper: ProviderSourceMapper;
 
     constructor(
         private _typeServer: ITypeServer,
         private _fileUri: Uri,
+        private _parseResults: ParseFileResults,
         private _position: Position,
         private _format: MarkupKind,
         private _hasSignatureLabelOffsetCapability: boolean,
@@ -54,7 +54,6 @@ export class SignatureHelpProvider {
         private _context: SignatureHelpContext | undefined,
         private _token: CancellationToken
     ) {
-        this._parseResults = this._typeServer.getParseResults(this._fileUri);
         this._sourceMapper = new ProviderSourceMapper(_typeServer, this._fileUri, /* preferStubs */ false, this._token);
     }
 
@@ -64,10 +63,6 @@ export class SignatureHelpProvider {
 
     private _getSignatureHelp(): SignatureHelpResults | undefined {
         throwIfCancellationRequested(this._token);
-        if (!this._parseResults) {
-            return undefined;
-        }
-
         const offset = convertPositionToOffset(this._position, this._parseResults.tokenizerOutput.lines);
         if (offset === undefined) {
             return undefined;

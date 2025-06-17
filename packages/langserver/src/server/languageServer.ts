@@ -959,10 +959,16 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return undefined;
         }
 
-        return workspace.service.run((program) => {
+        const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+        if (!parseResults) {
+            return undefined;
+        }
+
+        return workspace.service.run((typeServer) => {
             return new HoverProvider(
-                program,
+                typeServer,
                 uri,
+                parseResults,
                 params.position,
                 {
                     functionSignatureDisplay: workspace.functionSignatureDisplay,
@@ -996,10 +1002,16 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return;
         }
 
-        return workspace.service.run((program) => {
+        return workspace.service.run((ts) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return undefined;
+            }
+
             return new SignatureHelpProvider(
-                program,
+                ts,
                 uri,
+                parseResults,
                 params.position,
                 this.client.signatureDocFormat,
                 this.client.hasSignatureLabelOffsetCapability,
