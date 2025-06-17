@@ -1632,6 +1632,11 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         this.dynamicFeatures.add(feature);
     }
 
+    protected getCachedParseResultsForFile(workspace: Workspace, uri: Uri): ParseFileResults | undefined {
+        // TODO - implement a cache on the workspace object
+        return workspace.service.getParseResults(uri);
+    }
+
     private _getCompatibleMarkupKind(clientSupportedFormats: MarkupKind[] | undefined) {
         const serverSupportedFormats = [MarkupKind.PlainText, MarkupKind.Markdown];
 
@@ -1643,6 +1648,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
 
         return MarkupKind.PlainText;
     }
+
     private async _getWorkspaceDocumentDiagnostics(
         params: WorkspaceDiagnosticParams,
         sourceFile: SourceFile,

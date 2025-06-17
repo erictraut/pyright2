@@ -173,7 +173,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /* preferStubs */ false, token);
 
         declarations.forEach((decl) => {
-            const resolvedDecl = evaluator.resolveAliasDeclaration(decl, resolveLocalName);
+            const resolvedDecl = typeServer.evaluator.resolveAliasDeclaration(decl, resolveLocalName);
 
             if (resolvedDecl) {
                 addDeclarationIfUnique(resolvedDeclarations, resolvedDecl);
@@ -222,7 +222,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
                 ?.getDeclarations()
                 .filter((d) => !isAliasDeclaration(d))
                 .forEach((decl) => {
-                    const resolvedDecl = evaluator.resolveAliasDeclaration(decl, resolveLocalName);
+                    const resolvedDecl = typeServer.evaluator.resolveAliasDeclaration(decl, resolveLocalName);
                     if (resolvedDecl) {
                         addDeclarationIfUnique(declarations, resolvedDecl);
                     }

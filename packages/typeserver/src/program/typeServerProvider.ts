@@ -11,11 +11,7 @@ import { CancellationToken } from 'vscode-languageserver';
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
 import { SymbolTable } from 'typeserver/binder/symbol.js';
 import { findNodeByPosition, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.js';
-import {
-    convertOffsetToPosition,
-    convertPositionToOffset,
-    convertTextRangeToRange,
-} from 'typeserver/common/positionUtils.js';
+import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
 import { SymbolDeclInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { ImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
@@ -82,34 +78,6 @@ export class TypeServerProvider implements ITypeServer {
     // TODO - remove this
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper {
         return this._program.getSourceMapper(fileUri, preferStubs, token);
-    }
-
-    convertOffsetToPosition(fileUri: Uri, offset: number): Position | undefined {
-        const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
-        if (!sourceFileInfo) {
-            return undefined;
-        }
-
-        const parseInfo = sourceFileInfo.sourceFile.getParseResults();
-        if (!parseInfo) {
-            return undefined;
-        }
-
-        return convertOffsetToPosition(offset, parseInfo.tokenizerOutput.lines);
-    }
-
-    convertPositionToOffset(fileUri: Uri, position: Position): number | undefined {
-        const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
-        if (!sourceFileInfo) {
-            return undefined;
-        }
-
-        const parseInfo = sourceFileInfo.sourceFile.getParseResults();
-        if (!parseInfo) {
-            return undefined;
-        }
-
-        return convertPositionToOffset(position, parseInfo.tokenizerOutput.lines);
     }
 
     getDeclarationsForPosition(

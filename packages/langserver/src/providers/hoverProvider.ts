@@ -37,7 +37,7 @@ import {
     getEnclosingFunction,
     getParentNodeOfType,
 } from 'typeserver/common/parseTreeUtils.js';
-import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
+import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
 import { PrintTypeOptions } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
@@ -104,7 +104,7 @@ export class HoverProvider {
             return null;
         }
 
-        const offset = this._typeServer.convertPositionToOffset(this._fileUri, this._position);
+        const offset = convertPositionToOffset(this._position, this._parseResults.tokenizerOutput.lines);
         if (offset === undefined) {
             return null;
         }

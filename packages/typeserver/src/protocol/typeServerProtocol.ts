@@ -55,10 +55,6 @@ export interface ITypeServer {
     // TODO - remove this
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
 
-    // Converts an offset within a source file to a position or vice versa.
-    convertOffsetToPosition(fileUri: Uri, offset: number): Position | undefined;
-    convertPositionToOffset(fileUri: Uri, position: Position): number | undefined;
-
     // For a given position, returns a list of declarations for the
     getDeclarationsForPosition(
         fileUri: Uri,
