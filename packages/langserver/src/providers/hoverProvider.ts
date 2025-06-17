@@ -30,6 +30,7 @@ import {
     VariableDeclaration,
     isUnresolvedAliasDeclaration,
 } from 'typeserver/binder/declaration.js';
+import { isFinalVariableDeclaration } from 'typeserver/binder/declarationUtils.js';
 import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
 import {
     findNodeByOffset,
@@ -455,10 +456,7 @@ function _getVariableTypeText(
 ) {
     let label = 'variable';
     if (declaration) {
-        label =
-            declaration.isConstant || typeServer.evaluator.isFinalVariableDeclaration(declaration)
-                ? 'constant'
-                : 'variable';
+        label = declaration.isConstant || isFinalVariableDeclaration(declaration) ? 'constant' : 'variable';
     }
 
     let typeVarName: string | undefined;

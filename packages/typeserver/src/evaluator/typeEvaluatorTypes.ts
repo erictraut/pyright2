@@ -854,7 +854,6 @@ export interface TypeEvaluator {
     reportMissingTypeArgs: (node: ExpressionNode, type: Type, flags: EvalFlags) => Type;
 
     isFinalVariable: (symbol: Symbol) => boolean;
-    isFinalVariableDeclaration: (decl: Declaration) => boolean;
     isExplicitTypeAliasDeclaration: (decl: Declaration) => boolean;
 
     addInformation: (message: string, node: ParseNode, range?: TextRange) => Diagnostic | undefined;

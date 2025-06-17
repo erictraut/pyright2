@@ -38,6 +38,7 @@ import {
 import {
     getDeclarationsWithUsesLocalNameRemoved,
     getNameNodeForDeclaration,
+    isFinalVariableDeclaration,
     resolveAliasDeclaration as resolveAliasDeclarationUtil,
     ResolvedAliasInfo,
     synthesizeAliasDeclaration,
@@ -28314,10 +28315,6 @@ export function createTypeEvaluator(importLookup: ImportLookup, evaluatorOptions
         return symbol.getDeclarations().some((decl) => isFinalVariableDeclaration(decl));
     }
 
-    function isFinalVariableDeclaration(decl: Declaration): boolean {
-        return decl.type === DeclarationType.Variable && !!decl.isFinal;
-    }
-
     function isExplicitTypeAliasDeclaration(decl: Declaration): boolean {
         if (decl.type !== DeclarationType.Variable || !decl.typeAnnotationNode) {
             return false;
@@ -28719,7 +28716,6 @@ export function createTypeEvaluator(importLookup: ImportLookup, evaluatorOptions
         inferReturnTypeIfNecessary,
         inferVarianceForClass,
         isFinalVariable,
-        isFinalVariableDeclaration,
         isExplicitTypeAliasDeclaration,
         addInformation,
         addUnreachableCode,

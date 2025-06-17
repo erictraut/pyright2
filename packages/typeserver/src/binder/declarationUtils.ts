@@ -115,6 +115,10 @@ export function areDeclarationsSame(
     return true;
 }
 
+export function isFinalVariableDeclaration(decl: Declaration): boolean {
+    return decl.type === DeclarationType.Variable && !!decl.isFinal;
+}
+
 export function getNameFromDeclaration(declaration: Declaration) {
     switch (declaration.type) {
         case DeclarationType.Alias:
