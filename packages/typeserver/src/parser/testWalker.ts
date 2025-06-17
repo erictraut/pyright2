@@ -89,7 +89,10 @@ export class TestWalker extends ParseTreeWalker {
                         // Make sure the child is after the previous child.
                         if (child.start < TextRange.getEnd(prevNode)) {
                             // Special-case the function annotation which can "bleed" into the suite.
-                            const exempted = prevNode.nodeType === ParseNodeType.FunctionAnnotation;
+                            // Also, exempt children of error nodes.
+                            const exempted =
+                                prevNode.nodeType === ParseNodeType.FunctionAnnotation ||
+                                child.parent?.nodeType === ParseNodeType.Error;
 
                             if (!exempted) {
                                 fail(`Child node is not after previous child node`);

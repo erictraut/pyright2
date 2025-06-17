@@ -206,12 +206,13 @@ export function getModuleDocStringFromModuleNodes(modules: ModuleNode[]): string
 
 export function getModuleDocStringFromUris(uris: Uri[], sourceMapper: ProviderSourceMapper) {
     const modules: ModuleNode[] = [];
+
     for (const uri of uris) {
         if (isStubFile(uri)) {
             addIfNotNull(modules, sourceMapper.getModuleNode(uri));
         }
 
-        appendArray(modules, sourceMapper.findModules(uri));
+        appendArray(modules, sourceMapper.getStubImplementationModules(uri));
     }
 
     return getModuleDocStringFromModuleNodes(modules);

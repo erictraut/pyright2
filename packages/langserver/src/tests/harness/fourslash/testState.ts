@@ -934,6 +934,7 @@ export class TestState {
 
             const provider = new HoverProvider(
                 this.typeServer,
+                new WorkspaceParseProvider(this.workspace),
                 range.fileUri,
                 parseResults,
                 rangePos.start,
@@ -1158,6 +1159,7 @@ export class TestState {
 
             const actual = new SignatureHelpProvider(
                 this.typeServer,
+                new WorkspaceParseProvider(this.workspace),
                 fileUri,
                 parseResults,
                 position,
@@ -1460,6 +1462,7 @@ export class TestState {
 
             let actual = new DefinitionProvider(
                 this.typeServer,
+                new WorkspaceParseProvider(this.workspace),
                 uri,
                 parseResults,
                 position,
@@ -1505,6 +1508,7 @@ export class TestState {
 
             let actual = new TypeDefinitionProvider(
                 this.typeServer,
+                new WorkspaceParseProvider(this.workspace),
                 fileUri,
                 parseResults,
                 position,

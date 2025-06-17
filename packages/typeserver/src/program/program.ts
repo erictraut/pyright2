@@ -339,6 +339,28 @@ export class Program {
         return fileInfo;
     }
 
+    // A "shadowed" file is a python source file that has been added to the program because
+    // it "shadows" a type stub file for purposes of finding doc strings and definitions.
+    // We need to track the relationship so if the original type stub is removed from the
+    // program, we can remove the corresponding shadowed file and any files it imports.
+    addShadowedFile(stubFile: SourceFileInfo, shadowImplPath: Uri): SourceFile {
+        let shadowFileInfo = this.getSourceFileInfo(shadowImplPath);
+
+        if (!shadowFileInfo) {
+            shadowFileInfo = this.addInterimFile(shadowImplPath);
+        }
+
+        if (!shadowFileInfo.shadows.includes(stubFile)) {
+            shadowFileInfo.mutate((s) => s.shadows.push(stubFile));
+        }
+
+        if (!stubFile.shadowedBy.includes(shadowFileInfo)) {
+            stubFile.mutate((s) => s.shadowedBy.push(shadowFileInfo!));
+        }
+
+        return shadowFileInfo.sourceFile;
+    }
+
     addTrackedFile(fileUri: Uri, isThirdPartyImport = false, isInPyTypedPackage = false): SourceFile {
         let sourceFileInfo = this.getSourceFileInfo(fileUri);
         const moduleImportInfo = this._getModuleImportInfoForFile(fileUri);
@@ -1303,7 +1325,7 @@ export class Program {
                     stubFileInfo = this.addInterimFile(stubFileUri);
                 }
 
-                this._addShadowedFile(stubFileInfo, implFileUri);
+                this.addShadowedFile(stubFileInfo, implFileUri);
                 return this.getBoundSourceFile(implFileUri);
             },
             (f) => {
@@ -1639,28 +1661,6 @@ export class Program {
         );
 
         return moduleNameAndType;
-    }
-
-    // A "shadowed" file is a python source file that has been added to the program because
-    // it "shadows" a type stub file for purposes of finding doc strings and definitions.
-    // We need to track the relationship so if the original type stub is removed from the
-    // program, we can remove the corresponding shadowed file and any files it imports.
-    private _addShadowedFile(stubFile: SourceFileInfo, shadowImplPath: Uri): SourceFile {
-        let shadowFileInfo = this.getSourceFileInfo(shadowImplPath);
-
-        if (!shadowFileInfo) {
-            shadowFileInfo = this.addInterimFile(shadowImplPath);
-        }
-
-        if (!shadowFileInfo.shadows.includes(stubFile)) {
-            shadowFileInfo.mutate((s) => s.shadows.push(stubFile));
-        }
-
-        if (!stubFile.shadowedBy.includes(shadowFileInfo)) {
-            stubFile.mutate((s) => s.shadowedBy.push(shadowFileInfo!));
-        }
-
-        return shadowFileInfo.sourceFile;
     }
 
     private _createInterimFileInfo(fileUri: Uri) {

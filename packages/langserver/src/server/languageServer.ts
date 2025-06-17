@@ -807,6 +807,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                 return workspace.service.run((typeServer) => {
                     return new DefinitionProvider(
                         typeServer,
+                        new WorkspaceParseProvider(workspace),
                         uri,
                         parseResults,
                         position,
@@ -835,6 +836,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                 return workspace.service.run((typeServer) => {
                     return new DefinitionProvider(
                         typeServer,
+                        new WorkspaceParseProvider(workspace),
                         uri,
                         parseResults,
                         position,
@@ -857,7 +859,14 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             }
 
             return workspace.service.run((typeServer) => {
-                return new TypeDefinitionProvider(typeServer, uri, parseResults, position, token).getDefinitions();
+                return new TypeDefinitionProvider(
+                    typeServer,
+                    new WorkspaceParseProvider(workspace),
+                    uri,
+                    parseResults,
+                    position,
+                    token
+                ).getDefinitions();
             }, token);
         });
     }
@@ -1010,6 +1019,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         return workspace.service.run((typeServer) => {
             return new HoverProvider(
                 typeServer,
+                new WorkspaceParseProvider(workspace),
                 uri,
                 parseResults,
                 params.position,
@@ -1065,6 +1075,7 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
 
             return new SignatureHelpProvider(
                 ts,
+                new WorkspaceParseProvider(workspace),
                 uri,
                 parseResults,
                 params.position,

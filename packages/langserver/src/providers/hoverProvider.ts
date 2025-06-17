@@ -14,6 +14,7 @@ import { CancellationToken, Hover, MarkupKind } from 'vscode-languageserver';
 import { assertNever, fail } from 'commonUtils/debug.js';
 import { extractParameterDocumentation } from 'commonUtils/docStringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import {
     getClassAndConstructorTypes,
@@ -78,6 +79,7 @@ export class HoverProvider {
 
     constructor(
         private readonly _typeServer: ITypeServer,
+        private readonly _parseProvider: IParseProvider,
         private readonly _fileUri: Uri,
         private readonly _parseResults: ParseFileResults,
         private readonly _position: Position,
@@ -87,6 +89,7 @@ export class HoverProvider {
     ) {
         this._sourceMapper = new ProviderSourceMapper(
             this._typeServer,
+            this._parseProvider,
             this._fileUri,
             /* preferStubs */ false,
             this._token

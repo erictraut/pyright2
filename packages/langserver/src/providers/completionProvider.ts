@@ -326,6 +326,7 @@ export class CompletionProvider {
     ) {
         this.sourceMapper = new ProviderSourceMapper(
             typeServer,
+            parseProvider,
             this.fileUri,
             /* preferStubs */ false,
             this.cancellationToken

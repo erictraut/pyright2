@@ -58,10 +58,4 @@ export class SourceFileProvider implements ITypeServerSourceFile {
     getImportedBy(): ITypeServerSourceFile[] {
         return this._sourceFileInfo.importedBy.map((f) => new SourceFileProvider(this._program, f));
     }
-
-    getImplementation(): ITypeServerSourceFile[] {
-        return this._sourceFileInfo.shadows.map((shadowedFile) => {
-            return new SourceFileProvider(this._program, shadowedFile);
-        });
-    }
 }

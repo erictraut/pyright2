@@ -76,6 +76,12 @@ export interface ITypeServer {
     // of analyzing the files in the project, it may not yet know about the file.
     getSourceFile(fileUri: Uri): ITypeServerSourceFile | undefined;
 
+    // If the specified file is a stub, returns one or more source files that
+    // implement the stub. This mapping is imprecise and based on heuristics
+    // that take into account the file that is importing the stub (the relativeTo
+    // parameter).
+    getStubImplementation(fileUri: Uri, relativeTo?: Uri): ITypeServerSourceFile[] | undefined;
+
     // Returns a list of source files that the type server knows about.
     // This includes all files that are part of the project (as defined by the
     // "include" and "exclude" settings) and all files that are imported transitively
@@ -298,9 +304,4 @@ export interface ITypeServerSourceFile {
 
     // Returns the list of source files that directly import this file.
     getImportedBy(): ITypeServerSourceFile[];
-
-    // If this file is a type stub, this returns the source files that are likely
-    // to contain the implementation of that stub. Mapping of implementation
-    // files may not be possible or completely accurate in all cases.
-    getImplementation(): ITypeServerSourceFile[];
 }

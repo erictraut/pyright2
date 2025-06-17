@@ -21,7 +21,7 @@ import { ImportType } from 'typeserver/imports/importResult.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { OpenFileOptions, Program } from 'typeserver/program/program.js';
 import { SourceFileProvider } from 'typeserver/program/sourceFileProvider.js';
-import { SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
 import {
     AutoImportInfo,
     Decl,
@@ -35,6 +35,7 @@ import {
     SourceFilesOptions,
 } from 'typeserver/protocol/typeServerProtocol.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
+import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
 
 export class TypeServerProvider implements ITypeServer {
     constructor(private _program: Program) {}
@@ -58,6 +59,42 @@ export class TypeServerProvider implements ITypeServer {
         }
 
         return new SourceFileProvider(this._program, sourceInfo);
+    }
+
+    getStubImplementation(fileUri: Uri, relativeToUri?: Uri): ITypeServerSourceFile[] | undefined {
+        if (!isStubFile(fileUri)) {
+            return undefined;
+        }
+
+        const sourceInfo = this._program.getSourceFileInfo(fileUri);
+        if (!sourceInfo) {
+            return undefined;
+        }
+
+        const execEnv = this._program.configOptions.findExecEnvironment(relativeToUri ?? fileUri);
+
+        // Attempt our stubFileUri to see if we can resolve it as a source file path.
+        const results = this._program.importResolver
+            .getSourceFilesFromStub(fileUri, execEnv)
+            .map((uri) => {
+                let stubFileInfo = this._program.getSourceFileInfo(uri);
+
+                if (!stubFileInfo) {
+                    // Make sure uri exits before adding interim file.
+                    if (!this._program.fileSystem.existsSync(uri)) {
+                        return undefined;
+                    }
+
+                    stubFileInfo = this._program.addInterimFile(uri);
+                }
+
+                this._program.addShadowedFile(stubFileInfo, fileUri);
+
+                return stubFileInfo;
+            })
+            .filter(isDefined);
+
+        return results.map((file) => new SourceFileProvider(this._program, file));
     }
 
     getSourceFiles(options?: SourceFilesOptions): readonly ITypeServerSourceFile[] {

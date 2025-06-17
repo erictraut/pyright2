@@ -162,9 +162,10 @@ export function buildModuleSymbolsMap(
     const moduleSymbolMap = new Map<string, ModuleSymbolTable>();
 
     files.forEach((file) => {
-        if (file.getImplementation().length > 0) {
-            // There is corresponding stub file. Don't add
-            // duplicated files in the map.
+        // If this file is a type stub file that has corresponding implementation
+        // files, don't add the stub file to the map.
+        const implementations = typeServer.getStubImplementation(file.uri);
+        if (implementations && implementations.length > 0) {
             return;
         }
 

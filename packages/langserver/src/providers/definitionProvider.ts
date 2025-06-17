@@ -15,6 +15,7 @@ import { CancellationToken } from 'vscode-languageserver';
 import { appendArray } from 'commonUtils/collectionUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { isDefined } from 'commonUtils/valueTypeUtils.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { isStubFile, ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import {
     Declaration,
@@ -106,9 +107,7 @@ export function addDeclarationsToDefinitions(
         if (resolvedDecl.type === DeclarationType.Alias) {
             // Add matching source module.
             sourceMapper
-                .findModules(resolvedDecl.uri)
-                .map((m) => getFileInfo(m)?.fileUri)
-                .filter(isDefined)
+                .getStubImplementations(resolvedDecl.uri)
                 .forEach((f) => _addIfUnique(definitions, _createModuleEntry(f)));
             return;
         }
@@ -205,13 +204,20 @@ class DefinitionProviderBase {
 export class DefinitionProvider extends DefinitionProviderBase {
     constructor(
         typeServer: ITypeServer,
+        parseProvider: IParseProvider,
         fileUri: Uri,
         parseResults: ParseFileResults,
         position: Position,
         filter: DefinitionFilter,
         token: CancellationToken
     ) {
-        const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /* preferStubs */ false, token);
+        const sourceMapper = new ProviderSourceMapper(
+            typeServer,
+            parseProvider,
+            fileUri,
+            /* preferStubs */ false,
+            token
+        );
         const { node, offset } = _tryGetNode(parseResults, position);
 
         super(typeServer, sourceMapper, node, offset, filter, token);
@@ -231,12 +237,19 @@ export class TypeDefinitionProvider extends DefinitionProviderBase {
 
     constructor(
         typeServer: ITypeServer,
+        parseProvider: IParseProvider,
         fileUri: Uri,
         parseResults: ParseFileResults,
         position: Position,
         token: CancellationToken
     ) {
-        const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /*preferStubs*/ true, token);
+        const sourceMapper = new ProviderSourceMapper(
+            typeServer,
+            parseProvider,
+            fileUri,
+            /* preferStubs */ true,
+            token
+        );
         const { node, offset } = _tryGetNode(parseResults, position);
 
         super(typeServer, sourceMapper, node, offset, DefinitionFilter.All, token);

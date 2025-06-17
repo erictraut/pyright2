@@ -19,8 +19,21 @@ export class WorkspaceParseProvider implements IParseProvider {
     constructor(private _workspace: Workspace) {}
 
     parseFile(fileUri: Uri): ParseFileResults | undefined {
+        // TODO - remove this interaction with the program.
+        const fileInfo = this._workspace.service.program.getSourceFile(fileUri);
+
+        if (!fileInfo) {
+            if (!this._workspace.service.program.fileSystem.existsSync(fileUri)) {
+                return undefined;
+            }
+
+            this._workspace.service.program.addInterimFile(fileUri);
+        }
+
         // TODO - add caching for the workspace to avoid parsing
         // the same file unnecessarily.
-        return this._workspace.service.getParseResults(fileUri);
+        const cachedParseResults = this._workspace.service.getParseResults(fileUri);
+
+        return cachedParseResults;
     }
 }

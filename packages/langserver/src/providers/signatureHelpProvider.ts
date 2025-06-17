@@ -22,6 +22,7 @@ import {
 
 import { extractParameterDocumentation } from 'commonUtils/docStringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import {
     getDocumentationPartsForTypeAndDecl,
@@ -45,6 +46,7 @@ export class SignatureHelpProvider {
 
     constructor(
         private _typeServer: ITypeServer,
+        private _parseProvider: IParseProvider,
         private _fileUri: Uri,
         private _parseResults: ParseFileResults,
         private _position: Position,
@@ -54,7 +56,13 @@ export class SignatureHelpProvider {
         private _context: SignatureHelpContext | undefined,
         private _token: CancellationToken
     ) {
-        this._sourceMapper = new ProviderSourceMapper(_typeServer, this._fileUri, /* preferStubs */ false, this._token);
+        this._sourceMapper = new ProviderSourceMapper(
+            _typeServer,
+            this._parseProvider,
+            this._fileUri,
+            /* preferStubs */ false,
+            this._token
+        );
     }
 
     getSignatureHelp(): SignatureHelp | undefined {

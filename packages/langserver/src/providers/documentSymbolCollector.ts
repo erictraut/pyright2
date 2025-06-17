@@ -169,7 +169,13 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         const fileUri = fileInfo.fileUri;
 
         const resolvedDeclarations: Declaration[] = [];
-        const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /* preferStubs */ false, token);
+        const sourceMapper = new ProviderSourceMapper(
+            typeServer,
+            parseProvider,
+            fileUri,
+            /* preferStubs */ false,
+            token
+        );
 
         declarations.forEach((decl) => {
             const resolvedDecl = typeServer.evaluator.resolveAliasDeclaration(decl, resolveLocalName);
