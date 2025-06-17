@@ -93,6 +93,7 @@ import { DocumentHighlightProvider } from 'langserver/providers/documentHighligh
 import { CollectionResult } from 'langserver/providers/documentSymbolCollector.js';
 import { DocumentSymbolProvider } from 'langserver/providers/documentSymbolProvider.js';
 import { HoverProvider } from 'langserver/providers/hoverProvider.js';
+import { WorkspaceParseProvider } from 'langserver/providers/parseProvider.js';
 import { ReferencesProvider } from 'langserver/providers/referencesProvider.js';
 import { RenameProvider } from 'langserver/providers/renameProvider.js';
 import { SignatureHelpProvider } from 'langserver/providers/signatureHelpProvider.js';
@@ -797,10 +798,16 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             params,
             token,
             this.client.hasGoToDeclarationCapability ? DefinitionFilter.PreferSource : DefinitionFilter.All,
-            (workspace, filePath, position, filter, token) =>
-                workspace.service.run((program) => {
-                    return new DefinitionProvider(program, filePath, position, filter, token).getDefinitions();
-                }, token)
+            (workspace, uri, position, filter, token) => {
+                const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+                if (!parseResults) {
+                    return undefined;
+                }
+
+                return workspace.service.run((program) => {
+                    return new DefinitionProvider(program, uri, parseResults, position, filter, token).getDefinitions();
+                }, token);
+            }
         );
     }
 
@@ -812,10 +819,16 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             params,
             token,
             this.client.hasGoToDeclarationCapability ? DefinitionFilter.PreferStubs : DefinitionFilter.All,
-            (workspace, filePath, position, filter, token) =>
-                workspace.service.run((program) => {
-                    return new DefinitionProvider(program, filePath, position, filter, token).getDefinitions();
-                }, token)
+            (workspace, uri, position, filter, token) => {
+                const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+                if (!parseResults) {
+                    return undefined;
+                }
+
+                return workspace.service.run((program) => {
+                    return new DefinitionProvider(program, uri, parseResults, position, filter, token).getDefinitions();
+                }, token);
+            }
         );
     }
 
@@ -823,11 +836,16 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         params: TextDocumentPositionParams,
         token: CancellationToken
     ): Promise<Definition | DefinitionLink[] | undefined | null> {
-        return this.getDefinitions(params, token, DefinitionFilter.All, (workspace, filePath, position, _, token) =>
-            workspace.service.run((program) => {
-                return new TypeDefinitionProvider(program, filePath, position, token).getDefinitions();
-            }, token)
-        );
+        return this.getDefinitions(params, token, DefinitionFilter.All, (workspace, uri, position, _, token) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return undefined;
+            }
+
+            return workspace.service.run((program) => {
+                return new TypeDefinitionProvider(program, uri, parseResults, position, token).getDefinitions();
+            }, token);
+        });
     }
 
     protected async getDefinitions(
@@ -1049,11 +1067,18 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return null;
         }
 
-        return workspace.service.run((program) => {
+        return workspace.service.run((typeServer) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return null;
+            }
+
             const completions = new CompletionProvider(
-                program,
+                typeServer,
+                new WorkspaceParseProvider(workspace),
                 this.extensionManager.caseSensitivity,
                 uri,
+                parseResults,
                 params.position,
                 {
                     functionSignatureDisplay: workspace.functionSignatureDisplay,
@@ -1082,11 +1107,18 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         if (completionItemData && completionItemData.uri) {
             const uri = Uri.parse(completionItemData.uri, this.caseSensitiveDetector);
             const workspace = await this.getWorkspaceForFile(uri);
-            workspace.service.run((program) => {
+            workspace.service.run((typeServer) => {
+                const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+                if (!parseResults) {
+                    return null;
+                }
+
                 return new CompletionProvider(
-                    program,
+                    typeServer,
+                    new WorkspaceParseProvider(workspace),
                     this.extensionManager.caseSensitivity,
                     uri,
+                    parseResults,
                     completionItemData.position,
                     {
                         functionSignatureDisplay: workspace.functionSignatureDisplay,

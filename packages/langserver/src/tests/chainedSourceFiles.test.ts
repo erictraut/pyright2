@@ -27,6 +27,7 @@ import { Program } from 'typeserver/program/program.js';
 import { IPythonMode } from 'typeserver/program/sourceFile.js';
 import { TypeServerProvider } from 'typeserver/program/typeServerProvider.js';
 import { TypeService } from 'typeserver/service/typeService.js';
+import { assertDefined } from 'typeserver/utils/debug.js';
 
 test('check chained files', () => {
     const code = `
@@ -46,14 +47,23 @@ test('check chained files', () => {
     const basePath = UriEx.file(normalizeSlashes('/'));
     const { data, service } = createServiceWithChainedSourceFiles(basePath, code);
 
-    const marker = data.markerPositions.get('marker')!;
+    const marker = data.markerPositions.get('marker');
+    assertDefined(marker);
     const markerUri = marker.fileUri;
 
-    const parseResult = service.getParseResults(markerUri)!;
+    const parseResult = service.getParseResults(markerUri);
+    assertDefined(parseResult);
+
     const result = new CompletionProvider(
         new TypeServerProvider(service.program),
+        {
+            parseFile(fileUri: Uri) {
+                return service.getParseResults(fileUri);
+            },
+        },
         service.extensionManager.caseSensitivity,
         markerUri,
+        parseResult,
         convertOffsetToPosition(marker.position, parseResult.tokenizerOutput.lines),
         {
             functionSignatureDisplay: SignatureDisplayType.Formatted,
@@ -70,7 +80,7 @@ test('check chained files', () => {
     assert(result?.items.some((i) => i.label === 'foo3'));
 });
 
-test('modify chained files', () => {
+test('modify chained files 1', () => {
     const code = `
 // @filename: test1.py
 //// def foo1(): pass
@@ -90,17 +100,27 @@ test('modify chained files', () => {
     const { data, service } = createServiceWithChainedSourceFiles(basePath, code);
 
     // Make sure files are all realized.
-    const marker = data.markerPositions.get('marker')!;
+    const marker = data.markerPositions.get('marker');
+    assertDefined(marker);
+
     const markerUri = marker.fileUri;
-    const parseResult = service.getParseResults(markerUri)!;
 
     // Close file in the middle of the chain
     service.setFileClosed(data.markerPositions.get('delete')!.fileUri);
 
+    const parseResult = service.getParseResults(markerUri);
+    assertDefined(parseResult);
+
     const result = new CompletionProvider(
         new TypeServerProvider(service.program),
+        {
+            parseFile(fileUri: Uri) {
+                return service.getParseResults(fileUri);
+            },
+        },
         service.extensionManager.caseSensitivity,
         markerUri,
+        parseResult,
         convertOffsetToPosition(marker.position, parseResult.tokenizerOutput.lines),
         {
             functionSignatureDisplay: SignatureDisplayType.Formatted,
@@ -120,7 +140,7 @@ test('modify chained files', () => {
     assert(result.items.some((i) => i.label === 'foo3'));
 });
 
-test('modify chained files', async () => {
+test('modify chained files 2', async () => {
     const code = `
 // @filename: test1.py
 //// [|/*changed*/|]

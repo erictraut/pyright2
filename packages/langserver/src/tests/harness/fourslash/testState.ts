@@ -43,6 +43,7 @@ import {
 import { DocumentHighlightProvider } from 'langserver/providers/documentHighlightProvider.js';
 import { CollectionResult } from 'langserver/providers/documentSymbolCollector.js';
 import { HoverProvider } from 'langserver/providers/hoverProvider.js';
+import { WorkspaceParseProvider } from 'langserver/providers/parseProvider.js';
 import { ReferencesProvider } from 'langserver/providers/referencesProvider.js';
 import { RenameProvider } from 'langserver/providers/renameProvider.js';
 import { SignatureHelpProvider } from 'langserver/providers/signatureHelpProvider.js';
@@ -1436,9 +1437,14 @@ export class TestState {
             }
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
+
+            const parseResults = this.program.getParseResults(uri);
+            assertDefined(parseResults);
+
             let actual = new DefinitionProvider(
                 this.typeServer,
                 uri,
+                parseResults,
                 position,
                 filter,
                 CancellationToken.None
@@ -1475,9 +1481,15 @@ export class TestState {
             const expected = map[name].definitions;
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
+
+            const fileUri = Uri.file(fileName, this.extensionManager.caseSensitivity);
+            const parseResults = this.program.getParseResults(fileUri);
+            assertDefined(parseResults);
+
             let actual = new TypeDefinitionProvider(
                 this.typeServer,
-                Uri.file(fileName, this.extensionManager.caseSensitivity),
+                fileUri,
+                parseResults,
                 position,
                 CancellationToken.None
             ).getDefinitions();
@@ -1635,10 +1647,16 @@ export class TestState {
             lazyEdit: false,
         };
 
+        const fileUri = Uri.file(filePath, this.extensionManager.caseSensitivity);
+        const parseResults = this.program.getParseResults(fileUri);
+        assertDefined(parseResults);
+
         const provider = new CompletionProvider(
             this.typeServer,
+            new WorkspaceParseProvider(this.workspace),
             this.extensionManager.caseSensitivity,
-            Uri.file(filePath, this.extensionManager.caseSensitivity),
+            fileUri,
+            parseResults,
             completionPosition,
             options,
             CancellationToken.None

@@ -206,12 +206,12 @@ export class DefinitionProvider extends DefinitionProviderBase {
     constructor(
         typeServer: ITypeServer,
         fileUri: Uri,
+        parseResults: ParseFileResults,
         position: Position,
         filter: DefinitionFilter,
         token: CancellationToken
     ) {
         const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /* preferStubs */ false, token);
-        const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
         super(typeServer, sourceMapper, node, offset, filter, token);
@@ -229,9 +229,14 @@ export class DefinitionProvider extends DefinitionProviderBase {
 export class TypeDefinitionProvider extends DefinitionProviderBase {
     private readonly _fileUri: Uri;
 
-    constructor(typeServer: ITypeServer, fileUri: Uri, position: Position, token: CancellationToken) {
+    constructor(
+        typeServer: ITypeServer,
+        fileUri: Uri,
+        parseResults: ParseFileResults,
+        position: Position,
+        token: CancellationToken
+    ) {
         const sourceMapper = new ProviderSourceMapper(typeServer, fileUri, /*preferStubs*/ true, token);
-        const parseResults = typeServer.getParseResults(fileUri);
         const { node, offset } = _tryGetNode(parseResults, position);
 
         super(typeServer, sourceMapper, node, offset, DefinitionFilter.All, token);

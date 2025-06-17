@@ -10,8 +10,10 @@ import { CompletionItemKind, MarkupKind } from 'vscode-languageserver-types';
 
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CompletionOptions, CompletionProvider } from 'langserver/providers/completionProvider.js';
+import { WorkspaceParseProvider } from 'langserver/providers/parseProvider.js';
 import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { parseAndGetTestState } from 'langserver/tests/harness/fourslash/testState.js';
+import { assertDefined } from 'typeserver/utils/debug.js';
 
 test('completion import statement tooltip', async () => {
     const code = `
@@ -812,10 +814,15 @@ test('completion quote trigger', async () => {
         triggerCharacter: '"',
     };
 
+    const parseResults = state.workspace.service.getParseResults(uri);
+    assertDefined(parseResults);
+
     const result = new CompletionProvider(
         state.typeServer,
+        new WorkspaceParseProvider(state.workspace),
         state.extensionManager.caseSensitivity,
         uri,
+        parseResults,
         position,
         options,
         CancellationToken.None
@@ -853,10 +860,15 @@ test('completion quote trigger - middle', async () => {
         triggerCharacter: "'",
     };
 
+    const parseResults = state.workspace.service.getParseResults(uri);
+    assertDefined(parseResults);
+
     const result = new CompletionProvider(
         state.typeServer,
+        new WorkspaceParseProvider(state.workspace),
         state.extensionManager.caseSensitivity,
         uri,
+        parseResults,
         position,
         options,
         CancellationToken.None
@@ -901,10 +913,15 @@ test('auto import sort text', async () => {
         lazyEdit: false,
     };
 
+    const parseResults = state.workspace.service.getParseResults(uri);
+    assertDefined(parseResults);
+
     const result = new CompletionProvider(
         state.typeServer,
+        new WorkspaceParseProvider(state.workspace),
         state.extensionManager.caseSensitivity,
         uri,
+        parseResults,
         position,
         options,
         CancellationToken.None

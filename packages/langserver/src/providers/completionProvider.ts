@@ -31,6 +31,7 @@ import {
     SymbolDetail,
 } from 'langserver/providers/completionProviderUtils.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { isStubFile, ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import { getAutoImportText, getDocumentationPartsForTypeAndDecl } from 'langserver/providers/tooltipUtils.js';
 import { getModuleDocStringFromUris } from 'langserver/providers/typeDocStringUtils.js';
@@ -307,7 +308,6 @@ export class CompletionProvider {
     // token or an f-string expression.
     private _stringLiteralContainer: StringToken | FStringStartToken | undefined = undefined;
 
-    protected readonly parseResults: ParseFileResults;
     protected readonly sourceMapper: ProviderSourceMapper;
 
     // If we're being asked to resolve a completion item, we run the
@@ -316,13 +316,14 @@ export class CompletionProvider {
 
     constructor(
         protected readonly typeServer: ITypeServer,
+        protected readonly parseProvider: IParseProvider,
         protected readonly caseDetector: CaseSensitivityDetector,
         protected readonly fileUri: Uri,
+        protected readonly parseResults: ParseFileResults,
         protected readonly position: Position,
         protected readonly options: CompletionOptions,
         protected readonly cancellationToken: CancellationToken
     ) {
-        this.parseResults = this.typeServer.getParseResults(this.fileUri)!;
         this.sourceMapper = new ProviderSourceMapper(
             typeServer,
             this.fileUri,
@@ -2759,7 +2760,7 @@ export class CompletionProvider {
                 ? importInfo.resolvedUris[importInfo.resolvedUris.length - 1]
                 : Uri.empty();
 
-        const parseResults = this.typeServer.getParseResults(resolvedPath);
+        const parseResults = this.parseProvider.parseFile(resolvedPath);
         if (!parseResults) {
             // Add the implicit imports.
             this._addImplicitImportsToCompletion(importInfo, importFromNode, priorWord, completionMap);
