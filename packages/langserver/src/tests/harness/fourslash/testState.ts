@@ -1243,16 +1243,14 @@ export class TestState {
             });
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
+            const fileUri = Uri.file(fileName, this.extensionManager.caseSensitivity);
 
             const actual = new ReferencesProvider(
                 this.typeServer,
+                new WorkspaceParseProvider(this.workspace),
                 CancellationToken.None,
                 createDocumentRange
-            ).reportReferences(
-                Uri.file(fileName, this.extensionManager.caseSensitivity),
-                position,
-                /* includeDeclaration */ true
-            );
+            ).reportReferences(fileUri, position, /* includeDeclaration */ true);
             assert.strictEqual(actual?.length ?? 0, expected.length, `${name} has failed`);
 
             for (const r of convertDocumentRangesToLocation(this.typeServer, expected)) {
@@ -1280,10 +1278,16 @@ export class TestState {
             const expectedRange = map[name].items.map((x) => x.range);
             const expectedName = map[name].items.map((x) => x.name);
 
+            const fileUri = Uri.file(fileName, this.extensionManager.caseSensitivity);
+            const parseResults = this.program.getParseResults(fileUri);
+            assertDefined(parseResults);
+
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new CallHierarchyProvider(
                 this.typeServer,
-                Uri.file(fileName, this.extensionManager.caseSensitivity),
+                new WorkspaceParseProvider(this.workspace),
+                fileUri,
+                parseResults,
                 position,
                 CancellationToken.None
             ).getIncomingCalls();
@@ -1325,10 +1329,16 @@ export class TestState {
             const expectedRange = map[name].items.map((x) => x.range);
             const expectedName = map[name].items.map((x) => x.name);
 
+            const fileUri = Uri.file(fileName, this.extensionManager.caseSensitivity);
+            const parseResults = this.program.getParseResults(fileUri);
+            assertDefined(parseResults);
+
             const position = this.convertOffsetToPosition(fileName, marker.position);
             const actual = new CallHierarchyProvider(
                 this.typeServer,
-                Uri.file(fileName, this.extensionManager.caseSensitivity),
+                new WorkspaceParseProvider(this.workspace),
+                fileUri,
+                parseResults,
                 position,
                 CancellationToken.None
             ).getOutgoingCalls();
@@ -1378,9 +1388,16 @@ export class TestState {
             const expected = map[name].references;
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
+
+            const fileUri = Uri.file(fileName, this.extensionManager.caseSensitivity);
+            const parseResults = this.program.getParseResults(fileUri);
+            assertDefined(parseResults);
+
             const actual = new DocumentHighlightProvider(
                 this.typeServer,
-                Uri.file(fileName, this.extensionManager.caseSensitivity),
+                new WorkspaceParseProvider(this.workspace),
+                fileUri,
+                parseResults,
                 position,
                 CancellationToken.None
             ).getDocumentHighlight();
@@ -1531,14 +1548,24 @@ export class TestState {
             });
 
             const position = this.convertOffsetToPosition(fileName, marker.position);
-            const actual = new RenameProvider(
-                this.typeServer,
-                isUntitled
-                    ? Uri.parse(`untitled:${fileName.replace(/\\/g, '/')}`, this.extensionManager.caseSensitivity)
-                    : Uri.file(fileName, this.extensionManager.caseSensitivity),
-                position,
-                CancellationToken.None
-            ).renameSymbol(expected.newName, /* isDefaultWorkspace */ false, isUntitled);
+
+            const fileUri = isUntitled
+                ? Uri.parse(`untitled:${fileName.replace(/\\/g, '/')}`, this.extensionManager.caseSensitivity)
+                : Uri.file(fileName, this.extensionManager.caseSensitivity);
+            const parseResults = this.workspace.service.getParseResults(fileUri);
+
+            let actual: WorkspaceEdit | null = null;
+
+            if (parseResults) {
+                actual = new RenameProvider(
+                    this.typeServer,
+                    new WorkspaceParseProvider(this.workspace),
+                    fileUri,
+                    parseResults,
+                    position,
+                    CancellationToken.None
+                ).renameSymbol(expected.newName, /* isDefaultWorkspace */ false, isUntitled);
+            }
 
             verifyWorkspaceEdit(
                 convertToWorkspaceEdit(this.typeServer, { edits: expected.changes, fileOperations: [] }),

@@ -14,6 +14,7 @@ import { appendArray } from 'commonUtils/collectionUtils.js';
 import { assertNever } from 'commonUtils/debug.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { CollectionResult, DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { convertDocumentRangesToLocation } from 'langserver/server/navigationUtils.js';
 import { Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
@@ -106,11 +107,10 @@ export class ReferencesResult {
 }
 
 export class FindReferencesTreeWalker {
-    private _parseResults: ParseFileResults | undefined;
-
     constructor(
         private _typeServer: ITypeServer,
         private _fileUri: Uri,
+        private _parseResults: ParseFileResults,
         private _referencesResult: ReferencesResult,
         private _includeDeclaration: boolean,
         private _cancellationToken: CancellationToken,
@@ -119,15 +119,10 @@ export class FindReferencesTreeWalker {
             result: CollectionResult,
             parseResults: ParseFileResults
         ) => DocumentRange = FindReferencesTreeWalker.createDocumentRange
-    ) {
-        this._parseResults = this._typeServer.getParseResults(this._fileUri);
-    }
+    ) {}
 
-    findReferences(rootNode = this._parseResults?.parserOutput.parseTree) {
+    findReferences(rootNode = this._parseResults.parserOutput.parseTree) {
         const results: LocationWithNode[] = [];
-        if (!this._parseResults) {
-            return results;
-        }
 
         const collector = new DocumentSymbolCollector(
             this._typeServer,
@@ -181,6 +176,7 @@ export class FindReferencesTreeWalker {
 export class ReferencesProvider {
     constructor(
         private _typeServer: ITypeServer,
+        private _parseProvider: IParseProvider,
         private _token: CancellationToken,
         private readonly _createDocumentRange?: (
             fileUri: Uri,
@@ -202,7 +198,7 @@ export class ReferencesProvider {
             return;
         }
 
-        const parseResults = this._typeServer.getParseResults(fileUri);
+        const parseResults = this._parseProvider.parseFile(fileUri);
         if (!parseResults) {
             return;
         }
@@ -215,6 +211,7 @@ export class ReferencesProvider {
         const invokedFromUserFile = sourceFileInfo.inProject;
         const referencesResult = ReferencesProvider.getDeclarationForPosition(
             this._typeServer,
+            this._parseProvider,
             fileUri,
             position,
             reporter,
@@ -295,7 +292,7 @@ export class ReferencesProvider {
     }
 
     addReferencesToResult(fileUri: Uri, includeDeclaration: boolean, referencesResult: ReferencesResult): void {
-        const parseResults = this._typeServer.getParseResults(fileUri);
+        const parseResults = this._parseProvider.parseFile(fileUri);
         if (!parseResults) {
             return;
         }
@@ -303,6 +300,7 @@ export class ReferencesProvider {
         const refTreeWalker = new FindReferencesTreeWalker(
             this._typeServer,
             fileUri,
+            parseResults,
             referencesResult,
             includeDeclaration,
             this._token,
@@ -314,6 +312,7 @@ export class ReferencesProvider {
 
     static getDeclarationForNode(
         typeServer: ITypeServer,
+        parseProvider: IParseProvider,
         fileUri: Uri,
         node: NameNode,
         reporter: ReferenceCallback | undefined,
@@ -324,6 +323,7 @@ export class ReferencesProvider {
 
         const declarations = DocumentSymbolCollector.getDeclarationsForNode(
             typeServer,
+            parseProvider,
             node,
             /* resolveLocalNames */ false,
             token
@@ -349,6 +349,7 @@ export class ReferencesProvider {
 
     static getDeclarationForPosition(
         typeServer: ITypeServer,
+        parseProvider: IParseProvider,
         fileUri: Uri,
         position: Position,
         reporter: ReferenceCallback | undefined,
@@ -356,7 +357,7 @@ export class ReferencesProvider {
         token: CancellationToken
     ): ReferencesResult | undefined {
         throwIfCancellationRequested(token);
-        const parseResults = typeServer.getParseResults(fileUri);
+        const parseResults = parseProvider.parseFile(fileUri);
         if (!parseResults) {
             return undefined;
         }
@@ -376,7 +377,7 @@ export class ReferencesProvider {
             return undefined;
         }
 
-        return this.getDeclarationForNode(typeServer, fileUri, node, reporter, useCase, token);
+        return this.getDeclarationForNode(typeServer, parseProvider, fileUri, node, reporter, useCase, token);
     }
 }
 

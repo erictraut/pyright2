@@ -31,23 +31,16 @@ export function convertToFlatSymbols(
 }
 
 export class DocumentSymbolProvider {
-    private _parseResults: ParseFileResults | undefined;
-
     constructor(
         protected readonly typeServer: ITypeServer,
         protected readonly uri: Uri,
+        private readonly _parseResults: ParseFileResults,
         private readonly _supportHierarchicalDocumentSymbol: boolean,
         private readonly _indexOptions: IndexOptions,
         private readonly _token: CancellationToken
-    ) {
-        this._parseResults = this.typeServer.getParseResults(this.uri);
-    }
+    ) {}
 
     getSymbols(): DocumentSymbol[] | SymbolInformation[] {
-        if (!this._parseResults) {
-            return [];
-        }
-
         const symbolList = this.getHierarchicalSymbols();
         if (this._supportHierarchicalDocumentSymbol) {
             return symbolList;
@@ -58,10 +51,6 @@ export class DocumentSymbolProvider {
 
     protected getHierarchicalSymbols() {
         const symbolList: DocumentSymbol[] = [];
-        if (!this._parseResults) {
-            return symbolList;
-        }
-
         const indexSymbolData = SymbolIndexer.indexSymbols(this._parseResults, this._indexOptions, this._token);
         this.appendDocumentSymbolsRecursive(indexSymbolData, symbolList);
 

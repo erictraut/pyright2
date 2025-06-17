@@ -21,6 +21,6 @@ export class WorkspaceParseProvider implements IParseProvider {
     parseFile(fileUri: Uri): ParseFileResults | undefined {
         // TODO - add caching for the workspace to avoid parsing
         // the same file unnecessarily.
-        return this._workspace.service.program.getParseResults(fileUri);
+        return this._workspace.service.getParseResults(fileUri);
     }
 }

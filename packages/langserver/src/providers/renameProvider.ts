@@ -11,6 +11,7 @@ import { CancellationToken, WorkspaceEdit } from 'vscode-languageserver';
 
 import { assertNever } from 'commonUtils/debug.js';
 import { Uri } from 'commonUtils/uri/uri.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
 import { convertToWorkspaceEdit } from 'langserver/server/workspaceEditUtils.js';
@@ -22,23 +23,17 @@ import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class RenameProvider {
-    private readonly _parseResults: ParseFileResults | undefined;
-
     constructor(
         private _typeServer: ITypeServer,
+        private _parseProvider: IParseProvider,
         private _fileUri: Uri,
+        private _parseResults: ParseFileResults,
         private _position: Position,
         private _token: CancellationToken
-    ) {
-        this._parseResults = this._typeServer.getParseResults(this._fileUri);
-    }
+    ) {}
 
     canRenameSymbol(isDefaultWorkspace: boolean, isUntitled: boolean): Range | null {
         throwIfCancellationRequested(this._token);
-        if (!this._parseResults) {
-            return null;
-        }
-
         const referencesResult = this._getReferenceResult();
         if (!referencesResult) {
             return null;
@@ -61,16 +56,13 @@ export class RenameProvider {
 
     renameSymbol(newName: string, isDefaultWorkspace: boolean, isUntitled: boolean): WorkspaceEdit | null {
         throwIfCancellationRequested(this._token);
-        if (!this._parseResults) {
-            return null;
-        }
 
         const referencesResult = this._getReferenceResult();
         if (!referencesResult) {
             return null;
         }
 
-        const referenceProvider = new ReferencesProvider(this._typeServer, this._token);
+        const referenceProvider = new ReferencesProvider(this._typeServer, this._parseProvider, this._token);
         const renameMode = RenameProvider.getRenameSymbolMode(
             this._typeServer,
             this._fileUri,
@@ -167,6 +159,7 @@ export class RenameProvider {
     private _getReferenceResult() {
         const referencesResult = ReferencesProvider.getDeclarationForPosition(
             this._typeServer,
+            this._parseProvider,
             this._fileUri,
             this._position,
             /* reporter */ undefined,

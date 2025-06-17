@@ -12,6 +12,7 @@ import { CancellationToken, DocumentHighlight, DocumentHighlightKind } from 'vsc
 
 import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { findNodeByOffset, isWriteAccess } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetsToRange, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
@@ -22,16 +23,14 @@ import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class DocumentHighlightProvider {
-    private readonly _parseResults: ParseFileResults | undefined;
-
     constructor(
         private _typeServer: ITypeServer,
+        private _parseProvider: IParseProvider,
         private _fileUri: Uri,
+        private _parseResults: ParseFileResults,
         private _position: Position,
         private _token: CancellationToken
-    ) {
-        this._parseResults = this._typeServer.getParseResults(this._fileUri);
-    }
+    ) {}
 
     getDocumentHighlight(): DocumentHighlight[] | undefined {
         throwIfCancellationRequested(this._token);
@@ -55,6 +54,7 @@ export class DocumentHighlightProvider {
 
         const results = DocumentSymbolCollector.collectFromNode(
             this._typeServer,
+            this._parseProvider,
             node,
             this._token,
             this._parseResults.parserOutput.parseTree,

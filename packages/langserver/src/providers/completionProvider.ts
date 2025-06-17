@@ -2225,6 +2225,7 @@ export class CompletionProvider {
 
         const results = DocumentSymbolCollector.collectFromNode(
             this.typeServer,
+            this.parseProvider,
             indexNode.d.leftExpr,
             this.cancellationToken,
             startingNode

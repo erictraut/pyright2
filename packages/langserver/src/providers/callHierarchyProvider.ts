@@ -19,6 +19,7 @@ import {
 import { appendArray } from 'commonUtils/collectionUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { ReferencesProvider, ReferencesResult } from 'langserver/providers/referencesProvider.js';
 import { getSymbolKind } from 'langserver/server/lspUtils.js';
@@ -45,23 +46,17 @@ import { ParseTreeWalker } from 'typeserver/parser/parseTreeWalker.js';
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 export class CallHierarchyProvider {
-    private readonly _parseResults: ParseFileResults | undefined;
-
     constructor(
         private _typeServer: ITypeServer,
+        private _parseProvider: IParseProvider,
         private _fileUri: Uri,
+        private _parseResults: ParseFileResults,
         private _position: Position,
         private _token: CancellationToken
-    ) {
-        this._parseResults = this._typeServer.getParseResults(this._fileUri);
-    }
+    ) {}
 
     onPrepare(): CallHierarchyItem[] | null {
         throwIfCancellationRequested(this._token);
-        if (!this._parseResults) {
-            return null;
-        }
-
         const referencesResult = this._getDeclaration();
         if (!referencesResult || referencesResult.declarations.length === 0) {
             return null;
@@ -110,10 +105,6 @@ export class CallHierarchyProvider {
 
     getIncomingCalls(): CallHierarchyIncomingCall[] | null {
         throwIfCancellationRequested(this._token);
-        if (!this._parseResults) {
-            return null;
-        }
-
         const referencesResult = this._getDeclaration();
         if (!referencesResult || referencesResult.declarations.length === 0) {
             return null;
@@ -146,10 +137,6 @@ export class CallHierarchyProvider {
 
     getOutgoingCalls(): CallHierarchyOutgoingCall[] | null {
         throwIfCancellationRequested(this._token);
-        if (!this._parseResults) {
-            return null;
-        }
-
         const referencesResult = this._getDeclaration();
         if (!referencesResult || referencesResult.declarations.length === 0) {
             return null;
@@ -263,9 +250,16 @@ export class CallHierarchyProvider {
     ): CallHierarchyIncomingCall[] | undefined {
         throwIfCancellationRequested(this._token);
 
+        const parseResults = this._parseProvider.parseFile(fileUri);
+        if (!parseResults) {
+            return undefined;
+        }
+
         const callFinder = new FindIncomingCallTreeWalker(
             this._typeServer,
             fileUri,
+            parseResults,
+            this._parseProvider,
             symbolName,
             declaration,
             this._token
@@ -278,6 +272,7 @@ export class CallHierarchyProvider {
     private _getDeclaration(): ReferencesResult | undefined {
         return ReferencesProvider.getDeclarationForPosition(
             this._typeServer,
+            this._parseProvider,
             this._fileUri,
             this._position,
             /* reporter */ undefined,
@@ -431,18 +426,17 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
     private readonly _incomingCalls: CallHierarchyIncomingCall[] = [];
     private readonly _declarations: Declaration[] = [];
 
-    private readonly _parseResults: ParseFileResults;
-
     constructor(
         private readonly _typeServer: ITypeServer,
         private readonly _fileUri: Uri,
+        private readonly _parseResults: ParseFileResults,
+        private readonly _parseProvider: IParseProvider,
         private readonly _symbolName: string,
         private readonly _targetDeclaration: Declaration,
         private readonly _cancellationToken: CancellationToken
     ) {
         super();
 
-        this._parseResults = this._typeServer.getParseResults(this._fileUri)!;
         this._declarations.push(this._targetDeclaration);
     }
 
@@ -526,6 +520,7 @@ class FindIncomingCallTreeWalker extends ParseTreeWalker {
     private _getDeclarations(node: NameNode) {
         const declarations = DocumentSymbolCollector.getDeclarationsForNode(
             this._typeServer,
+            this._parseProvider,
             node,
             /* resolveLocalName */ true,
             this._cancellationToken

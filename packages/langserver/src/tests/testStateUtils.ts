@@ -14,7 +14,9 @@ import { assertNever } from 'commonUtils/debug.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { isArray } from 'commonUtils/valueTypeUtils.js';
 import { DocumentSymbolCollector } from 'langserver/providers/documentSymbolCollector.js';
+import { WorkspaceParseProvider } from 'langserver/providers/parseProvider.js';
 import { applyTextEditsToString } from 'langserver/server/workspaceEditUtils.js';
+import { Workspace } from 'langserver/server/workspaceFactory.js';
 import { Range } from 'langserver/tests/harness/fourslash/fourSlashTypes.js';
 import { TestState } from 'langserver/tests/harness/fourslash/testState.js';
 import { FileEditAction, FileEditActions } from 'typeserver/common/editAction.js';
@@ -146,6 +148,7 @@ function _applyEdits(state: TestState, filePath: string, edits: FileEditAction[]
 }
 
 export function verifyReferencesAtPosition(
+    workspace: Workspace,
     program: Program,
     configOption: ConfigOptions,
     symbolNames: string | string[],
@@ -160,6 +163,7 @@ export function verifyReferencesAtPosition(
     const node = findNodeByOffset(sourceFile.getParseResults()!.parserOutput.parseTree, position);
     const decls = DocumentSymbolCollector.getDeclarationsForNode(
         typeServer,
+        new WorkspaceParseProvider(workspace),
         node as NameNode,
         /* resolveLocalName */ true,
         CancellationToken.None

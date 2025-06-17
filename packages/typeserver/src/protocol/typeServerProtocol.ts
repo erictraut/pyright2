@@ -11,7 +11,6 @@ import { CancellationToken } from 'vscode-languageserver';
 
 import { SymbolTable } from 'typeserver/binder/symbol.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { OpenFileOptions } from 'typeserver/program/program.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
@@ -49,7 +48,6 @@ export interface ITypeServer {
     // isFinalVariableDeclaration
 
     // TODO - rethink these interfaces.
-    getParseResults(fileUri: Uri): ParseFileResults | undefined;
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
 
     // TODO - remove this

@@ -60,7 +60,15 @@ test('folder reference', () => {
 
     const ranges = state.getRangesByText().get('io2')!;
     for (const range of ranges) {
-        verifyReferencesAtPosition(state.program, state.configOptions, 'io2', range.fileName, range.pos, ranges);
+        verifyReferencesAtPosition(
+            state.workspace,
+            state.program,
+            state.configOptions,
+            'io2',
+            range.fileName,
+            range.pos,
+            ranges
+        );
     }
 });
 
@@ -115,7 +123,15 @@ test('__init__ wildcard import', () => {
 
     const ranges = state.getRangesByText().get('tools')!;
     for (const range of ranges) {
-        verifyReferencesAtPosition(state.program, state.configOptions, 'tools', range.fileName, range.pos, ranges);
+        verifyReferencesAtPosition(
+            state.workspace,
+            state.program,
+            state.configOptions,
+            'tools',
+            range.fileName,
+            range.pos,
+            ranges
+        );
     }
 });
 
@@ -170,7 +186,15 @@ test('submodule wildcard import', () => {
 
     const ranges = state.getRangesByText().get('pathUtils')!;
     for (const range of ranges) {
-        verifyReferencesAtPosition(state.program, state.configOptions, 'pathUtils', range.fileName, range.pos, ranges);
+        verifyReferencesAtPosition(
+            state.workspace,
+            state.program,
+            state.configOptions,
+            'pathUtils',
+            range.fileName,
+            range.pos,
+            ranges
+        );
     }
 });
 
@@ -328,7 +352,15 @@ test('import dotted name', () => {
     function verify(name: string) {
         const ranges = state.getRangesByText().get(name)!;
         for (const range of ranges) {
-            verifyReferencesAtPosition(state.program, state.configOptions, name, range.fileName, range.pos, ranges);
+            verifyReferencesAtPosition(
+                state.workspace,
+                state.program,
+                state.configOptions,
+                name,
+                range.fileName,
+                range.pos,
+                ranges
+            );
         }
     }
 
@@ -360,6 +392,7 @@ test('import alias', () => {
     const marker1 = state.getMarkerByName('marker1');
     const ranges1 = state.getRangesByText().get('module1')!;
     verifyReferencesAtPosition(
+        state.workspace,
         state.program,
         state.configOptions,
         'module1',
@@ -371,6 +404,7 @@ test('import alias', () => {
     const marker2 = state.getMarkerByName('marker2');
     const ranges2 = state.getRangesByText().get('module2')!;
     verifyReferencesAtPosition(
+        state.workspace,
         state.program,
         state.configOptions,
         'module2',
@@ -395,5 +429,13 @@ test('string in __all__', () => {
 
     const marker1 = state.getMarkerByName('marker1');
     const ranges1 = state.getRangesByText().get('A')!;
-    verifyReferencesAtPosition(state.program, state.configOptions, 'A', marker1.fileName, marker1.position, ranges1);
+    verifyReferencesAtPosition(
+        state.workspace,
+        state.program,
+        state.configOptions,
+        'A',
+        marker1.fileName,
+        marker1.position,
+        ranges1
+    );
 });

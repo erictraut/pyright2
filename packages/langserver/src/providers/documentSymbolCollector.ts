@@ -12,6 +12,7 @@ import { CancellationToken } from 'vscode-languageserver';
 
 import { appendArray } from 'commonUtils/collectionUtils.js';
 import { assert } from 'commonUtils/debug.js';
+import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
@@ -123,6 +124,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
 
     static collectFromNode(
         typeServer: ITypeServer,
+        parseProvider: IParseProvider,
         node: NameNode,
         cancellationToken: CancellationToken,
         startingNode?: ParseNode,
@@ -130,6 +132,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
     ): CollectionResult[] {
         const declarations = this.getDeclarationsForNode(
             typeServer,
+            parseProvider,
             node,
             /* resolveLocalName */ true,
             cancellationToken
@@ -154,16 +157,12 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
 
     static getDeclarationsForNode(
         typeServer: ITypeServer,
+        parseProvider: IParseProvider,
         node: NameNode,
         resolveLocalName: boolean,
         token: CancellationToken
     ): Declaration[] {
         throwIfCancellationRequested(token);
-
-        const evaluator = typeServer.evaluator;
-        if (!evaluator) {
-            return [];
-        }
 
         const declarations = getDeclarationsForNameNode(typeServer, node, /* skipUnreachableCode */ false);
         const fileInfo = getFileInfo(node);
@@ -206,7 +205,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
             const implicitlyImportedBy = typeServer.getImportedByRecursive(sourceFileInfo.uri);
 
             implicitlyImportedBy.forEach((implicitImport) => {
-                const parseTree = typeServer.getParseResults(implicitImport.uri)?.parserOutput.parseTree;
+                const parseTree = parseProvider.parseFile(implicitImport.uri)?.parserOutput.parseTree;
                 if (parseTree) {
                     const scope = getScope(parseTree);
                     const symbol = scope?.lookUpSymbol(node.d.value);

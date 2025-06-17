@@ -17,7 +17,6 @@ import { SymbolDeclInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluato
 import { ImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
-import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { OpenFileOptions, Program } from 'typeserver/program/program.js';
 import { SourceFileProvider } from 'typeserver/program/sourceFileProvider.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
@@ -39,10 +38,6 @@ export class TypeServerProvider implements ITypeServer {
 
     get evaluator(): TypeEvaluator {
         return this._program.evaluator!;
-    }
-
-    getParseResults(fileUri: Uri): ParseFileResults | undefined {
-        return this._program.getParseResults(fileUri);
     }
 
     getSourceFile(fileUri: Uri): ITypeServerSourceFile | undefined {

@@ -804,8 +804,15 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                     return undefined;
                 }
 
-                return workspace.service.run((program) => {
-                    return new DefinitionProvider(program, uri, parseResults, position, filter, token).getDefinitions();
+                return workspace.service.run((typeServer) => {
+                    return new DefinitionProvider(
+                        typeServer,
+                        uri,
+                        parseResults,
+                        position,
+                        filter,
+                        token
+                    ).getDefinitions();
                 }, token);
             }
         );
@@ -825,8 +832,15 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                     return undefined;
                 }
 
-                return workspace.service.run((program) => {
-                    return new DefinitionProvider(program, uri, parseResults, position, filter, token).getDefinitions();
+                return workspace.service.run((typeServer) => {
+                    return new DefinitionProvider(
+                        typeServer,
+                        uri,
+                        parseResults,
+                        position,
+                        filter,
+                        token
+                    ).getDefinitions();
                 }, token);
             }
         );
@@ -842,8 +856,8 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                 return undefined;
             }
 
-            return workspace.service.run((program) => {
-                return new TypeDefinitionProvider(program, uri, parseResults, position, token).getDefinitions();
+            return workspace.service.run((typeServer) => {
+                return new TypeDefinitionProvider(typeServer, uri, parseResults, position, token).getDefinitions();
             }, token);
         });
     }
@@ -918,13 +932,18 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
                 return;
             }
 
-            return workspace.service.run((program) => {
-                return new ReferencesProvider(program, source.token, createDocumentRange).reportReferences(
-                    uri,
-                    params.position,
-                    params.context.includeDeclaration,
-                    resultReporter
-                );
+            return workspace.service.run((typeServer) => {
+                const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+                if (!parseResults) {
+                    return undefined;
+                }
+
+                return new ReferencesProvider(
+                    typeServer,
+                    new WorkspaceParseProvider(workspace),
+                    source.token,
+                    createDocumentRange
+                ).reportReferences(uri, params.position, params.context.includeDeclaration, resultReporter);
             }, token);
         } finally {
             progress.reporter.done();
@@ -944,10 +963,16 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return undefined;
         }
 
-        return workspace.service.run((program) => {
+        return workspace.service.run((typeServer) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return undefined;
+            }
+
             return new DocumentSymbolProvider(
-                program,
+                typeServer,
                 uri,
+                parseResults,
                 this.client.hasHierarchicalDocumentSymbolCapability,
                 { includeAliases: false },
                 token
@@ -1004,8 +1029,20 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
         const uri = this.convertLspUriStringToUri(params.textDocument.uri);
         const workspace = await this.getWorkspaceForFile(uri);
 
-        return workspace.service.run((program) => {
-            return new DocumentHighlightProvider(program, uri, params.position, token).getDocumentHighlight();
+        return workspace.service.run((typeServer) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return undefined;
+            }
+
+            return new DocumentHighlightProvider(
+                typeServer,
+                new WorkspaceParseProvider(workspace),
+                uri,
+                parseResults,
+                params.position,
+                token
+            ).getDocumentHighlight();
         }, token);
     }
 
@@ -1146,11 +1183,20 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return null;
         }
 
-        return workspace.service.run((program) => {
-            return new RenameProvider(program, uri, params.position, token).canRenameSymbol(
-                workspace.kinds.includes(WellKnownWorkspaceKinds.Default),
-                isUntitled
-            );
+        return workspace.service.run((typeServer) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return null;
+            }
+
+            return new RenameProvider(
+                typeServer,
+                new WorkspaceParseProvider(workspace),
+                uri,
+                parseResults,
+                params.position,
+                token
+            ).canRenameSymbol(workspace.kinds.includes(WellKnownWorkspaceKinds.Default), isUntitled);
         }, token);
     }
 
@@ -1166,12 +1212,20 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return;
         }
 
-        return workspace.service.run((program) => {
-            return new RenameProvider(program, uri, params.position, token).renameSymbol(
-                params.newName,
-                workspace.kinds.includes(WellKnownWorkspaceKinds.Default),
-                isUntitled
-            );
+        return workspace.service.run((typeServer) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return null;
+            }
+
+            return new RenameProvider(
+                typeServer,
+                new WorkspaceParseProvider(workspace),
+                uri,
+                parseResults,
+                params.position,
+                token
+            ).renameSymbol(params.newName, workspace.kinds.includes(WellKnownWorkspaceKinds.Default), isUntitled);
         }, token);
     }
 
@@ -1186,8 +1240,20 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return null;
         }
 
-        return workspace.service.run((program) => {
-            return new CallHierarchyProvider(program, uri, params.position, token).onPrepare();
+        return workspace.service.run((typeServer) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return null;
+            }
+
+            return new CallHierarchyProvider(
+                typeServer,
+                new WorkspaceParseProvider(workspace),
+                uri,
+                parseResults,
+                params.position,
+                token
+            ).onPrepare();
         }, token);
     }
 
@@ -1199,8 +1265,20 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return null;
         }
 
-        return workspace.service.run((program) => {
-            return new CallHierarchyProvider(program, uri, params.item.range.start, token).getIncomingCalls();
+        return workspace.service.run((typeServer) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return null;
+            }
+
+            return new CallHierarchyProvider(
+                typeServer,
+                new WorkspaceParseProvider(workspace),
+                uri,
+                parseResults,
+                params.item.range.start,
+                token
+            ).getIncomingCalls();
         }, token);
     }
 
@@ -1215,8 +1293,20 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return null;
         }
 
-        return workspace.service.run((program) => {
-            return new CallHierarchyProvider(program, uri, params.item.range.start, token).getOutgoingCalls();
+        return workspace.service.run((typeServer) => {
+            const parseResults = this.getCachedParseResultsForFile(workspace, uri);
+            if (!parseResults) {
+                return null;
+            }
+
+            return new CallHierarchyProvider(
+                typeServer,
+                new WorkspaceParseProvider(workspace),
+                uri,
+                parseResults,
+                params.item.range.start,
+                token
+            ).getOutgoingCalls();
         }, token);
     }
 
