@@ -18,7 +18,7 @@ import {
     isAliasDeclaration,
     isVariableDeclaration,
 } from 'typeserver/binder/declaration.js';
-import { getNameNodeForDeclaration } from 'typeserver/binder/declarationUtils.js';
+import { getNameNodeForDeclaration, isFinalVariableDeclaration } from 'typeserver/binder/declarationUtils.js';
 import { Scope, ScopeType } from 'typeserver/binder/scope.js';
 import { getScopeForNode } from 'typeserver/binder/scopeUtils.js';
 import { evaluateStaticBoolExpression } from 'typeserver/binder/staticExpressions.js';
@@ -3365,7 +3365,7 @@ export class Checker extends ParseTreeWalker {
         let sawAssignment = false;
 
         decls.forEach((decl) => {
-            if (this._evaluator.isFinalVariableDeclaration(decl)) {
+            if (isFinalVariableDeclaration(decl)) {
                 if (sawFinal) {
                     this._evaluator.addDiagnostic(
                         DiagnosticRule.reportGeneralTypeIssues,
@@ -4487,7 +4487,7 @@ export class Checker extends ParseTreeWalker {
         if (primaryDeclaration.type === DeclarationType.Alias) {
             // If this symbol is an import alias (i.e. it's a local name rather than the
             // original imported name), skip the private check.
-            if (primaryDeclaration.usesLocalName) {
+            if (primaryDeclaration.aliasName) {
                 return;
             }
 
@@ -6887,7 +6887,7 @@ export class Checker extends ParseTreeWalker {
 
             // Verify that there is not a Final mismatch.
             const isBaseVarFinal = this._evaluator.isFinalVariable(baseClassAndSymbol.symbol);
-            const overrideFinalVarDecl = decls.find((d) => this._evaluator.isFinalVariableDeclaration(d));
+            const overrideFinalVarDecl = decls.find((d) => isFinalVariableDeclaration(d));
 
             if (!isBaseVarFinal && overrideFinalVarDecl) {
                 const diag = this._evaluator.addDiagnostic(

@@ -1866,7 +1866,7 @@ export class Binder extends ParseTreeWalker {
                                     uri: resolvedPath,
                                     loadSymbolsFromPath: true,
                                     range: getEmptyRange(), // Range is unknown for wildcard name import.
-                                    usesLocalName: false,
+                                    aliasName: undefined,
                                     symbolName: name,
                                     moduleName: this._fileInfo.moduleName,
                                     isInExceptSuite: this._isInExceptSuite,
@@ -1886,7 +1886,8 @@ export class Binder extends ParseTreeWalker {
                                             uri: implicitImport.uri,
                                             loadSymbolsFromPath: true,
                                             range: getEmptyRange(),
-                                            usesLocalName: false,
+                                            aliasName: undefined,
+                                            symbolName: undefined,
                                             moduleName: this._fileInfo.moduleName,
                                             isInExceptSuite: this._isInExceptSuite,
                                         };
@@ -1896,7 +1897,7 @@ export class Binder extends ParseTreeWalker {
                                             node,
                                             uri: resolvedPath,
                                             loadSymbolsFromPath: true,
-                                            usesLocalName: false,
+                                            aliasName: undefined,
                                             symbolName: name,
                                             submoduleFallback,
                                             range: getEmptyRange(),
@@ -1982,7 +1983,8 @@ export class Binder extends ParseTreeWalker {
                             uri: implicitImport.uri,
                             loadSymbolsFromPath: true,
                             range: getEmptyRange(),
-                            usesLocalName: false,
+                            aliasName: undefined,
+                            symbolName: undefined,
                             moduleName: this._formatModuleName(node.d.module),
                             isInExceptSuite: this._isInExceptSuite,
                         };
@@ -2006,7 +2008,7 @@ export class Binder extends ParseTreeWalker {
                         node: importSymbolNode,
                         uri: resolvedPath,
                         loadSymbolsFromPath,
-                        usesLocalName: !!importSymbolNode.d.alias,
+                        aliasName: importSymbolNode.d.alias,
                         symbolName: importedName,
                         submoduleFallback,
                         range: convertTextRangeToRange(nameNode, this._fileInfo.lines),
@@ -2658,7 +2660,8 @@ export class Binder extends ParseTreeWalker {
                 uri: uriOfLastSubmodule,
                 loadSymbolsFromPath: false,
                 range: getEmptyRange(),
-                usesLocalName: !!importAlias,
+                aliasName: importAlias,
+                symbolName: undefined,
                 moduleName: importAlias
                     ? this._formatModuleName(node.d.module)
                     : '.'.repeat(node.d.module.d.leadingDots) + firstNamePartValue,
@@ -2675,7 +2678,8 @@ export class Binder extends ParseTreeWalker {
                 uri: uriOfLastSubmodule,
                 loadSymbolsFromPath: true,
                 range: getEmptyRange(),
-                usesLocalName: !!importAlias,
+                aliasName: importAlias,
+                symbolName: undefined,
                 moduleName: importInfo?.importName ?? '',
                 firstNamePart: importAlias
                     ? this._formatModuleName(node.d.module)

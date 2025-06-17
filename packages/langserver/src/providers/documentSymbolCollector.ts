@@ -18,7 +18,7 @@ import { ReferenceUseCase } from 'langserver/providers/providerTypes.js';
 import { AliasDeclaration, Declaration, DeclarationType, isAliasDeclaration } from 'typeserver/binder/declaration.js';
 import {
     areDeclarationsSame,
-    getDeclarationsWithUsesLocalNameRemoved,
+    getDeclarationsWithAliasNameRemoved,
     synthesizeAliasDeclaration,
 } from 'typeserver/binder/declarationUtils.js';
 import { ScopeType } from 'typeserver/binder/scope.js';
@@ -335,12 +335,12 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
         // "from x import y as [y]" but don't do thing for alias in "import x as [x]"
         // Here, alias should have same name as module name.
         if (isAliasDeclFromImportAsWithAlias(declaration)) {
-            return getDeclarationsWithUsesLocalNameRemoved([declaration])[0];
+            return getDeclarationsWithAliasNameRemoved([declaration])[0];
         }
 
         const resolvedDecl = this._aliasResolver.resolve(declaration, /* resolveLocalNames */ true);
         return isAliasDeclFromImportAsWithAlias(resolvedDecl)
-            ? getDeclarationsWithUsesLocalNameRemoved([resolvedDecl])[0]
+            ? getDeclarationsWithAliasNameRemoved([resolvedDecl])[0]
             : resolvedDecl;
 
         function isAliasDeclFromImportAsWithAlias(decl?: Declaration): decl is AliasDeclaration {
@@ -348,7 +348,7 @@ export class DocumentSymbolCollector extends ParseTreeWalker {
                 !!decl &&
                 decl.type === DeclarationType.Alias &&
                 decl.node &&
-                decl.usesLocalName &&
+                decl.aliasName !== undefined &&
                 decl.node.nodeType === ParseNodeType.ImportAs
             );
         }
@@ -536,7 +536,7 @@ function _getDeclarationsForModuleNameNode(typeServer: ITypeServer, node: NameNo
                 // ex, import X as x
                 // We have decls for the alias "x" not the module name "X". Convert decls for the "X"
                 if (isImportAsWithAlias) {
-                    declsFromSymbol = getDeclarationsWithUsesLocalNameRemoved(declsFromSymbol);
+                    declsFromSymbol = getDeclarationsWithAliasNameRemoved(declsFromSymbol);
                 }
 
                 appendArray(decls, declsFromSymbol);

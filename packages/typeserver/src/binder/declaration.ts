@@ -115,13 +115,6 @@ export interface FunctionDeclaration extends DeclarationBase {
 export interface ParamDeclaration extends DeclarationBase {
     type: DeclarationType.Param;
     node: ParameterNode;
-
-    // Inferred parameters can be inferred from pieces of an actual NameNode, so this
-    // value represents the actual 'name' as the user thinks of it.
-    inferredName?: string;
-
-    // Nodes that potentially makeup the type of an inferred parameter.
-    inferredTypeNodes?: ExpressionNode[];
 }
 
 export interface TypeParamDeclaration extends DeclarationBase {
@@ -179,9 +172,6 @@ export interface VariableDeclaration extends DeclarationBase {
     // If an "attribute docstring" (as defined in PEP 258) is present...
     docString?: string | undefined;
 
-    // If set, indicates an alternative node to use to determine the type of the variable.
-    alternativeTypeNode?: ExpressionNode;
-
     // Is the declaration an assignment through an explicit nonlocal or global binding?
     isExplicitBinding?: boolean;
 }
@@ -195,14 +185,14 @@ export interface AliasDeclaration extends DeclarationBase {
     // Does this declaration use a local name or use the
     // imported symbol directly? This is used to find and
     // rename references.
-    usesLocalName: boolean;
+    aliasName: NameNode | undefined;
 
     // Indicate whether symbols can be loaded from the path.
     loadSymbolsFromPath: boolean;
 
     // The name of the symbol being imported (used for "from X import Y"
     // statements, not applicable to "import X" statements).
-    symbolName?: string | undefined;
+    symbolName: string | undefined;
 
     // If there is a symbol name that can't be resolved within
     // the target module (defined by "path"), the symbol might

@@ -10,10 +10,12 @@ import { CancellationToken } from 'vscode-languageserver';
 
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
 import { SymbolTable } from 'typeserver/binder/symbol.js';
+import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
 import { findNodeByPosition, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.js';
-import { convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
+import { convertOffsetToPosition, convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
 import { SymbolDeclInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { Type } from 'typeserver/evaluator/types.js';
 import { ImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
 import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
@@ -22,14 +24,15 @@ import { SourceFileProvider } from 'typeserver/program/sourceFileProvider.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import {
     AutoImportInfo,
-    DeclarationCategory,
-    DeclarationInfo,
-    DeclarationOptions,
+    Decl,
+    DeclCategory,
+    DeclInfo,
+    DeclOptions,
+    ImportDecl,
     ITypeServer,
     ITypeServerSourceFile,
     Position,
     SourceFilesOptions,
-    Declaration as TSDeclaration,
 } from 'typeserver/protocol/typeServerProtocol.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
@@ -38,6 +41,14 @@ export class TypeServerProvider implements ITypeServer {
 
     get evaluator(): TypeEvaluator {
         return this._program.evaluator!;
+    }
+
+    getTypeForDecl(decl: Decl, undecorated?: boolean): Type | undefined {
+        const declaration = this._program.typeServerRegistry?.getDeclaration(decl.id);
+        if (!declaration) {
+            return undefined;
+        }
+        return this._program.evaluator?.getTypeForDeclaration(declaration, undecorated)?.type;
     }
 
     getSourceFile(fileUri: Uri): ITypeServerSourceFile | undefined {
@@ -75,11 +86,7 @@ export class TypeServerProvider implements ITypeServer {
         return this._program.getSourceMapper(fileUri, preferStubs, token);
     }
 
-    getDeclarationsForPosition(
-        fileUri: Uri,
-        position: Position,
-        options?: DeclarationOptions
-    ): DeclarationInfo | undefined {
+    getDeclsForPosition(fileUri: Uri, position: Position, options?: DeclOptions): DeclInfo | undefined {
         const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
         if (!sourceFileInfo) {
             return undefined;
@@ -118,12 +125,12 @@ export class TypeServerProvider implements ITypeServer {
             return undefined;
         }
 
-        const declarations: TSDeclaration[] = [];
+        const decls: Decl[] = [];
 
         symbolInfo.decls.forEach((decl) => {
             const tsDecl = this._convertDecl(decl, !!options?.resolveImports);
             if (tsDecl) {
-                declarations.push(tsDecl);
+                decls.push(tsDecl);
             }
         });
 
@@ -132,7 +139,20 @@ export class TypeServerProvider implements ITypeServer {
 
         const range = convertTextRangeToRange(textRange, parseInfo.tokenizerOutput.lines);
 
-        return { name, range, declarations };
+        return { name, range, decls };
+    }
+
+    resolveImportDecl(decl: ImportDecl, resolveAliased: boolean): Decl | undefined {
+        const declaration = this._program.typeServerRegistry?.getDeclaration(decl.id);
+        if (!declaration) {
+            return undefined;
+        }
+        const resolvedDecl = this._program.evaluator?.resolveAliasDeclaration(declaration, resolveAliased);
+        if (!resolvedDecl) {
+            return undefined;
+        }
+
+        return this._convertDecl(resolvedDecl, /* resolveImports */ false);
     }
 
     convertToRealUri(fileUri: Uri): Uri | undefined {
@@ -238,46 +258,101 @@ export class TypeServerProvider implements ITypeServer {
     }
 
     // Converts an internal declaration to a TypeServer declaration.
-    private _convertDecl(decl: Declaration, resolveImports: boolean): TSDeclaration | undefined {
+    private _convertDecl(decl: Declaration, resolveImports: boolean): Decl | undefined {
         if (resolveImports && decl.type === DeclarationType.Alias && this._program.evaluator) {
             decl = this._program.evaluator.resolveAliasDeclaration(decl, /* resolveLocalNames */ true) ?? decl;
         }
 
-        let category: DeclarationCategory;
+        const id = this._allocateId();
 
         switch (decl.type) {
             case DeclarationType.Intrinsic:
             case DeclarationType.SpecialBuiltInClass:
-            case DeclarationType.Class:
-                category = 'class';
-                break;
-            case DeclarationType.Function:
-                category = 'def';
-                break;
-            case DeclarationType.Param:
-                category = 'parameter';
-                break;
-            case DeclarationType.Variable:
-                category = 'variable';
-                break;
-            case DeclarationType.TypeParam:
-                category = 'type-parameter';
-                break;
-            case DeclarationType.TypeAlias:
-                category = 'type-alias';
-                break;
-            case DeclarationType.Alias:
-                category = 'import';
-                break;
+            case DeclarationType.Class: {
+                return {
+                    category: DeclCategory.Class,
+                    id,
+                    uri: decl.uri,
+                    range: decl.range,
+                    moduleName: decl.moduleName,
+                };
+            }
+
+            case DeclarationType.Function: {
+                return {
+                    category: DeclCategory.Function,
+                    id,
+                    uri: decl.uri,
+                    range: decl.range,
+                    moduleName: decl.moduleName,
+                    method: decl.isMethod,
+                    generator: decl.isGenerator,
+                };
+            }
+
+            case DeclarationType.Param: {
+                return {
+                    category: DeclCategory.Parameter,
+                    id,
+                    uri: decl.uri,
+                    range: decl.range,
+                    moduleName: decl.moduleName,
+                };
+            }
+
+            case DeclarationType.Variable: {
+                return {
+                    category: DeclCategory.Variable,
+                    id,
+                    uri: decl.uri,
+                    range: decl.range,
+                    moduleName: decl.moduleName,
+                    slots: !!decl.isDefinedBySlots,
+                    final: !!decl.isFinal,
+                    constant: !!decl.isConstant,
+                };
+            }
+
+            case DeclarationType.TypeParam: {
+                return {
+                    category: DeclCategory.TypeParameter,
+                    id,
+                    uri: decl.uri,
+                    range: decl.range,
+                    moduleName: decl.moduleName,
+                };
+            }
+
+            case DeclarationType.TypeAlias: {
+                return {
+                    category: DeclCategory.TypeAlias,
+                    id,
+                    uri: decl.uri,
+                    range: decl.range,
+                    moduleName: decl.moduleName,
+                };
+            }
+
+            case DeclarationType.Alias: {
+                const fileInfo = decl.aliasName ? getFileInfo(decl.aliasName) : undefined;
+
+                return {
+                    category: DeclCategory.Import,
+                    id,
+                    uri: decl.uri,
+                    range: decl.range,
+                    moduleName: decl.moduleName,
+                    aliasName: decl.aliasName?.d.value,
+                    aliasPosition:
+                        decl.aliasName && fileInfo
+                            ? convertOffsetToPosition(decl.aliasName.start, fileInfo.lines)
+                            : undefined,
+                    symbolName: decl.symbolName,
+                };
+            }
+
             default:
                 return undefined;
         }
-
-        return {
-            id: this._allocateId(),
-            category,
-            uri: decl.uri,
-            range: decl.range,
-        };
     }
 }

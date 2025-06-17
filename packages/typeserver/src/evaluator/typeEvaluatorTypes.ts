@@ -706,7 +706,7 @@ export interface TypeEvaluator {
 
     getDeclInfoForStringNode: (node: StringNode) => SymbolDeclInfo | undefined;
     getDeclInfoForNameNode: (node: NameNode, skipUnreachableCode?: boolean) => SymbolDeclInfo | undefined;
-    getTypeForDeclaration: (declaration: Declaration) => DeclaredSymbolTypeInfo;
+    getTypeForDeclaration: (declaration: Declaration, undecorated?: boolean) => DeclaredSymbolTypeInfo;
     resolveAliasDeclaration: (
         declaration: Declaration,
         resolveLocalNames: boolean,

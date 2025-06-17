@@ -92,7 +92,7 @@ export function areDeclarationsSame(
     // Alias declarations refer to the entire import statement.
     // We need to further differentiate.
     if (decl1.type === DeclarationType.Alias && decl2.type === DeclarationType.Alias) {
-        if (decl1.symbolName !== decl2.symbolName || decl1.usesLocalName !== decl2.usesLocalName) {
+        if (decl1.symbolName !== decl2.symbolName || !decl1.aliasName !== !decl2.aliasName) {
             return false;
         }
 
@@ -191,7 +191,7 @@ export function getNameNodeForDeclaration(declaration: Declaration): NameNode | 
     throw new Error(`Shouldn't reach here`);
 }
 
-export function getDeclarationsWithUsesLocalNameRemoved(decls: Declaration[]) {
+export function getDeclarationsWithAliasNameRemoved(decls: Declaration[]) {
     // Make a shallow copy and clear the "usesLocalName" field.
     return decls.map((localDecl) => {
         if (localDecl.type !== DeclarationType.Alias) {
@@ -199,7 +199,7 @@ export function getDeclarationsWithUsesLocalNameRemoved(decls: Declaration[]) {
         }
 
         const nonLocalDecl: AliasDeclaration = { ...localDecl };
-        nonLocalDecl.usesLocalName = false;
+        nonLocalDecl.aliasName = undefined;
         return nonLocalDecl;
     });
 }
@@ -214,7 +214,8 @@ export function synthesizeAliasDeclaration(uri: Uri): AliasDeclaration {
         loadSymbolsFromPath: false,
         range: getEmptyRange(),
         implicitImports: new Map<string, ModuleLoaderActions>(),
-        usesLocalName: false,
+        aliasName: undefined,
+        symbolName: undefined,
         moduleName: '',
         isInExceptSuite: false,
     };
@@ -262,7 +263,7 @@ export function resolveAliasDeclaration(
 
         // If we are not supposed to follow local alias names and this
         // is a local name, don't continue to follow the alias.
-        if (!options.resolveLocalNames && curDeclaration.usesLocalName) {
+        if (!options.resolveLocalNames && curDeclaration.aliasName) {
             return {
                 declaration: curDeclaration,
                 isPrivate,

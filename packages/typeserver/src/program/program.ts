@@ -42,6 +42,7 @@ import { LogTracker } from 'typeserver/program/logTracker.js';
 import { IPythonMode, SourceFile } from 'typeserver/program/sourceFile.js';
 import { SourceFileInfo } from 'typeserver/program/sourceFileInfo.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
+import { TypeServerRegistry } from 'typeserver/program/typeServerRegistry.js';
 import { AnalysisCompleteCallback, analyzeProgram, RequiringAnalysisCount } from 'typeserver/service/analysis.js';
 import { CacheManager } from 'typeserver/service/cacheManager.js';
 import { CircularDependency } from 'typeserver/service/circularDependency.js';
@@ -133,6 +134,8 @@ export class Program {
     private _configOptions: ConfigOptions;
     private _importResolver: ImportResolver;
     private _evaluator: TypeEvaluator | undefined;
+    private _typeServerRegistry: TypeServerRegistry | undefined;
+    private _typeServerGeneration = 1;
 
     private _parsedFileCount = 0;
     private _preCheckCallback: PreCheckCallback | undefined;
@@ -173,6 +176,10 @@ export class Program {
 
     get evaluator(): TypeEvaluator | undefined {
         return this._evaluator;
+    }
+
+    get typeServerRegistry(): TypeServerRegistry | undefined {
+        return this._typeServerRegistry;
     }
 
     get configOptions(): ConfigOptions {
@@ -896,14 +903,14 @@ export class Program {
     getTypeOfSymbol(symbol: Symbol) {
         this._handleMemoryHighUsage();
 
-        const evaluator = this._evaluator || this._createNewEvaluator();
+        const evaluator = this._evaluator ?? this._createNewEvaluator();
         return evaluator.getEffectiveTypeOfSymbol(symbol);
     }
 
     printType(type: Type, options?: PrintTypeOptions): string {
         this._handleMemoryHighUsage();
 
-        const evaluator = this._evaluator || this._createNewEvaluator();
+        const evaluator = this._evaluator ?? this._createNewEvaluator();
         return evaluator.printType(type, options);
     }
 
@@ -1688,6 +1695,10 @@ export class Program {
             // objects without us giving it some assistance.
             this._evaluator.disposeEvaluator();
         }
+
+        // Create a new type server registry to go along with the new evaluator.
+        this._typeServerGeneration++;
+        this._typeServerRegistry = new TypeServerRegistry(this._typeServerGeneration);
 
         this._evaluator = createTypeEvaluator(this._lookUpImport, {
             printTypeFlags: getPrintTypeFlags(this._configOptions),

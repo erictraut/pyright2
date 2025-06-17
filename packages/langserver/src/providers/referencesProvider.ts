@@ -59,7 +59,7 @@ export class ReferencesResult {
             }
 
             // We must have alias and decl node that point to import statement.
-            if (!d.usesLocalName || !d.node) {
+            if (!d.aliasName || !d.node) {
                 return false;
             }
 

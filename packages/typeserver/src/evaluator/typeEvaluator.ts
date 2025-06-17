@@ -36,7 +36,7 @@ import {
     VariableDeclaration,
 } from 'typeserver/binder/declaration.js';
 import {
-    getDeclarationsWithUsesLocalNameRemoved,
+    getDeclarationsWithAliasNameRemoved,
     getNameNodeForDeclaration,
     isFinalVariableDeclaration,
     resolveAliasDeclaration as resolveAliasDeclarationUtil,
@@ -22161,7 +22161,7 @@ export function createTypeEvaluator(importLookup: ImportLookup, evaluatorOptions
                         return decl.type === DeclarationType.Alias && decl.node === node.parent;
                     });
 
-                    appendArray(decls, getDeclarationsWithUsesLocalNameRemoved(declsForThisImport));
+                    appendArray(decls, getDeclarationsWithAliasNameRemoved(declsForThisImport));
                 }
             }
         } else if (
@@ -22339,7 +22339,7 @@ export function createTypeEvaluator(importLookup: ImportLookup, evaluatorOptions
         return { decls, synthesizedTypes };
     }
 
-    function getTypeForDeclaration(declaration: Declaration): DeclaredSymbolTypeInfo {
+    function getTypeForDeclaration(declaration: Declaration, undecorated?: boolean): DeclaredSymbolTypeInfo {
         switch (declaration.type) {
             case DeclarationType.Intrinsic: {
                 if (declaration.intrinsicType === 'Any') {
@@ -22399,7 +22399,7 @@ export function createTypeEvaluator(importLookup: ImportLookup, evaluatorOptions
 
             case DeclarationType.Class: {
                 const classTypeInfo = getTypeOfClass(declaration.node);
-                return { type: classTypeInfo?.decoratedType };
+                return { type: undecorated ? classTypeInfo?.classType : classTypeInfo?.decoratedType };
             }
 
             case DeclarationType.SpecialBuiltInClass: {
@@ -22408,7 +22408,7 @@ export function createTypeEvaluator(importLookup: ImportLookup, evaluatorOptions
 
             case DeclarationType.Function: {
                 const functionTypeInfo = getTypeOfFunction(declaration.node);
-                return { type: functionTypeInfo?.decoratedType };
+                return { type: undecorated ? functionTypeInfo?.functionType : functionTypeInfo?.decoratedType };
             }
 
             case DeclarationType.TypeAlias: {

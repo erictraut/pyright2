@@ -11,6 +11,7 @@ import { CancellationToken } from 'vscode-languageserver';
 
 import { SymbolTable } from 'typeserver/binder/symbol.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+import { Type } from 'typeserver/evaluator/types.js';
 import { OpenFileOptions } from 'typeserver/program/program.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
@@ -47,6 +48,12 @@ export interface ITypeServer {
     // transformTypeForEnumMember (completion provider)
     // isFinalVariableDeclaration
 
+    // TODO - replace this Type with a more abstract version
+    // Returns the declared type associated with this declaration, if any.
+    // Decorators (if present on a function or class declaration) are applied
+    // to the type if undecorated is not true.
+    getTypeForDecl(decl: Decl, undecorated?: boolean): Type | undefined;
+
     // TODO - rethink these interfaces.
     getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
 
@@ -54,11 +61,13 @@ export interface ITypeServer {
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
 
     // For a given position, returns a list of declarations for the
-    getDeclarationsForPosition(
-        fileUri: Uri,
-        position: Position,
-        options?: DeclarationOptions
-    ): DeclarationInfo | undefined;
+    getDeclsForPosition(fileUri: Uri, position: Position, options?: DeclOptions): DeclInfo | undefined;
+
+    // Resolve an import declaration to its target declaration by following
+    // the import chain. If the import cannot be resolved, it returns undefined.
+    // if resolveAliased is true, it will also resolve chains that involve aliased
+    // imported symbols (e.g. "import x as y" or "from x import y as z").
+    resolveImportDecl(decl: ImportDecl, resolveAliased: boolean): Decl | undefined;
 
     // Returns a source file if the type server knows about it. This means
     // it must be part of the project (as defined by the "include" and "exclude")
@@ -104,16 +113,16 @@ export interface ITypeServer {
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
 }
 
-export interface DeclarationInfo {
-    // Symbol name
+export interface DeclInfo {
+    // Symbol name or dictionary key associated with the declarations
     name: string;
 
-    // Range of characters that comprise the identifier or string literal
-    // value that was used to look up the declaration
+    // Range of characters that comprise the value that was used
+    // to look up the declaration
     range: Range;
 
     // One or more declarations with locations
-    declarations: Declaration[];
+    decls: Decl[];
 }
 
 export interface Position {
@@ -134,34 +143,115 @@ export interface SourceFilesOptions {
     filter?: SourceFileFilter;
 }
 
-export interface DeclarationOptions {
+export interface DeclOptions {
     // Resolve import declarations if possible?
     resolveImports?: boolean;
 }
 
-export type DeclarationCategory =
-    | 'class' // A "class" statement (or a special form in typing.pyi)
-    | 'def' // A "def" statement
-    | 'parameter' // A parameter in a "def" or "lambda" statement (with or without a type annotation)
-    | 'variable' // A local variable (with or without a type annotation)
-    | 'import' // An "import" or "from ... import" statement
-    | 'type-parameter' // A type parameter defined with Python 3.12 generics syntax
-    | 'type-alias'; // A "type" statement
+export enum DeclCategory {
+    // A "class" statement (or a special form in typing.pyi)
+    Class = 'class',
 
-export interface Declaration {
+    // A "def" statement
+    Function = 'def',
+
+    // A parameter in a "def" or "lambda" statement (with or without a type annotation)
+    Parameter = 'parameter',
+
+    // A local variable (with or without a type annotation)
+    Variable = 'variable',
+
+    // An "import" or "from ... import" statement
+    Import = 'import',
+
+    // A type parameter defined with Python 3.12 generics syntax
+    TypeParameter = 'type-parameter',
+
+    // A "type" statement
+    TypeAlias = 'type-alias',
+}
+
+export interface DeclBase {
+    // The category of the declaration based on the statement that defines it
+    category: DeclCategory;
+
     // An ID that can be used to retrieve additional information about
-    // the declaration such as its type.
+    // the declaration such as its type
     id: string;
 
-    // The category of the declaration based on the statement that defines it.
-    category: DeclarationCategory;
-
-    // The Uri of the source file that contains the declaration.
+    // The Uri of the source file that contains the declaration
     uri: Uri;
 
-    // The range within the file that can be used for "go to declaration".
+    // The range within the file that can be used for "go to declaration"
+    // or "get type" operations
     range: Range;
+
+    // The dot-separated import name for the file that contains the declaration
+    moduleName: string;
 }
+
+export interface ClassDecl extends DeclBase {
+    category: DeclCategory.Class;
+}
+
+export interface FunctionDecl extends DeclBase {
+    category: DeclCategory.Function;
+
+    // Is this a def statement within a class body?
+    method: boolean;
+
+    // Does the function include "yield" or "yield from" statements?
+    generator: boolean;
+}
+
+export interface ParameterDecl extends DeclBase {
+    category: DeclCategory.Parameter;
+}
+
+export interface VariableDecl extends DeclBase {
+    category: DeclCategory.Variable;
+
+    // Is this a variable defined in a __slot__ definition?
+    slots: boolean;
+
+    // Is the variable's name in all caps indicating it's a constant?
+    constant: boolean;
+
+    // Is the variable declared as final?
+    final: boolean;
+}
+
+export interface ImportDecl extends DeclBase {
+    category: DeclCategory.Import;
+
+    // Set if the import statement uses an "as" clause to rename the imported
+    // module or symbol. This applies to both "import X as Y" and "from X import Y as Z".
+    // If the import statement does not use an "as" clause, this will be undefined.
+    aliasName?: string;
+    aliasPosition?: Position;
+
+    // The name of the symbol being imported (for "from ... import X" statements);
+    // this doesn't apply to "import X" statements.
+    symbolName?: string;
+}
+
+export interface TypeParameterDecl extends DeclBase {
+    category: DeclCategory.TypeParameter;
+}
+
+export interface TypeAliasDecl extends DeclBase {
+    category: DeclCategory.TypeAlias;
+}
+
+// A declaration that can be returned by the type server.
+export type Decl =
+    | ClassDecl
+    | FunctionDecl
+    | ParameterDecl
+    | VariableDecl
+    | ImportDecl
+    | TypeParameterDecl
+    | TypeAliasDecl;
 
 export interface AutoImportInfo {
     // The multi-part name used in an "import" statement to import the target module.
