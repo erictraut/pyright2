@@ -13,13 +13,17 @@ import { Scope } from 'typeserver/binder/scope.js';
 import { Symbol as BinderSymbol, SymbolTable as BinderSymbolTable } from 'typeserver/binder/symbol.js';
 import { getFileInfo, getScope } from 'typeserver/common/analyzerNodeInfo.js';
 import { findNodeByPosition, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.js';
-import { convertOffsetToPosition, convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
+import {
+    convertOffsetToPosition,
+    convertPositionToOffset,
+    convertTextRangeToRange,
+} from 'typeserver/common/positionUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
 import { SymbolDeclInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import { Type } from 'typeserver/evaluator/types.js';
+import { Type as EvaluatorType } from 'typeserver/evaluator/types.js';
 import { ImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
-import { ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import { isExpressionNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { OpenFileOptions, Program } from 'typeserver/program/program.js';
 import { SourceFileProvider } from 'typeserver/program/sourceFileProvider.js';
 import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
@@ -33,8 +37,10 @@ import {
     ITypeServer,
     ITypeServerSourceFile,
     Position,
+    PrintTypeOptions,
     SourceFilesOptions,
     Symbol,
+    Type,
 } from 'typeserver/protocol/typeServerProtocol.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
@@ -46,12 +52,37 @@ export class TypeServerProvider implements ITypeServer {
         return this._program.evaluator!;
     }
 
+    getType(fileUri: Uri, start: Position, end?: Position): Type | undefined {
+        const node = this._findNodeByRange(fileUri, start, end);
+        if (!node || !isExpressionNode(node)) {
+            return undefined;
+        }
+        return this._convertType(this._program.evaluator?.getType(node));
+    }
+
+    getContextType(fileUri: Uri, start: Position, end?: Position): Type | undefined {
+        const node = this._findNodeByRange(fileUri, start, end);
+        if (!node || !isExpressionNode(node)) {
+            return undefined;
+        }
+        return this._convertType(this._program.evaluator?.getExpectedType(node)?.type);
+    }
+
+    printType(type: Type, options?: PrintTypeOptions): string | undefined {
+        const evaluatorType = this._program.typeServerRegistry?.getType(type.id);
+        if (!evaluatorType) {
+            return undefined;
+        }
+
+        return this._program.evaluator?.printType(evaluatorType, options);
+    }
+
     getTypeForDecl(decl: Decl, undecorated?: boolean): Type | undefined {
         const declaration = this._program.typeServerRegistry?.getDeclaration(decl.id);
         if (!declaration) {
             return undefined;
         }
-        return this._program.evaluator?.getTypeForDeclaration(declaration, undecorated)?.type;
+        return this._convertType(this._program.evaluator?.getTypeForDeclaration(declaration, undecorated)?.type);
     }
 
     getSourceFile(fileUri: Uri): ITypeServerSourceFile | undefined {
@@ -320,6 +351,42 @@ export class TypeServerProvider implements ITypeServer {
         this._program.setFileOpened(fileUri, version, contents, options);
     }
 
+    private _findNodeByRange(fileUri: Uri, start: Position, end?: Position): ParseNode | undefined {
+        const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
+        if (!sourceFileInfo) {
+            return undefined;
+        }
+
+        const parseInfo = sourceFileInfo.sourceFile.getParseResults();
+        if (!parseInfo) {
+            return undefined;
+        }
+
+        const startNode = findNodeByPosition(parseInfo.parserOutput.parseTree, start, parseInfo.tokenizerOutput.lines);
+        if (!startNode) {
+            return undefined;
+        }
+
+        if (!end) {
+            return startNode;
+        }
+
+        const endOffset = convertPositionToOffset(end, parseInfo.tokenizerOutput.lines);
+        if (endOffset === undefined) {
+            return undefined;
+        }
+
+        let curNode = startNode;
+        while (endOffset > curNode.start + curNode.length) {
+            if (!curNode.parent) {
+                return undefined;
+            }
+            curNode = curNode.parent;
+        }
+
+        return curNode;
+    }
+
     private _allocateId(): string {
         // TODO - implement a proper ID allocation mechanism.
         return 'none';
@@ -335,6 +402,22 @@ export class TypeServerProvider implements ITypeServer {
         });
 
         return { name, decls };
+    }
+
+    private _convertType(type: EvaluatorType | undefined): Type | undefined {
+        if (!type) {
+            return undefined;
+        }
+
+        if (!this._program.typeServerRegistry) {
+            return undefined;
+        }
+
+        const id = this._program.typeServerRegistry.registerType(type);
+
+        return {
+            id,
+        };
     }
 
     // Converts an internal declaration to a TypeServer declaration.

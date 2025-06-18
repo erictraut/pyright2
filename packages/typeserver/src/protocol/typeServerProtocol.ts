@@ -11,7 +11,6 @@ import { CancellationToken } from 'vscode-languageserver';
 
 import { SymbolTable as BinderSymbolTable } from 'typeserver/binder/symbol.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import { Type } from 'typeserver/evaluator/types.js';
 import { OpenFileOptions } from 'typeserver/program/program.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
@@ -43,6 +42,17 @@ export interface ITypeServer {
     // lookUpSymbolRecursive
     // transformTypeForEnumMember (completion provider)
     // isFinalVariableDeclaration
+
+    // TODO - replace this Type with a more abstract version
+    // Returns the evaluated type at the specified position or range.
+    getType(fileUri: Uri, start: Position, end?: Position): Type | undefined;
+
+    // Returns the inference context type (the type expected based on the context)
+    // for the specified position or range.
+    getContextType(fileUri: Uri, start: Position, end?: Position): Type | undefined;
+
+    // Converts the specified type into a textural representation
+    printType(type: Type, options?: PrintTypeOptions): string | undefined;
 
     // TODO - replace this Type with a more abstract version
     // Returns the declared type associated with this declaration, if any.
@@ -121,6 +131,17 @@ export interface ITypeServer {
     // TODO - rethink these interfaces.
     addInterimFile(uri: Uri): void;
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
+}
+
+export interface Type {
+    // An opaque ID that allows the type to be referenced
+    // in subsequent calls to the type server.
+    id: string;
+}
+
+export interface PrintTypeOptions {
+    // Expand type aliases into their underlying type?
+    expandTypeAlias?: boolean;
 }
 
 export interface Symbol {

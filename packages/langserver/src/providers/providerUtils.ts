@@ -8,19 +8,10 @@
  */
 
 import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
-import { getFunctionDocStringFromType, getOverloadedDocStringsFromType } from 'langserver/providers/tooltipUtils.js';
 import { getModuleDocStringFromUris } from 'langserver/providers/typeDocStringUtils.js';
 import { findNodeByOffset, getEnclosingClass, getEnclosingFunction } from 'typeserver/common/parseTreeUtils.js';
 import { convertPositionToOffset } from 'typeserver/common/positionUtils.js';
-import {
-    ClassType,
-    isFunction,
-    isInstantiableClass,
-    isModule,
-    isOverloaded,
-    ModuleType,
-    Type,
-} from 'typeserver/evaluator/types.js';
+import { ClassType, ModuleType } from 'typeserver/evaluator/types.js';
 import { ClassNode, FunctionNode, ParseNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isStubFile } from 'typeserver/program/sourceMapper.js';
@@ -32,6 +23,7 @@ import {
     ITypeServer,
     Position,
     Symbol,
+    Type,
     VariableDecl,
 } from 'typeserver/protocol/typeServerProtocol.js';
 
@@ -169,38 +161,39 @@ function getDocumentationPartForType(
     resolvedDecl: Decl | undefined,
     boundObjectOrClass?: ClassType | undefined
 ) {
-    if (isModule(type)) {
-        const doc = getModuleDocString(type, resolvedDecl, sourceMapper);
-        if (doc) {
-            return doc;
-        }
-    } else if (isInstantiableClass(type)) {
-        const doc = getClassDocString(type, resolvedDecl, sourceMapper);
-        if (doc) {
-            return doc;
-        }
-    } else if (isFunction(type)) {
-        const functionType = boundObjectOrClass
-            ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
-            : type;
-        if (functionType && isFunction(functionType)) {
-            const doc = getFunctionDocStringFromType(typeServer, functionType, sourceMapper);
-            if (doc) {
-                return doc;
-            }
-        }
-    } else if (isOverloaded(type)) {
-        const functionType = boundObjectOrClass
-            ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
-            : type;
-        if (functionType && isOverloaded(functionType)) {
-            const doc = getOverloadedDocStringsFromType(typeServer, functionType, sourceMapper).find((d) => d);
+    // TODO - need to add back in
+    // if (isModule(type)) {
+    //     const doc = getModuleDocString(type, resolvedDecl, sourceMapper);
+    //     if (doc) {
+    //         return doc;
+    //     }
+    // } else if (isInstantiableClass(type)) {
+    //     const doc = getClassDocString(type, resolvedDecl, sourceMapper);
+    //     if (doc) {
+    //         return doc;
+    //     }
+    // } else if (isFunction(type)) {
+    //     const functionType = boundObjectOrClass
+    //         ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
+    //         : type;
+    //     if (functionType && isFunction(functionType)) {
+    //         const doc = getFunctionDocStringFromType(typeServer, functionType, sourceMapper);
+    //         if (doc) {
+    //             return doc;
+    //         }
+    //     }
+    // } else if (isOverloaded(type)) {
+    //     const functionType = boundObjectOrClass
+    //         ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
+    //         : type;
+    //     if (functionType && isOverloaded(functionType)) {
+    //         const doc = getOverloadedDocStringsFromType(typeServer, functionType, sourceMapper).find((d) => d);
 
-            if (doc) {
-                return doc;
-            }
-        }
-    }
+    //         if (doc) {
+    //             return doc;
+    //         }
+    //     }
+    // }
 
     return undefined;
 }

@@ -16,47 +16,35 @@ import { extractParameterDocumentation } from 'commonUtils/docStringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
-import {
-    getClassAndConstructorTypes,
-    getConstructorTooltip,
-    getToolTipForType,
-    getTypeForToolTip,
-} from 'langserver/providers/tooltipUtils.js';
+import { findNodeByPosition, getDocumentationPartsForTypeAndDecl } from 'langserver/providers/providerUtils.js';
+import { getClassAndConstructorTypes } from 'langserver/providers/tooltipUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
 import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
-// import {
-//     Declaration,
-//     DeclarationType,
-//     VariableDeclaration,
-//     isUnresolvedAliasDeclaration,
-// } from 'typeserver/binder/declaration.js';
-// import { isFinalVariableDeclaration } from 'typeserver/binder/declarationUtils.js';
-// import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
-import {
-    findNodeByOffset,
-    getDocString,
-    getEnclosingFunction,
-    getParentNodeOfType,
-} from 'typeserver/common/parseTreeUtils.js';
+import { findNodeByOffset, getDocString, getEnclosingFunction } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
-import { PrintTypeOptions } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import {
-    getTypeAliasInfo,
-    isAnyOrUnknown,
-    isFunctionOrOverloaded,
-    isModule,
-    isParamSpec,
-    isTypeVar,
-    Type,
-    TypeCategory,
-} from 'typeserver/evaluator/types.js';
-// import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.js';
-import { findNodeByPosition, getDocumentationPartsForTypeAndDecl } from 'langserver/providers/providerUtils.js';
+// import { PrintTypeOptions } from 'typeserver/evaluator/typeEvaluatorTypes.js';
+// import {
+//     getTypeAliasInfo,
+//     isAnyOrUnknown,
+//     isFunctionOrOverloaded,
+//     isModule,
+//     isParamSpec,
+//     isTypeVar,
+//     Type,
+//     TypeCategory,
+// } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import { ExpressionNode, isExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { Decl, DeclCategory, ITypeServer, VariableDecl } from 'typeserver/protocol/typeServerProtocol.js';
+import {
+    Decl,
+    DeclCategory,
+    ITypeServer,
+    PrintTypeOptions,
+    Type,
+    VariableDecl,
+} from 'typeserver/protocol/typeServerProtocol.js';
 
 export interface HoverTextPart {
     python?: boolean;
@@ -140,31 +128,31 @@ export class HoverProvider {
                 // information in that case.
                 if (results.parts.length === 0) {
                     const type = this._getType(node);
-                    let typeText: string;
-                    if (isModule(type)) {
-                        // Handle modules specially because submodules aren't associated with
-                        // declarations, but we want them to be presented in the same way as
-                        // the top-level module, which does have a declaration.
-                        typeText = '(module) ' + node.d.value;
-                    } else {
-                        const label = 'function';
-                        const isProperty = false;
+                    // TODO - need to reimplement somehow
+                    // if (isModule(type)) {
+                    //     // Handle modules specially because submodules aren't associated with
+                    //     // declarations, but we want them to be presented in the same way as
+                    //     // the top-level module, which does have a declaration.
+                    //     typeText = '(module) ' + node.d.value;
+                    // } else {
+                    const label = 'function';
+                    const isProperty = false;
 
-                        // TODO - add back in
-                        // if (isMaybeDescriptorInstance(type, /* requireSetter */ false)) {
-                        //     isProperty = true;
-                        //     label = 'property';
-                        // }
+                    // TODO - add back in
+                    // if (isMaybeDescriptorInstance(type, /* requireSetter */ false)) {
+                    //     isProperty = true;
+                    //     label = 'property';
+                    // }
 
-                        typeText = getToolTipForType(
-                            this._typeServer,
-                            type,
-                            label,
-                            node.d.value,
-                            isProperty,
-                            this._options.functionSignatureDisplay
-                        );
-                    }
+                    const typeText = _getToolTipForType(
+                        this._typeServer,
+                        type,
+                        label,
+                        node.d.value,
+                        isProperty,
+                        this._options.functionSignatureDisplay
+                    );
+                    // }
 
                     this._addResultsPart(results.parts, typeText, /* python */ true);
                     this._addDocumentationPart(results.parts, node, /* resolvedDecl */ undefined);
@@ -250,13 +238,17 @@ export class HoverProvider {
             case DeclCategory.TypeParameter: {
                 // If the user is hovering over a type parameter name in a class type parameter
                 // list, display the computed variance of the type param.
-                const typeParamListNode = getParentNodeOfType(node, ParseNodeType.TypeParameterList);
-                const nodeType = typeParamListNode?.parent?.nodeType;
-                const printTypeVarVariance = nodeType === ParseNodeType.Class || nodeType === ParseNodeType.TypeAlias;
+                // const typeParamListNode = getParentNodeOfType(node, ParseNodeType.TypeParameterList);
+                // const nodeType = typeParamListNode?.parent?.nodeType;
+                // const printTypeVariance = nodeType === ParseNodeType.Class || nodeType === ParseNodeType.TypeAlias
 
+                const options: PrintTypeOptions = {
+                    // TODO - need to reimplement
+                    //printTypeVariance
+                };
                 this._addResultsPart(
                     parts,
-                    '(type parameter) ' + node.d.value + this._getTypeText(node, { printTypeVarVariance }),
+                    '(type parameter) ' + node.d.value + this._getTypeText(node, options),
                     /* python */ true
                 );
                 this._addDocumentationPart(parts, node, resolvedDecl);
@@ -289,14 +281,14 @@ export class HoverProvider {
                 }
 
                 const type = this._getType(node);
-                if (isAnyOrUnknown(type)) {
-                    // If the type is Any or Unknown, try to get the type from the
-                    // resolved declaration.
-                    // TODO - add back in
-                    // type = this._getType(resolvedDecl.node.d.name);
-                }
+                // if (isAnyOrUnknown(type)) {
+                // If the type is Any or Unknown, try to get the type from the
+                // resolved declaration.
+                // TODO - add back in
+                // type = this._getType(resolvedDecl.node.d.name);
+                // }
 
-                const signatureString = getToolTipForType(
+                const signatureString = _getToolTipForType(
                     this._typeServer,
                     type,
                     label,
@@ -321,7 +313,7 @@ export class HoverProvider {
                 // TODO - need to fix
                 //const type = convertToInstance(this._getType(node));
                 const type = this._getType(node);
-                const typeText = this._typeServer.evaluator.printType(type, { expandTypeAlias: true });
+                const typeText = type ? this._typeServer.printType(type, { expandTypeAlias: true }) : 'Unknown';
                 this._addResultsPart(parts, `(type) ${node.d.value} = ${typeText}`, /* python */ true);
                 this._addDocumentationPart(parts, node, resolvedDecl);
                 break;
@@ -394,37 +386,39 @@ export class HoverProvider {
             return false;
         }
 
-        if (result.methodType && isFunctionOrOverloaded(result.methodType)) {
-            this._addResultsPart(
-                parts,
-                getConstructorTooltip(
-                    this._typeServer,
-                    node.d.value,
-                    result.methodType,
-                    this._options.functionSignatureDisplay
-                ),
-                /* python */ true
-            );
+        // TODO - need to reimplement somehow
+        // if (result.methodType && isFunctionOrOverloaded(result.methodType)) {
+        //     this._addResultsPart(
+        //         parts,
+        //         getConstructorTooltip(
+        //             this._typeServer,
+        //             node.d.value,
+        //             result.methodType,
+        //             this._options.functionSignatureDisplay
+        //         ),
+        //         /* python */ true
+        //     );
 
-            const addedDoc = this._addDocumentationPartForType(parts, result.methodType, declaration);
+        //     const addedDoc = this._addDocumentationPartForType(parts, result.methodType, declaration);
 
-            if (!addedDoc) {
-                this._addDocumentationPartForType(parts, result.classType, declaration);
-            }
-            return true;
-        }
+        //     if (!addedDoc) {
+        //         this._addDocumentationPartForType(parts, result.classType, declaration);
+        //     }
+
+        //     return true;
+        // }
+
         return false;
     }
 
-    private _getType(node: ExpressionNode) {
-        // It does common work necessary for hover for a type we got
-        // from raw type evaluator.
-        return getTypeForToolTip(this._typeServer, node);
+    private _getType(node: ExpressionNode): Type | undefined {
+        const position = convertOffsetToPosition(node.start, this._parseResults.tokenizerOutput.lines);
+        return _getTypeForToolTip(this._typeServer, this._fileUri, position, node);
     }
 
     private _getTypeText(node: ExpressionNode, options?: PrintTypeOptions): string {
         const type = this._getType(node);
-        return ': ' + this._typeServer.evaluator.printType(type, options);
+        return ': ' + (type ? this._typeServer.printType(type, options) : 'Unknown');
     }
 
     private _addDocumentationPart(parts: HoverTextPart[], node: NameNode, resolvedDecl: Decl | undefined) {
@@ -464,7 +458,7 @@ function _getVariableTypeText(
     typeServer: ITypeServer,
     declaration: VariableDecl | undefined,
     name: string,
-    type: Type,
+    type: Type | undefined,
     typeNode: ExpressionNode,
     functionSignatureDisplay: SignatureDisplayType
 ) {
@@ -473,46 +467,106 @@ function _getVariableTypeText(
         label = declaration.constant || declaration.final ? 'constant' : 'variable';
     }
 
-    let typeVarName: string | undefined;
+    // let typeVarName: string | undefined;
 
-    if (type.props?.typeAliasInfo && typeNode.nodeType === ParseNodeType.Name) {
-        const typeAliasInfo = getTypeAliasInfo(type);
-        if (typeAliasInfo?.shared.name === typeNode.d.value) {
-            if (isTypeVar(type)) {
-                label = isParamSpec(type) ? 'param spec' : 'type variable';
-                typeVarName = type.shared.name;
-            } else {
-                // Handle type aliases specially.
-                const type = getTypeForToolTip(typeServer, typeNode);
-                // TODO - need to fix
-                // type = convertToInstance(type);
-                const typeText = typeServer.evaluator.printType(type, { expandTypeAlias: true });
+    // TODO - need to reimplement somehow
+    // if (type.props?.typeAliasInfo && typeNode.nodeType === ParseNodeType.Name) {
+    //     const typeAliasInfo = getTypeAliasInfo(type);
+    //     if (typeAliasInfo?.shared.name === typeNode.d.value) {
+    //         if (isTypeVar(type)) {
+    //             label = isParamSpec(type) ? 'param spec' : 'type variable';
+    //             typeVarName = type.shared.name;
+    //         } else {
+    //             // Handle type aliases specially.
+    //             const type = getTypeForToolTip(typeServer, typeNode);
+    //             // TODO - need to fix
+    //             // type = convertToInstance(type);
+    //             const typeText = typeServer.evaluator.printType(type, { expandTypeAlias: true });
 
-                return `(type) ${name} = ` + typeText;
-            }
-        }
-    }
+    //             return `(type) ${name} = ` + typeText;
+    //         }
+    //     }
+    // }
 
-    if (
-        type.category === TypeCategory.Function ||
-        type.category === TypeCategory.Overloaded ||
-        typeNode.parent?.nodeType === ParseNodeType.Call
-    ) {
-        return getToolTipForType(
-            typeServer,
-            type,
-            label,
-            name,
-            /* isProperty */ false,
-            functionSignatureDisplay,
-            typeNode
-        );
-    }
+    // if (
+    //     type.category === TypeCategory.Function ||
+    //     type.category === TypeCategory.Overloaded ||
+    //     typeNode.parent?.nodeType === ParseNodeType.Call
+    // ) {
+    //     return getToolTipForType(
+    //         typeServer,
+    //         type,
+    //         label,
+    //         name,
+    //         /* isProperty */ false,
+    //         functionSignatureDisplay,
+    //         typeNode
+    //     );
+    // }
 
-    const typeText =
-        typeVarName ?? name + ': ' + typeServer.evaluator.printType(getTypeForToolTip(typeServer, typeNode));
+    // const typeText =
+    //     typeVarName ?? name + ': ' + typeServer.evaluator.printType(_getTypeForToolTip(typeServer, typeNode));
 
-    return `(${label}) ` + typeText;
+    // return `(${label}) ` + typeText;
+
+    return _getToolTipForType(
+        typeServer,
+        type,
+        label,
+        name,
+        /* isProperty */ false,
+        functionSignatureDisplay,
+        typeNode
+    );
+}
+
+function _getTypeForToolTip(
+    typeServer: ITypeServer,
+    fileUri: Uri,
+    position: Position,
+    node: ExpressionNode
+): Type | undefined {
+    return typeServer.getType(fileUri, position);
+}
+
+function _getToolTipForType(
+    typeServer: ITypeServer,
+    type: Type | undefined,
+    label: string,
+    name: string,
+    isProperty: boolean,
+    functionSignatureDisplay: SignatureDisplayType,
+    typeNode?: ExpressionNode
+): string {
+    const typeString = type ? typeServer.printType(type) : 'Unknown';
+    return `(${label}) ${name}: ${typeString}`;
+
+    // // Support __call__ method for class instances to show the signature of the method
+    // if (type.category === TypeCategory.Class && isClassInstance(type) && typeNode) {
+    //     const callMethodResult = getBoundCallMethod(typeServer.evaluator, typeNode, type);
+    //     if (
+    //         callMethodResult?.type.category === TypeCategory.Function ||
+    //         callMethodResult?.type.category === TypeCategory.Overloaded
+    //     ) {
+    //         // Eliminate overloads that are not applicable.
+    //         const methodType = limitOverloadBasedOnCall(typeServer, callMethodResult.type, typeNode);
+    //         if (methodType) {
+    //             type = methodType;
+    //         }
+    //     }
+    // }
+    // let signatureString = '';
+    // if (isOverloaded(type)) {
+    //     signatureString = label.length > 0 ? `(${label})\n` : '';
+    //     signatureString += `${getOverloadedTooltip(typeServer, type, functionSignatureDisplay)}`;
+    // } else if (isFunction(type)) {
+    //     signatureString = `${getFunctionTooltip(typeServer, label, name, type, isProperty, functionSignatureDisplay)}`;
+    // } else {
+    //     signatureString = label.length > 0 ? `(${label}) ` : '';
+    //     signatureString += `${name}: ${typeServer.evaluator.printType(type)}`;
+    // }
+
+    // return signatureString;
 }
 
 function _convertHoverResults(hoverResults: HoverResults | null, format: MarkupKind): Hover | null {

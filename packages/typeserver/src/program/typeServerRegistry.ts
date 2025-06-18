@@ -10,12 +10,14 @@
  */
 
 import { Declaration } from 'typeserver/binder/declaration.js';
+import { Type } from 'typeserver/evaluator/types.js';
 
 export class TypeServerRegistry {
     // When a new type evaluator is created, it gets a new generation number.
     private _generation: number;
     private _nextId = 1;
     private _declarations = new Map<string, Declaration>();
+    private _types = new Map<string, Type>();
 
     constructor(generation: number) {
         this._generation = generation;
@@ -29,6 +31,16 @@ export class TypeServerRegistry {
 
     getDeclaration(id: string): Declaration | undefined {
         return this._declarations.get(id);
+    }
+
+    registerType(type: Type): string {
+        const id = this._allocateNewId();
+        this._types.set(id, type);
+        return id;
+    }
+
+    getType(id: string): Type | undefined {
+        return this._types.get(id);
     }
 
     private _allocateNewId(): string {
