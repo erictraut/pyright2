@@ -20,10 +20,6 @@ export interface ITypeServer {
     // TODO - remove this and replace by individual calls
     readonly evaluator: TypeEvaluator;
 
-    // Accessing Declarations
-    //----------------
-    // getDeclaration - including resolving alias declarations
-
     // Accessing Types
     //----------------
     // getContextType

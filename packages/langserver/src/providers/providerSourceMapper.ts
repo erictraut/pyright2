@@ -11,10 +11,10 @@
 import { CancellationToken } from 'vscode-languageserver';
 
 import { IParseProvider } from 'langserver/providers/parseProvider.js';
-import { getClassForPosition, getFunctionForPosition } from 'langserver/providers/providerUtils.js';
+import { findNodeByPosition, getClassForPosition, getFunctionForPosition } from 'langserver/providers/providerUtils.js';
 import { Declaration } from 'typeserver/binder/declaration.js';
-import { findNodeByOffset, getEnclosingClass, getEnclosingFunction } from 'typeserver/common/parseTreeUtils.js';
-import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
+import { getEnclosingClass, getEnclosingFunction } from 'typeserver/common/parseTreeUtils.js';
+import { convertOffsetToPosition } from 'typeserver/common/positionUtils.js';
 import { ClassType } from 'typeserver/evaluator/types.js';
 import { ClassNode, ModuleNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { SourceMapper } from 'typeserver/program/sourceMapper.js';
@@ -267,11 +267,7 @@ export class ProviderSourceMapper {
         if (!parseResults) {
             return [];
         }
-        const nameOffset = convertPositionToOffset(stubDecl.range.start, parseResults.tokenizerOutput.lines);
-        if (nameOffset === undefined) {
-            return [];
-        }
-        const varNode = findNodeByOffset(parseResults.parserOutput.parseTree, nameOffset);
+        const varNode = findNodeByPosition(stubDecl.range.start, parseResults);
         if (!varNode || varNode.nodeType !== ParseNodeType.Name) {
             return [];
         }
@@ -304,11 +300,7 @@ export class ProviderSourceMapper {
         if (!parseResults) {
             return result;
         }
-        const nameOffset = convertPositionToOffset(stubDecl.range.start, parseResults.tokenizerOutput.lines);
-        if (nameOffset === undefined) {
-            return result;
-        }
-        const paramNode = findNodeByOffset(parseResults.parserOutput.parseTree, nameOffset);
+        const paramNode = findNodeByPosition(stubDecl.range.start, parseResults);
         if (!paramNode || paramNode.nodeType !== ParseNodeType.Name) {
             return result;
         }
@@ -336,18 +328,11 @@ export class ProviderSourceMapper {
                     functionStubDecl,
                     recursiveDeclCache
                 )) {
-                    const targetParseResults = this._parseProvider.parseFile(functionDecl.uri);
-                    if (!targetParseResults) {
+                    const targetParse = this._parseProvider.parseFile(functionDecl.uri);
+                    if (!targetParse) {
                         continue;
                     }
-                    const targetNameOffset = convertPositionToOffset(
-                        functionStubDecl.range.start,
-                        targetParseResults.tokenizerOutput.lines
-                    );
-                    if (targetNameOffset === undefined) {
-                        continue;
-                    }
-                    const targetNode = findNodeByOffset(targetParseResults.parserOutput.parseTree, targetNameOffset);
+                    const targetNode = findNodeByPosition(functionStubDecl.range.start, targetParse);
                     if (!targetNode) {
                         continue;
                     }
@@ -518,20 +503,12 @@ export class ProviderSourceMapper {
 
             for (const classNamePart of classNameParts) {
                 classDecls = classDecls.flatMap((parentDecl) => {
-                    const targetParseResults = this._parseProvider.parseFile(parentDecl.uri);
-                    if (!targetParseResults) {
+                    const targetParse = this._parseProvider.parseFile(parentDecl.uri);
+                    if (!targetParse) {
                         return [];
                     }
 
-                    const declOffset = convertPositionToOffset(
-                        parentDecl.range.start,
-                        targetParseResults.tokenizerOutput.lines
-                    );
-                    if (declOffset === undefined) {
-                        return [];
-                    }
-
-                    const parentNode = findNodeByOffset(targetParseResults.parserOutput.parseTree, declOffset);
+                    const parentNode = findNodeByPosition(parentDecl.range.start, targetParse);
                     if (!parentNode) {
                         return [];
                     }

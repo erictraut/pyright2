@@ -505,7 +505,7 @@ export function limitOverloadBasedOnCall<T extends Type>(
     return OverloadedType.create(callTypeResult.overloadsUsedForCall);
 }
 
-export function getTypeForToolTip(typeServer: ITypeServer, node: ExpressionNode) {
+export function getTypeForToolTip(typeServer: ITypeServer, node: ExpressionNode): Type {
     // It does common work necessary for hover for a type we got
     // from raw type evaluator.
     const type = typeServer.evaluator.getType(node) ?? UnknownType.create();

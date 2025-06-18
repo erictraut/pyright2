@@ -19,20 +19,19 @@ import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.
 import {
     getClassAndConstructorTypes,
     getConstructorTooltip,
-    getDocumentationPartsForTypeAndDecl,
     getToolTipForType,
     getTypeForToolTip,
 } from 'langserver/providers/tooltipUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
 import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
-import {
-    Declaration,
-    DeclarationType,
-    VariableDeclaration,
-    isUnresolvedAliasDeclaration,
-} from 'typeserver/binder/declaration.js';
-import { isFinalVariableDeclaration } from 'typeserver/binder/declarationUtils.js';
-import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
+// import {
+//     Declaration,
+//     DeclarationType,
+//     VariableDeclaration,
+//     isUnresolvedAliasDeclaration,
+// } from 'typeserver/binder/declaration.js';
+// import { isFinalVariableDeclaration } from 'typeserver/binder/declarationUtils.js';
+// import { SynthesizedTypeInfo } from 'typeserver/binder/symbol.js';
 import {
     findNodeByOffset,
     getDocString,
@@ -43,22 +42,21 @@ import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/com
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
 import { PrintTypeOptions } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
-    ClassType,
-    Type,
-    TypeCategory,
     getTypeAliasInfo,
     isAnyOrUnknown,
-    isClassInstance,
     isFunctionOrOverloaded,
     isModule,
     isParamSpec,
     isTypeVar,
+    Type,
+    TypeCategory,
 } from 'typeserver/evaluator/types.js';
-import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.js';
+// import { convertToInstance, doForEachSubtype, isMaybeDescriptorInstance } from 'typeserver/evaluator/typeUtils.js';
+import { findNodeByPosition, getDocumentationPartsForTypeAndDecl } from 'langserver/providers/providerUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { ExpressionNode, NameNode, ParseNode, ParseNodeType, StringNode } from 'typeserver/parser/parseNodes.js';
+import { ExpressionNode, isExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
+import { Decl, DeclCategory, ITypeServer, VariableDecl } from 'typeserver/protocol/typeServerProtocol.js';
 
 export interface HoverTextPart {
     python?: boolean;
@@ -113,27 +111,28 @@ export class HoverProvider {
             return null;
         }
 
+        const start = convertOffsetToPosition(node.start, this._parseResults.tokenizerOutput.lines);
+        const end = convertOffsetToPosition(TextRange.getEnd(node), this._parseResults.tokenizerOutput.lines);
+
         const results: HoverResults = {
             parts: [],
-            range: {
-                start: convertOffsetToPosition(node.start, this._parseResults.tokenizerOutput.lines),
-                end: convertOffsetToPosition(TextRange.getEnd(node), this._parseResults.tokenizerOutput.lines),
-            },
+            range: { start, end },
         };
 
         if (node.nodeType === ParseNodeType.Name) {
-            const declInfo = this._typeServer.evaluator.getDeclInfoForNameNode(node);
-            const declarations = declInfo?.decls;
+            const declInfo = this._typeServer.getDeclsForPosition(this._fileUri, start);
+            const decls = declInfo?.decls;
 
-            if (declarations && declarations.length > 0) {
-                const primaryDeclaration = _getPrimaryDeclaration(declarations);
+            if (decls && decls.length > 0) {
+                const primaryDeclaration = _getPrimaryDeclaration(decls);
                 this._addResultsForDeclaration(results.parts, primaryDeclaration, node);
-            } else if (declInfo && declInfo.synthesizedTypes.length > 0) {
-                const nameNode = node;
-                declInfo?.synthesizedTypes.forEach((type) => {
-                    this._addResultsForSynthesizedType(results.parts, type, nameNode);
-                });
-                this._addDocumentationPart(results.parts, node, /* resolvedDecl */ undefined);
+                // TODO - handle synthesized types in the evaluator
+                // } else if (declInfo && declInfo.synthesizedTypes.length > 0) {
+                //     const nameNode = node;
+                //     declInfo?.synthesizedTypes.forEach((type) => {
+                //         this._addResultsForSynthesizedType(results.parts, type, nameNode);
+                //     });
+                //     this._addDocumentationPart(results.parts, node, /* resolvedDecl */ undefined);
             } else if (!node.parent || node.parent.nodeType !== ParseNodeType.ModuleName) {
                 // If we had no declaration, see if we can provide a minimal tooltip. We'll skip
                 // this if it's part of a module name, since a module name part with no declaration
@@ -148,13 +147,14 @@ export class HoverProvider {
                         // the top-level module, which does have a declaration.
                         typeText = '(module) ' + node.d.value;
                     } else {
-                        let label = 'function';
-                        let isProperty = false;
+                        const label = 'function';
+                        const isProperty = false;
 
-                        if (isMaybeDescriptorInstance(type, /* requireSetter */ false)) {
-                            isProperty = true;
-                            label = 'property';
-                        }
+                        // TODO - add back in
+                        // if (isMaybeDescriptorInstance(type, /* requireSetter */ false)) {
+                        //     isProperty = true;
+                        //     label = 'property';
+                        // }
 
                         typeText = getToolTipForType(
                             this._typeServer,
@@ -171,55 +171,51 @@ export class HoverProvider {
                 }
             }
         } else if (node.nodeType === ParseNodeType.String) {
-            const type = this._typeServer.evaluator.getExpectedType(node)?.type;
-            if (type !== undefined) {
-                this._tryAddPartsForTypedDictKey(node, type, results.parts);
-            }
+            // const type = this._typeServer.evaluator.getExpectedType(node)?.type;
+            // if (type !== undefined) {
+            // TODO - add back in
+            // this._tryAddPartsForTypedDictKey(node, type, results.parts);
+            // }
         }
 
         return results.parts.length > 0 ? results : null;
     }
 
-    private _addResultsForDeclaration(parts: HoverTextPart[], declaration: Declaration, node: NameNode): void {
+    private _addResultsForDeclaration(parts: HoverTextPart[], decl: Decl, node: NameNode): void {
         const resolvedDecl =
-            declaration.type === DeclarationType.Alias
-                ? this._typeServer.evaluator.resolveAliasDeclaration(declaration, /* resolveLocalNames */ true)
-                : declaration;
-        if (
-            !resolvedDecl ||
-            (resolvedDecl.type === DeclarationType.Alias && isUnresolvedAliasDeclaration(resolvedDecl))
-        ) {
+            decl.category === DeclCategory.Import
+                ? this._typeServer.resolveImportDecl(decl, /* resolveLocalNames */ true)
+                : decl;
+        if (!resolvedDecl || (resolvedDecl.category === DeclCategory.Import && resolvedDecl.uri.isEmpty())) {
             this._addResultsPart(parts, `(import) ` + node.d.value + this._getTypeText(node), /* python */ true);
             return;
         }
 
-        switch (resolvedDecl.type) {
-            case DeclarationType.Intrinsic: {
-                this._addResultsPart(parts, node.d.value + this._getTypeText(node), /* python */ true);
-                this._addDocumentationPart(parts, node, resolvedDecl);
-                break;
-            }
+        switch (resolvedDecl.category) {
+            // TODO - handle intrinsic types
+            // case DeclarationType.Intrinsic: {
+            //     this._addResultsPart(parts, node.d.value + this._getTypeText(node), /* python */ true);
+            //     this._addDocumentationPart(parts, node, resolvedDecl);
+            //     break;
+            // }
 
-            case DeclarationType.Variable: {
+            case DeclCategory.Variable: {
                 // If the named node is an aliased import symbol, we can't call
                 // getType on the original name because it's not in the symbol
                 // table. Instead, use the node from the resolved alias.
-                let typeNode: ParseNode = node;
-                if (
-                    declaration.node.nodeType === ParseNodeType.ImportAs ||
-                    declaration.node.nodeType === ParseNodeType.ImportFromAs
-                ) {
-                    if (declaration.node.d.alias && node !== declaration.node.d.alias) {
-                        if (resolvedDecl.node.nodeType === ParseNodeType.Name) {
-                            typeNode = resolvedDecl.node;
-                        }
+                let typeNode: ExpressionNode = node;
+                if (decl.category === DeclCategory.Import && decl.aliasPosition) {
+                    const aliasNode = findNodeByPosition(decl.aliasPosition, this._parseResults);
+                    if (aliasNode && isExpressionNode(aliasNode)) {
+                        typeNode = aliasNode;
                     }
                 } else if (node.parent?.nodeType === ParseNodeType.Argument && node.parent.d.name === node) {
                     // If this is a named argument, we would normally have received a Parameter declaration
                     // rather than a variable declaration, but we can get here in the case of a dataclass.
                     // Replace the typeNode with the node of the variable declaration.
-                    if (declaration.node.nodeType === ParseNodeType.Name) {
-                        typeNode = declaration.node;
+                    const varNode = findNodeByPosition(decl.range.start, this._parseResults);
+                    if (varNode && isExpressionNode(varNode)) {
+                        typeNode = varNode;
                     }
                 }
 
@@ -240,14 +236,18 @@ export class HoverProvider {
                 break;
             }
 
-            case DeclarationType.Param: {
+            case DeclCategory.Parameter: {
                 this._addResultsPart(parts, '(parameter) ' + node.d.value + this._getTypeText(node), /* python */ true);
-                _addParameterResultsPart(node, resolvedDecl, parts);
+                const resolvedParse = this._parseProvider.parseFile(resolvedDecl.uri);
+                const resolvedDeclNode = resolvedParse
+                    ? findNodeByPosition(resolvedDecl.range.start, resolvedParse)
+                    : undefined;
+                _addParameterResultsPart(node, resolvedDeclNode, parts);
                 this._addDocumentationPart(parts, node, resolvedDecl);
                 break;
             }
 
-            case DeclarationType.TypeParam: {
+            case DeclCategory.TypeParameter: {
                 // If the user is hovering over a type parameter name in a class type parameter
                 // list, display the computed variance of the type param.
                 const typeParamListNode = getParentNodeOfType(node, ParseNodeType.TypeParameterList);
@@ -263,30 +263,36 @@ export class HoverProvider {
                 break;
             }
 
-            case DeclarationType.Class:
-            case DeclarationType.SpecialBuiltInClass: {
+            case DeclCategory.Class: {
                 if (this._addInitOrNewMethodInsteadIfCallNode(node, parts, resolvedDecl)) {
                     return;
                 }
 
-                const nameNode = resolvedDecl.type === DeclarationType.Class ? resolvedDecl.node.d.name : node;
-                this._addResultsPart(parts, '(class) ' + nameNode.d.value, /* python */ true);
+                const nameNode = findNodeByPosition(resolvedDecl.range.start, this._parseResults);
+                const name = nameNode?.nodeType === ParseNodeType.Name ? nameNode.d.value : node.d.value;
+                this._addResultsPart(parts, '(class) ' + name, /* python */ true);
                 this._addDocumentationPart(parts, node, resolvedDecl);
                 break;
             }
 
-            case DeclarationType.Function: {
+            case DeclCategory.Function: {
                 let label = 'function';
-                let isProperty = false;
-                if (resolvedDecl.isMethod) {
-                    const declaredType = this._typeServer.evaluator.getTypeForDeclaration(resolvedDecl)?.type;
-                    isProperty = !!declaredType && isMaybeDescriptorInstance(declaredType, /* requireSetter */ false);
+                const isProperty = false;
+                if (resolvedDecl.method) {
+                    // TODO - add back in
+                    // const declaredType = this._typeServer.getTypeForDecl(resolvedDecl);
+                    // isProperty = !!declaredType && isMaybeDescriptorInstance(declaredType, /* requireSetter */ false);
                     label = isProperty ? 'property' : 'method';
                 }
 
-                let type = this._getType(node);
-                const resolvedType = this._getType(resolvedDecl.node.d.name);
-                type = isAnyOrUnknown(type) ? resolvedType : type;
+                const type = this._getType(node);
+                if (isAnyOrUnknown(type)) {
+                    // If the type is Any or Unknown, try to get the type from the
+                    // resolved declaration.
+                    // TODO - add back in
+                    // type = this._getType(resolvedDecl.node.d.name);
+                }
+
                 const signatureString = getToolTipForType(
                     this._typeServer,
                     type,
@@ -301,15 +307,17 @@ export class HoverProvider {
                 break;
             }
 
-            case DeclarationType.Alias: {
+            case DeclCategory.Import: {
                 // First the 'module' header.
                 this._addResultsPart(parts, '(module) ' + node.d.value, /* python */ true);
                 this._addDocumentationPart(parts, node, resolvedDecl);
                 break;
             }
 
-            case DeclarationType.TypeAlias: {
-                const type = convertToInstance(this._getType(node));
+            case DeclCategory.TypeAlias: {
+                // TODO - need to fix
+                //const type = convertToInstance(this._getType(node));
+                const type = this._getType(node);
                 const typeText = this._typeServer.evaluator.printType(type, { expandTypeAlias: true });
                 this._addResultsPart(parts, `(type) ${node.d.value} = ${typeText}`, /* python */ true);
                 this._addDocumentationPart(parts, node, resolvedDecl);
@@ -321,63 +329,63 @@ export class HoverProvider {
         }
     }
 
-    private _addResultsForSynthesizedType(parts: HoverTextPart[], typeInfo: SynthesizedTypeInfo, hoverNode: NameNode) {
-        let typeText: string | undefined;
+    // private _addResultsForSynthesizedType(parts: HoverTextPart[], typeInfo: SynthesizedTypeInfo, hoverNode: NameNode) {
+    //     let typeText: string | undefined;
 
-        if (isModule(typeInfo.type)) {
-            typeText = '(module) ' + hoverNode.d.value;
-        } else {
-            const node = typeInfo.node ?? hoverNode;
+    //     if (isModule(typeInfo.type)) {
+    //         typeText = '(module) ' + hoverNode.d.value;
+    //     } else {
+    //         const node = typeInfo.node ?? hoverNode;
 
-            const type = this._getType(node);
-            typeText = _getVariableTypeText(
-                this._typeServer,
-                /* declaration */ undefined,
-                node.d.value,
-                type,
-                node,
-                this._options.functionSignatureDisplay
-            );
-        }
+    //         const type = this._getType(node);
+    //         typeText = _getVariableTypeText(
+    //             this._typeServer,
+    //             /* declaration */ undefined,
+    //             node.d.value,
+    //             type,
+    //             node,
+    //             this._options.functionSignatureDisplay
+    //         );
+    //     }
 
-        if (typeText) {
-            this._addResultsPart(parts, typeText, /* python */ true);
-        }
-    }
+    //     if (typeText) {
+    //         this._addResultsPart(parts, typeText, /* python */ true);
+    //     }
+    // }
 
-    private _tryAddPartsForTypedDictKey(node: StringNode, type: Type, parts: HoverTextPart[]) {
-        // If the expected type is a TypedDict and the current node is a key entry then we can provide a tooltip
-        // with the type of the TypedDict key and its docstring, if available.
-        doForEachSubtype(type, (subtype) => {
-            if (isClassInstance(subtype) && ClassType.isTypedDictClass(subtype)) {
-                const entry = subtype.shared.typedDictEntries?.knownItems.get(node.d.value);
-                if (entry) {
-                    // If we have already added parts for another declaration (e.g. for a union of TypedDicts that share the same key)
-                    // then we need to add a separator to prevent a visual bug.
-                    if (parts.length > 0) {
-                        parts.push({ text: '\n\n---\n' });
-                    }
+    // private _tryAddPartsForTypedDictKey(node: StringNode, type: Type, parts: HoverTextPart[]) {
+    //     // If the expected type is a TypedDict and the current node is a key entry then we can provide a tooltip
+    //     // with the type of the TypedDict key and its docstring, if available.
+    //     doForEachSubtype(type, (subtype) => {
+    //         if (isClassInstance(subtype) && ClassType.isTypedDictClass(subtype)) {
+    //             const entry = subtype.shared.typedDictEntries?.knownItems.get(node.d.value);
+    //             if (entry) {
+    //                 // If we have already added parts for another declaration (e.g. for a union of TypedDicts that share the same key)
+    //                 // then we need to add a separator to prevent a visual bug.
+    //                 if (parts.length > 0) {
+    //                     parts.push({ text: '\n\n---\n' });
+    //                 }
 
-                    // e.g. (key) name: str
-                    const text = '(key) ' + node.d.value + ': ' + this._typeServer.evaluator.printType(entry.valueType);
-                    this._addResultsPart(parts, text, /* python */ true);
+    //                 // e.g. (key) name: str
+    //                 const text = '(key) ' + node.d.value + ': ' + this._typeServer.evaluator.printType(entry.valueType);
+    //                 this._addResultsPart(parts, text, /* python */ true);
 
-                    const declarations = ClassType.getSymbolTable(subtype).get(node.d.value)?.getDeclarations();
-                    if (declarations !== undefined && declarations?.length !== 0) {
-                        // As we are just interested in the docString we don't have to worry about
-                        // anything other than the first declaration. There also shouldn't be more
-                        // than one declaration for a TypedDict key variable.
-                        const declaration = declarations[0];
-                        if (declaration.type === DeclarationType.Variable && declaration.docString !== undefined) {
-                            this._addDocumentationPartForType(parts, subtype, declaration);
-                        }
-                    }
-                }
-            }
-        });
-    }
+    //                 const declarations = ClassType.getSymbolTable(subtype).get(node.d.value)?.getDeclarations();
+    //                 if (declarations !== undefined && declarations?.length !== 0) {
+    //                     // As we are just interested in the docString we don't have to worry about
+    //                     // anything other than the first declaration. There also shouldn't be more
+    //                     // than one declaration for a TypedDict key variable.
+    //                     const declaration = declarations[0];
+    //                     if (declaration.type === DeclarationType.Variable && declaration.docString !== undefined) {
+    //                         this._addDocumentationPartForType(parts, subtype, declaration);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     });
+    // }
 
-    private _addInitOrNewMethodInsteadIfCallNode(node: NameNode, parts: HoverTextPart[], declaration: Declaration) {
+    private _addInitOrNewMethodInsteadIfCallNode(node: NameNode, parts: HoverTextPart[], declaration: Decl) {
         const result = getClassAndConstructorTypes(this._typeServer, node);
         if (!result) {
             return false;
@@ -416,7 +424,7 @@ export class HoverProvider {
         return ': ' + this._typeServer.evaluator.printType(type, options);
     }
 
-    private _addDocumentationPart(parts: HoverTextPart[], node: NameNode, resolvedDecl: Declaration | undefined) {
+    private _addDocumentationPart(parts: HoverTextPart[], node: NameNode, resolvedDecl: Decl | undefined) {
         const type = this._getType(node);
         this._addDocumentationPartForType(parts, type, resolvedDecl, node.d.value);
     }
@@ -424,7 +432,7 @@ export class HoverProvider {
     private _addDocumentationPartForType(
         parts: HoverTextPart[],
         type: Type | undefined,
-        resolvedDecl: Declaration | undefined,
+        resolvedDecl: Decl | undefined,
         name?: string
     ): boolean {
         const docString = getDocumentationPartsForTypeAndDecl(
@@ -451,7 +459,7 @@ export class HoverProvider {
 
 function _getVariableTypeText(
     typeServer: ITypeServer,
-    declaration: VariableDeclaration | undefined,
+    declaration: VariableDecl | undefined,
     name: string,
     type: Type,
     typeNode: ExpressionNode,
@@ -459,7 +467,7 @@ function _getVariableTypeText(
 ) {
     let label = 'variable';
     if (declaration) {
-        label = declaration.isConstant || isFinalVariableDeclaration(declaration) ? 'constant' : 'variable';
+        label = declaration.constant || declaration.final ? 'constant' : 'variable';
     }
 
     let typeVarName: string | undefined;
@@ -472,12 +480,10 @@ function _getVariableTypeText(
                 typeVarName = type.shared.name;
             } else {
                 // Handle type aliases specially.
-                const typeText = typeServer.evaluator.printType(
-                    convertToInstance(getTypeForToolTip(typeServer, typeNode)),
-                    {
-                        expandTypeAlias: true,
-                    }
-                );
+                const type = getTypeForToolTip(typeServer, typeNode);
+                // TODO - need to fix
+                // type = convertToInstance(type);
+                const typeText = typeServer.evaluator.printType(type, { expandTypeAlias: true });
 
                 return `(type) ${name} = ` + typeText;
             }
@@ -538,12 +544,12 @@ function _convertHoverResults(hoverResults: HoverResults | null, format: MarkupK
 
 function _addParameterResultsPart(
     paramNameNode: NameNode,
-    resolvedDecl: Declaration | undefined,
+    resolvedDeclNode: ParseNode | undefined,
     parts: HoverTextPart[]
 ) {
     // See if we have a docstring for the parent function.
     let docString: string | undefined = undefined;
-    const funcNode = getEnclosingFunction(resolvedDecl?.node || paramNameNode);
+    const funcNode = getEnclosingFunction(resolvedDeclNode ?? paramNameNode);
     if (funcNode) {
         docString = getDocString(funcNode?.d.suite?.d.statements ?? []);
         if (docString) {
@@ -585,7 +591,7 @@ function _addDocumentationResultsPart(docString: string | undefined, format: Mar
     fail(`Unsupported markup type: ${format}`);
 }
 
-function _getPrimaryDeclaration(declarations: Declaration[]) {
+function _getPrimaryDeclaration(declarations: Decl[]) {
     // In most cases, it's best to treat the first declaration as the
     // "primary". This works well for properties that have setters
     // which often have doc strings on the getter but not the setter.
@@ -595,13 +601,11 @@ function _getPrimaryDeclaration(declarations: Declaration[]) {
     // the first declaration, it will show up as a module rather than
     // the imported symbol type.
     const primaryDeclaration = declarations[0];
-    if (primaryDeclaration.type === DeclarationType.Alias && declarations.length > 1) {
+    if (primaryDeclaration.category === DeclCategory.Import && declarations.length > 1) {
         return declarations[1];
-    } else if (
-        primaryDeclaration.type === DeclarationType.Variable &&
-        declarations.length > 1 &&
-        primaryDeclaration.isDefinedBySlots
-    ) {
+    }
+
+    if (primaryDeclaration.category === DeclCategory.Variable && declarations.length > 1 && primaryDeclaration.slots) {
         // Slots cannot have docstrings, so pick the secondary.
         return declarations[1];
     }
