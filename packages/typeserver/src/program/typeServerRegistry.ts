@@ -28,8 +28,7 @@ export class TypeServerRegistry {
     }
 
     getDeclaration(id: string): Declaration | undefined {
-        const genId = this._makeGenerationId(id);
-        return this._declarations.get(genId);
+        return this._declarations.get(id);
     }
 
     private _allocateNewId(): string {

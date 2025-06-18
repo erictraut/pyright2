@@ -195,10 +195,10 @@ export class TypeServerProvider implements ITypeServer {
 
         const decls: Decl[] = [];
 
-        symbolInfo.decls.forEach((decl) => {
-            const tsDecl = this._convertDecl(decl, !!options?.resolveImports);
-            if (tsDecl) {
-                decls.push(tsDecl);
+        symbolInfo.decls.forEach((binderDecl) => {
+            const decl = this._convertDecl(binderDecl, !!options?.resolveImports);
+            if (decl) {
+                decls.push(decl);
             }
         });
 
@@ -343,7 +343,11 @@ export class TypeServerProvider implements ITypeServer {
             decl = this._program.evaluator.resolveAliasDeclaration(decl, /* resolveLocalNames */ true) ?? decl;
         }
 
-        const id = this._allocateId();
+        if (!this._program.typeServerRegistry) {
+            return undefined;
+        }
+
+        const id = this._program.typeServerRegistry.registerDeclaration(decl);
 
         switch (decl.type) {
             case DeclarationType.Intrinsic:

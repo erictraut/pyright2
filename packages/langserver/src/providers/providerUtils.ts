@@ -8,13 +8,32 @@
  */
 
 import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
+import { getFunctionDocStringFromType, getOverloadedDocStringsFromType } from 'langserver/providers/tooltipUtils.js';
 import { getModuleDocStringFromUris } from 'langserver/providers/typeDocStringUtils.js';
 import { findNodeByOffset, getEnclosingClass, getEnclosingFunction } from 'typeserver/common/parseTreeUtils.js';
 import { convertPositionToOffset } from 'typeserver/common/positionUtils.js';
-import { ClassType, Type } from 'typeserver/evaluator/types.js';
+import {
+    ClassType,
+    isFunction,
+    isInstantiableClass,
+    isModule,
+    isOverloaded,
+    ModuleType,
+    Type,
+} from 'typeserver/evaluator/types.js';
 import { ClassNode, FunctionNode, ParseNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
-import { Decl, DeclCategory, ITypeServer, Position, Symbol } from 'typeserver/protocol/typeServerProtocol.js';
+import { isStubFile } from 'typeserver/program/sourceMapper.js';
+import {
+    ClassDecl,
+    Decl,
+    DeclCategory,
+    FunctionDecl,
+    ITypeServer,
+    Position,
+    Symbol,
+    VariableDecl,
+} from 'typeserver/protocol/typeServerProtocol.js';
 
 // Returns the class node that contains the specified position, or undefined if no class is found.
 export function getClassForPosition(pos: Position, parseResults: ParseFileResults): ClassNode | undefined {
@@ -150,40 +169,107 @@ function getDocumentationPartForType(
     resolvedDecl: Decl | undefined,
     boundObjectOrClass?: ClassType | undefined
 ) {
-    // if (isModule(type)) {
-    //     const doc = getModuleDocString(type, resolvedDecl, sourceMapper);
-    //     if (doc) {
-    //         return doc;
-    //     }
-    // } else if (isInstantiableClass(type)) {
-    //     const doc = getClassDocString(type, resolvedDecl, sourceMapper);
-    //     if (doc) {
-    //         return doc;
-    //     }
-    // } else if (isFunction(type)) {
-    //     const functionType = boundObjectOrClass
-    //         ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
-    //         : type;
-    //     if (functionType && isFunction(functionType)) {
-    //         const doc = getFunctionDocStringFromType(typeServer, functionType, sourceMapper);
-    //         if (doc) {
-    //             return doc;
-    //         }
-    //     }
-    // } else if (isOverloaded(type)) {
-    //     const functionType = boundObjectOrClass
-    //         ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
-    //         : type;
-    //     if (functionType && isOverloaded(functionType)) {
-    //         const doc = getOverloadedDocStringsFromType(typeServer, functionType, sourceMapper).find((d) => d);
+    if (isModule(type)) {
+        const doc = getModuleDocString(type, resolvedDecl, sourceMapper);
+        if (doc) {
+            return doc;
+        }
+    } else if (isInstantiableClass(type)) {
+        const doc = getClassDocString(type, resolvedDecl, sourceMapper);
+        if (doc) {
+            return doc;
+        }
+    } else if (isFunction(type)) {
+        const functionType = boundObjectOrClass
+            ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
+            : type;
+        if (functionType && isFunction(functionType)) {
+            const doc = getFunctionDocStringFromType(typeServer, functionType, sourceMapper);
+            if (doc) {
+                return doc;
+            }
+        }
+    } else if (isOverloaded(type)) {
+        const functionType = boundObjectOrClass
+            ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
+            : type;
+        if (functionType && isOverloaded(functionType)) {
+            const doc = getOverloadedDocStringsFromType(typeServer, functionType, sourceMapper).find((d) => d);
 
-    //         if (doc) {
-    //             return doc;
-    //         }
-    //     }
-    // }
+            if (doc) {
+                return doc;
+            }
+        }
+    }
 
-    // TODO - add back in
+    return undefined;
+}
 
+export function getModuleDocString(
+    type: ModuleType,
+    resolvedDecl: Decl | undefined,
+    sourceMapper: ProviderSourceMapper
+) {
+    let docString = type.priv.docString;
+    if (!docString) {
+        const uri = resolvedDecl?.uri ?? type.priv.fileUri;
+        docString = getModuleDocStringFromUris([uri], sourceMapper);
+    }
+
+    return docString;
+}
+
+export function getClassDocString(
+    classType: ClassType,
+    resolvedDecl: Decl | undefined,
+    sourceMapper: ProviderSourceMapper
+) {
+    let docString = classType.shared.docString;
+    if (!docString && resolvedDecl && resolvedDecl.category === DeclCategory.Class) {
+        docString = _getFunctionOrClassDeclsDocString([resolvedDecl]);
+        if (!docString && resolvedDecl && isStubFile(resolvedDecl.uri)) {
+            for (const implDecl of sourceMapper.findDeclarations(resolvedDecl)) {
+                if (implDecl.category === DeclCategory.Variable) {
+                    docString = getVariableDeclDocString(implDecl);
+                    break;
+                }
+
+                if (implDecl.category === DeclCategory.Class || implDecl.category === DeclCategory.Function) {
+                    docString = getFunctionOrClassDeclDocString(implDecl);
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!docString && resolvedDecl) {
+        const implDecls = sourceMapper.findDeclarationsByType(resolvedDecl.uri, classType);
+        if (implDecls) {
+            const classDecls = implDecls.filter((d) => d.category === DeclCategory.Class).map((d) => d);
+            docString = _getFunctionOrClassDeclsDocString(classDecls);
+        }
+    }
+
+    return docString;
+}
+
+function _getFunctionOrClassDeclsDocString(decls: FunctionDecl[] | ClassDecl[]): string | undefined {
+    for (const decl of decls) {
+        const docString = getFunctionOrClassDeclDocString(decl);
+        if (docString) {
+            return docString;
+        }
+    }
+
+    return undefined;
+}
+
+export function getVariableDeclDocString(decl: VariableDecl): string | undefined {
+    // TODO - need to implement
+    return undefined;
+}
+
+export function getFunctionOrClassDeclDocString(decl: FunctionDecl | ClassDecl): string | undefined {
+    // TODO - need to implement
     return undefined;
 }
