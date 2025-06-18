@@ -9,8 +9,9 @@
 import { CancellationToken } from 'vscode-languageserver';
 
 import { Declaration, DeclarationType } from 'typeserver/binder/declaration.js';
-import { SymbolTable } from 'typeserver/binder/symbol.js';
-import { getFileInfo } from 'typeserver/common/analyzerNodeInfo.js';
+import { Scope } from 'typeserver/binder/scope.js';
+import { Symbol as BinderSymbol, SymbolTable as BinderSymbolTable } from 'typeserver/binder/symbol.js';
+import { getFileInfo, getScope } from 'typeserver/common/analyzerNodeInfo.js';
 import { findNodeByPosition, getStringNodeValueRange } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertTextRangeToRange } from 'typeserver/common/positionUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
@@ -33,6 +34,7 @@ import {
     ITypeServerSourceFile,
     Position,
     SourceFilesOptions,
+    Symbol,
 } from 'typeserver/protocol/typeServerProtocol.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
@@ -114,13 +116,42 @@ export class TypeServerProvider implements ITypeServer {
             .map((fileInfo) => new SourceFileProvider(this._program, fileInfo));
     }
 
-    getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined {
+    // TODO - remove this
+    getModuleSymbolTable(fileUri: Uri): BinderSymbolTable | undefined {
         return this._program.getModuleSymbolTable(fileUri);
     }
 
     // TODO - remove this
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper {
         return this._program.getSourceMapper(fileUri, preferStubs, token);
+    }
+
+    getSymbolsForScope(fileUri: Uri, position: Position): Symbol[] | undefined {
+        const scope = this._getScopeForPosition(fileUri, position);
+        if (!scope) {
+            return undefined;
+        }
+
+        const symbols: Symbol[] = [];
+        scope.symbolTable.forEach((symbol, name) => {
+            symbols.push(this._convertSymbol(name, symbol));
+        });
+
+        return symbols;
+    }
+
+    lookUpSymbolInScope(fileUri: Uri, position: Position, name: string): Symbol | undefined {
+        const scope = this._getScopeForPosition(fileUri, position);
+        if (!scope) {
+            return undefined;
+        }
+
+        const symbol = scope.symbolTable.get(name);
+        if (!symbol) {
+            return undefined;
+        }
+
+        return this._convertSymbol(name, symbol);
     }
 
     getDeclsForPosition(fileUri: Uri, position: Position, options?: DeclOptions): DeclInfo | undefined {
@@ -294,6 +325,18 @@ export class TypeServerProvider implements ITypeServer {
         return 'none';
     }
 
+    private _convertSymbol(name: string, symbol: BinderSymbol): Symbol {
+        const decls: Decl[] = [];
+        symbol.getDeclarations().forEach((binderDecl) => {
+            const decl = this._convertDecl(binderDecl, /* resolveImports */ true);
+            if (decl) {
+                decls.push(decl);
+            }
+        });
+
+        return { name, decls };
+    }
+
     // Converts an internal declaration to a TypeServer declaration.
     private _convertDecl(decl: Declaration, resolveImports: boolean): Decl | undefined {
         if (resolveImports && decl.type === DeclarationType.Alias && this._program.evaluator) {
@@ -385,11 +428,31 @@ export class TypeServerProvider implements ITypeServer {
                             ? convertOffsetToPosition(decl.aliasName.start, fileInfo.lines)
                             : undefined,
                     symbolName: decl.symbolName,
+                    wildcard: decl.node.nodeType === ParseNodeType.ImportFrom && decl.node.d.isWildcardImport,
                 };
             }
 
             default:
                 return undefined;
         }
+    }
+
+    private _getScopeForPosition(fileUri: Uri, position: Position): Scope | undefined {
+        const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
+        if (!sourceFileInfo) {
+            return undefined;
+        }
+
+        const parseInfo = sourceFileInfo.sourceFile.getParseResults();
+        if (!parseInfo) {
+            return undefined;
+        }
+
+        const node = findNodeByPosition(parseInfo.parserOutput.parseTree, position, parseInfo.tokenizerOutput.lines);
+        if (!node) {
+            return undefined;
+        }
+
+        return getScope(node);
     }
 }

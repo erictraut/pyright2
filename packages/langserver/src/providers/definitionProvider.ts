@@ -112,7 +112,7 @@ export function addDeclarationsToDefinitions(
             return;
         }
 
-        const implDecls = sourceMapper.findDeclarations(resolvedDecl);
+        const implDecls = sourceMapper.findDeclarations_old(resolvedDecl);
         for (const implDecl of implDecls) {
             if (implDecl && !implDecl.uri.isEmpty()) {
                 _addIfUnique(definitions, {
@@ -272,7 +272,7 @@ export class TypeDefinitionProvider extends DefinitionProviderBase {
 
                 doForEachSubtype(type, (subtype) => {
                     if (subtype?.category === TypeCategory.Class) {
-                        appendArray(declarations, this.sourceMapper.findDeclarationsByType(this._fileUri, subtype));
+                        appendArray(declarations, this.sourceMapper.findDeclarationsByType_old(this._fileUri, subtype));
                     }
                 });
 

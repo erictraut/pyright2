@@ -9,7 +9,7 @@
 
 import { CancellationToken } from 'vscode-languageserver';
 
-import { SymbolTable } from 'typeserver/binder/symbol.js';
+import { SymbolTable as BinderSymbolTable } from 'typeserver/binder/symbol.js';
 import { TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import { Type } from 'typeserver/evaluator/types.js';
 import { OpenFileOptions } from 'typeserver/program/program.js';
@@ -55,13 +55,21 @@ export interface ITypeServer {
     getTypeForDecl(decl: Decl, undecorated?: boolean): Type | undefined;
 
     // TODO - rethink these interfaces.
-    getModuleSymbolTable(fileUri: Uri): SymbolTable | undefined;
+    getModuleSymbolTable(fileUri: Uri): BinderSymbolTable | undefined;
 
     // TODO - remove this
     getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
 
     // For a given position, returns a list of declarations for the
     getDeclsForPosition(fileUri: Uri, position: Position, options?: DeclOptions): DeclInfo | undefined;
+
+    // Returns the symbol table for the scope of the specified position. A
+    // position of 0, 0 always returns the symbol table for the global
+    // (module) scope.
+    getSymbolsForScope(fileUri: Uri, position: Position): Symbol[] | undefined;
+
+    // Looks up a single symbol in the scope of the specified position
+    lookUpSymbolInScope(fileUri: Uri, position: Position, name: string): Symbol | undefined;
 
     // Resolve an import declaration to its target declaration by following
     // the import chain. If the import cannot be resolved, it returns undefined.
@@ -117,6 +125,14 @@ export interface ITypeServer {
     // TODO - rethink these interfaces.
     addInterimFile(uri: Uri): void;
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
+}
+
+export interface Symbol {
+    // The symbol name (e.g. "x" or "myFunc")
+    name: string;
+
+    // The declarations associated with this symbol
+    decls: Decl[];
 }
 
 export interface DeclInfo {
@@ -239,6 +255,9 @@ export interface ImportDecl extends DeclBase {
     // The name of the symbol being imported (for "from ... import X" statements);
     // this doesn't apply to "import X" statements.
     symbolName?: string;
+
+    // Indicates a wildcard import statement
+    wildcard?: boolean;
 }
 
 export interface TypeParameterDecl extends DeclBase {
