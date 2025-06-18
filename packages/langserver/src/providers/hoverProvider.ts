@@ -268,7 +268,10 @@ export class HoverProvider {
                     return;
                 }
 
-                const nameNode = findNodeByPosition(resolvedDecl.range.start, this._parseResults);
+                const resolvedParseResults = this._parseProvider.parseFile(resolvedDecl.uri);
+                const nameNode = resolvedParseResults
+                    ? findNodeByPosition(resolvedDecl.range.start, resolvedParseResults)
+                    : undefined;
                 const name = nameNode?.nodeType === ParseNodeType.Name ? nameNode.d.value : node.d.value;
                 this._addResultsPart(parts, '(class) ' + name, /* python */ true);
                 this._addDocumentationPart(parts, node, resolvedDecl);

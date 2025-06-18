@@ -88,7 +88,7 @@ export class ProviderSourceMapper {
     // in the stub file. This includes all corresponding declarations in
     // implementation files.
     findDeclarations(stubDecl: Decl): Decl[] {
-        if (stubDecl.category === DeclCategory.Class) {
+        if (stubDecl.category === DeclCategory.Class && !stubDecl.specialForm) {
             return this._findClassOrTypeAliasDeclarations(stubDecl);
         }
 

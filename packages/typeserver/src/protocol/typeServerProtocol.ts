@@ -210,6 +210,10 @@ export interface DeclBase {
 
 export interface ClassDecl extends DeclBase {
     category: DeclCategory.Class;
+
+    // The class is defined as a SpecialForm within the type stub, so
+    // no class statement is present
+    specialForm: boolean;
 }
 
 export interface FunctionDecl extends DeclBase {

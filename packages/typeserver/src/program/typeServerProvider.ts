@@ -359,6 +359,7 @@ export class TypeServerProvider implements ITypeServer {
                     uri: decl.uri,
                     range: decl.range,
                     moduleName: decl.moduleName,
+                    specialForm: decl.type !== DeclarationType.Class,
                 };
             }
 
@@ -432,7 +433,10 @@ export class TypeServerProvider implements ITypeServer {
                             ? convertOffsetToPosition(decl.aliasName.start, fileInfo.lines)
                             : undefined,
                     symbolName: decl.symbolName,
-                    wildcard: decl.node.nodeType === ParseNodeType.ImportFrom && decl.node.d.isWildcardImport,
+                    wildcard:
+                        decl.node !== undefined &&
+                        decl.node.nodeType === ParseNodeType.ImportFrom &&
+                        decl.node.d.isWildcardImport,
                 };
             }
 
