@@ -17,6 +17,11 @@ import { Uri } from 'commonUtils/uri/uri.js';
 import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
 import {
+    getToolTipForType,
+    getTypeForToolTip,
+    limitOverloadBasedOnCall,
+} from 'langserver/providers/providerToolTipUtils.js';
+import {
     findNodeByPosition,
     getDocumentationPartsForTypeAndDecl,
     isMaybeDescriptorInstance,
@@ -32,22 +37,6 @@ import {
 } from 'typeserver/common/parseTreeUtils.js';
 import { convertOffsetToPosition, convertPositionToOffset } from 'typeserver/common/positionUtils.js';
 import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
-// import { PrintTypeOptions } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-// import {
-//     getTypeAliasInfo,
-//     isAnyOrUnknown,
-//     isFunctionOrOverloaded,
-//     isModule,
-//     isParamSpec,
-//     isTypeVar,
-//     Type,
-//     TypeCategory,
-// } from 'typeserver/evaluator/types.js';
-import {
-    getToolTipForType,
-    getTypeForToolTip,
-    limitOverloadBasedOnCall,
-} from 'langserver/providers/providerToolTipUtils.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
 import {
     ExpressionNode,
@@ -311,13 +300,12 @@ export class HoverProvider {
                     label = isProperty ? 'property' : 'method';
                 }
 
-                const type = this._getType(node);
-                // if (isAnyOrUnknown(type)) {
+                let type = this._getType(node);
                 // If the type is Any or Unknown, try to get the type from the
                 // resolved declaration.
-                // TODO - add back in
-                // type = this._getType(resolvedDecl.node.d.name);
-                // }
+                if (type && type.flags & TypeFlags.Any) {
+                    type = this._typeServer.getTypeForDecl(resolvedDecl)?.type;
+                }
 
                 const signatureString = getToolTipForType(
                     this._typeServer,
@@ -341,8 +329,6 @@ export class HoverProvider {
             }
 
             case DeclCategory.TypeAlias: {
-                // TODO - need to fix
-                //const type = convertToInstance(this._getType(node));
                 const type = this._getType(node);
                 const typeText = type ? this._typeServer.printType(type, { expandTypeAlias: true }) : 'Unknown';
                 this._addResultsPart(parts, `(type) ${node.d.value} = ${typeText}`, /* python */ true);
