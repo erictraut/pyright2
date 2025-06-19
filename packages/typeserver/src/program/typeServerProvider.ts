@@ -22,12 +22,15 @@ import { TextRange } from 'typeserver/common/textRange.js';
 import { SymbolDeclInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     Type as EvaluatorType,
+    FunctionType,
     isClass,
     isFunction,
+    isFunctionOrOverloaded,
     isInstantiableClass,
     OverloadedType,
     TypeCategory,
 } from 'typeserver/evaluator/types.js';
+import { convertToInstance } from 'typeserver/evaluator/typeUtils.js';
 import { ImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
 import { isExpressionNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
@@ -39,6 +42,7 @@ import {
     AttributeInfo,
     AttributeOptions,
     AutoImportInfo,
+    CallableTypeParts,
     Decl,
     DeclCategory,
     DeclInfo,
@@ -48,6 +52,7 @@ import {
     ITypeServerSourceFile,
     Position,
     PrintTypeOptions,
+    SignatureTypeParts,
     SourceFilesOptions,
     Symbol,
     Type,
@@ -80,12 +85,53 @@ export class TypeServerProvider implements ITypeServer {
     }
 
     printType(type: Type, options?: PrintTypeOptions): string | undefined {
-        const evaluatorType = this._program.typeServerRegistry?.getType(type.id);
+        let evaluatorType = this._program.typeServerRegistry?.getType(type.id);
         if (!evaluatorType) {
             return undefined;
         }
 
+        // If this is a type alias, print it as the type it represents.
+        if (evaluatorType.props?.typeAliasInfo) {
+            evaluatorType = convertToInstance(evaluatorType);
+        }
+
         return this._program.evaluator?.printType(evaluatorType, options);
+    }
+
+    printCallableTypeParts(type: Type, options?: PrintTypeOptions): CallableTypeParts | undefined {
+        const evaluatorType = this._program.typeServerRegistry?.getType(type.id);
+        if (!evaluatorType || !this._program.evaluator) {
+            return undefined;
+        }
+
+        const evaluator = this._program.evaluator;
+
+        if (!isFunctionOrOverloaded(evaluatorType)) {
+            return undefined;
+        }
+
+        let callables: FunctionType[];
+
+        if (isFunction(evaluatorType)) {
+            callables = [evaluatorType];
+        } else {
+            callables = OverloadedType.getOverloads(evaluatorType);
+        }
+
+        const signatures = callables.map((callable) => {
+            const parts = evaluator.printFunctionParts(callable);
+            const sig: SignatureTypeParts = {
+                async: FunctionType.isAsync(callable),
+                parameters: parts[0],
+                returnType: parts[1],
+            };
+
+            return sig;
+        });
+
+        return {
+            signatures,
+        };
     }
 
     getAttributeAccess(type: Type, name: string, options?: AttributeOptions): AttributeAccessInfo | undefined {

@@ -26,6 +26,11 @@ export interface ITypeServer {
     // Converts the specified type into a textural representation
     printType(type: Type, options?: PrintTypeOptions): string | undefined;
 
+    // Converts the parts of a callable type into textual parts that can
+    // be formatted and output by the caller. the type must have the Callable
+    // flag set. Overloaded callables are supported.
+    printCallableTypeParts(type: Type, options?: PrintTypeOptions): CallableTypeParts | undefined;
+
     // Returns the type when a specified attribute is accessed through a value with a
     // given type. Methods are bound to the type, and generic attributes are specialized.
     // By default, a "__get__" access is assumed, but this can be overridden.
@@ -215,6 +220,22 @@ export interface Type {
 export interface PrintTypeOptions {
     // Expand type aliases into their underlying type?
     expandTypeAlias?: boolean;
+}
+
+export interface SignatureTypeParts {
+    // Indicates that the callable is async
+    async: boolean;
+
+    // Text for parameter (left to right)
+    parameters: string[];
+
+    // Text for return type
+    returnType: string;
+}
+
+export interface CallableTypeParts {
+    // One signature for each overload
+    signatures: SignatureTypeParts[];
 }
 
 export interface Symbol {

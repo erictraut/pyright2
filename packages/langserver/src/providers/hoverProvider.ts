@@ -21,7 +21,7 @@ import {
     getDocumentationPartsForTypeAndDecl,
     isMaybeDescriptorInstance,
 } from 'langserver/providers/providerUtils.js';
-import { getClassAndConstructorTypes } from 'langserver/providers/tooltipUtils.js';
+import { functionParamIndentOffset, getClassAndConstructorTypes } from 'langserver/providers/tooltipUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
 import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
 import { findNodeByOffset, getDocString, getEnclosingFunction } from 'typeserver/common/parseTreeUtils.js';
@@ -53,6 +53,7 @@ import {
     DeclCategory,
     ITypeServer,
     PrintTypeOptions,
+    SignatureTypeParts,
     Type,
     TypeFlags,
     VariableDecl,
@@ -545,13 +546,81 @@ function _getToolTipForType(
         }
     }
 
-    let typeString = '';
-    if (type) {
-        typeString = label.length > 0 ? `(${label}) ` : '';
-        typeString += `${name}: ${typeServer.printType(type)}`;
+    let toolTipText = '';
+    if (type && type.flags & TypeFlags.Callable) {
+        const callableParts = typeServer.printCallableTypeParts(type)?.signatures;
+        if (callableParts) {
+            if (callableParts.length > 1) {
+                toolTipText = label.length > 0 ? `(${label})\n` : '';
+                toolTipText += _getOverloadedTooltip(callableParts, name, functionSignatureDisplay);
+            } else {
+                toolTipText = _getCallableTooltip(callableParts[0], label, name, isProperty, functionSignatureDisplay);
+            }
+            return toolTipText;
+        }
     }
 
-    return typeString;
+    toolTipText = label.length > 0 ? `(${label}) ` : '';
+    const typeText = type ? typeServer.printType(type) : 'Unknown';
+    toolTipText += `${name}: ${typeText}`;
+
+    return toolTipText;
+}
+
+function _getOverloadedTooltip(
+    sigParts: SignatureTypeParts[],
+    name: string,
+    functionSignatureDisplay: SignatureDisplayType,
+    columnThreshold = 70 // VSCode's default hover width
+) {
+    let content = '';
+    const overloads = sigParts.map((sig) =>
+        _getCallableTooltip(sig, /* label */ '', name, /* isProperty */ false, functionSignatureDisplay)
+    );
+
+    for (let i = 0; i < overloads.length; i++) {
+        if (i !== 0 && overloads[i].length > columnThreshold && overloads[i - 1].length <= columnThreshold) {
+            content += '\n';
+        }
+
+        content += overloads[i] + `: ...`;
+
+        if (i < overloads.length - 1) {
+            content += '\n';
+            if (overloads[i].length > columnThreshold) {
+                content += '\n';
+            }
+        }
+    }
+
+    return content;
+}
+
+function _getCallableTooltip(
+    sigParts: SignatureTypeParts,
+    label: string,
+    functionName: string,
+    isProperty = false,
+    functionSignatureDisplay: SignatureDisplayType
+) {
+    const labelFormatted = label.length === 0 ? '' : `(${label}) `;
+    const indentStr =
+        functionSignatureDisplay === SignatureDisplayType.Formatted ? '\n' + ' '.repeat(functionParamIndentOffset) : '';
+    const paramSignature = `${_formatSignature(sigParts.parameters, indentStr, functionSignatureDisplay)} -> ${
+        sigParts.returnType
+    }`;
+
+    const sep = isProperty ? ': ' : '';
+    let defKeyword = '';
+    if (!isProperty) {
+        defKeyword = 'def ';
+
+        if (sigParts.async) {
+            defKeyword = 'async ' + defKeyword;
+        }
+    }
+
+    return `${labelFormatted}${defKeyword}${functionName}${sep}${paramSignature}`;
 }
 
 function _convertHoverResults(hoverResults: HoverResults | null, format: MarkupKind): Hover | null {
@@ -582,6 +651,13 @@ function _convertHoverResults(hoverResults: HoverResults | null, format: MarkupK
         },
         range: hoverResults.range,
     };
+}
+
+// Only formats signature if there is more than one parameter
+function _formatSignature(paramParts: string[], indentStr: string, functionSignatureDisplay: SignatureDisplayType) {
+    return functionSignatureDisplay === SignatureDisplayType.Formatted && paramParts.length > 1
+        ? `(${indentStr}${paramParts.join(',' + indentStr)}\n)`
+        : `(${paramParts.join(', ')})`;
 }
 
 function _addParameterResultsPart(
