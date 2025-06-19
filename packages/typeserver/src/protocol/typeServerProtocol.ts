@@ -17,11 +17,11 @@ import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ITypeServer {
     // Returns the evaluated type at the specified position or range.
-    getType(fileUri: Uri, start: Position, end?: Position): Type | undefined;
+    getType(fileUri: Uri, start: Position, end?: Position): TypeResult | undefined;
 
     // Returns the inference context type (the type expected based on the context)
     // for the specified position or range.
-    getContextType(fileUri: Uri, start: Position, end?: Position): Type | undefined;
+    getContextType(fileUri: Uri, start: Position, end?: Position): TypeResult | undefined;
 
     // Converts the specified type into a textural representation
     printType(type: Type, options?: PrintTypeOptions): string | undefined;
@@ -44,7 +44,7 @@ export interface ITypeServer {
     // Returns the declared type associated with this declaration, if any.
     // Decorators (if present on a function or class declaration) are applied
     // to the type if undecorated is not true.
-    getTypeForDecl(decl: Decl, undecorated?: boolean): Type | undefined;
+    getTypeForDecl(decl: Decl, undecorated?: boolean): TypeResult | undefined;
 
     // For a given position, returns a list of declarations for the
     getDeclsForPosition(fileUri: Uri, position: Position, options?: DeclOptions): DeclInfo | undefined;
@@ -215,6 +215,21 @@ export interface Type {
 
     // The docstring associated with the type (if applicable)
     docString?: string;
+}
+
+export interface TypeResult {
+    // The type of the expression, declaration, etc.
+    type: Type;
+
+    // For getType and getContextType, the range of the expression
+    // that was used to evaluate the type.
+    range?: Range;
+
+    // For expressions that invoke a call at runtime (most notably call expressions),
+    // the type of the call (including any overloads) based on the supplied argument
+    // list. This is useful for overloaded callables, and it allows language servers
+    // to present only those overload signatures that are applicable.
+    called?: Type;
 }
 
 export interface PrintTypeOptions {

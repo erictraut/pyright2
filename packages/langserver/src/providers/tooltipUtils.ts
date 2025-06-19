@@ -44,7 +44,7 @@ import { ExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/p
 import { ITypeServer } from 'typeserver/protocol/typeServerProtocol.js';
 
 // The number of spaces to indent each parameter, after moving to a newline in tooltips.
-export const functionParamIndentOffset = 4;
+const functionParamIndentOffset = 4;
 
 export function getToolTipForType(
     typeServer: ITypeServer,

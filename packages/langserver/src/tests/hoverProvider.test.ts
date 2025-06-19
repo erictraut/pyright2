@@ -413,7 +413,7 @@ test('hover on class Foo and its __call__ method with overloads', async () => {
         marker1: '```python\n(variable) foo: Foo\n```',
         marker2: '```python\n(variable) def foo(a: int) -> int\n```',
         marker3: '```python\n(variable) def foo(a: str) -> str\n```',
-        marker4: '```python\n(variable)\ndef __call__(a: int) -> int: ...\ndef __call__(a: str) -> str: ...\n```',
+        marker4: '```python\n(variable)\ndef foo(a: int) -> int: ...\ndef foo(a: str) -> str: ...\n```',
     });
 });
 

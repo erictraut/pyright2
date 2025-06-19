@@ -57,6 +57,7 @@ import {
     Symbol,
     Type,
     TypeFlags,
+    TypeResult,
 } from 'typeserver/protocol/typeServerProtocol.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
@@ -68,20 +69,37 @@ export class TypeServerProvider implements ITypeServer {
         return this._program.evaluator!;
     }
 
-    getType(fileUri: Uri, start: Position, end?: Position): Type | undefined {
+    getType(fileUri: Uri, start: Position, end?: Position): TypeResult | undefined {
         const node = this._findNodeByRange(fileUri, start, end);
         if (!node || !isExpressionNode(node)) {
             return undefined;
         }
-        return this._convertType(this._program.evaluator?.getType(node));
+
+        const typeResult = this._program.evaluator?.getTypeResult(node);
+        if (!typeResult) {
+            return undefined;
+        }
+
+        let calledType: EvaluatorType | undefined;
+        if (typeResult.overloadsUsedForCall) {
+            calledType = OverloadedType.create(typeResult.overloadsUsedForCall);
+        }
+
+        return this._convertTypeResult(fileUri, node, typeResult.type, calledType);
     }
 
-    getContextType(fileUri: Uri, start: Position, end?: Position): Type | undefined {
+    getContextType(fileUri: Uri, start: Position, end?: Position): TypeResult | undefined {
         const node = this._findNodeByRange(fileUri, start, end);
         if (!node || !isExpressionNode(node)) {
             return undefined;
         }
-        return this._convertType(this._program.evaluator?.getExpectedType(node)?.type);
+
+        const type = this._program.evaluator?.getExpectedType(node)?.type;
+        if (!type) {
+            return undefined;
+        }
+
+        return this._convertTypeResult(fileUri, node, type);
     }
 
     printType(type: Type, options?: PrintTypeOptions): string | undefined {
@@ -159,12 +177,20 @@ export class TypeServerProvider implements ITypeServer {
         return undefined;
     }
 
-    getTypeForDecl(decl: Decl, undecorated?: boolean): Type | undefined {
+    getTypeForDecl(decl: Decl, undecorated?: boolean): TypeResult | undefined {
         const declaration = this._program.typeServerRegistry?.getDeclaration(decl.id);
         if (!declaration) {
             return undefined;
         }
-        return this._convertType(this._program.evaluator?.getTypeForDeclaration(declaration, undecorated)?.type);
+
+        const convertedType = this._convertType(
+            this._program.evaluator?.getTypeForDeclaration(declaration, undecorated)?.type
+        );
+        if (!convertedType) {
+            return undefined;
+        }
+
+        return { type: convertedType };
     }
 
     getSourceFile(fileUri: Uri): ITypeServerSourceFile | undefined {
@@ -484,6 +510,34 @@ export class TypeServerProvider implements ITypeServer {
         });
 
         return { name, decls };
+    }
+
+    private _convertTypeResult(
+        fileUri: Uri,
+        node: TextRange,
+        type: EvaluatorType,
+        calledType?: EvaluatorType
+    ): TypeResult | undefined {
+        const convertedType = this._convertType(type);
+        if (!convertedType) {
+            return undefined;
+        }
+
+        const sourceFileInfo = this._program.getSourceFileInfo(fileUri);
+        if (!sourceFileInfo) {
+            return undefined;
+        }
+
+        const parseInfo = sourceFileInfo.sourceFile.getParseResults();
+        if (!parseInfo) {
+            return undefined;
+        }
+
+        const range = convertTextRangeToRange(node, parseInfo.tokenizerOutput.lines);
+
+        const convertedCalled = calledType ? this._convertType(calledType) : undefined;
+
+        return { type: convertedType, range, called: convertedCalled };
     }
 
     private _convertType(type: EvaluatorType | undefined): Type | undefined {
