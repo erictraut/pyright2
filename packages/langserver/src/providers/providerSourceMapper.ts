@@ -27,6 +27,7 @@ import {
     FunctionDecl,
     ITypeServer,
     ParameterDecl,
+    Type,
     VariableDecl,
 } from 'typeserver/protocol/typeServerProtocol.js';
 import { appendArray } from 'typeserver/utils/collectionUtils.js';
@@ -107,7 +108,7 @@ export class ProviderSourceMapper {
         return [];
     }
 
-    findDeclarationsByType(originatedPath: Uri, type: ClassType): Decl[] {
+    findDeclarationsByType(originatedPath: Uri, type: Type): Decl[] {
         const result: ClassOrFunctionOrVariableDecl[] = [];
         this._addClassTypeDeclarations(originatedPath, type, result, new Set<string>());
         return result;
@@ -630,16 +631,25 @@ export class ProviderSourceMapper {
 
     private _addClassTypeDeclarations(
         originated: Uri,
-        type: ClassType,
+        classType: Type,
         result: ClassOrFunctionOrVariableDecl[],
         recursiveDeclCache: Set<string>
     ) {
-        const fileUri = type.shared.fileUri;
-        const sourceFiles = this._getSourceFiles(fileUri, /* stubToShadow */ undefined, originated);
+        if (!classType.decls || classType.decls.length === 0) {
+            return;
+        }
 
-        const fullName = type.shared.fullName;
-        const moduleName = type.shared.moduleName;
-        const fullClassName = fullName.substring(moduleName.length + 1 /* +1 for trailing dot */);
+        const fileUri = classType.decls[0].uri;
+        const parseResults = this._parseProvider.parseFile(fileUri);
+        if (!parseResults) {
+            return;
+        }
+        const classNode = getClassForPosition(classType.decls[0].range.start, parseResults);
+        if (!classNode) {
+            return;
+        }
+        const fullClassName = this._getFullClassName(classNode);
+        const sourceFiles = this._getSourceFiles(fileUri, /* stubToShadow */ undefined, originated);
 
         for (const sourceFile of sourceFiles) {
             appendArray(result, this._findClassDeclarationsByName(sourceFile, fullClassName, recursiveDeclCache));
@@ -657,7 +667,7 @@ export class ProviderSourceMapper {
         }
 
         const nodePosition = convertOffsetToPosition(node.start, parseResults?.tokenizerOutput.lines);
-        return this._typeServer.lookUpSymbolInScope(sourceFile, nodePosition, symbolName)?.decls ?? [];
+        return this._typeServer.getSymbolInScope(sourceFile, nodePosition, symbolName)?.decls ?? [];
     }
 
     private _addDeclarationsFollowingWildcardImports(
@@ -697,11 +707,7 @@ export class ProviderSourceMapper {
 
                 const sourceFiles = this._getSourceFiles(decl.uri);
                 for (const sourceFile of sourceFiles) {
-                    const symbol = this._typeServer.lookUpSymbolInScope(
-                        sourceFile,
-                        { line: 0, character: 0 },
-                        symbolName
-                    );
+                    const symbol = this._typeServer.getSymbolInScope(sourceFile, { line: 0, character: 0 }, symbolName);
                     if (!symbol || symbol.decls.length === 0) {
                         this._addDeclarationsFollowingWildcardImports(
                             sourceFile,

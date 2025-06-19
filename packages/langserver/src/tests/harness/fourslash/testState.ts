@@ -929,14 +929,11 @@ export class TestState {
             }
 
             const rangePos = this.convertOffsetsToRange(range.fileName, range.pos, range.end);
-            const parseResults = this.program.getParseResults(range.fileUri);
-            assertDefined(parseResults);
 
             const provider = new HoverProvider(
                 this.typeServer,
                 new WorkspaceParseProvider(this.workspace),
                 range.fileUri,
-                parseResults,
                 rangePos.start,
                 {
                     functionSignatureDisplay: SignatureDisplayType.Compact,

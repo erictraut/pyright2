@@ -1011,17 +1011,11 @@ export class LanguageServer implements LanguageServerInterface, Disposable {
             return undefined;
         }
 
-        const parseResults = this.getCachedParseResultsForFile(workspace, uri);
-        if (!parseResults) {
-            return undefined;
-        }
-
         return workspace.service.run((typeServer) => {
             return new HoverProvider(
                 typeServer,
                 new WorkspaceParseProvider(workspace),
                 uri,
-                parseResults,
                 params.position,
                 {
                     functionSignatureDisplay: workspace.functionSignatureDisplay,

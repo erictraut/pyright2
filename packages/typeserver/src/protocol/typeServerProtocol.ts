@@ -16,34 +16,6 @@ import { SourceMapper } from 'typeserver/program/sourceMapper.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 
 export interface ITypeServer {
-    // TODO - remove this and replace by individual calls
-    readonly evaluator: TypeEvaluator;
-
-    // Accessing Types
-    //----------------
-    // getContextType
-    // getType - makeTopLevelTypeVarsConcrete
-    // getTypeOfClass
-    // getTypeOfFunction
-    // getTypeForDeclaration
-    // getTypeOfSymbol
-    // getTypeOfMember
-
-    // Operating on Types
-    //----------------
-    // printType
-    // printFunctionParts (tooltipUtils)
-    // getCallSignatureInfo
-    // getBoundMagicMethod
-    // bindFunctionToClassOrObject
-    // getTypedDictMembersForClass
-
-    // These should go away
-    // lookUpSymbolRecursive
-    // transformTypeForEnumMember (completion provider)
-    // isFinalVariableDeclaration
-
-    // TODO - replace this Type with a more abstract version
     // Returns the evaluated type at the specified position or range.
     getType(fileUri: Uri, start: Position, end?: Position): Type | undefined;
 
@@ -60,12 +32,6 @@ export interface ITypeServer {
     // to the type if undecorated is not true.
     getTypeForDecl(decl: Decl, undecorated?: boolean): Type | undefined;
 
-    // TODO - rethink these interfaces.
-    getModuleSymbolTable(fileUri: Uri): BinderSymbolTable | undefined;
-
-    // TODO - remove this
-    getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
-
     // For a given position, returns a list of declarations for the
     getDeclsForPosition(fileUri: Uri, position: Position, options?: DeclOptions): DeclInfo | undefined;
 
@@ -74,8 +40,9 @@ export interface ITypeServer {
     // (module) scope.
     getSymbolsForScope(fileUri: Uri, position: Position): Symbol[] | undefined;
 
-    // Looks up a single symbol in the scope of the specified position
-    lookUpSymbolInScope(fileUri: Uri, position: Position, name: string): Symbol | undefined;
+    // Retrieves a single symbol in the scope of the specified position. This
+    // does not include outer scopes.
+    getSymbolInScope(fileUri: Uri, position: Position, symbolName: string): Symbol | undefined;
 
     // Resolve an import declaration to its target declaration by following
     // the import chain. If the import cannot be resolved, it returns undefined.
@@ -128,15 +95,88 @@ export interface ITypeServer {
     // transitive closure.
     getImportedByRecursive(fileUri: Uri): ITypeServerSourceFile[];
 
+    // TODO - remove these
+    getModuleSymbolTable(fileUri: Uri): BinderSymbolTable | undefined;
+    getSourceMapper(fileUri: Uri, preferStubs: boolean, token: CancellationToken): SourceMapper;
+    readonly evaluator: TypeEvaluator;
+
     // TODO - rethink these interfaces.
     addInterimFile(uri: Uri): void;
     setFileOpened(fileUri: Uri, version: number | null, contents: string, options?: OpenFileOptions): void;
+
+    // Other functionality that may need to be added
+    // * getTypeOfClass
+    // * getTypeOfFunction
+    // * getTypeForDeclaration
+    // * getTypeOfSymbol
+    // * getTypeOfMember
+
+    // printFunctionParts (tooltipUtils)
+    // * getCallSignatureInfo
+    // * getBoundMagicMethod
+    // * bindFunctionToClassOrObject
+    // * getTypedDictMembersForClass
+
+    // These should go away
+    // * lookUpSymbolRecursive
+    // * transformTypeForEnumMember
+    // * isFinalVariableDeclaration
+}
+
+export enum TypeFlags {
+    // None of the other flags apply
+    None = 0,
+
+    // A function, method, or static method object that is callable
+    Callable = 1 << 0,
+
+    // Used with Function to indicate that two or more overloaded signatures
+    // are associated with the function
+    Overloaded = 1 << 2,
+
+    // A class object (an object that is an instance of type or a subclass of type)
+    Class = 1 << 3,
+
+    // A module type
+    Module = 1 << 4,
+
+    // A type variable (TypeVar, TypeVarTuple, ParamSpec)
+    TypeVariable = 1 << 4,
+
+    // A composite type that represents a union of types
+    Union = 1 << 5,
+
+    // A type alias
+    TypeAlias = 1 << 6,
+
+    // The "Any" type
+    Any = 1 << 7,
+
+    // Used with Any to indicate that it is an implicit Any (Unknown) type
+    Unknown = 1 << 8,
+
+    // The Never type
+    Never = 1 << 9,
 }
 
 export interface Type {
     // An opaque ID that allows the type to be referenced
-    // in subsequent calls to the type server.
+    // in subsequent calls to the type server. This ID cannot
+    // be used to compare types since two equivalent types
+    // might have different IDs.
     id: string;
+
+    // A set of flags that provide additional information about the type
+    flags: TypeFlags;
+
+    // Declarations associated with the type (applicable only for some types)
+    decls?: Decl[];
+
+    // For module types, the location of the module
+    moduleUri?: Uri;
+
+    // The docstring associated with the type (if applicable)
+    docString?: string;
 }
 
 export interface PrintTypeOptions {

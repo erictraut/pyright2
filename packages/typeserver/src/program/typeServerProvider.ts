@@ -20,7 +20,13 @@ import {
 } from 'typeserver/common/positionUtils.js';
 import { TextRange } from 'typeserver/common/textRange.js';
 import { SymbolDeclInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
-import { Type as EvaluatorType } from 'typeserver/evaluator/types.js';
+import {
+    Type as EvaluatorType,
+    isFunction,
+    isInstantiableClass,
+    OverloadedType,
+    TypeCategory,
+} from 'typeserver/evaluator/types.js';
 import { ImportedModuleDescriptor } from 'typeserver/imports/importResolver.js';
 import { ImportType } from 'typeserver/imports/importResult.js';
 import { isExpressionNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
@@ -41,6 +47,7 @@ import {
     SourceFilesOptions,
     Symbol,
     Type,
+    TypeFlags,
 } from 'typeserver/protocol/typeServerProtocol.js';
 import { Uri } from 'typeserver/utils/uri/uri.js';
 import { isDefined } from 'typeserver/utils/valueTypeUtils.js';
@@ -171,18 +178,18 @@ export class TypeServerProvider implements ITypeServer {
         return symbols;
     }
 
-    lookUpSymbolInScope(fileUri: Uri, position: Position, name: string): Symbol | undefined {
+    getSymbolInScope(fileUri: Uri, position: Position, symbolName: string): Symbol | undefined {
         const scope = this._getScopeForPosition(fileUri, position);
         if (!scope) {
             return undefined;
         }
 
-        const symbol = scope.symbolTable.get(name);
+        const symbol = scope.symbolTable.get(symbolName);
         if (!symbol) {
             return undefined;
         }
 
-        return this._convertSymbol(name, symbol);
+        return this._convertSymbol(symbolName, symbol);
     }
 
     getDeclsForPosition(fileUri: Uri, position: Position, options?: DeclOptions): DeclInfo | undefined {
@@ -414,9 +421,106 @@ export class TypeServerProvider implements ITypeServer {
         }
 
         const id = this._program.typeServerRegistry.registerType(type);
+        let decls: Decl[] | undefined;
+        let flags: TypeFlags = TypeFlags.None;
+        let moduleUri: Uri | undefined;
+        let docString: string | undefined;
+
+        if (type.props?.typeAliasInfo) {
+            flags = TypeFlags.TypeAlias;
+        } else {
+            switch (type.category) {
+                case TypeCategory.Any:
+                    flags = TypeFlags.Any;
+                    break;
+
+                case TypeCategory.Unknown:
+                    flags = TypeFlags.Any | TypeFlags.Unknown;
+                    break;
+
+                case TypeCategory.Class:
+                    if (isInstantiableClass(type)) {
+                        flags = TypeFlags.Class;
+                        if (type.shared.docString) {
+                            docString = type.shared.docString;
+                        }
+                    }
+
+                    if (type.shared.declaration) {
+                        const decl = this._convertDecl(type.shared.declaration, /* resolveImports */ true);
+                        if (decl) {
+                            decls = [decl];
+                        }
+                    }
+                    break;
+
+                case TypeCategory.Module: {
+                    if (isInstantiableClass(type)) {
+                        flags = TypeFlags.Class;
+                    } else {
+                        flags = TypeFlags.Module;
+                        moduleUri = type.priv.fileUri;
+                    }
+                    break;
+                }
+
+                case TypeCategory.Function: {
+                    if (isInstantiableClass(type)) {
+                        flags = TypeFlags.Class;
+                    } else {
+                        flags = TypeFlags.Callable;
+                        docString = type.shared.docString;
+
+                        if (type.shared.declaration) {
+                            const decl = this._convertDecl(type.shared.declaration, /* resolveImports */ true);
+                            if (decl) {
+                                decls = [decl];
+                            }
+                        }
+                    }
+                    break;
+                }
+
+                case TypeCategory.Overloaded: {
+                    if (isInstantiableClass(type)) {
+                        flags = TypeFlags.Class;
+                    } else {
+                        flags = TypeFlags.Callable | TypeFlags.Overloaded;
+
+                        const impl = OverloadedType.getImplementation(type);
+                        const overloads = OverloadedType.getOverloads(type);
+
+                        if (impl && isFunction(impl) && impl.shared.docString) {
+                            docString = impl.shared.docString;
+                        } else if (overloads.length > 0 && overloads[0].shared.docString) {
+                            docString = overloads[0].shared.docString;
+                        }
+
+                        if (type.priv._overloads) {
+                            decls = overloads
+                                .map((overload) =>
+                                    overload.shared.declaration
+                                        ? this._convertDecl(overload.shared.declaration, /* resolveImports */ true)
+                                        : undefined
+                                )
+                                .filter(isDefined);
+                        }
+                    }
+                    break;
+                }
+
+                case TypeCategory.Never:
+                    flags = TypeFlags.Never;
+                    break;
+            }
+        }
 
         return {
             id,
+            flags,
+            decls,
+            moduleUri,
+            docString,
         };
     }
 

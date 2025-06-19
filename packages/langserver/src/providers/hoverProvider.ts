@@ -35,7 +35,14 @@ import { Position, Range, TextRange } from 'typeserver/common/textRange.js';
 //     TypeCategory,
 // } from 'typeserver/evaluator/types.js';
 import { throwIfCancellationRequested } from 'typeserver/extensibility/cancellationUtils.js';
-import { ExpressionNode, isExpressionNode, NameNode, ParseNode, ParseNodeType } from 'typeserver/parser/parseNodes.js';
+import {
+    ExpressionNode,
+    isExpressionNode,
+    NameNode,
+    ParseNode,
+    ParseNodeType,
+    StringNode,
+} from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import {
     Decl,
@@ -43,6 +50,7 @@ import {
     ITypeServer,
     PrintTypeOptions,
     Type,
+    TypeFlags,
     VariableDecl,
 } from 'typeserver/protocol/typeServerProtocol.js';
 
@@ -62,12 +70,12 @@ export interface HoverOptions {
 
 export class HoverProvider {
     private readonly _sourceMapper: ProviderSourceMapper;
+    private readonly _parseResultsCached: ParseFileResults | undefined;
 
     constructor(
         private readonly _typeServer: ITypeServer,
         private readonly _parseProvider: IParseProvider,
         private readonly _fileUri: Uri,
-        private readonly _parseResults: ParseFileResults,
         private readonly _position: Position,
         private readonly _options: HoverOptions,
         private readonly _format: MarkupKind,
@@ -80,10 +88,20 @@ export class HoverProvider {
             /* preferStubs */ false,
             this._token
         );
+
+        this._parseResultsCached = this._parseProvider.parseFile(this._fileUri);
     }
 
     getHover(): Hover | null {
+        if (!this._parseResultsCached) {
+            return null;
+        }
+
         return _convertHoverResults(this._getHoverResult(), this._format);
+    }
+
+    private get _parseResults(): ParseFileResults {
+        return this._parseResultsCached!;
     }
 
     private _getHoverResult(): HoverResults | null {
@@ -128,42 +146,44 @@ export class HoverProvider {
                 // information in that case.
                 if (results.parts.length === 0) {
                     const type = this._getType(node);
-                    // TODO - need to reimplement somehow
-                    // if (isModule(type)) {
-                    //     // Handle modules specially because submodules aren't associated with
-                    //     // declarations, but we want them to be presented in the same way as
-                    //     // the top-level module, which does have a declaration.
-                    //     typeText = '(module) ' + node.d.value;
-                    // } else {
-                    const label = 'function';
-                    const isProperty = false;
+                    let typeText: string;
 
-                    // TODO - add back in
-                    // if (isMaybeDescriptorInstance(type, /* requireSetter */ false)) {
-                    //     isProperty = true;
-                    //     label = 'property';
-                    // }
+                    if (type && type.flags & TypeFlags.Module) {
+                        // Handle modules specially because submodules aren't associated with
+                        // declarations, but we want them to be presented in the same way as
+                        // the top-level module, which does have a declaration.
+                        typeText = '(module) ' + node.d.value;
+                    } else {
+                        const label = 'function';
+                        const isProperty = false;
 
-                    const typeText = _getToolTipForType(
-                        this._typeServer,
-                        type,
-                        label,
-                        node.d.value,
-                        isProperty,
-                        this._options.functionSignatureDisplay
-                    );
-                    // }
+                        // TODO - add back in
+                        // if (isMaybeDescriptorInstance(type, /* requireSetter */ false)) {
+                        //     isProperty = true;
+                        //     label = 'property';
+                        // }
+
+                        typeText = _getToolTipForType(
+                            this._typeServer,
+                            type,
+                            label,
+                            node.d.value,
+                            isProperty,
+                            this._options.functionSignatureDisplay
+                        );
+                    }
 
                     this._addResultsPart(results.parts, typeText, /* python */ true);
                     this._addDocumentationPart(results.parts, node, /* resolvedDecl */ undefined);
                 }
             }
         } else if (node.nodeType === ParseNodeType.String) {
-            // const type = this._typeServer.evaluator.getExpectedType(node)?.type;
-            // if (type !== undefined) {
-            // TODO - add back in
-            // this._tryAddPartsForTypedDictKey(node, type, results.parts);
-            // }
+            const nodePos = convertOffsetToPosition(node.start, this._parseResults.tokenizerOutput.lines);
+            const type = this._typeServer.getContextType(this._fileUri, nodePos);
+
+            if (type !== undefined) {
+                this._tryAddPartsForTypedDictKey(node, type, results.parts);
+            }
         }
 
         return results.parts.length > 0 ? results : null;
@@ -348,37 +368,36 @@ export class HoverProvider {
     //     }
     // }
 
-    // private _tryAddPartsForTypedDictKey(node: StringNode, type: Type, parts: HoverTextPart[]) {
-    //     // If the expected type is a TypedDict and the current node is a key entry then we can provide a tooltip
-    //     // with the type of the TypedDict key and its docstring, if available.
-    //     doForEachSubtype(type, (subtype) => {
-    //         if (isClassInstance(subtype) && ClassType.isTypedDictClass(subtype)) {
-    //             const entry = subtype.shared.typedDictEntries?.knownItems.get(node.d.value);
-    //             if (entry) {
-    //                 // If we have already added parts for another declaration (e.g. for a union of TypedDicts that share the same key)
-    //                 // then we need to add a separator to prevent a visual bug.
-    //                 if (parts.length > 0) {
-    //                     parts.push({ text: '\n\n---\n' });
-    //                 }
-
-    //                 // e.g. (key) name: str
-    //                 const text = '(key) ' + node.d.value + ': ' + this._typeServer.evaluator.printType(entry.valueType);
-    //                 this._addResultsPart(parts, text, /* python */ true);
-
-    //                 const declarations = ClassType.getSymbolTable(subtype).get(node.d.value)?.getDeclarations();
-    //                 if (declarations !== undefined && declarations?.length !== 0) {
-    //                     // As we are just interested in the docString we don't have to worry about
-    //                     // anything other than the first declaration. There also shouldn't be more
-    //                     // than one declaration for a TypedDict key variable.
-    //                     const declaration = declarations[0];
-    //                     if (declaration.type === DeclarationType.Variable && declaration.docString !== undefined) {
-    //                         this._addDocumentationPartForType(parts, subtype, declaration);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     });
-    // }
+    private _tryAddPartsForTypedDictKey(node: StringNode, type: Type, parts: HoverTextPart[]) {
+        // If the expected type is a TypedDict and the current node is a key entry then we can provide a tooltip
+        // with the type of the TypedDict key and its docstring, if available.
+        // TODO - need to implement
+        // doForEachSubtype(type, (subtype) => {
+        //     if (isClassInstance(subtype) && ClassType.isTypedDictClass(subtype)) {
+        //         const entry = subtype.shared.typedDictEntries?.knownItems.get(node.d.value);
+        //         if (entry) {
+        //             // If we have already added parts for another declaration (e.g. for a union of TypedDicts that share the same key)
+        //             // then we need to add a separator to prevent a visual bug.
+        //             if (parts.length > 0) {
+        //                 parts.push({ text: '\n\n---\n' });
+        //             }
+        //             // e.g. (key) name: str
+        //             const text = '(key) ' + node.d.value + ': ' + this._typeServer.evaluator.printType(entry.valueType);
+        //             this._addResultsPart(parts, text, /* python */ true);
+        //             const declarations = ClassType.getSymbolTable(subtype).get(node.d.value)?.getDeclarations();
+        //             if (declarations !== undefined && declarations?.length !== 0) {
+        //                 // As we are just interested in the docString we don't have to worry about
+        //                 // anything other than the first declaration. There also shouldn't be more
+        //                 // than one declaration for a TypedDict key variable.
+        //                 const declaration = declarations[0];
+        //                 if (declaration.type === DeclarationType.Variable && declaration.docString !== undefined) {
+        //                     this._addDocumentationPartForType(parts, subtype, declaration);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // });
+    }
 
     private _addInitOrNewMethodInsteadIfCallNode(node: NameNode, parts: HoverTextPart[], declaration: Decl) {
         const result = getClassAndConstructorTypes(this._typeServer, node);
@@ -467,47 +486,12 @@ function _getVariableTypeText(
         label = declaration.constant || declaration.final ? 'constant' : 'variable';
     }
 
-    // let typeVarName: string | undefined;
-
-    // TODO - need to reimplement somehow
-    // if (type.props?.typeAliasInfo && typeNode.nodeType === ParseNodeType.Name) {
-    //     const typeAliasInfo = getTypeAliasInfo(type);
-    //     if (typeAliasInfo?.shared.name === typeNode.d.value) {
-    //         if (isTypeVar(type)) {
-    //             label = isParamSpec(type) ? 'param spec' : 'type variable';
-    //             typeVarName = type.shared.name;
-    //         } else {
-    //             // Handle type aliases specially.
-    //             const type = getTypeForToolTip(typeServer, typeNode);
-    //             // TODO - need to fix
-    //             // type = convertToInstance(type);
-    //             const typeText = typeServer.evaluator.printType(type, { expandTypeAlias: true });
-
-    //             return `(type) ${name} = ` + typeText;
-    //         }
-    //     }
-    // }
-
-    // if (
-    //     type.category === TypeCategory.Function ||
-    //     type.category === TypeCategory.Overloaded ||
-    //     typeNode.parent?.nodeType === ParseNodeType.Call
-    // ) {
-    //     return getToolTipForType(
-    //         typeServer,
-    //         type,
-    //         label,
-    //         name,
-    //         /* isProperty */ false,
-    //         functionSignatureDisplay,
-    //         typeNode
-    //     );
-    // }
-
-    // const typeText =
-    //     typeVarName ?? name + ': ' + typeServer.evaluator.printType(_getTypeForToolTip(typeServer, typeNode));
-
-    // return `(${label}) ` + typeText;
+    if (type) {
+        if (type.flags & TypeFlags.TypeAlias) {
+            const typeText = typeServer.printType(type, { expandTypeAlias: true });
+            return `(type) ${name} = ` + typeText;
+        }
+    }
 
     return _getToolTipForType(
         typeServer,

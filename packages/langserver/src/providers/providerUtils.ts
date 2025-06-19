@@ -11,7 +11,6 @@ import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.
 import { getModuleDocStringFromUris } from 'langserver/providers/typeDocStringUtils.js';
 import { findNodeByOffset, getEnclosingClass, getEnclosingFunction } from 'typeserver/common/parseTreeUtils.js';
 import { convertPositionToOffset } from 'typeserver/common/positionUtils.js';
-import { ClassType, ModuleType } from 'typeserver/evaluator/types.js';
 import { ClassNode, FunctionNode, ParseNode } from 'typeserver/parser/parseNodes.js';
 import { ParseFileResults } from 'typeserver/parser/parser.js';
 import { isStubFile } from 'typeserver/program/sourceMapper.js';
@@ -24,6 +23,7 @@ import {
     Position,
     Symbol,
     Type,
+    TypeFlags,
     VariableDecl,
 } from 'typeserver/protocol/typeServerProtocol.js';
 
@@ -74,7 +74,7 @@ export function getDocumentationPartsForTypeAndDecl(
     optional?: {
         name?: string;
         symbol?: Symbol;
-        boundObjectOrClass?: ClassType | undefined;
+        boundObjectOrClass?: Type | undefined;
     }
 ): string | undefined {
     // Get the alias first
@@ -106,11 +106,21 @@ export function getDocumentationPartsForTypeAndDecl(
         typeDoc = getModuleDocStringFromUris([resolvedDecl.uri], sourceMapper);
     }
 
-    typeDoc =
-        typeDoc ??
-        (type
-            ? getDocumentationPartForType(typeServer, sourceMapper, type, resolvedDecl, optional?.boundObjectOrClass)
-            : undefined);
+    if (!typeDoc && type) {
+        // if (optional?.boundObjectOrClass && isFunctionOrOverloaded(type)) {
+        //     type = typeServer.evaluator.bindFunctionToClassOrObject(optional.boundObjectOrClass, type);
+        // }
+
+        if (type) {
+            typeDoc = getDocumentationPartForType(
+                typeServer,
+                sourceMapper,
+                type,
+                resolvedDecl,
+                optional?.boundObjectOrClass
+            );
+        }
+    }
 
     // Combine with a new line if they both exist
     return aliasDoc && typeDoc && aliasDoc !== typeDoc ? `${aliasDoc}\n\n${typeDoc}` : aliasDoc || typeDoc;
@@ -159,65 +169,48 @@ function getDocumentationPartForType(
     sourceMapper: ProviderSourceMapper,
     type: Type,
     resolvedDecl: Decl | undefined,
-    boundObjectOrClass?: ClassType | undefined
-) {
-    // TODO - need to add back in
-    // if (isModule(type)) {
-    //     const doc = getModuleDocString(type, resolvedDecl, sourceMapper);
-    //     if (doc) {
-    //         return doc;
-    //     }
-    // } else if (isInstantiableClass(type)) {
-    //     const doc = getClassDocString(type, resolvedDecl, sourceMapper);
-    //     if (doc) {
-    //         return doc;
-    //     }
-    // } else if (isFunction(type)) {
-    //     const functionType = boundObjectOrClass
-    //         ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
-    //         : type;
-    //     if (functionType && isFunction(functionType)) {
-    //         const doc = getFunctionDocStringFromType(typeServer, functionType, sourceMapper);
-    //         if (doc) {
-    //             return doc;
-    //         }
-    //     }
-    // } else if (isOverloaded(type)) {
-    //     const functionType = boundObjectOrClass
-    //         ? typeServer.evaluator.bindFunctionToClassOrObject(boundObjectOrClass, type)
-    //         : type;
-    //     if (functionType && isOverloaded(functionType)) {
-    //         const doc = getOverloadedDocStringsFromType(typeServer, functionType, sourceMapper).find((d) => d);
+    boundObjectOrClass?: Type | undefined
+): string | undefined {
+    if (type.flags & TypeFlags.Module) {
+        return getModuleDocString(type, resolvedDecl, sourceMapper);
+    }
 
-    //         if (doc) {
-    //             return doc;
-    //         }
-    //     }
-    // }
+    if (type.flags & TypeFlags.Class) {
+        return getClassDocString(type, resolvedDecl, sourceMapper);
+    }
+
+    if (type.flags & TypeFlags.Callable) {
+        return type.docString;
+        // TODO - need to implement
+        // const functionType = boundObjectOrClass ? typeServer.bindTypeToObject(boundObjectOrClass, type) : type;
+        // if (functionType && functionType & TypeFlags.Callable) {
+        //     const doc =
+        //         functionType & TypeFlags.Overloaded
+        //             ? getOverloadedDocStringsFromType(typeServer, functionType, sourceMapper)
+        //             : getFunctionDocStringFromType(typeServer, functionType, sourceMapper);
+        // if (doc) {
+        //     return doc;
+        // }
+        // }
+    }
 
     return undefined;
 }
 
-export function getModuleDocString(
-    type: ModuleType,
-    resolvedDecl: Decl | undefined,
-    sourceMapper: ProviderSourceMapper
-) {
-    let docString = type.priv.docString;
+export function getModuleDocString(type: Type, resolvedDecl: Decl | undefined, sourceMapper: ProviderSourceMapper) {
+    let docString = type.docString;
     if (!docString) {
-        const uri = resolvedDecl?.uri ?? type.priv.fileUri;
-        docString = getModuleDocStringFromUris([uri], sourceMapper);
+        const uri = resolvedDecl?.uri ?? type.moduleUri;
+        if (uri) {
+            docString = getModuleDocStringFromUris([uri], sourceMapper);
+        }
     }
 
     return docString;
 }
 
-export function getClassDocString(
-    classType: ClassType,
-    resolvedDecl: Decl | undefined,
-    sourceMapper: ProviderSourceMapper
-) {
-    let docString = classType.shared.docString;
+export function getClassDocString(classType: Type, resolvedDecl: Decl | undefined, sourceMapper: ProviderSourceMapper) {
+    let docString = classType.docString;
     if (!docString && resolvedDecl && resolvedDecl.category === DeclCategory.Class) {
         docString = _getFunctionOrClassDeclsDocString([resolvedDecl]);
         if (!docString && resolvedDecl && isStubFile(resolvedDecl.uri)) {

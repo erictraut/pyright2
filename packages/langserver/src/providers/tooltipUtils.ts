@@ -347,11 +347,21 @@ export function getDocumentationPartsForTypeAndDecl(
         typeDoc = getModuleDocStringFromUris([resolvedDecl.uri], sourceMapper);
     }
 
-    typeDoc =
-        typeDoc ??
-        (type
-            ? getDocumentationPartForType(typeServer, sourceMapper, type, resolvedDecl, optional?.boundObjectOrClass)
-            : undefined);
+    if (!typeDoc && type) {
+        if (optional?.boundObjectOrClass && isFunctionOrOverloaded(type)) {
+            type = typeServer.evaluator.bindFunctionToClassOrObject(optional.boundObjectOrClass, type);
+        }
+
+        if (type) {
+            typeDoc = getDocumentationPartForType(
+                typeServer,
+                sourceMapper,
+                type,
+                resolvedDecl,
+                optional?.boundObjectOrClass
+            );
+        }
+    }
 
     // Combine with a new line if they both exist
     return aliasDoc && typeDoc && aliasDoc !== typeDoc ? `${aliasDoc}\n\n${typeDoc}` : aliasDoc || typeDoc;
