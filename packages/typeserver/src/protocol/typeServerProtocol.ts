@@ -26,6 +26,15 @@ export interface ITypeServer {
     // Converts the specified type into a textural representation
     printType(type: Type, options?: PrintTypeOptions): string | undefined;
 
+    // Returns the type when a specified attribute is accessed through a value with a
+    // given type. Methods are bound to the type, and generic attributes are specialized.
+    // By default, a "__get__" access is assumed, but this can be overridden.
+    getAttributeAccess(type: Type, name: string, options?: AttributeOptions): AttributeAccessInfo | undefined;
+
+    // Returns all of the known attributes that can be accessed through this type.
+    // By default, a "__get__" access is assumed, but this can be overridden.
+    getAttributes(type: Type, options?: AttributeOptions): AttributeInfo[] | undefined;
+
     // TODO - replace this Type with a more abstract version
     // Returns the declared type associated with this declaration, if any.
     // Decorators (if present on a function or class declaration) are applied
@@ -121,6 +130,30 @@ export interface ITypeServer {
     // * lookUpSymbolRecursive
     // * transformTypeForEnumMember
     // * isFinalVariableDeclaration
+}
+
+export type AccessMethod = 'get' | 'set' | 'del';
+
+export interface AttributeOptions {
+    // If not specified, assumes "get"
+    accessMethod?: AccessMethod;
+
+    // If true, the attribute access is assumed to succeed even if
+    // it is defined only on a subset of the subtypes if the type
+    // is a union. If false, the attribute access must be allowed
+    // on all subtypes.
+    allowPartial?: boolean;
+}
+
+export interface AttributeInfo {
+    // Name of the attribute
+    name: string;
+}
+
+export interface AttributeAccessInfo {
+    // The specialized and bound type of the attribute or method
+    // (valid only for get methods)
+    type?: Type;
 }
 
 export enum TypeFlags {

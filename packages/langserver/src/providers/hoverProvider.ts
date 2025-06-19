@@ -16,7 +16,11 @@ import { extractParameterDocumentation } from 'commonUtils/docStringUtils.js';
 import { Uri } from 'commonUtils/uri/uri.js';
 import { IParseProvider } from 'langserver/providers/parseProvider.js';
 import { ProviderSourceMapper } from 'langserver/providers/providerSourceMapper.js';
-import { findNodeByPosition, getDocumentationPartsForTypeAndDecl } from 'langserver/providers/providerUtils.js';
+import {
+    findNodeByPosition,
+    getDocumentationPartsForTypeAndDecl,
+    isMaybeDescriptorInstance,
+} from 'langserver/providers/providerUtils.js';
 import { getClassAndConstructorTypes } from 'langserver/providers/tooltipUtils.js';
 import { convertDocStringToMarkdown, convertDocStringToPlainText } from 'langserver/server/docStringConversion.js';
 import { SignatureDisplayType } from 'langserver/server/languageServerInterface.js';
@@ -292,11 +296,12 @@ export class HoverProvider {
 
             case DeclCategory.Function: {
                 let label = 'function';
-                const isProperty = false;
+                let isProperty = false;
                 if (resolvedDecl.method) {
-                    // TODO - add back in
-                    // const declaredType = this._typeServer.getTypeForDecl(resolvedDecl);
-                    // isProperty = !!declaredType && isMaybeDescriptorInstance(declaredType, /* requireSetter */ false);
+                    const declaredType = this._typeServer.getTypeForDecl(resolvedDecl);
+                    isProperty =
+                        !!declaredType &&
+                        isMaybeDescriptorInstance(this._typeServer, declaredType, /* requireSetter */ false);
                     label = isProperty ? 'property' : 'method';
                 }
 
@@ -493,15 +498,25 @@ function _getVariableTypeText(
         }
     }
 
-    return _getToolTipForType(
-        typeServer,
-        type,
-        label,
-        name,
-        /* isProperty */ false,
-        functionSignatureDisplay,
-        typeNode
-    );
+    const isCallableType = !!type && (type.flags & TypeFlags.Callable) !== 0;
+    if (isCallableType || typeNode.parent?.nodeType === ParseNodeType.Call) {
+        return _getToolTipForType(
+            typeServer,
+            type,
+            label,
+            name,
+            /* isProperty */ false,
+            functionSignatureDisplay,
+            typeNode
+        );
+    }
+
+    let typeText = name;
+    if (type) {
+        typeText += ': ' + typeServer.printType(type);
+    }
+
+    return `(${label}) ` + typeText;
 }
 
 function _getTypeForToolTip(
@@ -522,35 +537,21 @@ function _getToolTipForType(
     functionSignatureDisplay: SignatureDisplayType,
     typeNode?: ExpressionNode
 ): string {
-    const typeString = type ? typeServer.printType(type) : 'Unknown';
-    return `(${label}) ${name}: ${typeString}`;
+    if (type) {
+        // Support __call__ method for class instances to show the signature of the method
+        const callMethodResult = typeServer.getAttributeAccess(type, '__call__');
+        if (callMethodResult) {
+            type = callMethodResult.type;
+        }
+    }
 
-    // // Support __call__ method for class instances to show the signature of the method
-    // if (type.category === TypeCategory.Class && isClassInstance(type) && typeNode) {
-    //     const callMethodResult = getBoundCallMethod(typeServer.evaluator, typeNode, type);
-    //     if (
-    //         callMethodResult?.type.category === TypeCategory.Function ||
-    //         callMethodResult?.type.category === TypeCategory.Overloaded
-    //     ) {
-    //         // Eliminate overloads that are not applicable.
-    //         const methodType = limitOverloadBasedOnCall(typeServer, callMethodResult.type, typeNode);
-    //         if (methodType) {
-    //             type = methodType;
-    //         }
-    //     }
-    // }
-    // let signatureString = '';
-    // if (isOverloaded(type)) {
-    //     signatureString = label.length > 0 ? `(${label})\n` : '';
-    //     signatureString += `${getOverloadedTooltip(typeServer, type, functionSignatureDisplay)}`;
-    // } else if (isFunction(type)) {
-    //     signatureString = `${getFunctionTooltip(typeServer, label, name, type, isProperty, functionSignatureDisplay)}`;
-    // } else {
-    //     signatureString = label.length > 0 ? `(${label}) ` : '';
-    //     signatureString += `${name}: ${typeServer.evaluator.printType(type)}`;
-    // }
+    let typeString = '';
+    if (type) {
+        typeString = label.length > 0 ? `(${label}) ` : '';
+        typeString += `${name}: ${typeServer.printType(type)}`;
+    }
 
-    // return signatureString;
+    return typeString;
 }
 
 function _convertHoverResults(hoverResults: HoverResults | null, format: MarkupKind): Hover | null {

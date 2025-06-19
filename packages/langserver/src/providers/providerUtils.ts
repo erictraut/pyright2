@@ -126,6 +126,21 @@ export function getDocumentationPartsForTypeAndDecl(
     return aliasDoc && typeDoc && aliasDoc !== typeDoc ? `${aliasDoc}\n\n${typeDoc}` : aliasDoc || typeDoc;
 }
 
+export function isMaybeDescriptorInstance(typeServer: ITypeServer, type: Type, requireSetter: boolean): boolean {
+    const getAccess = typeServer.getAttributeAccess(type, '__get__');
+
+    if (!getAccess) {
+        return false;
+    }
+
+    if (!requireSetter) {
+        return true;
+    }
+
+    const setAccess = typeServer.getAttributeAccess(type, '__set__');
+    return !!setAccess;
+}
+
 function getDocumentationPartForTypeAlias(
     typeServer: ITypeServer,
     sourceMapper: ProviderSourceMapper,

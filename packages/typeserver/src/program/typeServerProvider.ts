@@ -22,6 +22,7 @@ import { TextRange } from 'typeserver/common/textRange.js';
 import { SymbolDeclInfo, TypeEvaluator } from 'typeserver/evaluator/typeEvaluatorTypes.js';
 import {
     Type as EvaluatorType,
+    isClass,
     isFunction,
     isInstantiableClass,
     OverloadedType,
@@ -34,6 +35,9 @@ import { OpenFileOptions, Program } from 'typeserver/program/program.js';
 import { SourceFileProvider } from 'typeserver/program/sourceFileProvider.js';
 import { isStubFile, SourceMapper } from 'typeserver/program/sourceMapper.js';
 import {
+    AttributeAccessInfo,
+    AttributeInfo,
+    AttributeOptions,
     AutoImportInfo,
     Decl,
     DeclCategory,
@@ -82,6 +86,31 @@ export class TypeServerProvider implements ITypeServer {
         }
 
         return this._program.evaluator?.printType(evaluatorType, options);
+    }
+
+    getAttributeAccess(type: Type, name: string, options?: AttributeOptions): AttributeAccessInfo | undefined {
+        const evaluatorType = this._program.typeServerRegistry?.getType(type.id);
+        if (!evaluatorType) {
+            return undefined;
+        }
+
+        // TODO - need to provide a better implementation
+        if (isClass(evaluatorType)) {
+            const boundMethod = this._program.evaluator?.getBoundMagicMethod(evaluatorType, name);
+            if (!boundMethod) {
+                return undefined;
+            }
+
+            return {
+                type: this._convertType(boundMethod),
+            };
+        }
+        return undefined;
+    }
+
+    getAttributes(type: Type, options?: AttributeOptions): AttributeInfo[] | undefined {
+        // TODO - need to implement
+        return undefined;
     }
 
     getTypeForDecl(decl: Decl, undecorated?: boolean): Type | undefined {
